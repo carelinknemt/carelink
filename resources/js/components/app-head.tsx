@@ -20,7 +20,7 @@ interface AppHeadProps {
 }
 
 const SITE_NAME = 'CareLink';
-const DEFAULT_OG_IMAGE = '/images/Img-Carelink-hero.webp';
+const DEFAULT_OG_IMAGE = '/images/clogo.png';
 
 function toAbsolute(url: string): string {
     if (/^https?:\/\//.test(url)) {
