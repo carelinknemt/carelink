@@ -20,7 +20,9 @@ type Props = {
 export default function Login({ status, canResetPassword }: Props) {
     return (
         <>
-            <Head title="Log in" />
+            <Head title="Log in">
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
 
             <PasskeyVerify />
 

@@ -51,7 +51,9 @@ export default function TwoFactorChallenge() {
 
     return (
         <>
-            <Head title="Two-factor authentication" />
+            <Head title="Two-factor authentication">
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
 
             <div className="space-y-6">
                 <Form

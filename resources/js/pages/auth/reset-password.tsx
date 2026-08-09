@@ -16,7 +16,9 @@ type Props = {
 export default function ResetPassword({ token, email, passwordRules }: Props) {
     return (
         <>
-            <Head title="Reset password" />
+            <Head title="Reset password">
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
 
             <Form
                 {...update.form()}

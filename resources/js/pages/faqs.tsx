@@ -1,5 +1,13 @@
 import { Link } from '@inertiajs/react';
-import { ChevronDown, Search, HelpCircle, Send, CheckCircle2, ArrowLeft, PhoneCall } from 'lucide-react';
+import {
+    ChevronDown,
+    Search,
+    HelpCircle,
+    Send,
+    CheckCircle2,
+    ArrowLeft,
+    PhoneCall,
+} from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
 import { COMPANY_INFO } from '@/data/carelink';
@@ -8,6 +16,9 @@ import type { FaqItem } from '@/types/carelink';
 interface FaqsProps {
     faqs: FaqItem[];
 }
+
+const FAQS_DESCRIPTION =
+    'Answers about CareLink NEMT: Medi-Cal and insurance billing, wheelchair van reservations, dispatch hours, service areas in Humboldt, Del Norte, Trinity, and Shasta counties, and facility partnerships. Contact us at (707) 854-9350.';
 
 export default function Faqs({ faqs }: FaqsProps) {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -18,10 +29,18 @@ export default function Faqs({ faqs }: FaqsProps) {
     const [userEmail, setUserEmail] = useState('');
     const [submittedMessage, setSubmittedMessage] = useState(false);
 
-    const categories = ['ALL', 'GENERAL', 'INSURANCE & MEDI-CAL', 'VEHICLES', 'FACILITIES'];
+    const categories = [
+        'ALL',
+        'GENERAL',
+        'INSURANCE & MEDI-CAL',
+        'VEHICLES',
+        'FACILITIES',
+    ];
 
     const filteredFaqs = faqs.filter((faq) => {
-        const matchesCategory = selectedCategory === 'ALL' || faq.category.toUpperCase().includes(selectedCategory);
+        const matchesCategory =
+            selectedCategory === 'ALL' ||
+            faq.category.toUpperCase().includes(selectedCategory);
         const matchesSearch =
             faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
             faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
@@ -33,8 +52,8 @@ export default function Faqs({ faqs }: FaqsProps) {
         e.preventDefault();
 
         if (!userQuestion.trim()) {
-return;
-}
+            return;
+        }
 
         setSubmittedMessage(true);
         setTimeout(() => {
@@ -45,15 +64,41 @@ return;
     };
 
     return (
-        <div className="bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-12">
-            <AppHead title="FAQs & Contact" />
+        <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-12">
+            <AppHead
+                title="FAQs & Contact"
+                description={FAQS_DESCRIPTION}
+                keywords={[
+                    'NEMT FAQ',
+                    'Medi-Cal transportation',
+                    'insurance medical transport',
+                    'wheelchair van booking',
+                    'CareLink dispatch hours',
+                    'medical transportation cost',
+                    'hospital discharge transport questions',
+                ]}
+                canonical="/faq"
+                type="website"
+                jsonLd={{
+                    '@context': 'https://schema.org',
+                    '@type': 'FAQPage',
+                    mainEntity: faqs.map((faq) => ({
+                        '@type': 'Question',
+                        name: faq.question,
+                        acceptedAnswer: {
+                            '@type': 'Answer',
+                            text: faq.answer,
+                        },
+                    })),
+                }}
+            />
 
             <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
                 {/* Navigation Back Button */}
                 <div>
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:text-[#004B87] hover:bg-slate-100 transition-all border border-slate-200 shadow-sm hover:shadow"
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-100 hover:text-[#004B87] hover:shadow"
                     >
                         <ArrowLeft className="h-4 w-4 text-[#E64A19]" />
                         <span>Back to Overview</span>
@@ -61,34 +106,38 @@ return;
                 </div>
 
                 {/* Page Hero Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-[#004B87] p-8 sm:p-12 text-white shadow-2xl">
+                <div className="relative overflow-hidden rounded-3xl bg-[#004B87] p-8 text-white shadow-2xl sm:p-12">
                     <div className="relative z-10 max-w-3xl space-y-4">
-                        <h1 className="text-3xl font-black sm:text-4xl lg:text-5xl tracking-tight leading-tight">Carelink Help & Advisory Center</h1>
-                        <p className="text-sm sm:text-base text-orange-100 leading-relaxed">
-                            Clear answers regarding Medi-Cal coverage, wheelchair ramp assistance, hospital discharge dispatch times, and group transit shuttle rides.
+                        <h1 className="text-3xl leading-tight font-black tracking-tight sm:text-4xl lg:text-5xl">
+                            Carelink Help & Advisory Center
+                        </h1>
+                        <p className="text-sm leading-relaxed text-orange-100 sm:text-base">
+                            Clear answers regarding Medi-Cal coverage,
+                            wheelchair ramp assistance, hospital discharge
+                            dispatch times, and group transit shuttle rides.
                         </p>
                     </div>
                 </div>
 
                 {/* Search & Category Filter Bar */}
-                <div className="space-y-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <div className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                        <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search questions (e.g. Medi-Cal, wheelchair, shuttle, dispatch, cost)..."
-                            className="w-full rounded-2xl border border-slate-300 bg-slate-50 py-3.5 pl-12 pr-4 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-[#E64A19] focus:bg-white focus:outline-none"
+                            className="w-full rounded-2xl border border-slate-300 bg-slate-50 py-3.5 pr-4 pl-12 text-xs text-slate-800 placeholder-slate-400 focus:border-[#E64A19] focus:bg-white focus:outline-none sm:text-sm"
                         />
                     </div>
 
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                    <div className="flex scrollbar-none items-center gap-2 overflow-x-auto pb-1">
                         {categories.map((cat) => (
                             <button
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                                className={`rounded-xl px-4 py-2 text-xs font-bold whitespace-nowrap transition-all ${
                                     selectedCategory === cat
                                         ? 'bg-[#E64A19] text-white shadow-md shadow-orange-900/20'
                                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -103,38 +152,49 @@ return;
                 {/* Accordion Questions List */}
                 <div className="space-y-4">
                     {filteredFaqs.length === 0 ? (
-                        <div className="bg-white rounded-3xl p-12 text-center text-slate-500 space-y-3 border border-slate-200">
+                        <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-12 text-center text-slate-500">
                             <HelpCircle className="mx-auto h-12 w-12 text-slate-300" />
-                            <p className="text-sm font-semibold">No matching questions found.</p>
+                            <p className="text-sm font-semibold">
+                                No matching questions found.
+                            </p>
                         </div>
                     ) : (
                         filteredFaqs.map((faq, index) => {
                             const isOpen = openIndex === index;
 
                             return (
-                                <div key={faq.id} className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden transition-all duration-200">
+                                <div
+                                    key={faq.id}
+                                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-200"
+                                >
                                     <button
-                                        onClick={() => setOpenIndex(isOpen ? null : index)}
-                                        className="flex w-full items-center justify-between p-5 text-left font-extrabold text-slate-900 hover:text-[#E64A19] transition-colors"
+                                        onClick={() =>
+                                            setOpenIndex(isOpen ? null : index)
+                                        }
+                                        className="flex w-full items-center justify-between p-5 text-left font-extrabold text-slate-900 transition-colors hover:text-[#E64A19]"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-orange-100 text-[#E64A19] text-xs font-black">
+                                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-orange-100 text-xs font-black text-[#E64A19]">
                                                 Q
                                             </span>
-                                            <span className="text-sm sm:text-base">{faq.question}</span>
+                                            <span className="text-sm sm:text-base">
+                                                {faq.question}
+                                            </span>
                                         </div>
                                         <ChevronDown
                                             className={`h-5 w-5 shrink-0 text-slate-400 transition-transform duration-300 ${
-                                                isOpen ? 'rotate-180 text-[#E64A19]' : ''
+                                                isOpen
+                                                    ? 'rotate-180 text-[#E64A19]'
+                                                    : ''
                                             }`}
                                         />
                                     </button>
 
                                     {isOpen && (
-                                        <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50">
-                                            <div className="pl-10 space-y-2">
+                                        <div className="border-t border-slate-100 bg-slate-50 px-5 pt-1 pb-5 text-xs leading-relaxed text-slate-600 sm:text-sm">
+                                            <div className="space-y-2 pl-10">
                                                 <p>{faq.answer}</p>
-                                                <span className="inline-block mt-2 text-[10px] font-black text-[#E64A19] bg-orange-100 border border-orange-200/60 px-2.5 py-0.5 rounded-full uppercase">
+                                                <span className="mt-2 inline-block rounded-full border border-orange-200/60 bg-orange-100 px-2.5 py-0.5 text-[10px] font-black text-[#E64A19] uppercase">
                                                     {faq.category}
                                                 </span>
                                             </div>
@@ -147,51 +207,74 @@ return;
                 </div>
 
                 {/* Submit Custom Question Form */}
-                <div className="rounded-3xl bg-white p-8 border border-slate-200 shadow-md space-y-6">
+                <div className="space-y-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-md">
                     <div className="flex items-center gap-3 text-[#E64A19]">
                         <HelpCircle className="h-6 w-6" />
-                        <h3 className="text-xl font-black text-slate-900">Have a specific dispatch or route question?</h3>
+                        <h3 className="text-xl font-black text-slate-900">
+                            Have a specific dispatch or route question?
+                        </h3>
                     </div>
 
                     {submittedMessage ? (
-                        <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-6 text-emerald-900 flex items-center gap-3">
-                            <CheckCircle2 className="h-6 w-6 text-emerald-600 shrink-0" />
+                        <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-emerald-900">
+                            <CheckCircle2 className="h-6 w-6 shrink-0 text-emerald-600" />
                             <div className="text-xs">
-                                <p className="font-bold text-sm">Inquiry Sent!</p>
-                                <p>Carelink Dispatch will review your question and reply within 2 hours.</p>
+                                <p className="text-sm font-bold">
+                                    Inquiry Sent!
+                                </p>
+                                <p>
+                                    Carelink Dispatch will review your question
+                                    and reply within 2 hours.
+                                </p>
                             </div>
                         </div>
                     ) : (
                         <form onSubmit={handleAskSubmit} className="space-y-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Your Email or Phone *</label>
+                                    <label className="mb-1 block text-xs font-bold text-slate-700">
+                                        Your Email or Phone *
+                                    </label>
                                     <input
                                         type="text"
                                         required
                                         value={userEmail}
-                                        onChange={(e) => setUserEmail(e.target.value)}
+                                        onChange={(e) =>
+                                            setUserEmail(e.target.value)
+                                        }
                                         placeholder="contact@example.com or phone"
                                         className="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none focus:border-[#E64A19]"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-700 mb-1">Topic</label>
+                                    <label className="mb-1 block text-xs font-bold text-slate-700">
+                                        Topic
+                                    </label>
                                     <select className="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none focus:border-[#E64A19]">
-                                        <option>Medi-Cal Transportation Voucher</option>
-                                        <option>Hospital Discharge Emergency</option>
-                                        <option>Out-of-County Long Distance Trip</option>
+                                        <option>
+                                            Medi-Cal Transportation Voucher
+                                        </option>
+                                        <option>
+                                            Hospital Discharge Emergency
+                                        </option>
+                                        <option>
+                                            Out-of-County Long Distance Trip
+                                        </option>
                                     </select>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1">Your Question / Trip Detail</label>
+                                <label className="mb-1 block text-xs font-bold text-slate-700">
+                                    Your Question / Trip Detail
+                                </label>
                                 <textarea
                                     required
                                     rows={3}
                                     value={userQuestion}
-                                    onChange={(e) => setUserQuestion(e.target.value)}
+                                    onChange={(e) =>
+                                        setUserQuestion(e.target.value)
+                                    }
                                     placeholder="Describe passenger needs, wheel chair requirements, origin, destination..."
                                     className="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none focus:border-[#E64A19]"
                                 />
@@ -200,7 +283,7 @@ return;
                             <div className="flex justify-end">
                                 <button
                                     type="submit"
-                                    className="inline-flex items-center gap-2 rounded-xl bg-[#E64A19] px-6 py-3 text-xs font-black text-white shadow-md shadow-orange-900/20 hover:bg-[#d83f0e] transition-all"
+                                    className="inline-flex items-center gap-2 rounded-xl bg-[#E64A19] px-6 py-3 text-xs font-black text-white shadow-md shadow-orange-900/20 transition-all hover:bg-[#d83f0e]"
                                 >
                                     <Send className="h-4 w-4 text-orange-200" />
                                     <span>Send Advisory Question</span>
@@ -211,15 +294,19 @@ return;
                 </div>
 
                 {/* Dispatch Hotline Callout */}
-                <div className="rounded-3xl bg-[#004B87] p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl">
+                <div className="flex flex-col items-center justify-between gap-6 rounded-3xl bg-[#004B87] p-8 text-white shadow-2xl sm:flex-row">
                     <div className="space-y-1 text-center sm:text-left">
-                        <h3 className="text-xl font-black">Need immediate ride dispatch?</h3>
-                        <p className="text-xs text-orange-100">Speak directly with Carelink dispatch in Eureka, CA.</p>
+                        <h3 className="text-xl font-black">
+                            Need immediate ride dispatch?
+                        </h3>
+                        <p className="text-xs text-orange-100">
+                            Speak directly with Carelink dispatch in Eureka, CA.
+                        </p>
                     </div>
                     <div className="flex gap-4">
                         <a
                             href={`tel:${COMPANY_INFO.dispatchPhone}`}
-                            className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-xs font-black text-[#004B87] shadow hover:bg-orange-50 transition-colors"
+                            className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-xs font-black text-[#004B87] shadow transition-colors hover:bg-orange-50"
                         >
                             <PhoneCall className="h-4 w-4 text-[#E64A19]" />
                             <span>Call {COMPANY_INFO.dispatchPhone}</span>

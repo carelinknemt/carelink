@@ -10,12 +10,19 @@ interface FleetProps {
 export default function Fleet({ fleet }: FleetProps) {
     return (
         <>
-            <Head title="Fleet Status" />
+            <Head title="Fleet Status">
+                <meta name="robots" content="noindex, nofollow" />
+            </Head>
 
             <div className="flex flex-col gap-4 p-4 lg:gap-6 lg:p-6">
                 <div>
-                    <h2 className="text-xl font-semibold tracking-tight">Fleet Status</h2>
-                    <p className="text-sm text-muted-foreground">Real-time ADA and wheelchair lift readiness across the Humboldt fleet</p>
+                    <h2 className="text-xl font-semibold tracking-tight">
+                        Fleet Status
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        Real-time ADA and wheelchair lift readiness across the
+                        Humboldt fleet
+                    </p>
                 </div>
 
                 <FleetStatusCard fleet={fleet} />
