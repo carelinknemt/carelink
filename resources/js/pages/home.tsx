@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import BookingSteps from '@/components/carelink/booking-steps';
 import CommittedExcellence from '@/components/carelink/committed-excellence';
 import ContactAndHours from '@/components/carelink/contact-and-hours';
 import Hero from '@/components/carelink/hero';
@@ -28,6 +29,9 @@ export default function Home({ services }: HomeProps) {
 
             {/* Core Services & Appointment Banner */}
             <CommittedExcellence services={services} onSelectService={handleSelectService} />
+
+            {/* Booking Journey Steps */}
+            <BookingSteps />
 
             {/* Specialized Team Section */}
             <SpecializedTeam />

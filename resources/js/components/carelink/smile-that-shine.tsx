@@ -1,23 +1,32 @@
-import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useRef } from 'react';
+import { Star, Quote } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { PATIENT_REVIEWS } from '@/data/carelink';
 
 export default function SmileThatShine() {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const pausedRef = useRef(false);
 
-    const scrollLeft = () => {
-        if (scrollRef.current) {
-            const cardWidth = window.innerWidth < 640 ? 280 : 350;
-            scrollRef.current.scrollBy({ left: -(cardWidth + 24), behavior: 'smooth' });
-        }
-    };
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const el = scrollRef.current;
 
-    const scrollRight = () => {
-        if (scrollRef.current) {
+            if (!el || pausedRef.current) {
+                return;
+            }
+
             const cardWidth = window.innerWidth < 640 ? 280 : 350;
-            scrollRef.current.scrollBy({ left: cardWidth + 24, behavior: 'smooth' });
-        }
-    };
+            const step = cardWidth + 24;
+            const maxScroll = el.scrollWidth - el.clientWidth;
+
+            if (el.scrollLeft >= maxScroll - 10) {
+                el.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                el.scrollBy({ left: step, behavior: 'smooth' });
+            }
+        }, 2000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <section className="py-16 bg-slate-50 border-t border-b border-slate-200/80 overflow-hidden">
@@ -32,43 +41,23 @@ export default function SmileThatShine() {
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 shrink-0">
-                        {/* Google Star Rating Summary Widget */}
-                        <div className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-orange-200/60 shadow-xs">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-50 text-xl font-black select-none border border-orange-200/40">
-                                <span className="text-[#E64A19]">G</span>
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-lg font-black text-slate-900 leading-none">4.9</span>
-                                    <div className="flex items-center text-orange-500">
-                                        <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
-                                        <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
-                                        <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
-                                        <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
-                                        <Star className="h-4 w-4 fill-orange-400 text-orange-500 opacity-90" />
-                                    </div>
-                                </div>
-                                <p className="text-[11px] text-slate-500 font-medium mt-0.5">Based on 11+ reviews on Google</p>
-                            </div>
+                    {/* Google Star Rating Summary Widget */}
+                    <div className="hidden md:flex items-center gap-4 bg-white p-4 rounded-2xl border border-orange-200/60 shadow-xs shrink-0">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-50 text-xl font-black select-none border border-orange-200/40">
+                            <span className="text-[#E64A19]">G</span>
                         </div>
-
-                        {/* Navigation Buttons */}
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={scrollLeft}
-                                className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#004B87] shadow-xs border border-slate-200/80 hover:bg-slate-100 hover:border-slate-300 hover:text-[#003B6B] transition-all active:scale-95 cursor-pointer"
-                                aria-label="Previous reviews"
-                            >
-                                <ChevronLeft className="h-6 w-6" />
-                            </button>
-                            <button
-                                onClick={scrollRight}
-                                className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#004B87] shadow-xs border border-slate-200/80 hover:bg-slate-100 hover:border-slate-300 hover:text-[#003B6B] transition-all active:scale-95 cursor-pointer"
-                                aria-label="Next reviews"
-                            >
-                                <ChevronRight className="h-6 w-6" />
-                            </button>
+                        <div>
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-lg font-black text-slate-900 leading-none">4.9</span>
+                                <div className="flex items-center text-orange-500">
+                                    <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
+                                    <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
+                                    <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
+                                    <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
+                                    <Star className="h-4 w-4 fill-orange-400 text-orange-500 opacity-90" />
+                                </div>
+                            </div>
+                            <p className="text-[11px] text-slate-500 font-medium mt-0.5">Based on 11+ reviews on Google</p>
                         </div>
                     </div>
                 </div>
@@ -77,6 +66,12 @@ export default function SmileThatShine() {
                 <div className="relative w-full overflow-hidden py-2">
                     <div
                         ref={scrollRef}
+                        onMouseEnter={() => {
+                            pausedRef.current = true;
+                        }}
+                        onMouseLeave={() => {
+                            pausedRef.current = false;
+                        }}
                         className="flex gap-6 overflow-x-auto scroll-smooth py-4 px-1 no-scrollbar scroll-snap-x [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                     >
                         {PATIENT_REVIEWS.map((review) => (

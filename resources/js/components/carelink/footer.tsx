@@ -11,7 +11,7 @@ export default function Footer() {
         <footer className="bg-slate-950 text-white pt-14 pb-8 border-t border-slate-800">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-12">
                 {/* Main Footer Columns */}
-                <div className="grid grid-cols-1 gap-10 md:grid-cols-2 pb-12 border-b border-slate-800">
+                <div className="grid grid-cols-1 gap-10 md:grid-cols-3 pb-12 border-b border-slate-800">
                     {/* Column 1: Carelink Info */}
                     <div>
                         <div className="inline-block rounded-2xl bg-white p-2.5 px-3.5 shadow-md border border-slate-200">
@@ -24,13 +24,15 @@ export default function Footer() {
                         </div>
 
                         <p className="mt-3 text-xs text-slate-300 leading-relaxed max-w-sm">
-                            {COMPANY_INFO.tagline} Headquarters in Eureka, California serving Humboldt, Del Norte, Trinity, and Shasta counties.
+                            Medical transportation across Humboldt, Del Norte, Trinity & Shasta counties.
                         </p>
 
                         <div className="mt-5 space-y-2 text-xs text-slate-300 font-medium">
                             <div className="flex items-center gap-2">
                                 <Phone className="h-4 w-4 text-[#E64A19]" />
-                                <span>Dispatch: {COMPANY_INFO.dispatchPhone}</span>
+                                <a href={`tel:${COMPANY_INFO.dispatchPhone.replace(/[^0-9+]/g, '')}`} className="hover:text-orange-300 transition-colors">
+                                    {COMPANY_INFO.dispatchPhone}
+                                </a>
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -49,36 +51,48 @@ export default function Footer() {
 
                     {/* Column 2: Quick Links */}
                     <div>
-                        <h3 className="text-sm font-black text-[#E64A19] uppercase tracking-wider">Quick Navigation</h3>
+                        <h3 className="text-sm font-black text-[#E64A19] uppercase tracking-wider">Quick Links</h3>
                         <ul className="mt-3 space-y-2 text-xs font-bold text-slate-300">
                             <li>
                                 <Link href="/" className="hover:text-orange-400 transition-colors">
-                                    Home & Intake
+                                    Home
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/services" className="hover:text-orange-400 transition-colors">
-                                    Our NEMT Services & Rates
+                                    Services & Rates
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/fleet" className="hover:text-orange-400 transition-colors">
-                                    Wheelchair & Shuttle Fleet
+                                    Our Fleet
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/about" className="hover:text-orange-400 transition-colors">
-                                    About Carelink & Leadership
+                                    About Us
                                 </Link>
                             </li>
+                        </ul>
+                    </div>
+
+                    {/* Column 3: Resources */}
+                    <div>
+                        <h3 className="text-sm font-black text-[#E64A19] uppercase tracking-wider">Resources</h3>
+                        <ul className="mt-3 space-y-2 text-xs font-bold text-slate-300">
                             <li>
                                 <Link href="/blog" className="hover:text-orange-400 transition-colors">
-                                    Content Hub & Patient Advisories
+                                    Blog & Updates
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/careers" className="hover:text-orange-400 transition-colors">
                                     Careers
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/faq" className="hover:text-orange-400 transition-colors">
+                                    FAQs & Contact
                                 </Link>
                             </li>
                         </ul>
@@ -127,11 +141,7 @@ export default function Footer() {
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 font-bold text-xs text-slate-300">
-                        <Link href="/faq" className="hover:text-orange-400 transition-colors">
-                            Contact & Legal
-                        </Link>
-                        <span>&bull;</span>
+                    <div className="flex items-center gap-3 font-bold text-xs text-slate-300">
                         <button onClick={scrollToTop} className="inline-flex items-center gap-1 text-[#E64A19] hover:text-orange-300 transition-colors">
                             <ArrowUp className="h-3.5 w-3.5" />
                             <span>Back to Top</span>

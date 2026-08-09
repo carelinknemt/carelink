@@ -95,26 +95,22 @@ export default function Header() {
                 className={`border-gray-100 bg-[#E64A19] text-white transition-all duration-300 ease-in-out overflow-hidden ${
                     isScrolled
                         ? 'max-h-0 opacity-0 py-0 border-none pointer-events-none'
-                        : 'max-h-24 opacity-100 py-2 px-4 sm:px-6 lg:px-12 border-b'
+                        : 'max-h-24 opacity-100 py-1.5 px-4 sm:px-6 lg:px-12 border-b'
                 }`}
             >
-                <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-end gap-4 text-xs font-medium">
-                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                        <a
-                            href={`tel:${COMPANY_INFO.dispatchPhone}`}
-                            className="flex items-center gap-2 text-orange-50 hover:text-white transition-colors"
-                        >
-                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white">
-                                <Phone className="h-3 w-3" />
-                            </div>
-                            <div>
-                                <span className="font-bold text-white">{COMPANY_INFO.dispatchPhone}</span>
-                                <span className="hidden sm:inline text-[10px] text-orange-200 uppercase tracking-wider ml-1">
-                                    (Dependable Dispatch)
-                                </span>
-                            </div>
-                        </a>
-                    </div>
+                <div className="mx-auto flex max-w-7xl items-center justify-center">
+                    <a
+                        href={`tel:${COMPANY_INFO.dispatchPhone.replace(/[^0-9+]/g, '')}`}
+                        className="flex items-center gap-2 text-orange-50 hover:text-white transition-colors"
+                    >
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-white">
+                            <Phone className="h-2.5 w-2.5" />
+                        </div>
+                        <span className="text-[11px] sm:text-xs font-bold text-white">{COMPANY_INFO.dispatchPhone}</span>
+                        <span className="hidden sm:inline text-[9px] sm:text-[10px] text-orange-200 uppercase tracking-wider">
+                            Dependable Dispatch
+                        </span>
+                    </a>
                 </div>
             </div>
 

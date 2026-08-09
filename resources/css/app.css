@@ -388,3 +388,32 @@
     transition-duration: 0.001s !important;
     scroll-behavior: auto !important;
 }
+
+/* Booking Steps Route Rail (animated dashes) */
+.route-rail {
+    background-image: repeating-linear-gradient(90deg, rgba(255, 188, 140, 0.55) 0 8px, transparent 8px 16px);
+}
+
+.route-rail-vertical {
+    background-image: repeating-linear-gradient(180deg, rgba(255, 188, 140, 0.55) 0 8px, transparent 8px 16px);
+}
+
+@keyframes routeRailFlow {
+    to {
+        background-position-x: 16px;
+    }
+}
+
+@keyframes routeRailFlowVertical {
+    to {
+        background-position-y: 16px;
+    }
+}
+
+.animate-route-rail {
+    animation: routeRailFlow 0.8s linear infinite;
+}
+
+.animate-route-rail-vertical {
+    animation: routeRailFlowVertical 0.8s linear infinite;
+}
