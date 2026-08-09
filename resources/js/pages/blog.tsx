@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { Calendar, Clock, User, ArrowRight, Search, ArrowLeft, X } from 'lucide-react';
 import { useState } from 'react';
+import AppHead from '@/components/app-head';
 import type { BlogPost } from '@/types/carelink';
 
 interface BlogProps {
@@ -25,6 +26,8 @@ export default function Blog({ posts }: BlogProps) {
 
     return (
         <div className="bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-12">
+            <AppHead title="Blog" />
+
             <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
                 {/* Navigation Back Button */}
                 <div>

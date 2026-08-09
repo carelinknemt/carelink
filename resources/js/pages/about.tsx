@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { Award, ShieldCheck, Building2, ArrowLeft, User } from 'lucide-react';
+import AppHead from '@/components/app-head';
 import { COMPANY_INFO } from '@/data/carelink';
 import type { TeamMember } from '@/types/carelink';
 
@@ -10,6 +11,8 @@ interface AboutProps {
 export default function About({ team }: AboutProps) {
     return (
         <div className="bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-12">
+            <AppHead title="About" />
+
             <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
                 {/* Navigation Back Button */}
                 <div>

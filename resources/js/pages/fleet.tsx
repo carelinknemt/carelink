@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { ShieldCheck, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
+import AppHead from '@/components/app-head';
 import type { FleetVehicle } from '@/types/carelink';
 
 interface FleetProps {
@@ -14,6 +15,8 @@ export default function Fleet({ fleet }: FleetProps) {
 
     return (
         <div className="bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-12">
+            <AppHead title="Fleet" />
+
             <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
                 {/* Navigation Back Button */}
                 <div>

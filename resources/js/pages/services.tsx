@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { CheckCircle2, ArrowLeft } from 'lucide-react';
+import AppHead from '@/components/app-head';
 import type { TransportService } from '@/types/carelink';
 
 interface ServicesProps {
@@ -9,6 +10,8 @@ interface ServicesProps {
 export default function Services({ services }: ServicesProps) {
     return (
         <div className="bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-12">
+            <AppHead title="Services" />
+
             <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
                 {/* Navigation Back Button */}
                 <div>

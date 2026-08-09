@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AppHead from '@/components/app-head';
 import BookingSteps from '@/components/carelink/booking-steps';
 import CommittedExcellence from '@/components/carelink/committed-excellence';
 import ContactAndHours from '@/components/carelink/contact-and-hours';
@@ -24,6 +25,8 @@ export default function Home({ services }: HomeProps) {
 
     return (
         <div>
+            <AppHead title="Home" />
+
             {/* Hero Carousel */}
             <Hero />
 

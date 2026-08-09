@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { ChevronDown, Search, HelpCircle, Send, CheckCircle2, ArrowLeft, PhoneCall } from 'lucide-react';
 import { useState } from 'react';
+import AppHead from '@/components/app-head';
 import { COMPANY_INFO } from '@/data/carelink';
 import type { FaqItem } from '@/types/carelink';
 
@@ -45,6 +46,8 @@ return;
 
     return (
         <div className="bg-slate-50 min-h-screen py-8 px-4 sm:px-6 lg:px-12">
+            <AppHead title="FAQs & Contact" />
+
             <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
                 {/* Navigation Back Button */}
                 <div>

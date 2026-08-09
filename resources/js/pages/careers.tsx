@@ -1,4 +1,5 @@
 import { Briefcase, FileText, CheckCircle } from 'lucide-react';
+import AppHead from '@/components/app-head';
 import type { Career } from '@/types/carelink';
 
 interface CareersProps {
@@ -8,6 +9,8 @@ interface CareersProps {
 export default function Careers({ careers }: CareersProps) {
     return (
         <div className="bg-slate-50 min-h-screen pb-16">
+            <AppHead title="Careers" />
+
             {/* Hero Header */}
             <div className="relative bg-[#004B87] py-16 sm:py-24 border-b-8 border-[#E64A19] overflow-hidden">
                 <div className="absolute inset-0 opacity-20">
