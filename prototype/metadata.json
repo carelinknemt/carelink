@@ -1,0 +1,8 @@
+{
+  "name": "Remix Carelink Medical Transportation LLC",
+  "description": "Premier Non-Emergency Medical Transportation (NEMT) platform serving Northern California. Book wheelchair vans, ambulatory sedans, and gurney transports across Humboldt, Del Norte, Trinity, and Shasta counties.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

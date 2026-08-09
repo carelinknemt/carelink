@@ -1,0 +1,230 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+  font-size: 120%;
+  transition: font-size 0.2s ease;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Accessibility Helper Classes */
+.a11y-font-100 {
+  font-size: 100% !important;
+}
+
+.a11y-font-110 {
+  font-size: 110% !important;
+}
+
+.a11y-font-120 {
+  font-size: 120% !important;
+}
+
+.a11y-font-130 {
+  font-size: 130% !important;
+}
+
+.a11y-font-140 {
+  font-size: 140% !important;
+}
+
+.a11y-font-150 {
+  font-size: 150% !important;
+}
+
+.a11y-line-height-normal {
+  line-height: 1.5 !important;
+}
+
+.a11y-line-height-relaxed {
+  line-height: 1.85 !important;
+}
+
+.a11y-line-height-loose {
+  line-height: 2.2 !important;
+}
+
+.a11y-letter-spacing-normal {
+  letter-spacing: normal !important;
+}
+
+.a11y-letter-spacing-wide {
+  letter-spacing: 0.08em !important;
+}
+
+.a11y-letter-spacing-extra {
+  letter-spacing: 0.16em !important;
+}
+
+.a11y-high-contrast {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.a11y-high-contrast button,
+.a11y-high-contrast a {
+  border: 2px dashed #ffff00 !important;
+  outline: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+  background-color: #000000 !important;
+}
+
+.a11y-invert-colors {
+  filter: invert(100%) hue-rotate(180deg) !important;
+}
+
+.a11y-invert-colors img,
+.a11y-invert-colors video,
+.a11y-invert-colors iframe {
+  filter: invert(100%) hue-rotate(180deg) !important;
+}
+
+.a11y-saturate {
+  filter: saturate(220%) !important;
+}
+
+.a11y-grayscale {
+  filter: grayscale(100%) !important;
+}
+
+.a11y-dyslexia {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Trebuchet MS', sans-serif !important;
+  letter-spacing: 0.06em !important;
+  word-spacing: 0.12em !important;
+  line-height: 1.8 !important;
+}
+
+.a11y-highlight-links a,
+.a11y-highlight-links button {
+  outline: 3px solid #E64A19 !important;
+  outline-offset: 3px !important;
+  background-color: rgba(254, 240, 138, 0.5) !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
+
+.a11y-highlight-headings h1,
+.a11y-highlight-headings h2,
+.a11y-highlight-headings h3,
+.a11y-highlight-headings h4 {
+  border-left: 5px solid #E64A19 !important;
+  padding-left: 10px !important;
+  background-color: rgba(230, 74, 25, 0.08) !important;
+  border-radius: 4px !important;
+}
+
+.a11y-large-cursor,
+.a11y-large-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='%23E64A19' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M3 3l7 18 3-7 7-3L3 3z'/%3E%3C/svg%3E"), auto !important;
+}
+
+.a11y-hide-images img,
+.a11y-hide-images video {
+  opacity: 0.08 !important;
+  filter: blur(8px) grayscale(100%) !important;
+}
+
+.a11y-reduce-motion *,
+.a11y-reduce-motion *::before,
+.a11y-reduce-motion *::after {
+  animation-duration: 0.001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001s !important;
+  scroll-behavior: auto !important;
+}
+
+/* Infinite Marquee Slider Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+.animate-marquee-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite reverse;
+}
+
+/* Mask to fade edges of marquee beautifully */
+.mask-gradient {
+  mask-image: linear-gradient(to right, transparent, white 10%, white 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, white 10%, white 90%, transparent);
+}
+
+/* Fast SUV Riding Animation */
+@keyframes fastRideCar {
+  0% {
+    transform: translateX(-16px) translateY(0px) rotate(0deg);
+  }
+  20% {
+    transform: translateX(-6px) translateY(-0.8px) rotate(-1.2deg);
+  }
+  40% {
+    transform: translateX(8px) translateY(0.4px) rotate(0.8deg);
+  }
+  60% {
+    transform: translateX(18px) translateY(-0.6px) rotate(-0.5deg);
+  }
+  80% {
+    transform: translateX(-2px) translateY(0.6px) rotate(1deg);
+  }
+  100% {
+    transform: translateX(-16px) translateY(0px) rotate(0deg);
+  }
+}
+
+@keyframes roadStreak {
+  0% {
+    transform: translateX(140%);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(-140%);
+    opacity: 0.1;
+  }
+}
+
+@keyframes fastEngineVibrate {
+  0%, 100% { transform: translateY(0px); }
+  25% { transform: translateY(-0.5px); }
+  50% { transform: translateY(1px); }
+  75% { transform: translateY(-0.8px); }
+}
+
+.animate-fast-ride {
+  animation: fastRideCar 1.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite, fastEngineVibrate 0.22s linear infinite;
+}
+
+.animate-road-streak {
+  animation: roadStreak 0.45s linear infinite;
+}
+
+.animate-road-streak-fast {
+  animation: roadStreak 0.3s linear infinite;
+}
+
