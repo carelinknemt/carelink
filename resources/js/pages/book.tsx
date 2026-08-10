@@ -179,9 +179,22 @@ const initialForm: TripRequestFormData = {
 export default function Book() {
     const [step, setStep] = useState(0);
     const [stepErrors, setStepErrors] = useState<Errors>({});
+    const [reviewReady, setReviewReady] = useState(false);
     const booking = usePage<{ booking?: Record<string, unknown> }>().props
         .booking;
     const form = useForm<TripRequestFormData>(initialForm);
+
+    useEffect(() => {
+        if (step === STEPS.length - 1) {
+            const timer = window.setTimeout(() => setReviewReady(true), 800);
+
+            return () => window.clearTimeout(timer);
+        }
+
+        setReviewReady(false);
+
+        return undefined;
+    }, [step]);
 
     useEffect(() => {
         if (Object.keys(form.errors).length === 0) {
@@ -314,16 +327,16 @@ export default function Book() {
         setStep((prev) => Math.max(prev - 1, 0));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
+    const submitForm = () => {
         if (form.processing) {
             return;
         }
 
         if (step < STEPS.length - 1) {
-            handleNext();
+            return;
+        }
 
+        if (!reviewReady) {
             return;
         }
 
@@ -342,6 +355,18 @@ export default function Book() {
                 form.reset();
             },
         });
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (step < STEPS.length - 1) {
+            handleNext();
+
+            return;
+        }
+
+        submitForm();
     };
 
     if (form.wasSuccessful && booking) {
@@ -1268,14 +1293,17 @@ export default function Book() {
                             </Button>
                         ) : (
                             <Button
-                                type="submit"
+                                type="button"
                                 className="bg-[#E64A19] text-white hover:bg-[#d84315]"
-                                disabled={form.processing}
+                                onClick={submitForm}
+                                disabled={form.processing || !reviewReady}
                             >
                                 <Send className="mr-2 h-4 w-4" />
                                 {form.processing
                                     ? 'Submitting...'
-                                    : 'Submit Trip Request'}
+                                    : !reviewReady
+                                      ? 'Confirming...'
+                                      : 'Submit Trip Request'}
                             </Button>
                         )}
                     </div>
