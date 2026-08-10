@@ -8,15 +8,59 @@ const TRIP_REQUEST_EMBED_URL =
 
 const BAMBI_ORIGIN = 'https://api.hibambi.com';
 
-const FALLBACK_IFRAME_HEIGHT = 2600;
+const FALLBACK_IFRAME_HEIGHT = 500;
 
 const BOOK_DESCRIPTION =
     'Book your Carelink Medical Transportation ride online. Request a wheelchair van, ambulatory sedan, or transit shuttle trip across Humboldt, Del Norte, Trinity, and Shasta counties.';
 
+function extractHeight(payload: unknown): number | null {
+    if (
+        typeof payload === 'number' &&
+        Number.isFinite(payload) &&
+        payload > 0
+    ) {
+        return Math.round(payload);
+    }
+
+    if (typeof payload === 'string' && payload.trim() !== '') {
+        const numeric = Number(payload);
+
+        if (Number.isFinite(numeric) && numeric > 0) {
+            return Math.round(numeric);
+        }
+
+        try {
+            const parsed = JSON.parse(payload);
+
+            return extractHeight(parsed);
+        } catch {
+            return null;
+        }
+    }
+
+    if (payload && typeof payload === 'object') {
+        const record = payload as Record<string, unknown>;
+        const candidates = [
+            record.height,
+            record.iframeHeight,
+            record.value,
+            record.resize,
+        ];
+
+        for (const candidate of candidates) {
+            const height = extractHeight(candidate);
+
+            if (height !== null) {
+                return height;
+            }
+        }
+    }
+
+    return null;
+}
+
 export default function Book() {
-    const iframeRef = useRef<HTMLIFrameElement>(null);
     const [iframeHeight, setIframeHeight] = useState(FALLBACK_IFRAME_HEIGHT);
-    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -24,9 +68,9 @@ export default function Book() {
                 return;
             }
 
-            const height = Number(event.data);
+            const height = extractHeight(event.data);
 
-            if (Number.isFinite(height) && height > 0) {
+            if (height !== null) {
                 setIframeHeight(height);
             }
         };
@@ -72,21 +116,14 @@ export default function Book() {
             </div>
 
             {/* Bambi Trip Request Embed */}
-            <div className="px-3 py-6 sm:px-6 lg:px-12">
-                <div className="relative mx-auto w-full max-w-7xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
-                    {isLoading && (
-                        <div className="flex min-h-[480px] items-center justify-center">
-                            <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#004B87]/20 border-t-[#004B87]" />
-                        </div>
-                    )}
+            <div className="px-2 py-6 sm:px-4 lg:px-6">
+                <div className="relative mx-auto w-full max-w-[1600px] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
                     <iframe
-                        ref={iframeRef}
                         title="Trip Request Form"
                         src={TRIP_REQUEST_EMBED_URL}
                         scrolling="no"
                         className="w-full border-0"
                         style={{ height: iframeHeight }}
-                        onLoad={() => setIsLoading(false)}
                         allowFullScreen
                     />
                 </div>
