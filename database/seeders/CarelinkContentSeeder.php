@@ -9,9 +9,7 @@ use App\Models\FleetVehicle;
 use App\Models\RideBooking;
 use App\Models\Service;
 use App\Models\TeamMember;
-use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class CarelinkContentSeeder extends Seeder
 {
@@ -27,7 +25,6 @@ class CarelinkContentSeeder extends Seeder
         $this->seedBlogPosts();
         $this->seedCareers();
         $this->seedDemoBookings();
-        $this->seedAdminUser();
     }
 
     private function seedServices(): void
@@ -450,18 +447,5 @@ class CarelinkContentSeeder extends Seeder
         foreach ($bookings as $booking) {
             RideBooking::updateOrCreate(['booking_number' => $booking['booking_number']], $booking);
         }
-    }
-
-    private function seedAdminUser(): void
-    {
-        $admin = [
-            'name' => 'Carelink Dispatch',
-            'email' => 'dispatch@carelink.com',
-            'password' => Hash::make(config('carelink.admin_password', 'carelink2026')),
-            'is_admin' => true,
-            'email_verified_at' => now(),
-        ];
-
-        User::updateOrCreate(['email' => $admin['email']], $admin);
     }
 }

@@ -1,4 +1,4 @@
-import { ShieldCheck, Lock, Mail, ArrowLeft, KeyRound, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, ArrowLeft, KeyRound, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
 import { COMPANY_INFO } from '../../data/carelinkData';
 
@@ -13,19 +13,13 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleDemoFill = () => {
-    setEmail('dispatch@carelink.com');
-    setPassword('carelink2026');
-    setError('');
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     setTimeout(() => {
-      if (email.trim().toLowerCase() === 'dispatch@carelink.com' || email.trim().toLowerCase() === 'admin@carelink.com' || email.trim() !== '') {
+      if (email.trim() !== '' && password.trim() !== '') {
         if (password.length >= 4) {
           setIsLoading(false);
           onLoginSuccess();
@@ -35,7 +29,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, 
       }
 
       setIsLoading(false);
-      setError('Invalid dispatch credentials. Please use admin@carelink.com / carelink2026');
+      setError('Invalid dispatch credentials. Please contact your station administrator.');
     }, 600);
   };
 
@@ -91,7 +85,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, 
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="dispatch@carelink.com"
+                  placeholder="dispatch@carelinknemt.com"
                   className="w-full rounded-xl border border-slate-700 bg-slate-950 py-2.5 pl-10 pr-4 text-xs text-white placeholder-slate-500 focus:border-[#E64A19] focus:outline-none focus:ring-1 focus:ring-[#E64A19] transition-all"
                 />
               </div>
@@ -138,15 +132,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess, 
           </form>
 
           <div className="pt-4 border-t border-slate-800 text-center space-y-2">
-            <span className="text-[11px] text-slate-400 block">Authorized Staff Preview Access:</span>
-            <button
-              type="button"
-              onClick={handleDemoFill}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-400 hover:text-orange-300 bg-orange-950/60 border border-orange-800/60 px-3 py-1.5 rounded-xl transition-all"
-            >
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              <span>Auto-fill Demo Admin Credentials</span>
-            </button>
+            <span className="text-[11px] text-slate-400 block">Authorized Staff Preview Access</span>
           </div>
         </div>
 
