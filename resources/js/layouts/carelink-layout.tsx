@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useEffect } from 'react';
 import AccessibilityWidget from '@/components/carelink/accessibility-widget';
 import AppointmentModal from '@/components/carelink/appointment-modal';
 import Footer from '@/components/carelink/footer';
@@ -10,6 +11,11 @@ export default function CarelinkLayout({
 }: {
     children: ReactNode;
 }): ReactNode {
+    useEffect(() => {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
+    }, []);
+
     return (
         <BookingProvider>
             <div className="min-h-screen bg-white font-sans text-slate-900 antialiased selection:bg-cyan-100 selection:text-[#004B87]">

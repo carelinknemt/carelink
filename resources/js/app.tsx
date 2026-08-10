@@ -1,7 +1,7 @@
 import { createInertiaApp } from '@inertiajs/react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { initializeTheme } from '@/hooks/use-appearance';
+import { initializeTheme, setIsPublicPage } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import CarelinkLayout from '@/layouts/carelink-layout';
@@ -23,14 +23,24 @@ createInertiaApp({
                 'careers',
                 'book',
             ].includes(name):
+                setIsPublicPage(true);
+
                 return CarelinkLayout;
             case name === 'welcome':
+                setIsPublicPage(true);
+
                 return null;
             case name.startsWith('auth/'):
+                setIsPublicPage(false);
+
                 return AuthLayout;
             case name.startsWith('settings/'):
+                setIsPublicPage(false);
+
                 return [AppLayout, SettingsLayout];
             default:
+                setIsPublicPage(false);
+
                 return AppLayout;
         }
     },

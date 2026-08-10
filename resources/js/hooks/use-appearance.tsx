@@ -11,6 +11,11 @@ export type UseAppearanceReturn = {
 
 const listeners = new Set<() => void>();
 let currentAppearance: Appearance = 'system';
+let isPublicPage = false;
+
+export function setIsPublicPage(value: boolean): void {
+    isPublicPage = value;
+}
 
 const prefersDark = (): boolean => {
     if (typeof window === 'undefined') {
@@ -46,7 +51,7 @@ const applyTheme = (appearance: Appearance): void => {
         return;
     }
 
-    const isDark = isDarkMode(appearance);
+    const isDark = !isPublicPage && isDarkMode(appearance);
 
     document.documentElement.classList.toggle('dark', isDark);
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
