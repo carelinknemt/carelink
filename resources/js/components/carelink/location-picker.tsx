@@ -166,7 +166,7 @@ export default function LocationPicker({
                 value={value}
                 placeholder={placeholder}
                 autoComplete="off"
-                className="pl-9"
+                className="bg-white pl-9 dark:border-slate-300 dark:bg-white dark:text-slate-900 dark:placeholder:text-slate-400"
                 onChange={(event) => onValueChange(event.target.value)}
                 onFocus={() => {
                     if (status === 'ok' || status === 'searching') {

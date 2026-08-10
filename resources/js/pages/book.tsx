@@ -3,8 +3,10 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Phone, Send } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import AppHead from '@/components/app-head';
 import InputError from '@/components/input-error';
+import DatePicker, { formatIsoDate } from '@/components/carelink/date-picker';
 import LocationPicker from '@/components/carelink/location-picker';
 import MapPreview, { type MapPoint } from '@/components/carelink/map-preview';
+import TimePicker from '@/components/carelink/time-picker';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -104,6 +106,16 @@ const STEP_FIELDS: Record<number, (keyof TripRequestFormData)[]> = {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const FIELD_BG =
+    'bg-white dark:bg-white dark:text-slate-900 dark:border-slate-300 dark:placeholder:text-slate-400';
+
+const TODAY = (() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+
+    return date;
+})();
+
 const PAYER_OPTIONS = [
     'Insurance / Medicaid',
     'Private Pay',
@@ -195,9 +207,7 @@ export default function Book() {
         stepErrors[field] ?? form.errors[field];
 
     const inputClass = (field: keyof TripRequestFormData): string =>
-        fieldError(field)
-            ? 'border-red-500/80 focus-visible:border-red-500'
-            : '';
+        `${FIELD_BG} ${fieldError(field) ? 'border-red-500/80 focus-visible:border-red-500' : ''}`;
 
     const set = (key: keyof TripRequestFormData, value: string | boolean) => {
         form.setData(key as never, value as never);
@@ -591,21 +601,17 @@ export default function Book() {
                                         <Label htmlFor="passenger_dob">
                                             Date of Birth
                                         </Label>
-                                        <Input
+                                        <DatePicker
                                             id="passenger_dob"
-                                            type="date"
                                             value={form.data.passenger_dob}
-                                            onChange={(e) =>
-                                                set(
-                                                    'passenger_dob',
-                                                    e.target.value,
-                                                )
+                                            onChange={(value) =>
+                                                set('passenger_dob', value)
                                             }
-                                            aria-invalid={Boolean(
+                                            placeholder="Select date of birth"
+                                            captionLayout="dropdown"
+                                            disabled={(date) => date > TODAY}
+                                            error={Boolean(
                                                 fieldError('passenger_dob'),
-                                            )}
-                                            className={inputClass(
-                                                'passenger_dob',
                                             )}
                                         />
                                         <InputError
@@ -704,7 +710,7 @@ export default function Book() {
                                                     )
                                                 }
                                                 placeholder="3"
-                                                className="max-w-[200px]"
+                                                className={`max-w-[200px] ${FIELD_BG}`}
                                             />
                                         </div>
                                     )}
@@ -725,6 +731,7 @@ export default function Book() {
                                             )
                                         }
                                         placeholder="Mobility aids, medications, or anything our driver should know..."
+                                        className={FIELD_BG}
                                     />
                                 </div>
                             </div>
@@ -742,23 +749,17 @@ export default function Book() {
                                                 *
                                             </span>
                                         </Label>
-                                        <Input
+                                        <DatePicker
                                             id="trip_date"
-                                            autoFocus
-                                            type="date"
-                                            min={
-                                                new Date()
-                                                    .toISOString()
-                                                    .split('T')[0]
-                                            }
                                             value={form.data.trip_date}
-                                            onChange={(e) =>
-                                                set('trip_date', e.target.value)
+                                            onChange={(value) =>
+                                                set('trip_date', value)
                                             }
-                                            aria-invalid={Boolean(
+                                            placeholder="Select trip date"
+                                            disabled={(date) => date < TODAY}
+                                            error={Boolean(
                                                 fieldError('trip_date'),
                                             )}
-                                            className={inputClass('trip_date')}
                                         />
                                         <InputError
                                             message={fieldError('trip_date')}
@@ -771,21 +772,15 @@ export default function Book() {
                                                 *
                                             </span>
                                         </Label>
-                                        <Input
+                                        <TimePicker
                                             id="pickup_time"
-                                            type="time"
                                             value={form.data.pickup_time}
-                                            onChange={(e) =>
-                                                set(
-                                                    'pickup_time',
-                                                    e.target.value,
-                                                )
+                                            onChange={(value) =>
+                                                set('pickup_time', value)
                                             }
-                                            aria-invalid={Boolean(
+                                            placeholder="Select pickup time"
+                                            error={Boolean(
                                                 fieldError('pickup_time'),
-                                            )}
-                                            className={inputClass(
-                                                'pickup_time',
                                             )}
                                         />
                                         <InputError
@@ -796,16 +791,13 @@ export default function Book() {
                                         <Label htmlFor="appointment_time">
                                             Appointment Time
                                         </Label>
-                                        <Input
+                                        <TimePicker
                                             id="appointment_time"
-                                            type="time"
                                             value={form.data.appointment_time}
-                                            onChange={(e) =>
-                                                set(
-                                                    'appointment_time',
-                                                    e.target.value,
-                                                )
+                                            onChange={(value) =>
+                                                set('appointment_time', value)
                                             }
+                                            placeholder="Select appointment time"
                                         />
                                     </div>
                                 </div>
@@ -861,6 +853,7 @@ export default function Book() {
                                                     )
                                                 }
                                                 placeholder="Gate code 1234, Apt 2B"
+                                                className={FIELD_BG}
                                             />
                                         </div>
                                         <div className="flex items-center gap-2.5">
@@ -934,6 +927,7 @@ export default function Book() {
                                                     )
                                                 }
                                                 placeholder="Main entrance, 3rd floor"
+                                                className={FIELD_BG}
                                             />
                                         </div>
                                         <div className="flex items-center gap-2.5">
@@ -977,7 +971,7 @@ export default function Book() {
                                             }
                                         >
                                             <SelectTrigger
-                                                className={inputClass('payer')}
+                                                className={`w-full ${inputClass('payer')}`}
                                                 aria-invalid={Boolean(
                                                     fieldError('payer'),
                                                 )}
@@ -1013,9 +1007,9 @@ export default function Book() {
                                             }
                                         >
                                             <SelectTrigger
-                                                className={inputClass(
+                                                className={`w-full ${inputClass(
                                                     'transport_type',
-                                                )}
+                                                )}`}
                                                 aria-invalid={Boolean(
                                                     fieldError(
                                                         'transport_type',
@@ -1057,9 +1051,9 @@ export default function Book() {
                                             }
                                         >
                                             <SelectTrigger
-                                                className={inputClass(
+                                                className={`w-full ${inputClass(
                                                     'service_type',
-                                                )}
+                                                )}`}
                                                 aria-invalid={Boolean(
                                                     fieldError('service_type'),
                                                 )}
@@ -1100,9 +1094,9 @@ export default function Book() {
                                             }
                                         >
                                             <SelectTrigger
-                                                className={inputClass(
+                                                className={`w-full ${inputClass(
                                                     'will_call',
-                                                )}
+                                                )}`}
                                                 aria-invalid={Boolean(
                                                     fieldError('will_call'),
                                                 )}
@@ -1190,8 +1184,8 @@ export default function Book() {
                                             Date & Time
                                         </dt>
                                         <dd className="font-semibold text-slate-800">
-                                            {form.data.trip_date || '—'} at{' '}
-                                            {form.data.pickup_time || '—'}
+                                            {formatIsoDate(form.data.trip_date)}{' '}
+                                            at {form.data.pickup_time || '—'}
                                         </dd>
                                     </div>
                                     <div>

@@ -12,3 +12,4 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Models/** | .ai/rules/models.md |
 | resources/js/pages/book.tsx | .ai/rules/pages.md |
 | resources/js/routes/** | .ai/rules/routes.md |
+| database/seeders/** | .ai/rules/seeders.md |
