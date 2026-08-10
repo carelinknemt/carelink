@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Carelink;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTripRequestRequest;
+use App\Models\Service;
 use App\Models\TripRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
@@ -15,7 +16,17 @@ class BookController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('book');
+        return Inertia::render('book', [
+            'services' => Service::query()
+                ->where('active', true)
+                ->get(['title', 'base_rate', 'mileage_rate'])
+                ->mapWithKeys(fn (Service $service) => [
+                    $service->title => [
+                        'base_rate' => (float) $service->base_rate,
+                        'mileage_rate' => (float) $service->mileage_rate,
+                    ],
+                ]),
+        ]);
     }
 
     public function store(StoreTripRequestRequest $request): RedirectResponse

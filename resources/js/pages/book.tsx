@@ -67,7 +67,7 @@ const STEPS = [
 const STEP_REQUIRED: Record<number, (keyof TripRequestFormData)[]> = {
     0: ['passenger_first_name', 'passenger_last_name'],
     1: ['trip_date', 'pickup_time', 'pickup_address', 'dropoff_address'],
-    2: ['payer', 'transport_type', 'service_type', 'will_call', 'input_price'],
+    2: ['payer', 'transport_type', 'service_type', 'will_call'],
     3: [],
 };
 
@@ -100,7 +100,7 @@ const STEP_FIELDS: Record<number, (keyof TripRequestFormData)[]> = {
         'dropoff_longitude',
         'dropoff_stairs',
     ],
-    2: ['payer', 'transport_type', 'service_type', 'will_call', 'input_price'],
+    2: ['payer', 'transport_type', 'service_type', 'will_call'],
     3: [],
 };
 
@@ -141,6 +141,28 @@ const SERVICE_TYPE_OPTIONS = [
 
 const WILL_CALL_OPTIONS = ['YES', 'NO'];
 
+const EARTH_RADIUS_MILES = 3958.8;
+
+const toRadians = (degrees: number): number => (degrees * Math.PI) / 180;
+
+const haversineMiles = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+): number => {
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRadians(lat1)) *
+            Math.cos(toRadians(lat2)) *
+            Math.sin(dLon / 2) ** 2;
+
+    return EARTH_RADIUS_MILES * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
 const BOOK_DESCRIPTION =
     'Book your Carelink Medical Transportation ride online. Request a wheelchair van, ambulatory sedan, or transit shuttle trip across Humboldt, Del Norte, Trinity, and Shasta counties.';
 
@@ -176,12 +198,21 @@ const initialForm: TripRequestFormData = {
     input_price: '',
 };
 
+interface ServiceRates {
+    base_rate: number;
+    mileage_rate: number;
+}
+
+interface BookPageProps {
+    booking?: Record<string, unknown>;
+    services?: Record<string, ServiceRates>;
+}
+
 export default function Book() {
     const [step, setStep] = useState(0);
     const [stepErrors, setStepErrors] = useState<Errors>({});
     const [reviewReady, setReviewReady] = useState(false);
-    const booking = usePage<{ booking?: Record<string, unknown> }>().props
-        .booking;
+    const { booking, services } = usePage<BookPageProps>().props;
     const form = useForm<TripRequestFormData>(initialForm);
 
     useEffect(() => {
@@ -284,6 +315,34 @@ export default function Book() {
         });
     }
 
+    const hasRouteCoordinates =
+        form.data.pickup_latitude &&
+        form.data.pickup_longitude &&
+        form.data.dropoff_latitude &&
+        form.data.dropoff_longitude;
+
+    const distanceMiles: number | null = hasRouteCoordinates
+        ? haversineMiles(
+              Number(form.data.pickup_latitude),
+              Number(form.data.pickup_longitude),
+              Number(form.data.dropoff_latitude),
+              Number(form.data.dropoff_longitude),
+          )
+        : null;
+
+    const serviceRates = form.data.service_type
+        ? services?.[form.data.service_type]
+        : null;
+
+    const estimatedPrice: number | null =
+        serviceRates && distanceMiles !== null
+            ? Math.max(
+                  0,
+                  serviceRates.base_rate +
+                      distanceMiles * serviceRates.mileage_rate,
+              )
+            : null;
+
     const validateStep = (stepId: number): boolean => {
         const errors: Errors = {};
 
@@ -296,18 +355,6 @@ export default function Book() {
         if (stepId === 0 && form.data.passenger_email.trim() !== '') {
             if (!EMAIL_REGEX.test(form.data.passenger_email.trim())) {
                 errors.passenger_email = 'Please enter a valid email address.';
-            }
-        }
-
-        if (stepId === 2) {
-            const price = Number(form.data.input_price);
-
-            if (
-                form.data.input_price.trim() === '' ||
-                Number.isNaN(price) ||
-                price < 0
-            ) {
-                errors.input_price = 'Please enter a valid trip price.';
             }
         }
 
@@ -347,6 +394,8 @@ export default function Book() {
                 return;
             }
         }
+
+        form.setData('input_price' as never, '0' as never);
 
         form.post(store.url(), {
             onSuccess: () => {
@@ -413,7 +462,7 @@ export default function Book() {
                         <div className="flex items-center justify-between py-3">
                             <dt className="text-slate-500">Price</dt>
                             <dd className="font-semibold text-slate-800">
-                                ${String(booking.input_price)}
+                                Confirm with dispatch
                             </dd>
                         </div>
                     </dl>
@@ -1110,12 +1159,7 @@ export default function Book() {
 
                                 <div className="grid gap-5 sm:grid-cols-2">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="will_call">
-                                            Will Call?{' '}
-                                            <span className="text-red-500">
-                                                *
-                                            </span>
-                                        </Label>
+                                        <Label>Will Call?</Label>
                                         <Select
                                             value={form.data.will_call}
                                             onValueChange={(v) =>
@@ -1157,35 +1201,13 @@ export default function Book() {
                                         </p>
                                     </div>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="input_price">
-                                            Trip Price ($){' '}
-                                            <span className="text-red-500">
-                                                *
-                                            </span>
-                                        </Label>
-                                        <Input
-                                            id="input_price"
-                                            type="number"
-                                            min={0}
-                                            step="0.01"
-                                            value={form.data.input_price}
-                                            onChange={(e) =>
-                                                set(
-                                                    'input_price',
-                                                    e.target.value,
-                                                )
-                                            }
-                                            placeholder="85.00"
-                                            aria-invalid={Boolean(
-                                                fieldError('input_price'),
-                                            )}
-                                            className={inputClass(
-                                                'input_price',
-                                            )}
-                                        />
-                                        <InputError
-                                            message={fieldError('input_price')}
-                                        />
+                                        <Label>Pricing</Label>
+                                        <p className="text-sm text-slate-600">
+                                            Your trip price is estimated
+                                            automatically from the pickup to
+                                            dropoff distance and will be
+                                            confirmed on the review step.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -1244,11 +1266,30 @@ export default function Book() {
                                     </div>
                                     <div>
                                         <dt className="text-xs font-bold text-slate-400 uppercase">
-                                            Payer & Price
+                                            Payer
                                         </dt>
                                         <dd className="font-semibold text-slate-800">
-                                            {form.data.payer || '—'} — $
-                                            {form.data.input_price || '—'}
+                                            {form.data.payer || '—'}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs font-bold text-slate-400 uppercase">
+                                            Distance
+                                        </dt>
+                                        <dd className="font-semibold text-slate-800">
+                                            {distanceMiles !== null
+                                                ? `${distanceMiles.toFixed(1)} miles`
+                                                : '—'}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs font-bold text-slate-400 uppercase">
+                                            Estimated Price
+                                        </dt>
+                                        <dd className="font-bold text-[#E64A19]">
+                                            {estimatedPrice !== null
+                                                ? `$${estimatedPrice.toFixed(2)}`
+                                                : '—'}
                                         </dd>
                                     </div>
                                 </dl>
