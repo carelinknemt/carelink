@@ -30,7 +30,7 @@ return [
 
     'counties' => ['Humboldt', 'Del Norte', 'Trinity', 'Shasta'],
 
-    'logo_url' => env('CARELINK_LOGO_URL', 'https://i.postimg.cc/3JTcHYYX/CL-Carelink.png'),
+    'logo_url' => env('CARELINK_LOGO_URL', '/images/cllogo.png'),
 
     'admin_password' => env('CARELINK_ADMIN_PASSWORD', 'carelink2026'),
 

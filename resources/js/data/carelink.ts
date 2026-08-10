@@ -2,8 +2,8 @@ import type { HeroSlide } from '@/types/carelink';
 
 export const COMPANY_INFO = {
     name: 'Carelink Medical Transportation LLC',
-    logoUrl: 'https://i.postimg.cc/3JTcHYYX/CL-Carelink.png',
-    logoWithTextUrl: 'https://i.postimg.cc/3JTcHYYX/CL-Carelink.png',
+    logoUrl: '/images/cllogo.png',
+    logoWithTextUrl: '/images/cllogo.png',
     tagline: 'Connecting Patients to Better Health Every Mile with Compassion. Every Trip with Purpose.',
     headquarters: 'Eureka, California',
     phone: '(707) 854-9350',

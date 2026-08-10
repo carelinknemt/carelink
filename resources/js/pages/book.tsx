@@ -6,9 +6,9 @@ import { COMPANY_INFO } from '@/data/carelink';
 const TRIP_REQUEST_EMBED_URL =
     'https://api.hibambi.com/public/trips/embed/trip-request/?access_token=Fy2Kas-0ost6iYRt6qnu16H1-JugTz4gaegPqSQHM8I';
 
-const MIN_IFRAME_HEIGHT = 1200;
+const MIN_IFRAME_HEIGHT = 1000;
 
-const FALLBACK_IFRAME_HEIGHT = 1200;
+const FALLBACK_IFRAME_HEIGHT = 1000;
 
 const MAX_IFRAME_HEIGHT = 4000;
 

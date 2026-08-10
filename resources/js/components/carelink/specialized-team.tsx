@@ -76,13 +76,10 @@ return;
                 className="absolute inset-x-0 -top-[25%] -bottom-[25%] h-[150%] w-full bg-cover bg-center pointer-events-none will-change-transform z-0"
                 style={{
                     backgroundImage: isMobile
-                        ? "url('https://i.postimg.cc/gjn121HQ/cover.png')"
-                        : "url('https://i.postimg.cc/jSrqBjZP/Img-Carelink.png')",
+                        ? "url('/images/covers/cover.png')"
+                        : "url('/images/covers/Img-Carelink.png')",
                 }}
             />
-
-            {/* Top and Bottom edge gradients that stick perfectly to the section boundaries */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white pointer-events-none z-0" />
 
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 relative z-10 w-full">
                 <div
