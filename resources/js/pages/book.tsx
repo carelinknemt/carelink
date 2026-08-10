@@ -1250,6 +1250,7 @@ export default function Book() {
                         <Button
                             type="button"
                             variant="outline"
+                            className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-300 dark:bg-white dark:text-slate-700 dark:hover:bg-slate-100"
                             onClick={handleBack}
                             disabled={step === 0}
                         >
