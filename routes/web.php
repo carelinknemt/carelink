@@ -1,8 +1,6 @@
 <?php
 
 use App\Http\Controllers\Carelink\AboutController;
-use App\Http\Controllers\Carelink\Admin\AdminAuthController;
-use App\Http\Controllers\Carelink\Admin\AdminDashboardController;
 use App\Http\Controllers\Carelink\AppointmentController;
 use App\Http\Controllers\Carelink\BlogController;
 use App\Http\Controllers\Carelink\BookController;
@@ -21,28 +19,10 @@ Route::get('/faq', [FaqController::class, 'index'])->name('faq');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/careers', [CareersController::class, 'index'])->name('careers');
 Route::get('/book', [BookController::class, 'index'])->name('book');
+Route::post('/bookings', [BookController::class, 'store'])->name('bookings.store');
 Route::post('/careers/apply', [CareersController::class, 'store'])->name('careers.apply');
 
 Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
-
-Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
-Route::post('/admin/login', [AdminAuthController::class, 'login'])
-    ->middleware('throttle:6,1')
-    ->name('admin.login.attempt');
-Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
-
-Route::prefix('admin')
-    ->name('admin.')
-    ->middleware(['auth', 'admin'])
-    ->group(function () {
-        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/fleet', [AdminDashboardController::class, 'fleet'])->name('fleet');
-        Route::get('/services', [AdminDashboardController::class, 'services'])->name('services');
-        Route::patch('/bookings/{rideBooking}/status', [AdminDashboardController::class, 'updateBookingStatus'])
-            ->name('bookings.update-status');
-        Route::put('/services/rates', [AdminDashboardController::class, 'updateServiceRates'])
-            ->name('services.update-rates');
-    });
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');

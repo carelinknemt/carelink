@@ -14,7 +14,7 @@ test('the home page renders with seeded services', function () {
             ->has('team'));
 });
 
-test('the trip request page renders the Bambi booking embed', function () {
+test('the trip request page renders the booking form', function () {
     $this->get(route('book'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('book'));

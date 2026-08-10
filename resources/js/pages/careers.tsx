@@ -2,7 +2,6 @@ import { useForm } from '@inertiajs/react';
 import { Briefcase, CheckCircle, FileText, Send } from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
-import { useFlashToast } from '@/hooks/use-flash-toast';
 import { apply } from '@/routes/careers';
 import type { Career } from '@/types/carelink';
 
@@ -24,8 +23,6 @@ export default function Careers({ careers }: CareersProps) {
         phone: '',
         cover_letter: '',
     });
-
-    useFlashToast();
 
     const handleApplyNow = (career: Career) => {
         form.setData('career_id', career.id);
