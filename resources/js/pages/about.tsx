@@ -1,5 +1,4 @@
-import { Link } from '@inertiajs/react';
-import { Award, ShieldCheck, Building2, ArrowLeft, User } from 'lucide-react';
+import { Award, ShieldCheck, Building2, User } from 'lucide-react';
 import AppHead from '@/components/app-head';
 import { COMPANY_INFO } from '@/data/carelink';
 import type { TeamMember } from '@/types/carelink';
@@ -47,17 +46,6 @@ export default function About({ team }: AboutProps) {
             />
 
             <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-                {/* Navigation Back Button */}
-                <div>
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-100 hover:text-[#004B87] hover:shadow"
-                    >
-                        <ArrowLeft className="h-4 w-4 text-[#E64A19]" />
-                        <span>Back to Overview</span>
-                    </Link>
-                </div>
-
                 {/* Page Hero Header */}
                 <div className="relative overflow-hidden rounded-3xl bg-[#004B87] p-8 text-white shadow-2xl sm:p-12">
                     <div className="relative z-10 max-w-3xl space-y-4">

@@ -5,6 +5,7 @@ use App\Http\Controllers\Carelink\Admin\AdminAuthController;
 use App\Http\Controllers\Carelink\Admin\AdminDashboardController;
 use App\Http\Controllers\Carelink\AppointmentController;
 use App\Http\Controllers\Carelink\BlogController;
+use App\Http\Controllers\Carelink\BookController;
 use App\Http\Controllers\Carelink\CareersController;
 use App\Http\Controllers\Carelink\FaqController;
 use App\Http\Controllers\Carelink\FleetController;
@@ -19,6 +20,8 @@ Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/faq', [FaqController::class, 'index'])->name('faq');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/careers', [CareersController::class, 'index'])->name('careers');
+Route::get('/book', [BookController::class, 'index'])->name('book');
+Route::post('/careers/apply', [CareersController::class, 'store'])->name('careers.apply');
 
 Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
 

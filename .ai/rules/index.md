@@ -5,5 +5,6 @@ Before planning or editing, find the row whose globs match the file's path and r
 | Applies to | Rule file |
 | --- | --- |
 | tests/Feature/Carelink/** | .ai/rules/carelink.md |
+| app/Http/Controllers/Carelink/** | .ai/rules/controllers-carelink.md |
 | app/Models/** | .ai/rules/models.md |
 | resources/js/routes/** | .ai/rules/routes.md |

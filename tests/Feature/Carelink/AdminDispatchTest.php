@@ -32,7 +32,7 @@ test('admins can visit each section of the dispatch portal', function (string $r
 
 test('the dispatch overview paginates bookings and reports metric counts', function () {
     $admin = User::factory()->create(['is_admin' => true]);
-    RideBooking::factory()->count(12)->create();
+    RideBooking::factory()->count(12)->create(['status' => RideBooking::STATUS_COMPLETED]);
     RideBooking::factory()->count(2)->create(['status' => RideBooking::STATUS_IN_TRANSIT]);
 
     $this->actingAs($admin)

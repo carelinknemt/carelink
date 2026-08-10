@@ -1,5 +1,9 @@
-import { Briefcase, FileText, CheckCircle } from 'lucide-react';
+import { useForm } from '@inertiajs/react';
+import { Briefcase, CheckCircle, FileText, Send } from 'lucide-react';
+import { useState } from 'react';
 import AppHead from '@/components/app-head';
+import { useFlashToast } from '@/hooks/use-flash-toast';
+import { apply } from '@/routes/careers';
 import type { Career } from '@/types/carelink';
 
 interface CareersProps {
@@ -10,6 +14,48 @@ const CAREERS_DESCRIPTION =
     'Join CareLink Medical Transportation as a driver, dispatcher, or transport specialist. We are hiring compassionate, PASS-certified professionals across Humboldt, Del Norte, Trinity, and Shasta counties.';
 
 export default function Careers({ careers }: CareersProps) {
+    const [selectedPosition, setSelectedPosition] = useState<string | null>(
+        null,
+    );
+    const form = useForm({
+        career_id: null as number | null,
+        name: '',
+        email: '',
+        phone: '',
+        cover_letter: '',
+    });
+
+    useFlashToast();
+
+    const handleApplyNow = (career: Career) => {
+        form.setData('career_id', career.id);
+        setSelectedPosition(career.title);
+        document
+            .getElementById('career-application')
+            ?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const handlePositionChange = (value: string) => {
+        const careerId = value === '' ? null : Number(value);
+        const career = careers.find((c) => c.id === careerId);
+
+        form.setData('career_id', careerId);
+        setSelectedPosition(career ? career.title : null);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        form.post(apply.url(), {
+            onSuccess: () => {
+                setSelectedPosition(null);
+                form.reset();
+            },
+        });
+    };
+
+    const inputClass =
+        'w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-[#E64A19] focus:ring-2 focus:ring-orange-100';
+
     return (
         <div className="min-h-screen bg-slate-50 pb-16">
             <AppHead
@@ -93,7 +139,11 @@ export default function Careers({ careers }: CareersProps) {
                                             )}
                                         </ul>
                                     </div>
-                                    <button className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#004B87] px-6 py-3 text-sm font-bold whitespace-nowrap text-white shadow-md transition hover:bg-[#003865] active:scale-95">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleApplyNow(career)}
+                                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#004B87] px-6 py-3 text-sm font-bold whitespace-nowrap text-white shadow-md transition hover:bg-[#003865] active:scale-95"
+                                    >
                                         Apply Now
                                     </button>
                                 </div>
@@ -101,10 +151,13 @@ export default function Careers({ careers }: CareersProps) {
                         </div>
                     </div>
 
-                    <div className="bg-orange-50/50 p-8 sm:p-12">
+                    <div
+                        id="career-application"
+                        className="bg-orange-50/50 p-8 sm:p-12"
+                    >
                         <h2 className="flex items-center gap-2 text-xl font-black text-[#004B87]">
                             <FileText className="h-5 w-5 text-[#E64A19]" />
-                            General Application
+                            Employment Application
                         </h2>
                         <p className="mt-3 text-sm leading-relaxed text-slate-600">
                             Don't see a position that matches your skills? We
@@ -113,63 +166,173 @@ export default function Careers({ careers }: CareersProps) {
                             keep your resume on file.
                         </p>
 
-                        <form
-                            className="mt-6 space-y-4"
-                            onSubmit={(e) => e.preventDefault()}
-                        >
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-700">
-                                        Full Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-[#E64A19] focus:ring-2 focus:ring-orange-100"
-                                        placeholder="Jane Doe"
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-700">
-                                        Email Address
-                                    </label>
-                                    <input
-                                        type="email"
-                                        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-[#E64A19] focus:ring-2 focus:ring-orange-100"
-                                        placeholder="jane@example.com"
-                                        required
-                                    />
-                                </div>
+                        {form.wasSuccessful ? (
+                            <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+                                <CheckCircle className="mx-auto h-10 w-10 text-emerald-600" />
+                                <h3 className="mt-3 text-lg font-black text-emerald-800">
+                                    Application Submitted Successfully
+                                </h3>
+                                <p className="mt-1 text-sm text-emerald-700">
+                                    Thank you for your interest in joining
+                                    Carelink. Our team will review your
+                                    application and contact you soon.
+                                </p>
                             </div>
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-700">
-                                    Phone Number
-                                </label>
-                                <input
-                                    type="tel"
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-[#E64A19] focus:ring-2 focus:ring-orange-100"
-                                    placeholder="(555) 123-4567"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-700">
-                                    Cover Letter / Interest
-                                </label>
-                                <textarea
-                                    rows={4}
-                                    className="w-full resize-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm transition-all outline-none focus:border-[#E64A19] focus:ring-2 focus:ring-orange-100"
-                                    placeholder="Tell us why you'd be a great fit for Carelink..."
-                                    required
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                className="w-full rounded-xl bg-[#E64A19] py-3.5 text-sm font-black text-white shadow-lg shadow-orange-900/20 transition hover:bg-[#d83f0e] active:scale-95"
+                        ) : (
+                            <form
+                                className="mt-6 space-y-4"
+                                onSubmit={handleSubmit}
                             >
-                                Submit Application
-                            </button>
-                        </form>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-slate-700">
+                                        Position
+                                    </label>
+                                    <select
+                                        value={
+                                            form.data.career_id === null
+                                                ? ''
+                                                : String(form.data.career_id)
+                                        }
+                                        onChange={(e) =>
+                                            handlePositionChange(e.target.value)
+                                        }
+                                        className={inputClass}
+                                    >
+                                        <option value="">
+                                            General Application (no specific
+                                            position)
+                                        </option>
+                                        {careers.map((career) => (
+                                            <option
+                                                key={career.id}
+                                                value={career.id}
+                                            >
+                                                {career.title}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {form.errors.career_id && (
+                                        <p className="text-xs font-semibold text-red-600">
+                                            {form.errors.career_id}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {selectedPosition && (
+                                    <div className="rounded-xl border border-[#004B87]/20 bg-[#004B87]/5 px-4 py-3 text-sm font-bold text-[#004B87]">
+                                        Applying for:{' '}
+                                        <span className="font-black">
+                                            {selectedPosition}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-700">
+                                            Full Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={form.data.name}
+                                            onChange={(e) =>
+                                                form.setData(
+                                                    'name',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className={inputClass}
+                                            placeholder="Jane Doe"
+                                            required
+                                        />
+                                        {form.errors.name && (
+                                            <p className="text-xs font-semibold text-red-600">
+                                                {form.errors.name}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-700">
+                                            Email Address
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={form.data.email}
+                                            onChange={(e) =>
+                                                form.setData(
+                                                    'email',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className={inputClass}
+                                            placeholder="jane@example.com"
+                                            required
+                                        />
+                                        {form.errors.email && (
+                                            <p className="text-xs font-semibold text-red-600">
+                                                {form.errors.email}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-slate-700">
+                                        Phone Number
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        value={form.data.phone}
+                                        onChange={(e) =>
+                                            form.setData(
+                                                'phone',
+                                                e.target.value,
+                                            )
+                                        }
+                                        className={inputClass}
+                                        placeholder="(555) 123-4567"
+                                        required
+                                    />
+                                    {form.errors.phone && (
+                                        <p className="text-xs font-semibold text-red-600">
+                                            {form.errors.phone}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-slate-700">
+                                        Cover Letter / Interest
+                                    </label>
+                                    <textarea
+                                        rows={4}
+                                        value={form.data.cover_letter}
+                                        onChange={(e) =>
+                                            form.setData(
+                                                'cover_letter',
+                                                e.target.value,
+                                            )
+                                        }
+                                        className={`${inputClass} resize-none py-3`}
+                                        placeholder="Tell us why you'd be a great fit for Carelink..."
+                                        required
+                                    />
+                                    {form.errors.cover_letter && (
+                                        <p className="text-xs font-semibold text-red-600">
+                                            {form.errors.cover_letter}
+                                        </p>
+                                    )}
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={form.processing}
+                                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#E64A19] py-3.5 text-sm font-black text-white shadow-lg shadow-orange-900/20 transition hover:bg-[#d83f0e] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    <Send className="h-4 w-4" />
+                                    {form.processing
+                                        ? 'Submitting...'
+                                        : 'Submit Application'}
+                                </button>
+                            </form>
+                        )}
                     </div>
                 </div>
             </div>
