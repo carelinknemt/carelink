@@ -6,9 +6,11 @@ import { COMPANY_INFO } from '@/data/carelink';
 const TRIP_REQUEST_EMBED_URL =
     'https://api.hibambi.com/public/trips/embed/trip-request/?access_token=Fy2Kas-0ost6iYRt6qnu16H1-JugTz4gaegPqSQHM8I';
 
-const BAMBI_ORIGIN = 'https://api.hibambi.com';
+const MIN_IFRAME_HEIGHT = 1200;
 
-const FALLBACK_IFRAME_HEIGHT = 500;
+const FALLBACK_IFRAME_HEIGHT = 1200;
+
+const MAX_IFRAME_HEIGHT = 4000;
 
 const BOOK_DESCRIPTION =
     'Book your Carelink Medical Transportation ride online. Request a wheelchair van, ambulatory sedan, or transit shuttle trip across Humboldt, Del Norte, Trinity, and Shasta counties.';
@@ -59,19 +61,23 @@ function extractHeight(payload: unknown): number | null {
     return null;
 }
 
+function clampHeight(height: number): number {
+    return Math.min(
+        MAX_IFRAME_HEIGHT,
+        Math.max(MIN_IFRAME_HEIGHT, height),
+    );
+}
+
 export default function Book() {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
     const [iframeHeight, setIframeHeight] = useState(FALLBACK_IFRAME_HEIGHT);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            if (event.origin !== BAMBI_ORIGIN) {
-                return;
-            }
-
             const height = extractHeight(event.data);
 
             if (height !== null) {
-                setIframeHeight(height);
+                setIframeHeight(clampHeight(height));
             }
         };
 
@@ -79,6 +85,13 @@ export default function Book() {
 
         return () => window.removeEventListener('message', handleMessage);
     }, []);
+
+    const handleLoad = () => {
+        iframeRef.current?.contentWindow?.postMessage(
+            { type: 'iframe-height', action: 'getHeight' },
+            '*',
+        );
+    };
 
     return (
         <div className="bg-slate-50">
@@ -119,11 +132,13 @@ export default function Book() {
             <div className="px-2 py-6 sm:px-4 lg:px-6">
                 <div className="relative mx-auto w-full max-w-[1600px] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
                     <iframe
+                        ref={iframeRef}
                         title="Trip Request Form"
                         src={TRIP_REQUEST_EMBED_URL}
                         scrolling="no"
                         className="w-full border-0"
                         style={{ height: iframeHeight }}
+                        onLoad={handleLoad}
                         allowFullScreen
                     />
                 </div>
