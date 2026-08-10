@@ -1,14 +1,41 @@
 import { Phone } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import AppHead from '@/components/app-head';
 import { COMPANY_INFO } from '@/data/carelink';
 
 const TRIP_REQUEST_EMBED_URL =
     'https://api.hibambi.com/public/trips/embed/trip-request/?access_token=Fy2Kas-0ost6iYRt6qnu16H1-JugTz4gaegPqSQHM8I';
 
+const BAMBI_ORIGIN = 'https://api.hibambi.com';
+
+const FALLBACK_IFRAME_HEIGHT = 2600;
+
 const BOOK_DESCRIPTION =
     'Book your Carelink Medical Transportation ride online. Request a wheelchair van, ambulatory sedan, or transit shuttle trip across Humboldt, Del Norte, Trinity, and Shasta counties.';
 
 export default function Book() {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [iframeHeight, setIframeHeight] = useState(FALLBACK_IFRAME_HEIGHT);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.origin !== BAMBI_ORIGIN) {
+                return;
+            }
+
+            const height = Number(event.data);
+
+            if (Number.isFinite(height) && height > 0) {
+                setIframeHeight(height);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
+
     return (
         <div className="bg-slate-50">
             <AppHead
@@ -45,12 +72,21 @@ export default function Book() {
             </div>
 
             {/* Bambi Trip Request Embed */}
-            <div className="px-4 py-6 sm:px-6 lg:px-12">
-                <div className="mx-auto h-[calc(100dvh-320px)] min-h-[640px] w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
+            <div className="px-3 py-6 sm:px-6 lg:px-12">
+                <div className="relative mx-auto w-full max-w-7xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
+                    {isLoading && (
+                        <div className="flex min-h-[480px] items-center justify-center">
+                            <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#004B87]/20 border-t-[#004B87]" />
+                        </div>
+                    )}
                     <iframe
+                        ref={iframeRef}
                         title="Trip Request Form"
                         src={TRIP_REQUEST_EMBED_URL}
-                        className="h-full w-full"
+                        scrolling="no"
+                        className="w-full border-0"
+                        style={{ height: iframeHeight }}
+                        onLoad={() => setIsLoading(false)}
                         allowFullScreen
                     />
                 </div>

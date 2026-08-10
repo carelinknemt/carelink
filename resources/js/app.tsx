@@ -14,7 +14,16 @@ createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     layout: (name) => {
         switch (true) {
-            case ['home', 'services', 'fleet', 'about', 'faqs', 'blog', 'careers'].includes(name):
+            case [
+                'home',
+                'services',
+                'fleet',
+                'about',
+                'faqs',
+                'blog',
+                'careers',
+                'book',
+            ].includes(name):
                 return CarelinkLayout;
             case name === 'admin/login':
                 return null;
