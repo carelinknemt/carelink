@@ -317,6 +317,10 @@ export default function Book() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (form.processing) {
+            return;
+        }
+
         if (step < STEPS.length - 1) {
             handleNext();
 
