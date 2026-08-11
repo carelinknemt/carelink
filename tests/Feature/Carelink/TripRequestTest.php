@@ -2,6 +2,8 @@
 
 use App\Models\TripRequest;
 use Illuminate\Support\Facades\Storage;
+use Stripe\StripeClient;
+use Tests\Support\FakeStripeClient;
 
 $validPayload = [
     'passenger_first_name' => 'Jane',
@@ -27,8 +29,9 @@ $validPayload = [
 
 test('a trip request can be submitted and exported to csv', function () use ($validPayload) {
     Storage::fake('local');
+    app()->bind(StripeClient::class, fn () => new FakeStripeClient);
 
-    $this->post(route('bookings.store'), $validPayload)->assertRedirect();
+    $this->post(route('bookings.store'), $validPayload)->assertOk();
 
     $tripRequest = TripRequest::first();
 
@@ -66,6 +69,7 @@ test('a trip request can be submitted and exported to csv', function () use ($va
 
 test('a trip request can be submitted without optional details', function () use ($validPayload) {
     Storage::fake('local');
+    app()->bind(StripeClient::class, fn () => new FakeStripeClient);
 
     $this->post(route('bookings.store'), collect($validPayload)->except([
         'passenger_email',
@@ -73,7 +77,7 @@ test('a trip request can be submitted without optional details', function () use
         'oxygen_required',
         'oxygen_liters_per_min',
         'will_call',
-    ])->all())->assertRedirect();
+    ])->all())->assertOk();
 
     $this->assertDatabaseCount('trip_requests', 1);
 });

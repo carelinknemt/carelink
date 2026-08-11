@@ -1,12 +1,14 @@
-import { useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, ArrowRight, CheckCircle2, Phone, Send } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import type { PageProps } from '@inertiajs/core';
+import { router, useForm, usePage } from '@inertiajs/react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Phone, Send } from 'lucide-react';
+import { useEffect, useCallback, useState } from 'react';
 import AppHead from '@/components/app-head';
-import InputError from '@/components/input-error';
 import DatePicker, { formatIsoDate } from '@/components/carelink/date-picker';
 import LocationPicker from '@/components/carelink/location-picker';
-import MapPreview, { type MapPoint } from '@/components/carelink/map-preview';
+import MapPreview from '@/components/carelink/map-preview';
+import type {MapPoint} from '@/components/carelink/map-preview';
 import TimePicker from '@/components/carelink/time-picker';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -19,9 +21,9 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { book } from '@/routes';
-import { store } from '@/routes/bookings';
 import { COMPANY_INFO } from '@/data/carelink';
+import { book } from '@/routes';
+import { show, status, store } from '@/routes/bookings';
 
 interface TripRequestFormData {
     passenger_first_name: string;
@@ -203,12 +205,20 @@ interface ServiceRates {
     mileage_rate: number;
 }
 
-interface BookPageProps {
+interface BookPageProps extends PageProps {
     booking?: Record<string, unknown>;
+    checkout?: { url: string; booking_number: string };
     services?: Record<string, ServiceRates>;
 }
 
 const BOOKING_FEE = 30.0;
+
+const PENDING_PAYMENT_KEY = 'carelink_pending_payment';
+
+interface PendingPayment {
+    booking_number: string;
+    url: string;
+}
 
 export default function Book() {
     const [step, setStep] = useState(0);
@@ -216,6 +226,15 @@ export default function Book() {
     const [reviewReady, setReviewReady] = useState(false);
     const { booking, services } = usePage<BookPageProps>().props;
     const form = useForm<TripRequestFormData>(initialForm);
+    const [pendingPayment, setPendingPayment] = useState<PendingPayment | null>(() => {
+        try {
+            const raw = window.sessionStorage.getItem(PENDING_PAYMENT_KEY);
+
+            return raw ? (JSON.parse(raw) as PendingPayment) : null;
+        } catch {
+            return null;
+        }
+    });
 
     useEffect(() => {
         if (step === STEPS.length - 1) {
@@ -248,6 +267,45 @@ export default function Book() {
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [step]);
+
+    const checkPaymentStatus = useCallback(async () => {
+        if (!pendingPayment) {
+            return;
+        }
+
+        try {
+            const response = await fetch(status.url({ booking: pendingPayment.booking_number }));
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = (await response.json()) as { payment_status: string };
+
+            if (data.payment_status === 'PAID') {
+                window.sessionStorage.removeItem(PENDING_PAYMENT_KEY);
+                setPendingPayment(null);
+                router.visit(show.url({ booking: pendingPayment.booking_number }));
+            }
+        } catch {
+            // The request failed, keep polling on the next tick.
+        }
+    }, [pendingPayment]);
+
+    useEffect(() => {
+        if (!pendingPayment) {
+            return undefined;
+        }
+
+        const interval = window.setInterval(() => void checkPaymentStatus(), 3000);
+
+        return () => window.clearInterval(interval);
+    }, [pendingPayment, checkPaymentStatus]);
+
+    const clearPendingPayment = () => {
+        window.sessionStorage.removeItem(PENDING_PAYMENT_KEY);
+        setPendingPayment(null);
+    };
 
     const fieldError = (field: keyof TripRequestFormData): string | undefined =>
         stepErrors[field] ?? form.errors[field];
@@ -400,7 +458,23 @@ export default function Book() {
         form.setData('input_price' as never, '0' as never);
 
         form.post(store.url(), {
-            onSuccess: () => {
+            onSuccess: (page) => {
+                const pageProps = page.props as BookPageProps;
+
+                if (pageProps.checkout) {
+                    window.open(pageProps.checkout.url, '_blank', 'noopener');
+
+                    const pending: PendingPayment = {
+                        booking_number: pageProps.checkout.booking_number,
+                        url: pageProps.checkout.url,
+                    };
+
+                    window.sessionStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(pending));
+                    setPendingPayment(pending);
+
+                    return;
+                }
+
                 setStep(0);
                 setStepErrors({});
                 form.reset();
@@ -419,6 +493,48 @@ export default function Book() {
 
         submitForm();
     };
+
+    if (pendingPayment) {
+        return (
+            <div className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-12">
+                <div className="mx-auto max-w-2xl text-center">
+                    <Loader2 className="mx-auto h-16 w-16 animate-spin text-[#004B87]" />
+                    <h1 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl">
+                        Complete Your Payment
+                    </h1>
+                    <p className="mt-3 text-sm text-slate-600 sm:text-base">
+                        We opened the secure payment page in a new tab. Finish
+                        the{' '}
+                        <span className="font-bold text-slate-800">
+                            ${BOOKING_FEE.toFixed(2)}
+                        </span>{' '}
+                        booking fee there — this page updates automatically
+                        once the payment is received.
+                    </p>
+                    <div className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
+                        Waiting for payment for{' '}
+                        <span className="font-black">{pendingPayment.booking_number}</span>
+                    </div>
+                    <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                        <Button
+                            type="button"
+                            onClick={() => window.open(pendingPayment.url, '_blank', 'noopener')}
+                        >
+                            Open Payment Page Again
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                            onClick={clearPendingPayment}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (booking) {
         const paymentPaid = booking.payment_status === 'PAID';

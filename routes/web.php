@@ -20,6 +20,8 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/careers', [CareersController::class, 'index'])->name('careers');
 Route::get('/book', [BookController::class, 'index'])->name('book');
 Route::post('/bookings', [BookController::class, 'store'])->name('bookings.store');
+Route::get('/bookings/{booking}', [BookController::class, 'show'])->name('bookings.show');
+Route::get('/bookings/{booking}/status', [BookController::class, 'status'])->name('bookings.status');
 Route::post('/careers/apply', [CareersController::class, 'store'])->name('careers.apply');
 
 Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');

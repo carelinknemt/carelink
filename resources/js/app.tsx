@@ -22,6 +22,7 @@ createInertiaApp({
                 'blog',
                 'careers',
                 'book',
+                'bookings/track',
             ].includes(name):
                 setIsPublicPage(true);
 

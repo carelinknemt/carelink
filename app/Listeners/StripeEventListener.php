@@ -2,7 +2,9 @@
 
 namespace App\Listeners;
 
+use App\Mail\TripRequestPaymentConfirmed;
 use App\Models\TripRequest;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Cashier\Events\WebhookHandled;
 use Laravel\Cashier\Events\WebhookReceived;
 
@@ -37,12 +39,20 @@ class StripeEventListener
             return;
         }
 
-        TripRequest::query()
+        $updated = TripRequest::query()
             ->where('booking_number', $bookingNumber)
             ->where('payment_status', '!=', TripRequest::PAYMENT_STATUS_PAID)
             ->update([
                 'payment_status' => TripRequest::PAYMENT_STATUS_PAID,
                 'paid_at' => now(),
             ]);
+
+        if ($updated > 0) {
+            $tripRequest = TripRequest::where('booking_number', $bookingNumber)->first();
+
+            if ($tripRequest?->passenger_email) {
+                Mail::to($tripRequest->passenger_email)->send(new TripRequestPaymentConfirmed($tripRequest));
+            }
+        }
     }
 }

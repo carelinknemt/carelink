@@ -43,6 +43,7 @@ class FakeStripeSessions
     {
         return Session::constructFrom([
             'id' => $id,
+            'url' => 'https://checkout.stripe.com/c/pay/cs_test_fake',
             'payment_status' => $this->retrievePaymentStatus,
         ]);
     }

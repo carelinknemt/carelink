@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Carelink;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTripRequestRequest;
+use App\Mail\TripRequestPaymentConfirmed;
 use App\Models\Service;
 use App\Models\TripRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -40,20 +43,12 @@ class BookController extends Controller
         }
 
         return Inertia::render('book', [
-            'services' => Service::query()
-                ->where('active', true)
-                ->get(['title', 'base_rate', 'mileage_rate'])
-                ->mapWithKeys(fn (Service $service) => [
-                    $service->title => [
-                        'base_rate' => (float) $service->base_rate,
-                        'mileage_rate' => (float) $service->mileage_rate,
-                    ],
-                ]),
+            'services' => $this->servicesForBookPage(),
             'booking' => $booking ? $this->bookingSummary($booking) : null,
         ]);
     }
 
-    public function store(StoreTripRequestRequest $request): RedirectResponse
+    public function store(StoreTripRequestRequest $request): Response|RedirectResponse
     {
         $tripRequest = TripRequest::create([
             ...$request->validated(),
@@ -69,7 +64,14 @@ class BookController extends Controller
 
             $tripRequest->update(['stripe_checkout_session_id' => $checkout->id]);
 
-            return $checkout->redirect();
+            return Inertia::render('book', [
+                'services' => $this->servicesForBookPage(),
+                'booking' => $this->bookingSummary($tripRequest),
+                'checkout' => [
+                    'url' => $checkout->url,
+                    'booking_number' => $tripRequest->booking_number,
+                ],
+            ]);
         } catch (ApiErrorException $exception) {
             report($exception);
 
@@ -80,6 +82,82 @@ class BookController extends Controller
             ]);
 
             return back();
+        }
+    }
+
+    /**
+     * Show the public order tracking page for a trip request.
+     */
+    public function show(string $booking): Response|RedirectResponse
+    {
+        $tripRequest = TripRequest::where('booking_number', $booking)->first();
+
+        if (! $tripRequest) {
+            Inertia::flash('toast', [
+                'type' => 'warning',
+                'message' => 'We could not find that booking. Please check the link or contact dispatch for assistance.',
+            ]);
+
+            return redirect()->route('book');
+        }
+
+        return Inertia::render('bookings/track', [
+            'booking' => $this->bookingSummary($tripRequest),
+            'checkout_url' => $this->checkoutUrl($tripRequest),
+        ]);
+    }
+
+    /**
+     * Poll-friendly payment state for a trip request.
+     */
+    public function status(string $booking): JsonResponse
+    {
+        $tripRequest = TripRequest::where('booking_number', $booking)->first();
+
+        abort_if(! $tripRequest, 404);
+
+        return response()->json([
+            'booking_number' => $tripRequest->booking_number,
+            'status' => $tripRequest->status,
+            'payment_status' => $tripRequest->payment_status,
+            'paid_at' => $tripRequest->paid_at?->toIso8601String(),
+        ]);
+    }
+
+    private function servicesForBookPage(): array
+    {
+        return Service::query()
+            ->where('active', true)
+            ->get(['title', 'base_rate', 'mileage_rate'])
+            ->mapWithKeys(fn (Service $service) => [
+                $service->title => [
+                    'base_rate' => (float) $service->base_rate,
+                    'mileage_rate' => (float) $service->mileage_rate,
+                ],
+            ])
+            ->all();
+    }
+
+    /**
+     * The checkout session URL for an unpaid booking, so the customer can
+     * resume the payment later, or null when there is nothing to pay.
+     */
+    private function checkoutUrl(TripRequest $tripRequest): ?string
+    {
+        if ($tripRequest->payment_status === TripRequest::PAYMENT_STATUS_PAID) {
+            return null;
+        }
+
+        if (! $tripRequest->stripe_checkout_session_id) {
+            return null;
+        }
+
+        try {
+            return Cashier::stripe()->checkout->sessions->retrieve($tripRequest->stripe_checkout_session_id)->url;
+        } catch (ApiErrorException $exception) {
+            report($exception);
+
+            return null;
         }
     }
 
@@ -132,6 +210,8 @@ class BookController extends Controller
                         'paid_at' => now(),
                     ]);
 
+                    $this->sendPaymentConfirmationEmail($tripRequest);
+
                     Inertia::flash('toast', [
                         'type' => 'success',
                         'message' => "Your booking fee for {$tripRequest->booking_number} was processed. Thank you!",
@@ -152,6 +232,15 @@ class BookController extends Controller
         }
     }
 
+    private function sendPaymentConfirmationEmail(TripRequest $tripRequest): void
+    {
+        if (! $tripRequest->passenger_email) {
+            return;
+        }
+
+        Mail::to($tripRequest->passenger_email)->send(new TripRequestPaymentConfirmed($tripRequest));
+    }
+
     private function bookingSummary(TripRequest $tripRequest): array
     {
         return [
@@ -163,6 +252,7 @@ class BookController extends Controller
             'input_price' => $tripRequest->input_price,
             'status' => $tripRequest->status,
             'payment_status' => $tripRequest->payment_status,
+            'paid_at' => $tripRequest->paid_at?->toIso8601String(),
         ];
     }
 
