@@ -7,15 +7,38 @@ use App\Http\Requests\StoreTripRequestRequest;
 use App\Models\Service;
 use App\Models\TripRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Checkout;
+use Stripe\Exception\ApiErrorException;
 
 class BookController extends Controller
 {
-    public function index(): Response
+    private const BOOKING_FEE_AMOUNT = 3000;
+
+    private const BOOKING_FEE_LABEL = 'CareLink Booking Fee';
+
+    public function index(Request $request): Response
     {
+        $booking = null;
+
+        if ($bookingNumber = $request->query('booking')) {
+            $booking = TripRequest::where('booking_number', $bookingNumber)->first();
+
+            if ($booking) {
+                $this->recordPaymentReturn($booking, $request);
+            } else {
+                Inertia::flash('toast', [
+                    'type' => 'warning',
+                    'message' => 'We could not find that booking number. Please contact dispatch for assistance.',
+                ]);
+            }
+        }
+
         return Inertia::render('book', [
             'services' => Service::query()
                 ->where('active', true)
@@ -26,6 +49,7 @@ class BookController extends Controller
                         'mileage_rate' => (float) $service->mileage_rate,
                     ],
                 ]),
+            'booking' => $booking ? $this->bookingSummary($booking) : null,
         ]);
     }
 
@@ -40,12 +64,97 @@ class BookController extends Controller
         $tripRequest->trip_request_csv_path = $this->exportToCsv($tripRequest);
         $tripRequest->save();
 
-        Inertia::flash('toast', [
-            'type' => 'success',
-            'message' => "Trip request {$tripRequest->booking_number} submitted successfully.",
-        ]);
+        try {
+            $checkout = $this->createBookingCheckout($tripRequest);
 
-        Inertia::flash('booking', [
+            $tripRequest->update(['stripe_checkout_session_id' => $checkout->id]);
+
+            return $checkout->redirect();
+        } catch (ApiErrorException $exception) {
+            report($exception);
+
+            Inertia::flash('booking', $this->bookingSummary($tripRequest));
+            Inertia::flash('toast', [
+                'type' => 'warning',
+                'message' => "Trip request {$tripRequest->booking_number} submitted, but we could not process the {$this->bookingFeeLabel()} right now. Our team will contact you to arrange payment.",
+            ]);
+
+            return back();
+        }
+    }
+
+    /**
+     * Start a Stripe Checkout session for the $30 non-refundable booking fee.
+     */
+    private function createBookingCheckout(TripRequest $tripRequest): Checkout
+    {
+        return Checkout::guest()->create([
+            [
+                'price_data' => [
+                    'currency' => config('cashier.currency', 'usd'),
+                    'unit_amount' => self::BOOKING_FEE_AMOUNT,
+                    'product_data' => [
+                        'name' => self::BOOKING_FEE_LABEL,
+                        'description' => "Non-refundable booking fee for trip request {$tripRequest->booking_number}",
+                    ],
+                ],
+                'quantity' => 1,
+            ],
+        ], [
+            'success_url' => route('book').'?booking='.$tripRequest->booking_number.'&session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('book').'?booking='.$tripRequest->booking_number.'&payment=cancelled',
+            'metadata' => ['booking_number' => $tripRequest->booking_number],
+            'customer_email' => $tripRequest->passenger_email,
+            'expires_at' => now()->addMinutes(30)->timestamp,
+        ]);
+    }
+
+    /**
+     * Finalize payment state when the customer returns from Stripe Checkout.
+     * The checkout.session.completed webhook is the source of truth for
+     * payments made in a tab that was closed before redirecting back.
+     */
+    private function recordPaymentReturn(TripRequest $tripRequest, Request $request): void
+    {
+        if ($tripRequest->payment_status === TripRequest::PAYMENT_STATUS_PAID) {
+            return;
+        }
+
+        $sessionId = $request->query('session_id');
+
+        if ($sessionId && $sessionId === $tripRequest->stripe_checkout_session_id) {
+            try {
+                $session = Cashier::stripe()->checkout->sessions->retrieve($sessionId);
+
+                if (($session->payment_status ?? null) === 'paid') {
+                    $tripRequest->update([
+                        'payment_status' => TripRequest::PAYMENT_STATUS_PAID,
+                        'paid_at' => now(),
+                    ]);
+
+                    Inertia::flash('toast', [
+                        'type' => 'success',
+                        'message' => "Your booking fee for {$tripRequest->booking_number} was processed. Thank you!",
+                    ]);
+
+                    return;
+                }
+            } catch (ApiErrorException $exception) {
+                report($exception);
+            }
+        }
+
+        if ($request->query('payment') === 'cancelled') {
+            Inertia::flash('toast', [
+                'type' => 'warning',
+                'message' => "Payment for {$tripRequest->booking_number} was not completed. Your trip request is still received and our team will contact you to arrange payment.",
+            ]);
+        }
+    }
+
+    private function bookingSummary(TripRequest $tripRequest): array
+    {
+        return [
             'booking_number' => $tripRequest->booking_number,
             'passenger_name' => $tripRequest->passenger_first_name.' '.$tripRequest->passenger_last_name,
             'trip_date' => $tripRequest->trip_date->toDateString(),
@@ -53,9 +162,13 @@ class BookController extends Controller
             'dropoff_address' => $tripRequest->dropoff_address,
             'input_price' => $tripRequest->input_price,
             'status' => $tripRequest->status,
-        ]);
+            'payment_status' => $tripRequest->payment_status,
+        ];
+    }
 
-        return back();
+    private function bookingFeeLabel(): string
+    {
+        return '$'.number_format(self::BOOKING_FEE_AMOUNT / 100, 2);
     }
 
     private function generateBookingNumber(): string

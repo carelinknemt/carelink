@@ -208,6 +208,8 @@ interface BookPageProps {
     services?: Record<string, ServiceRates>;
 }
 
+const BOOKING_FEE = 30.0;
+
 export default function Book() {
     const [step, setStep] = useState(0);
     const [stepErrors, setStepErrors] = useState<Errors>({});
@@ -418,11 +420,19 @@ export default function Book() {
         submitForm();
     };
 
-    if (form.wasSuccessful && booking) {
+    if (booking) {
+        const paymentPaid = booking.payment_status === 'PAID';
+
         return (
             <div className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-12">
                 <div className="mx-auto max-w-2xl text-center">
-                    <CheckCircle2 className="mx-auto h-16 w-16 text-emerald-600" />
+                    {paymentPaid ? (
+                        <CheckCircle2 className="mx-auto h-16 w-16 text-emerald-600" />
+                    ) : (
+                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+                            <span className="text-2xl">⏳</span>
+                        </div>
+                    )}
                     <h1 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl">
                         Trip Request Submitted
                     </h1>
@@ -434,6 +444,17 @@ export default function Book() {
                         has been received. Our dispatch team will confirm your
                         ride shortly.
                     </p>
+                    <div
+                        className={`mx-auto mt-6 max-w-xl rounded-xl border px-4 py-3 text-sm font-semibold ${
+                            paymentPaid
+                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                : 'border-amber-200 bg-amber-50 text-amber-700'
+                        }`}
+                    >
+                        {paymentPaid
+                            ? `Booking fee of $${BOOKING_FEE.toFixed(2)} paid via Stripe.`
+                            : `Booking fee of $${BOOKING_FEE.toFixed(2)} is pending — our team will contact you to arrange payment.`}
+                    </div>
                     <dl className="mx-auto mt-8 max-w-xl divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white/60 px-6 py-2 text-left text-sm">
                         <div className="flex items-center justify-between py-3">
                             <dt className="text-slate-500">Passenger</dt>
@@ -463,6 +484,19 @@ export default function Book() {
                             <dt className="text-slate-500">Price</dt>
                             <dd className="font-semibold text-slate-800">
                                 Confirm with dispatch
+                            </dd>
+                        </div>
+                        <div className="flex items-center justify-between py-3">
+                            <dt className="text-slate-500">Booking Fee</dt>
+                            <dd
+                                className={`font-semibold ${
+                                    paymentPaid
+                                        ? 'text-emerald-600'
+                                        : 'text-amber-600'
+                                }`}
+                            >
+                                ${BOOKING_FEE.toFixed(2)} —{' '}
+                                {paymentPaid ? 'Paid' : 'Pending'}
                             </dd>
                         </div>
                     </dl>
@@ -1293,6 +1327,15 @@ export default function Book() {
                                         </dd>
                                     </div>
                                 </dl>
+                                <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                                    A non-refundable booking fee of{' '}
+                                    <span className="font-bold text-slate-800">
+                                        ${BOOKING_FEE.toFixed(2)}
+                                    </span>{' '}
+                                    is charged via Stripe when you submit. You
+                                    will be redirected to a secure payment page
+                                    to complete the charge.
+                                </div>
                                 {mapPoints.length > 0 && (
                                     <div className="mt-6">
                                         <h4 className="mb-2 text-xs font-black tracking-wide text-[#004B87] uppercase">
@@ -1333,7 +1376,7 @@ export default function Book() {
                                 <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         ) : (
-                            <Button
+<Button
                                 type="button"
                                 className="bg-[#E64A19] text-white hover:bg-[#d84315]"
                                 onClick={submitForm}
@@ -1343,8 +1386,8 @@ export default function Book() {
                                 {form.processing
                                     ? 'Submitting...'
                                     : !reviewReady
-                                      ? 'Confirming...'
-                                      : 'Submit Trip Request'}
+                                    ? 'Confirming...'
+                                    : `Submit & Pay $${BOOKING_FEE.toFixed(2)}`}
                             </Button>
                         )}
                     </div>

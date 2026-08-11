@@ -24,6 +24,15 @@ class TripRequest extends Model
         self::STATUS_COMPLETED,
     ];
 
+    public const PAYMENT_STATUS_PENDING = 'PENDING';
+
+    public const PAYMENT_STATUS_PAID = 'PAID';
+
+    public const PAYMENT_STATUSES = [
+        self::PAYMENT_STATUS_PENDING,
+        self::PAYMENT_STATUS_PAID,
+    ];
+
     /**
      * CSV column order expected by the Bambi trip request import.
      */
@@ -83,10 +92,14 @@ class TripRequest extends Model
         'dropoff_longitude',
         'status',
         'trip_request_csv_path',
+        'stripe_checkout_session_id',
+        'payment_status',
+        'paid_at',
     ];
 
     protected $attributes = [
         'status' => self::STATUS_PENDING_DISPATCH,
+        'payment_status' => self::PAYMENT_STATUS_PENDING,
     ];
 
     protected function casts(): array
@@ -107,6 +120,7 @@ class TripRequest extends Model
             'pickup_longitude' => 'float',
             'dropoff_latitude' => 'float',
             'dropoff_longitude' => 'float',
+            'paid_at' => 'datetime',
         ];
     }
 }
