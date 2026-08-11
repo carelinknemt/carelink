@@ -9,17 +9,9 @@ use Laravel\Cashier\Events\WebhookReceived;
 class StripeEventListener
 {
     /**
-     * Handle received Stripe webhooks.
+     * Handle received and handled Stripe webhooks.
      */
-    public function handleWebhookReceived(WebhookReceived $event): void
-    {
-        $this->markBookingPaid($event->payload);
-    }
-
-    /**
-     * Handle handled Stripe webhooks.
-     */
-    public function handleWebhookHandled(WebhookHandled $event): void
+    public function handle(WebhookReceived|WebhookHandled $event): void
     {
         $this->markBookingPaid($event->payload);
     }
