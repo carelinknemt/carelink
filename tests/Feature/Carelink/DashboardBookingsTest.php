@@ -1,0 +1,399 @@
+<?php
+
+use App\Models\TripRequest;
+use App\Models\User;
+
+function paidBooking(array $attributes = []): TripRequest
+{
+    return TripRequest::factory()->create([
+        'payment_status' => TripRequest::PAYMENT_STATUS_PAID,
+        'paid_at' => now(),
+        ...$attributes,
+    ]);
+}
+
+test('guests are redirected to the login page', function () {
+    $this->get(route('dashboard.bookings'))->assertRedirect(route('login'));
+
+    $booking = paidBooking();
+
+    $this->get(route('dashboard.bookings.show', $booking))->assertRedirect(route('login'));
+});
+
+test('authenticated users can view the paid bookings page', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $this->get(route('dashboard.bookings'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('dashboard/bookings')
+            ->has('bookings')
+            ->has('statuses', count(TripRequest::STATUSES)));
+});
+
+test('only bookings with the paid booking fee are listed', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $paid = paidBooking(['trip_date' => now()->addDays(1)->toDateString()]);
+    paidBooking(['trip_date' => now()->addDays(2)->toDateString()]);
+    TripRequest::factory()->create(['payment_status' => TripRequest::PAYMENT_STATUS_PENDING]);
+
+    $this->get(route('dashboard.bookings'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('dashboard/bookings')
+            ->has('bookings.data', 2)
+            ->where('bookings.data.0.booking_number', $paid->booking_number));
+});
+
+test('bookings are sorted by trip date soonest first', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $later = paidBooking(['trip_date' => now()->addDays(5)->toDateString()]);
+    $earliest = paidBooking(['trip_date' => now()->addDays(1)->toDateString()]);
+    $middle = paidBooking(['trip_date' => now()->addDays(3)->toDateString()]);
+
+    $this->get(route('dashboard.bookings'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bookings.data.0.booking_number', $earliest->booking_number)
+            ->where('bookings.data.1.booking_number', $middle->booking_number)
+            ->where('bookings.data.2.booking_number', $later->booking_number));
+});
+
+test('bookings with the same trip date fall back to newest booking time first', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $tripDate = now()->addDays(2)->toDateString();
+
+    $older = paidBooking(['trip_date' => $tripDate]);
+    $older->forceFill(['created_at' => now()->subDays(4)])->save();
+    $newer = paidBooking(['trip_date' => $tripDate]);
+    $newer->forceFill(['created_at' => now()->subDay()])->save();
+
+    $this->get(route('dashboard.bookings'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bookings.data.0.booking_number', $newer->booking_number)
+            ->where('bookings.data.1.booking_number', $older->booking_number));
+});
+
+test('bookings can be searched by passenger name or booking number', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $byName = paidBooking(['passenger_first_name' => 'Zelda', 'passenger_last_name' => 'Harkness']);
+    $byNumber = paidBooking();
+    paidBooking(['passenger_first_name' => 'Ignored', 'passenger_last_name' => 'Nobody']);
+
+    $this->get(route('dashboard.bookings', ['search' => 'Zelda']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('bookings.data', 1)
+            ->where('bookings.data.0.booking_number', $byName->booking_number));
+
+    $this->get(route('dashboard.bookings', ['search' => $byNumber->booking_number]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('bookings.data', 1)
+            ->where('bookings.data.0.booking_number', $byNumber->booking_number));
+});
+
+test('bookings can be filtered by trip status', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $inTransit = paidBooking(['status' => TripRequest::STATUS_IN_TRANSIT]);
+    paidBooking(['status' => TripRequest::STATUS_COMPLETED]);
+
+    $this->get(route('dashboard.bookings', ['status' => TripRequest::STATUS_IN_TRANSIT]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('bookings.data', 1)
+            ->where('bookings.data.0.booking_number', $inTransit->booking_number));
+});
+
+test('bookings can be filtered by trip date', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $tripDate = now()->addDays(3)->toDateString();
+
+    $onDate = paidBooking(['trip_date' => $tripDate]);
+    paidBooking(['trip_date' => now()->addDays(6)->toDateString()]);
+
+    $this->get(route('dashboard.bookings', ['date' => $tripDate]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('bookings.data', 1)
+            ->where('bookings.data.0.booking_number', $onDate->booking_number));
+});
+
+test('bookings are paginated', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    paidBooking(['passenger_first_name' => 'First']);
+    paidBooking(['passenger_first_name' => 'Second']);
+
+    $this->get(route('dashboard.bookings', ['page' => 2]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bookings.current_page', 2)
+            ->where('bookings.total', 2)
+            ->where('bookings.per_page', 15));
+});
+
+test('the export downloads a csv of paid bookings using the Bambi schema', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $paid = paidBooking([
+        'passenger_first_name' => 'Jane',
+        'passenger_last_name' => 'Doe',
+        'service_type' => 'Wheelchair Transport',
+        'will_call' => true,
+        'passenger_is_bariatric' => true,
+        'oxygen_required' => false,
+        'passenger_gender' => null,
+        'passenger_notes' => null,
+    ]);
+    paidBooking();
+    TripRequest::factory()->create(['payment_status' => TripRequest::PAYMENT_STATUS_PENDING]);
+
+    $response = $this->get(route('dashboard.bookings.export'));
+
+    $response
+        ->assertOk()
+        ->assertHeader('content-type', 'text/csv; charset=UTF-8');
+
+    $rows = array_map('str_getcsv', explode(PHP_EOL, trim($response->streamedContent())));
+
+    expect($rows[0])->toBe(TripRequest::CSV_COLUMNS);
+
+    $idIndex = array_search('id', TripRequest::CSV_COLUMNS, true);
+    $bariatricIndex = array_search('passenger_is_bariatric', TripRequest::CSV_COLUMNS, true);
+    $willCallIndex = array_search('will_call', TripRequest::CSV_COLUMNS, true);
+    $oxygenIndex = array_search('oxygen_required', TripRequest::CSV_COLUMNS, true);
+
+    $janeRow = collect($rows)->first(fn (array $row): bool => $row[0] === 'Jane');
+
+    expect($janeRow)->not->toBeNull()
+        ->and($janeRow[$idIndex])->toBe('')
+        ->and($janeRow[$bariatricIndex])->toBe('TRUE')
+        ->and($janeRow[$willCallIndex])->toBe('TRUE')
+        ->and($janeRow[$oxygenIndex])->toBe('FALSE');
+
+    $genderIndex = array_search('passenger_gender', TripRequest::CSV_COLUMNS, true);
+    $notesIndex = array_search('passenger_notes', TripRequest::CSV_COLUMNS, true);
+
+    expect($janeRow[$genderIndex])->toBe('')
+        ->and($janeRow[$notesIndex])->toBe('');
+
+    expect($rows)->toHaveCount(3);
+});
+
+test('a single paid booking can be exported with the Bambi schema', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking([
+        'passenger_first_name' => 'Ruth',
+        'passenger_last_name' => 'Bader',
+        'will_call' => true,
+    ]);
+
+    $response = $this->get(route('dashboard.bookings.show-export', $booking));
+
+    $response
+        ->assertOk()
+        ->assertHeader('content-type', 'text/csv; charset=UTF-8');
+
+    $rows = array_map('str_getcsv', explode(PHP_EOL, trim($response->streamedContent())));
+
+    expect($rows[0])->toBe(TripRequest::CSV_COLUMNS);
+
+    $idIndex = array_search('id', TripRequest::CSV_COLUMNS, true);
+    $willCallIndex = array_search('will_call', TripRequest::CSV_COLUMNS, true);
+
+    expect($rows)->toHaveCount(2)
+        ->and($rows[1][0])->toBe('Ruth')
+        ->and($rows[1][$willCallIndex])->toBe('TRUE')
+        ->and($rows[1][$idIndex])->toBe('');
+});
+
+test('unpaid bookings cannot be exported individually', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $unpaid = TripRequest::factory()->create(['payment_status' => TripRequest::PAYMENT_STATUS_PENDING]);
+
+    $this->get(route('dashboard.bookings.show-export', $unpaid))->assertNotFound();
+});
+
+test('authenticated users can view every detail of a paid booking', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking([
+        'passenger_first_name' => 'Jane',
+        'passenger_last_name' => 'Doe',
+        'service_type' => 'Wheelchair Transport',
+        'passenger_is_bariatric' => true,
+    ]);
+
+    $this->get(route('dashboard.bookings.show', $booking))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('dashboard/bookings/show')
+            ->where('booking.booking_number', $booking->booking_number)
+            ->where('booking.passenger_first_name', 'Jane')
+            ->where('booking.passenger_last_name', 'Doe')
+            ->where('booking.service_type', 'Wheelchair Transport')
+            ->where('booking.payment_status', TripRequest::PAYMENT_STATUS_PAID));
+});
+
+test('the booking detail page is not accessible for unpaid bookings', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $unpaid = TripRequest::factory()->create(['payment_status' => TripRequest::PAYMENT_STATUS_PENDING]);
+
+    $this->get(route('dashboard.bookings.show', $unpaid))->assertNotFound();
+});
+
+test('a manager can update the trip status', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking(['status' => TripRequest::STATUS_PENDING_DISPATCH]);
+
+    $this->patch(route('dashboard.bookings.update-status', $booking), [
+        'status' => TripRequest::STATUS_IN_TRANSIT,
+    ])->assertRedirect();
+
+    expect($booking->fresh()->status)->toBe(TripRequest::STATUS_IN_TRANSIT);
+});
+
+test('the trip status update requires a valid status', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking();
+
+    $this->patch(route('dashboard.bookings.update-status', $booking), [
+        'status' => 'NOT_A_STATUS',
+    ])->assertSessionHasErrors('status');
+
+    expect($booking->fresh()->status)->toBe(TripRequest::STATUS_PENDING_DISPATCH);
+});
+
+test('the trip status of unpaid bookings cannot be updated', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $unpaid = TripRequest::factory()->create(['payment_status' => TripRequest::PAYMENT_STATUS_PENDING]);
+
+    $this->patch(route('dashboard.bookings.update-status', $unpaid), [
+        'status' => TripRequest::STATUS_IN_TRANSIT,
+    ])->assertNotFound();
+});
+
+test('a manager can edit the trip details', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking();
+
+    $this->put(route('dashboard.bookings.update', $booking), [
+        'passenger_first_name' => 'Jane',
+        'passenger_last_name' => 'Smith',
+        'payer' => $booking->payer,
+        'transport_type' => $booking->transport_type,
+        'service_type' => 'Ambulatory Sedan',
+        'trip_date' => now()->addDays(3)->toDateString(),
+        'input_price' => 95.5,
+        'pickup_address' => '123 Main St, Eureka, CA',
+        'pickup_time' => '08:30 AM',
+        'dropoff_address' => 'General Hospital, Eureka, CA',
+        'passenger_phone_number' => '555-0100',
+        'passenger_email' => 'jane.smith@example.com',
+    ])->assertRedirect();
+
+    $booking->refresh();
+
+    expect($booking)
+        ->passenger_first_name->toBe('Jane')
+        ->passenger_last_name->toBe('Smith')
+        ->service_type->toBe('Ambulatory Sedan')
+        ->input_price->toBe('95.50')
+        ->pickup_address->toBe('123 Main St, Eureka, CA')
+        ->passenger_email->toBe('jane.smith@example.com');
+});
+
+test('per-card edits only update the fields that were submitted', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking([
+        'passenger_first_name' => 'Jane',
+        'will_call' => false,
+        'pickup_stairs' => true,
+        'trip_date' => now()->addDays(5)->toDateString(),
+        'input_price' => 80,
+    ]);
+
+    $this->put(route('dashboard.bookings.update', $booking), [
+        'passenger_first_name' => 'Joan',
+        'passenger_last_name' => $booking->passenger_last_name,
+        'passenger_phone_number' => '555-0199',
+        'passenger_is_bariatric' => 1,
+    ])->assertRedirect();
+
+    $booking->refresh();
+
+    expect($booking)
+        ->passenger_first_name->toBe('Joan')
+        ->passenger_phone_number->toBe('555-0199')
+        ->passenger_is_bariatric->toBeTrue()
+        ->will_call->toBeFalse()
+        ->pickup_stairs->toBeTrue()
+        ->input_price->toBe('80.00')
+        ->trip_date->format('Y-m-d')->toBe(now()->addDays(5)->toDateString());
+});
+
+test('trip edits are validated', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking();
+
+    $this->put(route('dashboard.bookings.update', $booking), [
+        'passenger_first_name' => '',
+        'input_price' => -5,
+    ])->assertSessionHasErrors(['passenger_first_name', 'input_price']);
+});
+
+test('unpaid bookings cannot be edited', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $unpaid = TripRequest::factory()->create(['payment_status' => TripRequest::PAYMENT_STATUS_PENDING]);
+
+    $this->put(route('dashboard.bookings.update', $unpaid), [
+        'passenger_first_name' => 'Jane',
+        'passenger_last_name' => 'Doe',
+        'payer' => 'Private Pay',
+        'transport_type' => 'Wheelchair Van',
+        'service_type' => 'Wheelchair Transport',
+        'trip_date' => now()->addDays(2)->toDateString(),
+        'input_price' => 60,
+        'pickup_address' => '123 Main St',
+        'pickup_time' => '09:00 AM',
+        'dropoff_address' => 'Hospital',
+    ])->assertNotFound();
+});

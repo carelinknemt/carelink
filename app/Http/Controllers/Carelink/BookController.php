@@ -10,7 +10,6 @@ use App\Models\TripRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -277,34 +276,12 @@ class BookController extends Controller
 
         fputcsv($handle, TripRequest::CSV_COLUMNS);
 
-        fputcsv($handle, array_map(
-            fn (string $column) => $this->csvValue($tripRequest, $column),
-            TripRequest::CSV_COLUMNS,
-        ));
+        fputcsv($handle, TripRequest::exportRow($tripRequest));
 
         rewind($handle);
         Storage::disk('local')->put($path, stream_get_contents($handle));
         fclose($handle);
 
         return $path;
-    }
-
-    private function csvValue(TripRequest $tripRequest, string $column): string
-    {
-        if ($column === 'id') {
-            return '';
-        }
-
-        $value = $tripRequest->getAttribute($column);
-
-        if (is_bool($value)) {
-            return $value ? 'TRUE' : 'FALSE';
-        }
-
-        if ($value instanceof Carbon) {
-            return $value->toDateString();
-        }
-
-        return (string) $value;
     }
 }

@@ -1,20 +1,31 @@
-import { usePage } from '@inertiajs/react';
-
-import AppLogoIcon from '@/components/app-logo-icon';
+import { useContext } from 'react';
+import { SidebarContext } from '@/components/ui/sidebar';
+import { COMPANY_INFO } from '@/data/carelink';
 
 export default function AppLogo() {
-    const { name } = usePage().props;
+    const sidebar = useContext(SidebarContext);
+
+    if (sidebar?.state === 'collapsed') {
+        return (
+            <span className="flex aspect-square size-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-white">
+                <img
+                    src={COMPANY_INFO.logoUrl}
+                    alt={COMPANY_INFO.name}
+                    className="h-7 w-7 object-cover object-left"
+                    referrerPolicy="no-referrer"
+                />
+            </span>
+        );
+    }
 
     return (
-        <>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-                <AppLogoIcon className="size-5 fill-current text-white dark:text-black" />
-            </div>
-            <div className="ml-1 grid flex-1 text-left text-sm">
-                <span className="mb-0.5 truncate leading-tight font-semibold">
-                    {name}
-                </span>
-            </div>
-        </>
+        <span className="flex min-w-0 items-center">
+            <img
+                src={COMPANY_INFO.logoUrl}
+                alt={COMPANY_INFO.name}
+                className="h-7 w-auto max-w-full rounded-md bg-white px-1.5 py-0.5 object-contain"
+                referrerPolicy="no-referrer"
+            />
+        </span>
     );
 }

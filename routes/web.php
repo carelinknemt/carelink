@@ -5,6 +5,8 @@ use App\Http\Controllers\Carelink\AppointmentController;
 use App\Http\Controllers\Carelink\BlogController;
 use App\Http\Controllers\Carelink\BookController;
 use App\Http\Controllers\Carelink\CareersController;
+use App\Http\Controllers\Carelink\DashboardBookingController;
+use App\Http\Controllers\Carelink\DashboardController;
 use App\Http\Controllers\Carelink\FaqController;
 use App\Http\Controllers\Carelink\FleetController;
 use App\Http\Controllers\Carelink\HomeController;
@@ -27,7 +29,13 @@ Route::post('/careers/apply', [CareersController::class, 'store'])->name('career
 Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/bookings', [DashboardBookingController::class, 'index'])->name('dashboard.bookings');
+    Route::get('/dashboard/bookings/export', [DashboardBookingController::class, 'export'])->name('dashboard.bookings.export');
+    Route::get('/dashboard/bookings/{booking}', [DashboardBookingController::class, 'show'])->name('dashboard.bookings.show');
+    Route::get('/dashboard/bookings/{booking}/export', [DashboardBookingController::class, 'showExport'])->name('dashboard.bookings.show-export');
+    Route::put('/dashboard/bookings/{booking}', [DashboardBookingController::class, 'update'])->name('dashboard.bookings.update');
+    Route::patch('/dashboard/bookings/{booking}/status', [DashboardBookingController::class, 'updateStatus'])->name('dashboard.bookings.update-status');
 });
 
 require __DIR__.'/settings.php';

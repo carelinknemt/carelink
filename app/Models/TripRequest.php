@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -121,6 +122,64 @@ class TripRequest extends Model
             'dropoff_latitude' => 'float',
             'dropoff_longitude' => 'float',
             'paid_at' => 'datetime',
+        ];
+    }
+
+    /**
+     * A row for the Bambi import CSV (docs/schema.csv contract): the id
+     * column exports empty, booleans export as TRUE/FALSE, dates as
+     * YYYY-MM-DD, and null values as an empty string.
+     */
+    public static function exportRow(self $tripRequest): array
+    {
+        return array_map(
+            fn (string $column): string => self::csvValue($tripRequest, $column),
+            self::CSV_COLUMNS,
+        );
+    }
+
+    private static function csvValue(self $tripRequest, string $column): string
+    {
+        if ($column === 'id') {
+            return '';
+        }
+
+        $value = $tripRequest->getAttribute($column);
+
+        if (is_bool($value)) {
+            return $value ? 'TRUE' : 'FALSE';
+        }
+
+        if ($value instanceof Carbon) {
+            return $value->toDateString();
+        }
+
+        if ($value === null) {
+            return '';
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Display summary used by the manager dashboard lists.
+     */
+    public function managerSummary(): array
+    {
+        return [
+            'id' => $this->id,
+            'booking_number' => $this->booking_number,
+            'passenger_name' => trim($this->passenger_first_name.' '.$this->passenger_last_name),
+            'phone' => $this->passenger_phone_number,
+            'email' => $this->passenger_email,
+            'service_type' => $this->service_type,
+            'trip_date' => $this->trip_date?->toDateString(),
+            'pickup_address' => $this->pickup_address,
+            'dropoff_address' => $this->dropoff_address,
+            'input_price' => $this->input_price,
+            'status' => $this->status,
+            'paid_at' => $this->paid_at?->toIso8601String(),
+            'booked_at' => $this->created_at?->toIso8601String(),
         ];
     }
 }
