@@ -12,9 +12,9 @@ use Tests\Support\FakeStripeClient;
 $validPayload = [
     'passenger_first_name' => 'Jane',
     'passenger_last_name' => 'Doe',
-    'payer' => 'Insurance / Medicaid',
-    'transport_type' => 'Wheelchair Van',
-    'service_type' => 'Wheelchair Transport',
+    'payer' => 'Private Pay',
+    'transport_type' => 'wheelchair',
+    'service_type' => 'door-to-door',
     'will_call' => false,
     'trip_date' => today()->toDateString(),
     'input_price' => 85.5,

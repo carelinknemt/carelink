@@ -2,6 +2,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { Download, Pencil } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
+import PhoneInput, { isUsPhoneNumber } from '@/components/carelink/phone-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +39,7 @@ type BookingDetail = Record<string, string | number | boolean | null>;
 type DetailField = {
     key: string;
     label: string;
-    type?: 'bool' | 'date' | 'datetime' | 'money' | 'number' | 'textarea';
+    type?: 'bool' | 'date' | 'datetime' | 'money' | 'number' | 'phone' | 'textarea';
 };
 
 type DetailSection = {
@@ -54,7 +55,7 @@ const detailSections: DetailSection[] = [
         fields: [
             { key: 'passenger_first_name', label: 'First name' },
             { key: 'passenger_last_name', label: 'Last name' },
-            { key: 'passenger_phone_number', label: 'Phone' },
+            { key: 'passenger_phone_number', label: 'Phone', type: 'phone' },
             { key: 'passenger_email', label: 'Email' },
             { key: 'passenger_dob', label: 'Date of birth', type: 'date' },
             { key: 'passenger_gender', label: 'Gender' },
@@ -87,7 +88,7 @@ const detailSections: DetailSection[] = [
             { key: 'pickup_address', label: 'Address' },
             { key: 'pickup_address_details', label: 'Address details' },
             { key: 'pickup_contact_name', label: 'Contact name' },
-            { key: 'pickup_contact_phone_number', label: 'Contact phone' },
+            { key: 'pickup_contact_phone_number', label: 'Contact phone', type: 'phone' },
             { key: 'pickup_stairs', label: 'Stairs', type: 'bool' },
             { key: 'pickup_stair_equipment', label: 'Stair equipment' },
             { key: 'pickup_driver_notes', label: 'Driver notes', type: 'textarea' },
@@ -102,7 +103,7 @@ const detailSections: DetailSection[] = [
             { key: 'dropoff_address', label: 'Address' },
             { key: 'dropoff_address_details', label: 'Address details' },
             { key: 'dropoff_contact_name', label: 'Contact name' },
-            { key: 'dropoff_contact_phone_number', label: 'Contact phone' },
+            { key: 'dropoff_contact_phone_number', label: 'Contact phone', type: 'phone' },
             { key: 'dropoff_stairs', label: 'Stairs', type: 'bool' },
             { key: 'dropoff_stair_equipment', label: 'Stair equipment' },
             { key: 'dropoff_driver_notes', label: 'Driver notes', type: 'textarea' },
@@ -121,7 +122,7 @@ const detailSections: DetailSection[] = [
             { key: 'must_provide_wheelchair', label: 'Must provide wheelchair', type: 'bool' },
             { key: 'has_infectious_disease', label: 'Infectious disease', type: 'bool' },
             { key: 'requested_by_name', label: 'Requested by' },
-            { key: 'requested_by_phone_number', label: 'Requested by phone' },
+            { key: 'requested_by_phone_number', label: 'Requested by phone', type: 'phone' },
             { key: 'dispatcher_notes', label: 'Dispatcher notes', type: 'textarea' },
         ],
     },
@@ -256,6 +257,14 @@ function SectionEditDialog({
                                                     form.setData(field.key, event.target.value)
                                                 }
                                             />
+                                        ) : field.type === 'phone' ? (
+                                            <PhoneInput
+                                                id={`edit-${field.key}`}
+                                                value={String(form.data[field.key] ?? '')}
+                                                onChange={(value) =>
+                                                    form.setData(field.key, value)
+                                                }
+                                            />
                                         ) : (
                                             <Input
                                                 id={`edit-${field.key}`}
@@ -279,6 +288,14 @@ function SectionEditDialog({
                                     </div>
                                 )}
                                 {error && <p className="text-destructive mt-1 text-xs">{error}</p>}
+                                {field.type === 'phone' &&
+                                    !error &&
+                                    String(form.data[field.key] ?? '').trim() !== '' &&
+                                    !isUsPhoneNumber(String(form.data[field.key])) && (
+                                        <p className="text-destructive mt-1 text-xs">
+                                            Enter a valid US phone number.
+                                        </p>
+                                    )}
                             </div>
                         );
                     })}

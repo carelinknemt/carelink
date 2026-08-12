@@ -7,6 +7,7 @@ import DatePicker, { formatIsoDate } from '@/components/carelink/date-picker';
 import LocationPicker from '@/components/carelink/location-picker';
 import MapPreview from '@/components/carelink/map-preview';
 import type {MapPoint} from '@/components/carelink/map-preview';
+import PhoneInput, { isUsPhoneNumber } from '@/components/carelink/phone-input';
 import TimePicker from '@/components/carelink/time-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -67,9 +68,9 @@ const STEPS = [
 ] as const;
 
 const STEP_REQUIRED: Record<number, (keyof TripRequestFormData)[]> = {
-    0: ['passenger_first_name', 'passenger_last_name'],
+    0: ['passenger_first_name', 'passenger_last_name', 'passenger_email'],
     1: ['trip_date', 'pickup_time', 'pickup_address', 'dropoff_address'],
-    2: ['payer', 'transport_type', 'service_type', 'will_call'],
+    2: ['transport_type', 'service_type', 'will_call'],
     3: [],
 };
 
@@ -102,7 +103,7 @@ const STEP_FIELDS: Record<number, (keyof TripRequestFormData)[]> = {
         'dropoff_longitude',
         'dropoff_stairs',
     ],
-    2: ['payer', 'transport_type', 'service_type', 'will_call'],
+    2: ['transport_type', 'service_type', 'will_call'],
     3: [],
 };
 
@@ -118,27 +119,21 @@ const TODAY = (() => {
     return date;
 })();
 
-const PAYER_OPTIONS = [
-    'Insurance / Medicaid',
-    'Private Pay',
-    'Facility Billing',
-    "Worker's Compensation",
-];
+const PRIVATE_PAY = 'Private Pay';
 
 const TRANSPORT_TYPE_OPTIONS = [
-    'Wheelchair Van',
-    'Ambulatory Sedan',
-    'Transit Shuttle',
-    'Gurney Van',
+    'ambulatory',
+    'wheelchair',
+    'wheelchair xl',
+    'broda chair',
+    'geri chair',
 ];
 
 const SERVICE_TYPE_OPTIONS = [
-    'Wheelchair Transport',
-    'Ambulatory Sedan',
-    'Group Transit Shuttle',
-    'Hospital Discharge',
-    'Community Ride',
-    'Long-Distance Trip',
+    'curb-to-curb',
+    'door-to-door',
+    'door-through-door',
+    'person-to-person',
 ];
 
 const WILL_CALL_OPTIONS = ['YES', 'NO'];
@@ -193,7 +188,7 @@ const initialForm: TripRequestFormData = {
     dropoff_latitude: '',
     dropoff_longitude: '',
     dropoff_stairs: false,
-    payer: '',
+    payer: PRIVATE_PAY,
     transport_type: '',
     service_type: '',
     will_call: '',
@@ -416,6 +411,15 @@ export default function Book() {
             if (!EMAIL_REGEX.test(form.data.passenger_email.trim())) {
                 errors.passenger_email = 'Please enter a valid email address.';
             }
+        }
+
+        if (
+            stepId === 0 &&
+            form.data.passenger_phone_number.trim() !== '' &&
+            !isUsPhoneNumber(form.data.passenger_phone_number)
+        ) {
+            errors.passenger_phone_number =
+                'Please enter a valid US phone number.';
         }
 
         setStepErrors(errors);
@@ -769,20 +773,18 @@ export default function Book() {
                                         <Label htmlFor="passenger_phone_number">
                                             Phone Number
                                         </Label>
-                                        <Input
+                                        <PhoneInput
                                             id="passenger_phone_number"
-                                            type="tel"
                                             value={
                                                 form.data.passenger_phone_number
                                             }
-                                            onChange={(e) =>
+                                            onChange={(value) =>
                                                 set(
                                                     'passenger_phone_number',
-                                                    e.target.value,
+                                                    value,
                                                 )
                                             }
-                                            placeholder="(707) 555-0192"
-                                            aria-invalid={Boolean(
+                                            invalid={Boolean(
                                                 fieldError(
                                                     'passenger_phone_number',
                                                 ),
@@ -1192,34 +1194,14 @@ export default function Book() {
                                                 *
                                             </span>
                                         </Label>
-                                        <Select
-                                            value={form.data.payer}
-                                            onValueChange={(v) =>
-                                                set('payer', v)
-                                            }
-                                        >
-                                            <SelectTrigger
-                                                className={`w-full ${inputClass('payer')}`}
-                                                aria-invalid={Boolean(
-                                                    fieldError('payer'),
-                                                )}
-                                            >
-                                                <SelectValue placeholder="Select payer" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {PAYER_OPTIONS.map((option) => (
-                                                    <SelectItem
-                                                        key={option}
-                                                        value={option}
-                                                    >
-                                                        {option}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <InputError
-                                            message={fieldError('payer')}
+                                        <Input
+                                            value={PRIVATE_PAY}
+                                            disabled
+                                            className={`w-full ${FIELD_BG}`}
                                         />
+                                        <p className="text-xs text-slate-500">
+                                            Bookings are private pay only.
+                                        </p>
                                     </div>
                                     <div className="grid gap-2">
                                         <Label>

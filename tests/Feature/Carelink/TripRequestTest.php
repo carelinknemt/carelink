@@ -8,9 +8,9 @@ use Tests\Support\FakeStripeClient;
 $validPayload = [
     'passenger_first_name' => 'Jane',
     'passenger_last_name' => 'Doe',
-    'payer' => 'Insurance / Medicaid',
-    'transport_type' => 'Wheelchair Van',
-    'service_type' => 'Wheelchair Transport',
+    'payer' => 'Private Pay',
+    'transport_type' => 'wheelchair',
+    'service_type' => 'door-to-door',
     'will_call' => false,
     'trip_date' => today()->toDateString(),
     'input_price' => 85.5,
@@ -72,7 +72,6 @@ test('a trip request can be submitted without optional details', function () use
     app()->bind(StripeClient::class, fn () => new FakeStripeClient);
 
     $this->post(route('bookings.store'), collect($validPayload)->except([
-        'passenger_email',
         'passenger_is_bariatric',
         'oxygen_required',
         'oxygen_liters_per_min',
@@ -87,6 +86,7 @@ test('the trip request form validates required fields', function () {
         ->assertSessionHasErrors([
             'passenger_first_name',
             'passenger_last_name',
+            'passenger_email',
             'payer',
             'transport_type',
             'service_type',
@@ -134,4 +134,54 @@ test('a trip request can be created through the factory', function () {
     expect($tripRequest)
         ->status->toBe(TripRequest::STATUS_PENDING_DISPATCH)
         ->booking_number->toMatch('/^CL-NEMT-\d{6}$/');
+});
+
+test('a trip request accepts a US phone number and stores it as submitted', function () use ($validPayload) {
+    Storage::fake('local');
+    app()->bind(StripeClient::class, fn () => new FakeStripeClient);
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'passenger_phone_number' => '+1 707-555-0192',
+    ])->assertOk();
+
+    expect(TripRequest::first()->passenger_phone_number)->toBe('+1 707-555-0192');
+});
+
+test('a trip request rejects phone numbers that are not in the US', function () use ($validPayload) {
+    Storage::fake('local');
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'passenger_phone_number' => '+44 20 7946 0958',
+    ])->assertSessionHasErrors('passenger_phone_number');
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'passenger_phone_number' => '555-0192',
+    ])->assertSessionHasErrors('passenger_phone_number');
+
+    $this->assertDatabaseCount('trip_requests', 0);
+});
+
+test('a trip request rejects payers other than private pay', function () use ($validPayload) {
+    Storage::fake('local');
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'payer' => 'Insurance / Medicaid',
+    ])->assertSessionHasErrors('payer');
+
+    $this->assertDatabaseCount('trip_requests', 0);
+});
+
+test('a trip request requires a passenger email', function () use ($validPayload) {
+    Storage::fake('local');
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'passenger_email' => '',
+    ])->assertSessionHasErrors('passenger_email');
+
+    $this->assertDatabaseCount('trip_requests', 0);
 });

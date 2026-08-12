@@ -155,7 +155,7 @@ test('the export downloads a csv of paid bookings using the Bambi schema', funct
     $paid = paidBooking([
         'passenger_first_name' => 'Jane',
         'passenger_last_name' => 'Doe',
-        'service_type' => 'Wheelchair Transport',
+        'service_type' => 'door-to-door',
         'will_call' => true,
         'passenger_is_bariatric' => true,
         'oxygen_required' => false,
@@ -242,7 +242,7 @@ test('authenticated users can view every detail of a paid booking', function () 
     $booking = paidBooking([
         'passenger_first_name' => 'Jane',
         'passenger_last_name' => 'Doe',
-        'service_type' => 'Wheelchair Transport',
+        'service_type' => 'door-to-door',
         'passenger_is_bariatric' => true,
     ]);
 
@@ -253,7 +253,7 @@ test('authenticated users can view every detail of a paid booking', function () 
             ->where('booking.booking_number', $booking->booking_number)
             ->where('booking.passenger_first_name', 'Jane')
             ->where('booking.passenger_last_name', 'Doe')
-            ->where('booking.service_type', 'Wheelchair Transport')
+            ->where('booking.service_type', 'door-to-door')
             ->where('booking.payment_status', TripRequest::PAYMENT_STATUS_PAID));
 });
 
@@ -312,15 +312,15 @@ test('a manager can edit the trip details', function () {
     $this->put(route('dashboard.bookings.update', $booking), [
         'passenger_first_name' => 'Jane',
         'passenger_last_name' => 'Smith',
-        'payer' => $booking->payer,
+        'payer' => 'Private Pay',
         'transport_type' => $booking->transport_type,
-        'service_type' => 'Ambulatory Sedan',
+        'service_type' => 'door-to-door',
         'trip_date' => now()->addDays(3)->toDateString(),
         'input_price' => 95.5,
         'pickup_address' => '123 Main St, Eureka, CA',
         'pickup_time' => '08:30 AM',
         'dropoff_address' => 'General Hospital, Eureka, CA',
-        'passenger_phone_number' => '555-0100',
+        'passenger_phone_number' => '+1 707-555-0100',
         'passenger_email' => 'jane.smith@example.com',
     ])->assertRedirect();
 
@@ -329,7 +329,7 @@ test('a manager can edit the trip details', function () {
     expect($booking)
         ->passenger_first_name->toBe('Jane')
         ->passenger_last_name->toBe('Smith')
-        ->service_type->toBe('Ambulatory Sedan')
+        ->service_type->toBe('door-to-door')
         ->input_price->toBe('95.50')
         ->pickup_address->toBe('123 Main St, Eureka, CA')
         ->passenger_email->toBe('jane.smith@example.com');
@@ -350,7 +350,7 @@ test('per-card edits only update the fields that were submitted', function () {
     $this->put(route('dashboard.bookings.update', $booking), [
         'passenger_first_name' => 'Joan',
         'passenger_last_name' => $booking->passenger_last_name,
-        'passenger_phone_number' => '555-0199',
+        'passenger_phone_number' => '+1 707-555-0199',
         'passenger_is_bariatric' => 1,
     ])->assertRedirect();
 
@@ -358,7 +358,7 @@ test('per-card edits only update the fields that were submitted', function () {
 
     expect($booking)
         ->passenger_first_name->toBe('Joan')
-        ->passenger_phone_number->toBe('555-0199')
+        ->passenger_phone_number->toBe('+1 707-555-0199')
         ->passenger_is_bariatric->toBeTrue()
         ->will_call->toBeFalse()
         ->pickup_stairs->toBeTrue()
@@ -388,8 +388,8 @@ test('unpaid bookings cannot be edited', function () {
         'passenger_first_name' => 'Jane',
         'passenger_last_name' => 'Doe',
         'payer' => 'Private Pay',
-        'transport_type' => 'Wheelchair Van',
-        'service_type' => 'Wheelchair Transport',
+        'transport_type' => 'wheelchair',
+        'service_type' => 'door-to-door',
         'trip_date' => now()->addDays(2)->toDateString(),
         'input_price' => 60,
         'pickup_address' => '123 Main St',
