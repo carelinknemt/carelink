@@ -14,9 +14,9 @@ const BOOKING_STEPS: BookingStep[] = [
         tagline: 'Tell us where, when, and who.',
         icon: MapPin,
         points: [
-            { icon: Repeat, text: 'Round-trip by default, with the return leg removable anytime, airline-style.' },
-            { icon: Car, text: 'Vehicle matched to mobility needs: wheelchair van or ambulatory sedan, never a trade-off.' },
-            { icon: CreditCard, text: 'Pickup, drop-off, payer & passenger details captured via payer-identification fields for institutional bookings.' },
+            { icon: Repeat, text: 'Round-trip by default; return leg removable anytime.' },
+            { icon: Car, text: 'Wheelchair van or sedan — matched to mobility needs.' },
+            { icon: CreditCard, text: 'Passenger, payer & institutional billing details up front.' },
         ],
     },
     {
@@ -25,9 +25,9 @@ const BOOKING_STEPS: BookingStep[] = [
         tagline: 'We lock the slot before you pay.',
         icon: ShieldCheck,
         points: [
-            { icon: Radar, text: 'Live availability check through dispatch: available, full, or uncertain.' },
-            { icon: Headset, text: 'Uncertain? Routed to dispatch for manual confirmation, never blocked.' },
-            { icon: Banknote, text: '$30 reservation fee locks the ride; waived for approved B2B/institutional clients (invoiced).' },
+            { icon: Radar, text: 'Live availability check: available, full, or uncertain.' },
+            { icon: Headset, text: 'Uncertain? Dispatch confirms manually — never blocked.' },
+            { icon: Banknote, text: '$30 fee locks the ride; waived & invoiced for B2B clients.' },
         ],
     },
     {
@@ -36,9 +36,9 @@ const BOOKING_STEPS: BookingStep[] = [
         tagline: 'Ride out. Pay for what was driven.',
         icon: Flag,
         points: [
-            { icon: Receipt, text: 'Trip carried out per the confirmed booking, with final charge based on base fare plus actual billable mileage.' },
-            { icon: Route, text: 'No binding total-cost estimate upfront; you pay only for the miles actually driven.' },
-            { icon: RotateCcw, text: 'Cancel 24+ hrs before: full refund. Later: $30 fee. Dispatch cancellations auto-refund & notify you.' },
+            { icon: Receipt, text: 'Final charge: base fare + actual billable mileage.' },
+            { icon: Route, text: 'Only the $30 fee up front — the ride is billed after.' },
+            { icon: RotateCcw, text: 'Cancel 24+ hrs: full refund · later: $30 · dispatch cancels: auto-refund.' },
         ],
     },
 ];

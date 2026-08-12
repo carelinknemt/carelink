@@ -4,9 +4,13 @@ export default function BookAppointmentBanner() {
             <div className="grid grid-cols-1 overflow-hidden rounded-2xl sm:rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] lg:grid-cols-12 bg-white border border-white/20 ring-1 ring-black/10">
                 {/* Left Dark Blue Welcome Banner */}
                 <div className="animate-hero-reveal bg-[#004B87] p-5 sm:p-7 lg:p-9 text-white lg:col-span-7 flex flex-col justify-center">
-                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold leading-snug sm:leading-snug">
-                        Welcome to Carelink Medical Transportation LLC. Connecting patients across Humboldt, Del Norte, Trinity, and Shasta counties with compassionate, punctual wheelchair and group transit.
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold leading-snug">
+                        Welcome to{' '}
+                        <span className="text-cyan-100">Carelink Medical Transportation LLC.</span>
                     </h2>
+                    <p className="mt-2 max-w-xl text-sm sm:text-base font-normal text-cyan-100/75 leading-relaxed">
+                        Connecting patients across Humboldt, Del Norte, Trinity, and Shasta counties with compassionate, punctual wheelchair and group transit.
+                    </p>
                     <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-medium text-orange-100">
                         <span className="inline-flex items-center gap-1 bg-white/10 px-2.5 py-1 rounded-full text-[11px] backdrop-blur-sm border border-white/10">
                             &bull; Curb-to-Curb Service

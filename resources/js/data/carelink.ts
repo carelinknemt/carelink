@@ -4,13 +4,15 @@ export const COMPANY_INFO = {
     name: 'Carelink Medical Transportation LLC',
     logoUrl: '/images/cllogo.png',
     logoWithTextUrl: '/images/cllogo.png',
-    tagline: 'Connecting Patients to Better Health Every Mile with Compassion. Every Trip with Purpose.',
+    tagline:
+        'Connecting Patients to Better Health Every Mile with Compassion. Every Trip with Purpose.',
     headquarters: 'Eureka, California',
     phone: '(707) 854-9350',
     email: 'dispatch@carelinknemt.com',
     dispatchPhone: '(707) 854-9350',
     address: '3857 Walnut Drive, Suite B, Eureka, CA 95503',
-    serviceRegion: 'Northern California Region (Humboldt, Del Norte, Trinity, & Shasta Counties)',
+    serviceRegion:
+        'Northern California Region (Humboldt, Del Norte, Trinity, & Shasta Counties)',
     counties: ['Humboldt', 'Del Norte', 'Trinity', 'Shasta'],
 };
 
@@ -22,9 +24,24 @@ export const HERO_SLIDES: HeroSlide[] = [
         highlightText: 'Compassionate. Punctual. Dependable.',
         bgImage: '/images/Img-Carelink-hero.webp',
         features: [
-            { title: 'Accessible Vehicles', description: 'ADA-compliant hydraulic lifts & safety tie-down systems', icon: 'ShieldCheck' },
-            { title: 'Smart Dispatch', description: 'Real-time GPS ride tracking & instant dispatching', icon: 'Clock' },
-            { title: 'Facility Partnering', description: 'Direct billing for hospitals, clinics, & insurers', icon: 'Building2' },
+            {
+                title: 'Accessible Vehicles',
+                description:
+                    'ADA-compliant hydraulic lifts & safety tie-down systems',
+                icon: 'ShieldCheck',
+            },
+            {
+                title: 'Smart Dispatch',
+                description:
+                    'Real-time GPS ride tracking & instant dispatching',
+                icon: 'Clock',
+            },
+            {
+                title: 'Facility Partnering',
+                description:
+                    'Direct billing for hospitals, clinics, & insurers',
+                icon: 'Building2',
+            },
         ],
     },
     {
@@ -34,33 +51,73 @@ export const HERO_SLIDES: HeroSlide[] = [
         highlightText: 'Guaranteed On-Time Patient Rides',
         bgImage: '/images/Carelink-hero1.webp',
         features: [
-            { title: 'Recurring Transfers', description: 'Scheduled multi-week dialysis & therapy rides', icon: 'ShieldCheck' },
-            { title: 'Certified Drivers', description: 'CPR-certified, HIPAA-trained & background-checked', icon: 'HeartPulse' },
-            { title: 'Flexible Billing', description: 'Medicaid, insurance, or direct facility billing', icon: 'CreditCard' },
+            {
+                title: 'Recurring Transfers',
+                description: 'Scheduled multi-week dialysis & therapy rides',
+                icon: 'ShieldCheck',
+            },
+            {
+                title: 'Certified Drivers',
+                description:
+                    'CPR-certified, HIPAA-trained & background-checked',
+                icon: 'HeartPulse',
+            },
+            {
+                title: 'Flexible Billing',
+                description: 'Medicaid, insurance, or direct facility billing',
+                icon: 'CreditCard',
+            },
         ],
     },
     {
         id: 'slide-3',
         title: 'Curb-to-Curb Support',
-        subtitle: 'Gentle driveway support loading and unloading from our modern fleet.',
+        subtitle:
+            'Gentle driveway support loading and unloading from our modern fleet.',
         highlightText: 'Comfort & Dignity Every Mile',
         bgImage: '/images/carelink_driver_care_1785061489888.jpg',
         features: [
-            { title: 'Full Assistance', description: 'Support from home driveway directly into the vehicle', icon: 'UserCheck' },
-            { title: 'Medical Equipment', description: 'Accommodates oxygen tanks, walkers, & IV poles', icon: 'Sparkles' },
-            { title: 'Dependable Availability', description: 'Reliable dispatch for hospital discharges', icon: 'PhoneCall' },
+            {
+                title: 'Full Assistance',
+                description:
+                    'Support from home driveway directly into the vehicle',
+                icon: 'UserCheck',
+            },
+            {
+                title: 'Medical Equipment',
+                description: 'Accommodates oxygen tanks, walkers, & IV poles',
+                icon: 'Sparkles',
+            },
+            {
+                title: 'Dependable Availability',
+                description: 'Reliable dispatch for hospital discharges',
+                icon: 'PhoneCall',
+            },
         ],
     },
     {
         id: 'slide-4',
         title: 'Long-Distance Transport',
-        subtitle: 'Providing dependable long-distance transportation to major medical hubs.',
+        subtitle:
+            'Providing dependable long-distance transportation to major medical hubs.',
         highlightText: 'Long-distance trips: safe and reliable service',
         bgImage: '/images/carelink_ambulatory_sedan_1786020571564.jpg',
         features: [
-            { title: 'Safe Service', description: 'Dependable out-of-town trips to specialists', icon: 'ShieldCheck' },
-            { title: 'Comfortable Ride', description: 'Climate-controlled cabins for extended journeys', icon: 'Sparkles' },
-            { title: 'Door-to-Door', description: 'Seamless transfers from home to regional centers', icon: 'UserCheck' },
+            {
+                title: 'Safe Service',
+                description: 'Dependable out-of-town trips to specialists',
+                icon: 'ShieldCheck',
+            },
+            {
+                title: 'Comfortable Ride',
+                description: 'Climate-controlled cabins for extended journeys',
+                icon: 'Sparkles',
+            },
+            {
+                title: 'Door-to-Door',
+                description: 'Seamless transfers from home to regional centers',
+                icon: 'UserCheck',
+            },
         ],
     },
 ];
@@ -69,6 +126,7 @@ export const PATIENT_REVIEWS = [
     {
         id: 1,
         author: 'Chris M.',
+        role: 'Dialysis patient',
         initials: 'CM',
         rating: 5,
         date: '2 days ago',
@@ -79,6 +137,7 @@ export const PATIENT_REVIEWS = [
     {
         id: 2,
         author: 'Robert K.',
+        role: 'Son of patient',
         initials: 'RK',
         rating: 5,
         date: '1 week ago',
@@ -89,6 +148,7 @@ export const PATIENT_REVIEWS = [
     {
         id: 3,
         author: 'Sarah J.',
+        role: 'Case manager',
         initials: 'SJ',
         rating: 5,
         date: '2 weeks ago',
@@ -99,6 +159,7 @@ export const PATIENT_REVIEWS = [
     {
         id: 4,
         author: 'Thomas L.',
+        role: 'Patient',
         initials: 'TL',
         rating: 5,
         date: '3 weeks ago',
