@@ -101,7 +101,7 @@ function SummaryCard({
 }
 
 export default function DashboardAnalytics(props: AnalyticsPageProps) {
-    const { days, range, summary, daily, statuses, services, day_of_week, pickup_hour, top_pickups, repeat_passengers } = props;
+    const { days, range, summary, daily, statuses, services, repeat_passengers } = props;
 
     function changePeriod(value: number) {
         if (value === days) {
@@ -290,54 +290,6 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                                         <Cell key={entry.label} fill={SERIES_COLORS[index % SERIES_COLORS.length]} />
                                     ))}
                                 </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </ChartCard>
-
-                    <ChartCard title="Demand by Day of Week">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={day_of_week} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200" />
-                                <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-                                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                                <Tooltip formatter={(value) => [value, 'Bookings']} />
-                                <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </ChartCard>
-
-                    <ChartCard title="Demand by Pickup Hour">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={pickup_hour} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200" />
-                                <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-                                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                                <Tooltip formatter={(value) => [value, 'Bookings']} />
-                                <Bar dataKey="count" fill="#d97706" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </ChartCard>
-
-                    <ChartCard title="Top Pickup Locations" className="lg:col-span-2">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={top_pickups}
-                                layout="vertical"
-                                margin={{ top: 5, right: 16, left: 24, bottom: 0 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200" />
-                                <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
-                                <YAxis
-                                    type="category"
-                                    dataKey="address"
-                                    width={240}
-                                    tick={{ fontSize: 11 }}
-                                    tickFormatter={(value: string) =>
-                                        value.length > 34 ? `${value.slice(0, 34)}…` : value
-                                    }
-                                />
-                                <Tooltip formatter={(value) => [value, 'Bookings']} />
-                                <Bar dataKey="count" fill="#004B87" radius={[0, 4, 4, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </ChartCard>

@@ -198,6 +198,26 @@ test('bookings respect the requested page size', function () {
             ->where('bookings.per_page', 15));
 });
 
+test('mobile requests default to 25 bookings per page', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user)
+        ->withHeader('User-Agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1');
+
+    paidBooking(['passenger_first_name' => 'First']);
+    paidBooking(['passenger_first_name' => 'Second']);
+
+    $this->get(route('dashboard.bookings'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bookings.per_page', 25)
+            ->where('filters.per_page', '25'));
+
+    $this->get(route('dashboard.bookings', ['per_page' => 7]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bookings.per_page', 25));
+});
+
 test('bookings are paginated', function () {
     $user = User::factory()->create();
     $this->actingAs($user);

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Carelink;
 
 use App\Http\Controllers\Controller;
 use App\Models\TripRequest;
-use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -53,18 +52,6 @@ class DashboardAnalyticsController extends Controller
             'daily' => $this->dailySeries($bookings, $from, $to),
             'statuses' => $this->counts($bookings, 'status'),
             'services' => $this->counts($bookings, 'service_type'),
-            'day_of_week' => $this->dayOfWeek($bookings),
-            'pickup_hour' => $this->pickupHours($bookings),
-            'top_pickups' => $bookings
-                ->whereNotNull('pickup_address')
-                ->groupBy('pickup_address')
-                ->map(fn (Collection $rows): array => [
-                    'address' => (string) $rows->first()?->pickup_address,
-                    'count' => $rows->count(),
-                ])
-                ->sortByDesc('count')
-                ->take(8)
-                ->values(),
             'repeat_passengers' => $this->repeatPassengers($bookings),
         ]);
     }
@@ -123,44 +110,6 @@ class DashboardAnalyticsController extends Controller
                 'count' => $bookings->where($field, $value)->count(),
             ])
             ->filter(fn (array $row): bool => $row['count'] > 0)
-            ->values()
-            ->all();
-    }
-
-    /**
-     * @return array<int, array{label: string, count: int}>
-     */
-    private function dayOfWeek(Collection $bookings): array
-    {
-        $labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-        return collect($labels)->map(function (string $label, int $index) use ($bookings): array {
-            $rows = $bookings->filter(fn (TripRequest $tripRequest): bool => $tripRequest->trip_date?->dayOfWeek === $index);
-
-            return [
-                'label' => $label,
-                'count' => $rows->count(),
-            ];
-        })->values()->all();
-    }
-
-    /**
-     * @return array<int, array{label: string, count: int}>
-     */
-    private function pickupHours(Collection $bookings): array
-    {
-        return $bookings
-            ->whereNotNull('pickup_time')
-            ->groupBy(fn (TripRequest $tripRequest): string => substr((string) $tripRequest->pickup_time, 0, 2))
-            ->map(function (Collection $rows): array {
-                $hour = (int) ((string) $rows->first()?->pickup_time ?: '0');
-
-                return [
-                    'label' => CarbonImmutable::createFromTime($hour)->format('g A'),
-                    'count' => $rows->count(),
-                ];
-            })
-            ->sortKeys()
             ->values()
             ->all();
     }

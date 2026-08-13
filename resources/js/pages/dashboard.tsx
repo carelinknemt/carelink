@@ -11,7 +11,7 @@ import {
 import { BookingStatusBadge } from '@/components/carelink/booking-status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatDate, formatMoney, statusLabel } from '@/lib/bookings';
+import { formatDate, formatMoney } from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
 import { show as showBooking } from '@/routes/dashboard/bookings';
@@ -246,18 +246,14 @@ export default function Dashboard({
                                     </p>
                                 </div>
                             ) : (
-                                <ul className="flex flex-col">
-                                    {recent_bookings.map((booking, index) => (
+                                <ul className="flex flex-col gap-3">
+                                    {recent_bookings.map((booking) => (
                                         <li
                                             key={booking.id}
-                                            className={
-                                                index > 0
-                                                    ? 'border-t py-3 first:pt-0 last:pb-0'
-                                                    : 'pb-3'
-                                            }
+                                            className="border-border rounded-lg border p-3"
                                         >
-                                            <div className="flex items-center justify-between gap-4">
-                                                <div className="flex min-w-0 flex-col">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="min-w-0">
                                                     <Link
                                                         href={showBooking.url({
                                                             booking: booking.id,
@@ -267,18 +263,21 @@ export default function Dashboard({
                                                     >
                                                         {booking.booking_number}
                                                     </Link>
-                                                    <span className="text-muted-foreground truncate text-xs">
-                                                        {booking.passenger_name} ·{' '}
-                                                        {formatDate(booking.trip_date)} ·{' '}
-                                                        {statusLabel(booking.status)}
-                                                    </span>
+                                                    <p className="text-muted-foreground truncate text-xs">
+                                                        {booking.passenger_name}
+                                                    </p>
                                                 </div>
-                                                <div className="flex shrink-0 items-center gap-3">
-                                                    <BookingStatusBadge status={booking.status} />
-                                                    <span className="text-sm font-medium whitespace-nowrap">
-                                                        {formatMoney(booking.input_price)}
-                                                    </span>
-                                                </div>
+                                                <span className="shrink-0 text-sm font-medium whitespace-nowrap">
+                                                    {formatMoney(booking.input_price)}
+                                                </span>
+                                            </div>
+                                            <div className="mt-2 flex items-center justify-between gap-3">
+                                                <span className="text-muted-foreground truncate text-xs">
+                                                    {formatDate(booking.trip_date)}
+                                                </span>
+                                                <BookingStatusBadge
+                                                    status={booking.status}
+                                                />
                                             </div>
                                         </li>
                                     ))}

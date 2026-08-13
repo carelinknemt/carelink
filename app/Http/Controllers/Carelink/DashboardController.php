@@ -34,7 +34,7 @@ class DashboardController extends Controller
         $recentBookings = TripRequest::query()
             ->where('payment_status', TripRequest::PAYMENT_STATUS_PAID)
             ->orderByDesc('created_at')
-            ->limit(5)
+            ->limit(4)
             ->get()
             ->map(fn (TripRequest $tripRequest): array => $tripRequest->managerSummary());
 

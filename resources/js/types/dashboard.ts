@@ -1,4 +1,4 @@
-import type { PaidBooking, PaginatedBookings } from '@/types/ui';
+import type { PaginatedBookings } from '@/types/ui';
 
 export type DashboardStats = {
     total_paid: number;
@@ -52,11 +52,6 @@ export type RepeatPassenger = {
     trips: number;
 };
 
-export type TopPickup = {
-    address: string;
-    count: number;
-};
-
 export type AnalyticsPageProps = {
     days: number;
     range: { from: string; to: string };
@@ -64,17 +59,5 @@ export type AnalyticsPageProps = {
     daily: AnalyticsDaily[];
     statuses: AnalyticsLabelCount[];
     services: AnalyticsLabelCount[];
-    day_of_week: AnalyticsLabelCount[];
-    pickup_hour: AnalyticsLabelCount[];
-    top_pickups: TopPickup[];
     repeat_passengers: RepeatPassenger[];
-};
-
-export type DispatchColumnStatus = string;
-
-export type DispatchColumns = Record<DispatchColumnStatus, PaidBooking[]>;
-
-export type DispatchPageProps = {
-    columns: DispatchColumns;
-    statuses: string[];
 };

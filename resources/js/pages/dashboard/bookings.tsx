@@ -64,6 +64,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate, formatMoney, statusLabel } from '@/lib/bookings';
+import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
 import {
@@ -467,7 +468,15 @@ export default function DashboardBookings({
                             </div>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                                    <Button
+                                        variant="outline"
+                                        size={isDesktop ? 'sm' : 'lg'}
+                                        className={cn(
+                                            'w-full sm:w-auto',
+                                            !isDesktop &&
+                                                'h-11 border-transparent bg-[#E64A19] text-white hover:bg-[#E64A19]/90 hover:text-white',
+                                        )}
+                                    >
                                         <Download />
                                         Export
                                     </Button>
@@ -652,7 +661,7 @@ export default function DashboardBookings({
                         )}
 
                         {bookings.last_page > 1 && (
-                            <div className="mt-6">
+                            <div className="mt-6 hidden md:block">
                                 <Pagination>
                                     <PaginationContent>
                                         <PaginationItem>

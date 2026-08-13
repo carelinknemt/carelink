@@ -173,7 +173,19 @@ class DashboardBookingController extends Controller
     {
         $perPage = $request->integer('per_page');
 
-        return in_array($perPage, self::PER_PAGE_OPTIONS, true) ? $perPage : 15;
+        if (in_array($perPage, self::PER_PAGE_OPTIONS, true)) {
+            return $perPage;
+        }
+
+        return $this->isMobileRequest($request) ? 25 : 15;
+    }
+
+    private function isMobileRequest(Request $request): bool
+    {
+        return (bool) preg_match(
+            '/Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile/i',
+            $request->userAgent() ?? '',
+        );
     }
 
     private function sortClause(Request $request): string

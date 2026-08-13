@@ -8,7 +8,6 @@ use App\Http\Controllers\Carelink\CareersController;
 use App\Http\Controllers\Carelink\DashboardAnalyticsController;
 use App\Http\Controllers\Carelink\DashboardBookingController;
 use App\Http\Controllers\Carelink\DashboardController;
-use App\Http\Controllers\Carelink\DashboardDispatchController;
 use App\Http\Controllers\Carelink\FaqController;
 use App\Http\Controllers\Carelink\FleetController;
 use App\Http\Controllers\Carelink\HomeController;
@@ -33,7 +32,6 @@ Route::post('/appointments', [AppointmentController::class, 'store'])->name('app
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/analytics', [DashboardAnalyticsController::class, 'index'])->name('dashboard.analytics');
-    Route::get('/dashboard/dispatch', [DashboardDispatchController::class, 'index'])->name('dashboard.dispatch');
     Route::get('/dashboard/bookings', [DashboardBookingController::class, 'index'])->name('dashboard.bookings');
     Route::get('/dashboard/bookings/export', [DashboardBookingController::class, 'export'])->name('dashboard.bookings.export');
     Route::get('/dashboard/bookings/{booking}', [DashboardBookingController::class, 'show'])->name('dashboard.bookings.show');

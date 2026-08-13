@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BarChart3, CalendarCheck, KanbanSquare, LayoutGrid } from 'lucide-react';
+import { BarChart3, CalendarCheck, LayoutGrid } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -13,7 +13,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import { analytics, bookings as dashboardBookings, dispatch } from '@/routes/dashboard';
+import { analytics, bookings as dashboardBookings } from '@/routes/dashboard';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -26,11 +26,6 @@ const mainNavItems: NavItem[] = [
         title: 'Bookings',
         href: dashboardBookings(),
         icon: CalendarCheck,
-    },
-    {
-        title: 'Dispatch',
-        href: dispatch(),
-        icon: KanbanSquare,
     },
     {
         title: 'Analytics',
