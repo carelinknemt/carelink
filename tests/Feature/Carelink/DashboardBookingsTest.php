@@ -117,20 +117,85 @@ test('bookings can be filtered by trip status', function () {
             ->where('bookings.data.0.booking_number', $inTransit->booking_number));
 });
 
-test('bookings can be filtered by trip date', function () {
+test('bookings can be filtered by a trip date range', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
-    $tripDate = now()->addDays(3)->toDateString();
-
-    $onDate = paidBooking(['trip_date' => $tripDate]);
+    $inRange = paidBooking(['trip_date' => now()->addDays(3)->toDateString()]);
     paidBooking(['trip_date' => now()->addDays(6)->toDateString()]);
 
-    $this->get(route('dashboard.bookings', ['date' => $tripDate]))
+    $this->get(route('dashboard.bookings', [
+        'date_from' => now()->addDays(2)->toDateString(),
+        'date_to' => now()->addDays(4)->toDateString(),
+    ]))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('bookings.data', 1)
-            ->where('bookings.data.0.booking_number', $onDate->booking_number));
+            ->where('bookings.data.0.booking_number', $inRange->booking_number));
+
+    $this->get(route('dashboard.bookings', [
+        'date_from' => now()->addDays(7)->toDateString(),
+    ]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('bookings.data', 0));
+});
+
+test('bookings can be filtered by service type', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $wheelchair = paidBooking(['service_type' => 'curb-to-curb']);
+    paidBooking(['service_type' => 'door-to-door']);
+
+    $this->get(route('dashboard.bookings', ['service_type' => 'curb-to-curb']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('bookings.data', 1)
+            ->where('bookings.data.0.booking_number', $wheelchair->booking_number));
+});
+
+test('bookings can be sorted by trip price and direction', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $cheap = paidBooking([
+        'input_price' => 10,
+        'trip_date' => now()->addDays(9)->toDateString(),
+    ]);
+    $expensive = paidBooking([
+        'input_price' => 250,
+        'trip_date' => now()->addDays(2)->toDateString(),
+    ]);
+
+    $this->get(route('dashboard.bookings', ['sort' => 'input_price', 'direction' => 'desc']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bookings.data.0.booking_number', $expensive->booking_number)
+            ->where('bookings.data.1.booking_number', $cheap->booking_number));
+
+    $this->get(route('dashboard.bookings', ['sort' => 'not_a_column']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bookings.data.0.booking_number', $expensive->booking_number));
+});
+
+test('bookings respect the requested page size', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    paidBooking(['passenger_first_name' => 'First']);
+    paidBooking(['passenger_first_name' => 'Second']);
+
+    $this->get(route('dashboard.bookings', ['per_page' => 25]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bookings.per_page', 25));
+
+    $this->get(route('dashboard.bookings', ['per_page' => 7]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('bookings.per_page', 15));
 });
 
 test('bookings are paginated', function () {

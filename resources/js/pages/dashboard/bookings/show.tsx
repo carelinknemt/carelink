@@ -1,7 +1,10 @@
 import { Head, useForm } from '@inertiajs/react';
-import { Download, Pencil } from 'lucide-react';
+import { Download, MapPinned, Pencil } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
+import { CopyButton } from '@/components/carelink/copy-button';
+import MapPreview from '@/components/carelink/map-preview';
+import type { MapPoint } from '@/components/carelink/map-preview';
 import PhoneInput, { isUsPhoneNumber } from '@/components/carelink/phone-input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,6 +29,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import { formatDate, formatDateTime, statusLabel } from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
 import {
@@ -138,24 +142,6 @@ const detailSections: DetailSection[] = [
         ],
     },
 ];
-
-function formatDate(date: string): string {
-    return new Intl.DateTimeFormat('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    }).format(new Date(date));
-}
-
-function formatDateTime(date: string): string {
-    return new Intl.DateTimeFormat('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-    }).format(new Date(date));
-}
 
 function formatValue(value: string | number | boolean | null, type?: string): string {
     if (value === null || value === undefined || value === '') {
@@ -343,6 +329,26 @@ export default function BookingDetail({
         });
     }
 
+    const mapPoints: MapPoint[] = [];
+
+    if (booking.pickup_latitude && booking.pickup_longitude) {
+        mapPoints.push({
+            label: String(booking.pickup_address || 'Pickup location'),
+            latitude: Number(booking.pickup_latitude),
+            longitude: Number(booking.pickup_longitude),
+            kind: 'pickup',
+        });
+    }
+
+    if (booking.dropoff_latitude && booking.dropoff_longitude) {
+        mapPoints.push({
+            label: String(booking.dropoff_address || 'Dropoff location'),
+            latitude: Number(booking.dropoff_latitude),
+            longitude: Number(booking.dropoff_longitude),
+            kind: 'dropoff',
+        });
+    }
+
     return (
         <>
             <Head title={`Booking ${booking.booking_number}`}>
@@ -353,8 +359,12 @@ export default function BookingDetail({
                 <div className="flex flex-col gap-1.5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex flex-wrap items-center gap-2">
-                            <h1 className="text-2xl font-semibold tracking-tight">
+                            <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
                                 {booking.booking_number}
+                                <CopyButton
+                                    value={String(booking.booking_number)}
+                                    label={String(booking.booking_number)}
+                                />
                             </h1>
                             <Select
                                 value={String(booking.status)}
@@ -370,7 +380,7 @@ export default function BookingDetail({
                                 <SelectContent>
                                     {statuses.map((status) => (
                                         <SelectItem key={status} value={status}>
-                                            {status.replaceAll('_', ' ')}
+                                            {statusLabel(status)}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -419,7 +429,17 @@ export default function BookingDetail({
                                                     {field.label}
                                                 </dt>
                                                 <dd className="text-sm font-medium break-words sm:min-w-0 sm:text-right">
-                                                    {formatValue(booking[field.key], field.type)}
+                                                    {field.type === 'phone' &&
+                                                    booking[field.key] ? (
+                                                        <span className="inline-flex items-center gap-1.5">
+                                                            {String(booking[field.key])}
+                                                            <CopyButton
+                                                                value={String(booking[field.key])}
+                                                            />
+                                                        </span>
+                                                    ) : (
+                                                        formatValue(booking[field.key], field.type)
+                                                    )}
                                                 </dd>
                                             </div>
                                         </div>
@@ -429,6 +449,26 @@ export default function BookingDetail({
                         </Card>
                     ))}
                 </div>
+
+                {mapPoints.length > 0 && (
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                            <CardTitle className="flex items-center gap-2 text-base">
+                                <MapPinned className="size-4 text-[#E64A19]" />
+                                Route Map
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <MapPreview points={mapPoints} height={360} />
+                            <p className="mt-2 text-xs text-muted-foreground">
+                                <span className="font-bold text-[#004B87]">Blue</span> pickup
+                                {' · '}
+                                <span className="font-bold text-[#E64A19]">orange</span>{' '}
+                                dropoff
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
             </div>
 
             <Dialog
@@ -449,11 +489,11 @@ export default function BookingDetail({
                             </span>{' '}
                             from{' '}
                             <span className="text-foreground font-medium">
-                                {String(booking.status).replaceAll('_', ' ')}
+                                {statusLabel(String(booking.status))}
                             </span>{' '}
                             to{' '}
                             <span className="text-foreground font-medium">
-                                {statusTarget?.replaceAll('_', ' ')}
+                                {statusLabel(statusTarget ?? '')}
                             </span>
                             . This will be visible to the dispatch team.
                         </DialogDescription>

@@ -174,6 +174,7 @@ class TripRequest extends Model
             'email' => $this->passenger_email,
             'service_type' => $this->service_type,
             'trip_date' => $this->trip_date?->toDateString(),
+            'pickup_time' => $this->pickup_time,
             'pickup_address' => $this->pickup_address,
             'dropoff_address' => $this->dropoff_address,
             'input_price' => $this->input_price,

@@ -28,6 +28,7 @@ export type PaidBooking = {
     email: string | null;
     service_type: string | null;
     trip_date: string | null;
+    pickup_time: string | null;
     pickup_address: string | null;
     dropoff_address: string | null;
     input_price: string;

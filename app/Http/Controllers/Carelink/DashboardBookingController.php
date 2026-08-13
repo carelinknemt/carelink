@@ -15,17 +15,34 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DashboardBookingController extends Controller
 {
+    private const SORTABLE_COLUMNS = [
+        'trip_date',
+        'passenger_name',
+        'input_price',
+        'created_at',
+    ];
+
+    private const PER_PAGE_OPTIONS = [15, 25, 50, 100];
+
+    private const SERVICE_TYPES = [
+        'curb-to-curb',
+        'door-to-door',
+        'door-through-door',
+        'person-to-person',
+    ];
+
     public function index(Request $request): Response
     {
         $bookings = $this->filteredQuery($request)
-            ->paginate(15)
+            ->paginate($this->perPage($request))
             ->withQueryString()
             ->through(fn (TripRequest $tripRequest): array => $tripRequest->managerSummary());
 
         return Inertia::render('dashboard/bookings', [
             'bookings' => $bookings,
-            'filters' => $request->only(['search', 'status', 'date']),
+            'filters' => $this->filters($request),
             'statuses' => TripRequest::STATUSES,
+            'service_types' => self::SERVICE_TYPES,
         ]);
     }
 
@@ -101,8 +118,9 @@ class DashboardBookingController extends Controller
     }
 
     /**
-     * Paid bookings (the $30 booking fee has been processed), sorted by
-     * trip date with optional search, trip date, and status filters applied.
+     * Paid bookings (the $30 booking fee has been processed), with
+     * optional search, status, date range, service type filters and a
+     * whitelisted sort applied.
      */
     private function filteredQuery(Request $request): Builder
     {
@@ -122,10 +140,56 @@ class DashboardBookingController extends Controller
             ->when($request->filled('status'), function (Builder $query) use ($request): void {
                 $query->where('status', $request->string('status')->toString());
             })
-            ->when($request->filled('date'), function (Builder $query) use ($request): void {
-                $query->whereDate('trip_date', $request->string('date')->toString());
+            ->when($request->filled('date_from'), function (Builder $query) use ($request): void {
+                $query->whereDate('trip_date', '>=', $request->string('date_from')->toString());
             })
-            ->orderBy('trip_date')
-            ->orderByDesc('created_at');
+            ->when($request->filled('date_to'), function (Builder $query) use ($request): void {
+                $query->whereDate('trip_date', '<=', $request->string('date_to')->toString());
+            })
+            ->when($request->filled('service_type'), function (Builder $query) use ($request): void {
+                $query->where('service_type', $request->string('service_type')->toString());
+            })
+            ->orderByRaw($this->sortClause($request));
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function filters(Request $request): array
+    {
+        return [
+            'search' => $request->string('search')->trim()->toString() ?: null,
+            'status' => $request->string('status')->toString() ?: null,
+            'date_from' => $request->string('date_from')->toString() ?: null,
+            'date_to' => $request->string('date_to')->toString() ?: null,
+            'service_type' => $request->string('service_type')->toString() ?: null,
+            'sort' => $request->string('sort')->toString() ?: null,
+            'direction' => $request->string('direction')->toString() ?: null,
+            'per_page' => (string) $this->perPage($request),
+        ];
+    }
+
+    private function perPage(Request $request): int
+    {
+        $perPage = $request->integer('per_page');
+
+        return in_array($perPage, self::PER_PAGE_OPTIONS, true) ? $perPage : 15;
+    }
+
+    private function sortClause(Request $request): string
+    {
+        $column = $request->string('sort')->toString();
+
+        if (! in_array($column, self::SORTABLE_COLUMNS, true)) {
+            return 'trip_date asc, created_at desc';
+        }
+
+        $direction = $request->string('direction')->toString() === 'desc' ? 'desc' : 'asc';
+
+        if ($column === 'passenger_name') {
+            return "passenger_first_name {$direction}, passenger_last_name {$direction}";
+        }
+
+        return "{$column} {$direction}, created_at desc";
     }
 }

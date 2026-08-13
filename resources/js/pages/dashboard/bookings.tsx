@@ -1,7 +1,17 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { CalendarDays, Download, Search, X } from 'lucide-react';
+import {
+    ArrowDown,
+    ArrowUp,
+    ArrowUpDown,
+    CalendarDays,
+    Download,
+    Search,
+    SlidersHorizontal,
+    X,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -13,6 +23,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -32,6 +48,14 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+} from '@/components/ui/sheet';
+import {
     Table,
     TableBody,
     TableCell,
@@ -39,6 +63,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { formatDate, formatMoney, statusLabel } from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
 import {
@@ -47,73 +72,262 @@ import {
     updateStatus as updateBookingStatus,
 } from '@/routes/dashboard/bookings';
 import type { PaidBooking, PaginatedBookings } from '@/types';
-
-function formatDate(date: string | null): string {
-    if (!date) {
-        return '—';
-    }
-
-    return new Intl.DateTimeFormat('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    }).format(new Date(date));
-}
+import type { BookingFilters } from '@/types/dashboard';
 
 type DashboardBookingsProps = {
     bookings: PaginatedBookings;
-    filters: {
-        search?: string;
-        status?: string;
-        date?: string;
-    };
+    filters: BookingFilters;
     statuses: string[];
+    service_types: string[];
 };
+
+const PER_PAGE_OPTIONS = [15, 25, 50, 100];
+
+function SortHeaderButton({
+    label,
+    column,
+    sort,
+    direction,
+    onSort,
+}: {
+    label: string;
+    column: string;
+    sort: string | null | undefined;
+    direction: string | null | undefined;
+    onSort: (column: string) => void;
+}) {
+    const active = sort === column;
+
+    return (
+        <button
+            type="button"
+            onClick={() => onSort(column)}
+            className="inline-flex items-center gap-1 font-medium hover:underline"
+        >
+            {label}
+            {active ? (
+                direction === 'desc' ? (
+                    <ArrowDown className="size-3.5" />
+                ) : (
+                    <ArrowUp className="size-3.5" />
+                )
+            ) : (
+                <ArrowUpDown className="opacity-50 size-3.5" />
+            )}
+        </button>
+    );
+}
+
+type FilterDraft = {
+    status: string;
+    service_type: string;
+    date_from: string;
+    date_to: string;
+};
+
+function FilterFields({
+    draft,
+    statuses,
+    service_types,
+    onChange,
+}: {
+    draft: FilterDraft;
+    statuses: string[];
+    service_types: string[];
+    onChange: (patch: Partial<FilterDraft>) => void;
+}) {
+    return (
+        <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-1.5">
+                <Label htmlFor="filter-status">Status</Label>
+                <Select
+                    value={draft.status}
+                    onValueChange={(value) =>
+                        onChange({ status: value === '__all' ? '' : value })
+                    }
+                >
+                    <SelectTrigger id="filter-status" className="w-full">
+                        <SelectValue placeholder="All statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__all">All statuses</SelectItem>
+                        {statuses.map((status) => (
+                            <SelectItem key={status} value={status}>
+                                {statusLabel(status)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <div className="grid gap-1.5">
+                <Label htmlFor="filter-service-type">Service type</Label>
+                <Select
+                    value={draft.service_type}
+                    onValueChange={(value) =>
+                        onChange({ service_type: value === '__all' ? '' : value })
+                    }
+                >
+                    <SelectTrigger id="filter-service-type" className="w-full">
+                        <SelectValue placeholder="All services" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__all">All services</SelectItem>
+                        {service_types.map((serviceType) => (
+                            <SelectItem key={serviceType} value={serviceType}>
+                                {serviceType}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <div className="grid gap-1.5">
+                <Label htmlFor="filter-date-from">Trip date from</Label>
+                <Input
+                    id="filter-date-from"
+                    type="date"
+                    className="w-full"
+                    value={draft.date_from}
+                    onChange={(event) => onChange({ date_from: event.target.value })}
+                />
+            </div>
+
+            <div className="grid gap-1.5">
+                <Label htmlFor="filter-date-to">Trip date to</Label>
+                <Input
+                    id="filter-date-to"
+                    type="date"
+                    className="w-full"
+                    value={draft.date_to}
+                    onChange={(event) => onChange({ date_to: event.target.value })}
+                />
+            </div>
+        </div>
+    );
+}
 
 export default function DashboardBookings({
     bookings,
     filters,
     statuses,
+    service_types,
 }: DashboardBookingsProps) {
     const form = useForm({
         search: filters.search ?? '',
         status: filters.status ?? '',
-        date: filters.date ?? '',
+        date_from: filters.date_from ?? '',
+        date_to: filters.date_to ?? '',
+        service_type: filters.service_type ?? '',
+        sort: filters.sort ?? '',
+        direction: filters.direction ?? '',
+        per_page: filters.per_page ?? '15',
     });
 
-    function applyFilters(event: FormEvent) {
+    const searchTimer = useRef<number | null>(null);
+
+    const [isDesktop, setIsDesktop] = useState(() =>
+        typeof window !== 'undefined'
+            ? window.matchMedia('(min-width: 768px)').matches
+            : false,
+    );
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(min-width: 768px)');
+        const handler = (event: MediaQueryListEvent) => {
+            setIsDesktop(event.matches);
+        };
+
+        mediaQuery.addEventListener('change', handler);
+
+        return () => mediaQuery.removeEventListener('change', handler);
+    }, []);
+
+    const [filtersOpen, setFiltersOpen] = useState(false);
+    const [draft, setDraft] = useState<FilterDraft>({
+        status: '',
+        service_type: '',
+        date_from: '',
+        date_to: '',
+    });
+
+    function navigate() {
+        form.get(dashboardBookings.url(), {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }
+
+    function flushPendingSearch() {
+        if (searchTimer.current !== null) {
+            window.clearTimeout(searchTimer.current);
+            searchTimer.current = null;
+        }
+    }
+
+    function openFilters() {
+        setDraft({
+            status: form.data.status,
+            service_type: form.data.service_type,
+            date_from: form.data.date_from,
+            date_to: form.data.date_to,
+        });
+        setFiltersOpen(true);
+    }
+
+    function applySearch(event: FormEvent) {
         event.preventDefault();
-
-        form.get(dashboardBookings.url(), {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        flushPendingSearch();
+        navigate();
     }
 
-    function changeStatus(value: string) {
-        form.setData('status', value === '__all' ? '' : value);
-        form.get(dashboardBookings.url(), {
-            preserveState: true,
-            preserveScroll: true,
-        });
-    }
-
-    function changeDate(value: string) {
-        form.setData('date', value);
-        form.get(dashboardBookings.url(), {
-            preserveState: true,
-            preserveScroll: true,
-        });
+    function applyFilters() {
+        flushPendingSearch();
+        form.setData('status', draft.status);
+        form.setData('service_type', draft.service_type);
+        form.setData('date_from', draft.date_from);
+        form.setData('date_to', draft.date_to);
+        setFiltersOpen(false);
+        navigate();
     }
 
     function clearFilters() {
+        flushPendingSearch();
+        setDraft({ status: '', service_type: '', date_from: '', date_to: '' });
         form.setData('search', '');
         form.setData('status', '');
-        form.setData('date', '');
-        form.get(dashboardBookings.url(), {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        form.setData('service_type', '');
+        form.setData('date_from', '');
+        form.setData('date_to', '');
+        form.setData('sort', '');
+        form.setData('direction', '');
+        setFiltersOpen(false);
+        navigate();
+    }
+
+    function changeSearch(value: string) {
+        form.setData('search', value);
+
+        if (searchTimer.current !== null) {
+            window.clearTimeout(searchTimer.current);
+        }
+
+        searchTimer.current = window.setTimeout(navigate, 350);
+    }
+
+    function changeSort(column: string) {
+        const active = form.data.sort === column;
+        const nextDirection =
+            active && form.data.direction === 'asc' ? 'desc' : 'asc';
+
+        form.setData('sort', column);
+        form.setData('direction', nextDirection);
+        navigate();
+    }
+
+    function changePerPage(value: string) {
+        form.setData('per_page', value);
+        navigate();
     }
 
     const [statusTarget, setStatusTarget] = useState<{
@@ -135,8 +349,40 @@ export default function DashboardBookings({
         });
     }
 
-    const hasFilters = Boolean(filters.search || filters.status || filters.date);
+    const hasFilters = Boolean(
+        filters.search ||
+            filters.status ||
+            filters.date_from ||
+            filters.date_to ||
+            filters.service_type,
+    );
+    const activeFilterCount = [
+        filters.status,
+        filters.service_type,
+        filters.date_from,
+        filters.date_to,
+    ].filter(Boolean).length;
+    const filterActions = (
+        <>
+            <Button type="button" variant="outline" onClick={clearFilters}>
+                <X />
+                Clear filters
+            </Button>
+            <Button type="button" onClick={applyFilters} disabled={form.processing}>
+                {form.processing ? 'Applying…' : 'Apply filters'}
+            </Button>
+        </>
+    );
     const paginationLinks = bookings.links;
+    const exportQuery = {
+        search: filters.search ?? '',
+        status: filters.status ?? '',
+        date_from: filters.date_from ?? '',
+        date_to: filters.date_to ?? '',
+        service_type: filters.service_type ?? '',
+        sort: filters.sort ?? '',
+        direction: filters.direction ?? '',
+    };
 
     return (
         <>
@@ -148,81 +394,47 @@ export default function DashboardBookings({
                 <div className="flex flex-col gap-1">
                     <h1 className="text-2xl font-semibold tracking-tight">Bookings</h1>
                     <p className="text-muted-foreground text-sm">
-                        Paid trip bookings, soonest trip date first.
+                        Paid trip bookings. Sorted by trip date by default.
                     </p>
                 </div>
 
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
                         <CardTitle className="text-base">Filters</CardTitle>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={openFilters}
+                        >
+                            <SlidersHorizontal />
+                            Filters
+                            {activeFilterCount > 0 && (
+                                <span className="bg-primary text-primary-foreground ml-1 inline-flex size-5 items-center justify-center rounded-full text-xs font-medium">
+                                    {activeFilterCount}
+                                </span>
+                            )}
+                        </Button>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={applyFilters} className="flex flex-col gap-4">
-                            <div className="grid items-end gap-3 md:grid-cols-2 xl:grid-cols-4">
-                                <div className="grid gap-1.5 xl:col-span-2">
-                                    <Label htmlFor="filter-search">Search</Label>
-                                    <div className="relative">
-                                        <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                                        <Input
-                                            id="filter-search"
-                                            type="search"
-                                            placeholder="Booking number, passenger, phone, or email…"
-                                            className="pl-9"
-                                            value={form.data.search}
-                                            onChange={(event) =>
-                                                form.setData('search', event.target.value)
-                                            }
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid gap-1.5">
-                                    <Label htmlFor="filter-status">Status</Label>
-                                    <Select
-                                        value={form.data.status}
-                                        onValueChange={changeStatus}
-                                    >
-                                        <SelectTrigger id="filter-status" className="w-full">
-                                            <SelectValue placeholder="All statuses" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="__all">All statuses</SelectItem>
-                                            {statuses.map((status) => (
-                                                <SelectItem key={status} value={status}>
-                                                    {status.replaceAll('_', ' ')}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="grid gap-1.5">
-                                    <Label htmlFor="filter-date">Trip date</Label>
+                        <form onSubmit={applySearch} className="flex flex-col gap-4">
+                            <div className="grid gap-1.5 sm:max-w-xl">
+                                <Label htmlFor="filter-search">Search</Label>
+                                <div className="relative">
+                                    <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                                     <Input
-                                        id="filter-date"
-                                        type="date"
-                                        className="w-full"
-                                        value={form.data.date}
-                                        onChange={(event) => changeDate(event.target.value)}
+                                        id="filter-search"
+                                        type="search"
+                                        placeholder="Booking number, passenger, phone, or email…"
+                                        className="pl-9"
+                                        value={form.data.search}
+                                        onChange={(event) =>
+                                            changeSearch(event.target.value)
+                                        }
                                     />
                                 </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <Button type="submit" disabled={form.processing}>
-                                    {form.processing ? 'Searching…' : 'Search'}
-                                </Button>
-
-                                {hasFilters && (
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        onClick={clearFilters}
-                                    >
-                                        <X />
-                                        Clear filters
-                                    </Button>
-                                )}
+                                <p className="text-muted-foreground text-xs">
+                                    Results update as you type.
+                                </p>
                             </div>
                         </form>
                     </CardContent>
@@ -231,22 +443,52 @@ export default function DashboardBookings({
                 <Card className="flex-1">
                     <div className="flex flex-col items-start justify-between gap-3 px-6 pt-6 sm:flex-row sm:items-center">
                         <p className="text-muted-foreground text-sm">
-                            Showing {bookings.from ?? 0}–{bookings.to ?? 0} of {bookings.total} bookings
+                            Showing {bookings.from ?? 0}–{bookings.to ?? 0} of {bookings.total}{' '}
+                            bookings
                         </p>
-                        <Button variant="outline" size="sm" className="w-full sm:w-auto" asChild>
-                            <a
-                                href={dashboardBookingsExport.url({
-                                    query: {
-                                        search: filters.search ?? '',
-                                        status: filters.status ?? '',
-                                        date: filters.date ?? '',
-                                    },
-                                })}
-                            >
-                                <Download />
-                                Export CSV
-                            </a>
-                        </Button>
+                        <div className="flex w-full items-center gap-2 sm:w-auto">
+                            <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground text-xs">Per page</span>
+                                <Select value={form.data.per_page} onValueChange={changePerPage}>
+                                    <SelectTrigger size="sm" className="w-20">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {PER_PAGE_OPTIONS.map((option) => (
+                                            <SelectItem
+                                                key={option}
+                                                value={String(option)}
+                                            >
+                                                {option}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                                        <Download />
+                                        Export
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem asChild>
+                                        <a
+                                            href={dashboardBookingsExport.url({
+                                                query: exportQuery,
+                                            })}
+                                            onClick={() =>
+                                                toast.info('Preparing CSV export…')
+                                            }
+                                        >
+                                            <Download />
+                                            Export current results (CSV)
+                                        </a>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </div>
 
                     <CardContent className="pt-6">
@@ -282,7 +524,7 @@ export default function DashboardBookings({
                                                     </p>
                                                 </div>
                                                 <span className="shrink-0 font-medium">
-                                                    ${Number(booking.input_price).toFixed(2)}
+                                                    {formatMoney(booking.input_price)}
                                                 </span>
                                             </div>
                                             <div className="mt-3 flex items-center justify-between gap-3">
@@ -307,7 +549,7 @@ export default function DashboardBookings({
                                                                 key={status}
                                                                 value={status}
                                                             >
-                                                                {status.replaceAll('_', ' ')}
+                                                                {statusLabel(status)}
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
@@ -322,10 +564,34 @@ export default function DashboardBookings({
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead>Booking #</TableHead>
-                                                <TableHead>Passenger</TableHead>
-                                                <TableHead>Trip Date</TableHead>
+                                                <TableHead>
+                                                    <SortHeaderButton
+                                                        label="Passenger"
+                                                        column="passenger_name"
+                                                        sort={filters.sort}
+                                                        direction={filters.direction}
+                                                        onSort={changeSort}
+                                                    />
+                                                </TableHead>
+                                                <TableHead>
+                                                    <SortHeaderButton
+                                                        label="Trip Date"
+                                                        column="trip_date"
+                                                        sort={filters.sort}
+                                                        direction={filters.direction}
+                                                        onSort={changeSort}
+                                                    />
+                                                </TableHead>
                                                 <TableHead>Status</TableHead>
-                                                <TableHead className="text-right">Trip Price</TableHead>
+                                                <TableHead className="text-right">
+                                                    <SortHeaderButton
+                                                        label="Trip Price"
+                                                        column="input_price"
+                                                        sort={filters.sort}
+                                                        direction={filters.direction}
+                                                        onSort={changeSort}
+                                                    />
+                                                </TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -343,7 +609,9 @@ export default function DashboardBookings({
                                                     <TableCell className="font-medium">
                                                         {booking.passenger_name}
                                                     </TableCell>
-                                                    <TableCell>{formatDate(booking.trip_date)}</TableCell>
+                                                    <TableCell>
+                                                        {formatDate(booking.trip_date)}
+                                                    </TableCell>
                                                     <TableCell>
                                                         <Select
                                                             value={booking.status}
@@ -354,7 +622,10 @@ export default function DashboardBookings({
                                                                 })
                                                             }
                                                         >
-                                                            <SelectTrigger size="sm" className="w-44">
+                                                            <SelectTrigger
+                                                                size="sm"
+                                                                className="w-44"
+                                                            >
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -363,14 +634,14 @@ export default function DashboardBookings({
                                                                         key={status}
                                                                         value={status}
                                                                     >
-                                                                        {status.replaceAll('_', ' ')}
+                                                                        {statusLabel(status)}
                                                                     </SelectItem>
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
                                                     </TableCell>
                                                     <TableCell className="text-right">
-                                                        ${Number(booking.input_price).toFixed(2)}
+                                                        {formatMoney(booking.input_price)}
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -449,6 +720,55 @@ export default function DashboardBookings({
                 </Card>
             </div>
 
+            {isDesktop ? (
+                <Dialog open={filtersOpen} onOpenChange={setFiltersOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Filters</DialogTitle>
+                            <DialogDescription>
+                                Narrow the list by status, service type, or trip date
+                                range.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <FilterFields
+                            draft={draft}
+                            statuses={statuses}
+                            service_types={service_types}
+                            onChange={(patch) =>
+                                setDraft((current) => ({ ...current, ...patch }))
+                            }
+                        />
+                        <DialogFooter>{filterActions}</DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            ) : (
+                <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+                    <SheetContent
+                        side="bottom"
+                        className="max-h-[85dvh] overflow-y-auto"
+                    >
+                        <SheetHeader>
+                            <SheetTitle>Filters</SheetTitle>
+                            <SheetDescription>
+                                Narrow the list by status, service type, or trip date
+                                range.
+                            </SheetDescription>
+                        </SheetHeader>
+                        <div className="px-4">
+                            <FilterFields
+                                draft={draft}
+                                statuses={statuses}
+                                service_types={service_types}
+                                onChange={(patch) =>
+                                    setDraft((current) => ({ ...current, ...patch }))
+                                }
+                            />
+                        </div>
+                        <SheetFooter>{filterActions}</SheetFooter>
+                    </SheetContent>
+                </Sheet>
+            )}
+
             <Dialog
                 open={statusTarget !== null}
                 onOpenChange={(open) => {
@@ -469,11 +789,11 @@ export default function DashboardBookings({
                                     </span>{' '}
                                     from{' '}
                                     <span className="text-foreground font-medium">
-                                        {statusTarget.booking.status.replaceAll('_', ' ')}
+                                        {statusLabel(statusTarget.booking.status)}
                                     </span>{' '}
                                     to{' '}
                                     <span className="text-foreground font-medium">
-                                        {statusTarget.newStatus.replaceAll('_', ' ')}
+                                        {statusLabel(statusTarget.newStatus)}
                                     </span>
                                     . This will be visible to the dispatch team.
                                 </>
@@ -482,17 +802,11 @@ export default function DashboardBookings({
                     </DialogHeader>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button
-                                variant="outline"
-                                disabled={statusForm.processing}
-                            >
+                            <Button variant="outline" disabled={statusForm.processing}>
                                 Cancel
                             </Button>
                         </DialogClose>
-                        <Button
-                            onClick={confirmStatusChange}
-                            disabled={statusForm.processing}
-                        >
+                        <Button onClick={confirmStatusChange} disabled={statusForm.processing}>
                             {statusForm.processing ? 'Updating…' : 'Confirm change'}
                         </Button>
                     </DialogFooter>
