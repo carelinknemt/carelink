@@ -13,7 +13,6 @@ class UpdateTripRequestRequest extends FormRequest
         'passenger_is_bariatric',
         'oxygen_required',
         'pickup_stairs',
-        'dropoff_stairs',
         'must_provide_wheelchair',
         'has_infectious_disease',
     ];
@@ -69,7 +68,7 @@ class UpdateTripRequestRequest extends FormRequest
             'load_time' => ['sometimes', 'nullable', 'string', 'max:32'],
             'dropoff_address_details' => ['sometimes', 'nullable', 'string', 'max:255'],
             'appointment_time' => ['sometimes', 'nullable', 'string', 'max:32'],
-            'dropoff_stairs' => ['sometimes', 'boolean'],
+            'dropoff_stairs' => ['sometimes', 'integer', 'min:0', 'max:999'],
             'dropoff_stair_equipment' => ['sometimes', 'nullable', 'string', 'max:255'],
             'dropoff_driver_notes' => ['sometimes', 'nullable', 'string', 'max:5000'],
             'dropoff_contact_name' => ['sometimes', 'nullable', 'string', 'max:255'],

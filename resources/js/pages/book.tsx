@@ -50,7 +50,7 @@ interface TripRequestFormData {
     dropoff_address_details: string;
     dropoff_latitude: string;
     dropoff_longitude: string;
-    dropoff_stairs: boolean;
+    dropoff_stairs: number;
     payer: string;
     transport_type: string;
     service_type: string;
@@ -81,7 +81,6 @@ const STEP_FIELDS: Record<number, (keyof TripRequestFormData)[]> = {
         'passenger_phone_number',
         'passenger_email',
         'passenger_dob',
-        'passenger_is_bariatric',
         'passenger_notes',
         'oxygen_required',
         'oxygen_liters_per_min',
@@ -110,7 +109,7 @@ const STEP_FIELDS: Record<number, (keyof TripRequestFormData)[]> = {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const FIELD_BG =
-    'bg-white dark:bg-white dark:text-slate-900 dark:border-slate-300 dark:placeholder:text-slate-400';
+    'bg-white dark:bg-white dark:text-slate-900 dark:border-slate-300 dark:placeholder:text-slate-400/60';
 
 const TODAY = (() => {
     const date = new Date();
@@ -187,7 +186,7 @@ const initialForm: TripRequestFormData = {
     dropoff_address_details: '',
     dropoff_latitude: '',
     dropoff_longitude: '',
-    dropoff_stairs: false,
+    dropoff_stairs: 0,
     payer: PRIVATE_PAY,
     transport_type: '',
     service_type: '',
@@ -308,7 +307,7 @@ export default function Book() {
     const inputClass = (field: keyof TripRequestFormData): string =>
         `${FIELD_BG} ${fieldError(field) ? 'border-red-500/80 focus-visible:border-red-500' : ''}`;
 
-    const set = (key: keyof TripRequestFormData, value: string | boolean) => {
+    const set = (key: keyof TripRequestFormData, value: string | boolean | number) => {
         form.setData(key as never, value as never);
         setStepErrors((prev) => {
             const next = { ...prev };
@@ -873,23 +872,6 @@ export default function Book() {
                                     </div>
                                     <div className="flex items-center gap-2.5">
                                         <Checkbox
-                                            id="passenger_is_bariatric"
-                                            checked={
-                                                form.data.passenger_is_bariatric
-                                            }
-                                            onCheckedChange={(v) =>
-                                                set(
-                                                    'passenger_is_bariatric',
-                                                    Boolean(v),
-                                                )
-                                            }
-                                        />
-                                        <Label htmlFor="passenger_is_bariatric">
-                                            Bariatric passenger
-                                        </Label>
-                                    </div>
-                                    <div className="flex items-center gap-2.5">
-                                        <Checkbox
                                             id="oxygen_required"
                                             checked={form.data.oxygen_required}
                                             onCheckedChange={(v) =>
@@ -1160,22 +1142,30 @@ export default function Book() {
                                                 className={FIELD_BG}
                                             />
                                         </div>
-                                        <div className="flex items-center gap-2.5">
-                                            <Checkbox
-                                                id="dropoff_stairs"
-                                                checked={
-                                                    form.data.dropoff_stairs
-                                                }
-                                                onCheckedChange={(v) =>
-                                                    set(
-                                                        'dropoff_stairs',
-                                                        Boolean(v),
-                                                    )
-                                                }
-                                            />
+                                        <div className="grid gap-2">
                                             <Label htmlFor="dropoff_stairs">
                                                 Stairs at dropoff
                                             </Label>
+                                            <Input
+                                                id="dropoff_stairs"
+                                                type="number"
+                                                min={0}
+                                                max={99}
+                                                step={1}
+                                                value={
+                                                    form.data.dropoff_stairs
+                                                }
+                                                onChange={(e) =>
+                                                    set(
+                                                        'dropoff_stairs',
+                                                        Number(
+                                                            e.target.value,
+                                                        ) || 0,
+                                                    )
+                                                }
+                                                placeholder="0"
+                                                className={`max-w-[120px] ${FIELD_BG}`}
+                                            />
                                         </div>
                                     </div>
                                 </div>

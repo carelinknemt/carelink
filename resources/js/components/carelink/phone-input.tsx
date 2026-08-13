@@ -83,14 +83,14 @@ export default function PhoneInput({
     const { countryCode, number } = splitPhoneNumber(value);
 
     return (
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3">
             <Select
                 value={countryCode}
                 onValueChange={(code) => onChange(joinPhoneNumber(code, number))}
             >
                 <SelectTrigger
                     id={id}
-                    className={`w-36 shrink-0 ${className ?? ''}`}
+                    className={`w-20 shrink-0 sm:w-36 ${className ?? ''}`}
                     aria-invalid={invalid}
                 >
                     <SelectValue placeholder="Code" />
@@ -108,7 +108,7 @@ export default function PhoneInput({
                 }
                 placeholder={placeholder}
                 aria-invalid={invalid}
-                className={className ?? ''}
+                className={`min-w-0 flex-1 ${className ?? ''}`}
             />
         </div>
     );

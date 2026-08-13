@@ -114,7 +114,7 @@ class TripRequest extends Model
             'passenger_is_bariatric' => 'boolean',
             'oxygen_required' => 'boolean',
             'pickup_stairs' => 'boolean',
-            'dropoff_stairs' => 'boolean',
+            'dropoff_stairs' => 'integer',
             'must_provide_wheelchair' => 'boolean',
             'has_infectious_disease' => 'boolean',
             'pickup_latitude' => 'float',

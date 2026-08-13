@@ -366,6 +366,22 @@ test('per-card edits only update the fields that were submitted', function () {
         ->trip_date->format('Y-m-d')->toBe(now()->addDays(5)->toDateString());
 });
 
+test('a manager can edit the dropoff stairs as a number', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking(['dropoff_stairs' => 0]);
+
+    $this->put(route('dashboard.bookings.update', $booking), [
+        'dropoff_address_details' => 'Main entrance, 3rd floor',
+        'dropoff_stairs' => 3,
+    ])->assertRedirect();
+
+    expect($booking->fresh())
+        ->dropoff_stairs->toBe(3)
+        ->dropoff_address_details->toBe('Main entrance, 3rd floor');
+});
+
 test('trip edits are validated', function () {
     $user = User::factory()->create();
     $this->actingAs($user);

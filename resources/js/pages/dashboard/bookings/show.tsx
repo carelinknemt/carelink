@@ -104,7 +104,7 @@ const detailSections: DetailSection[] = [
             { key: 'dropoff_address_details', label: 'Address details' },
             { key: 'dropoff_contact_name', label: 'Contact name' },
             { key: 'dropoff_contact_phone_number', label: 'Contact phone', type: 'phone' },
-            { key: 'dropoff_stairs', label: 'Stairs', type: 'bool' },
+            { key: 'dropoff_stairs', label: 'Stairs', type: 'number' },
             { key: 'dropoff_stair_equipment', label: 'Stair equipment' },
             { key: 'dropoff_driver_notes', label: 'Driver notes', type: 'textarea' },
             { key: 'dropoff_latitude', label: 'Latitude', type: 'number' },

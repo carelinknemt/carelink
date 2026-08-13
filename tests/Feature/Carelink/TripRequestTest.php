@@ -25,6 +25,7 @@ $validPayload = [
     'passenger_is_bariatric' => true,
     'oxygen_required' => true,
     'oxygen_liters_per_min' => 3,
+    'dropoff_stairs' => 4,
 ];
 
 test('a trip request can be submitted and exported to csv', function () use ($validPayload) {
@@ -42,6 +43,7 @@ test('a trip request can be submitted and exported to csv', function () use ($va
         ->passenger_last_name->toBe('Doe')
         ->passenger_is_bariatric->toBeTrue()
         ->oxygen_required->toBeTrue()
+        ->dropoff_stairs->toBe(4)
         ->pickup_latitude->toBe(40.8020714)
         ->pickup_longitude->toBe(-124.1637275)
         ->dropoff_latitude->toBe(40.7868351)
@@ -76,9 +78,12 @@ test('a trip request can be submitted without optional details', function () use
         'oxygen_required',
         'oxygen_liters_per_min',
         'will_call',
+        'dropoff_stairs',
     ])->all())->assertOk();
 
     $this->assertDatabaseCount('trip_requests', 1);
+
+    expect(TripRequest::first()->dropoff_stairs)->toBe(0);
 });
 
 test('the trip request form validates required fields', function () {

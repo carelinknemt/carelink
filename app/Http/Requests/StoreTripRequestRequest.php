@@ -53,7 +53,7 @@ class StoreTripRequestRequest extends FormRequest
             'load_time' => ['nullable', 'string', 'max:32'],
             'dropoff_address_details' => ['nullable', 'string', 'max:255'],
             'appointment_time' => ['nullable', 'string', 'max:32'],
-            'dropoff_stairs' => ['sometimes', 'boolean'],
+            'dropoff_stairs' => ['sometimes', 'integer', 'min:0', 'max:999'],
             'dropoff_stair_equipment' => ['nullable', 'string', 'max:255'],
             'dropoff_driver_notes' => ['nullable', 'string', 'max:5000'],
             'dropoff_contact_name' => ['nullable', 'string', 'max:255'],
@@ -77,7 +77,6 @@ class StoreTripRequestRequest extends FormRequest
             'passenger_is_bariatric' => $this->boolean('passenger_is_bariatric'),
             'oxygen_required' => $this->boolean('oxygen_required'),
             'pickup_stairs' => $this->boolean('pickup_stairs'),
-            'dropoff_stairs' => $this->boolean('dropoff_stairs'),
             'must_provide_wheelchair' => $this->boolean('must_provide_wheelchair'),
             'has_infectious_disease' => $this->boolean('has_infectious_disease'),
         ]);
