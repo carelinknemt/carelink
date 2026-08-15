@@ -561,12 +561,13 @@ export default function Book() {
                         Trip Request Submitted
                     </h1>
                     <p className="mt-3 text-sm text-slate-600 sm:text-base">
-                        Your booking{' '}
+                        Your booking request has been received. Your
+                        confirmation number is{' '}
                         <span className="font-black text-[#004B87]">
                             {String(booking.booking_number)}
-                        </span>{' '}
-                        has been received. Our dispatch team will confirm your
-                        ride shortly.
+                        </span>
+                        . Our dispatch team will review and confirm your
+                        request. Thank you!
                     </p>
                     <div
                         className={`mx-auto mt-6 max-w-xl rounded-xl border px-4 py-3 text-sm font-semibold ${

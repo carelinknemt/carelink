@@ -111,10 +111,9 @@
             <div class="content">
                 <p>Hello {{ $tripRequest->passenger_first_name }} {{ $tripRequest->passenger_last_name }},</p>
                 <p>
-                    Thank you for choosing CareLink. We received your
-                    <strong>$30.00 booking fee</strong> and your trip request has been
-                    confirmed. Our dispatch team will be in touch shortly to arrange
-                    your ride.
+                    Your booking request has been received. Your confirmation number is
+                    <strong>{{ $tripRequest->booking_number }}</strong>. Our dispatch team
+                    will review and confirm your request. Thank you!
                 </p>
                 <table class="details">
                     <tr>

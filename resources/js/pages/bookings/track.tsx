@@ -90,13 +90,19 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
                             : 'Payment Pending'}
                     </h2>
                     <p className="mt-2 text-sm font-semibold text-slate-600">
-                        {paymentPaid
-                            ? `Booking fee of $${BOOKING_FEE.toFixed(2)} received ${
-                                  booking.paid_at
-                                      ? `on ${new Date(booking.paid_at).toLocaleString()}`
-                                      : ''
-                              }. Our dispatch team will confirm your ride shortly.`
-                            : `The $${BOOKING_FEE.toFixed(2)} booking fee has not been received yet. Complete the payment to confirm your trip request.`}
+                        {paymentPaid ? (
+                            <>
+                                Your booking request has been received. Your
+                                confirmation number is{' '}
+                                <span className="font-black text-[#004B87]">
+                                    {booking.booking_number}
+                                </span>
+                                . Our dispatch team will review and confirm your
+                                request. Thank you!
+                            </>
+                        ) : (
+                            `The $${BOOKING_FEE.toFixed(2)} booking fee has not been received yet. Complete the payment to confirm your trip request.`
+                        )}
                     </p>
                     {!paymentPaid && (
                         <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
