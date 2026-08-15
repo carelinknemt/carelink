@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
 import BookingSteps from '@/components/carelink/booking-steps';
+import BusinessCta from '@/components/carelink/business-cta';
 import CommittedExcellence from '@/components/carelink/committed-excellence';
 import ContactAndHours from '@/components/carelink/contact-and-hours';
 import Hero from '@/components/carelink/hero';
@@ -122,6 +123,9 @@ export default function Home({ services }: HomeProps) {
 
             {/* Stripe Payment Spotlight */}
             <StripePartnershipSpotlight />
+
+            {/* Business Partnerships */}
+            <BusinessCta />
 
             {/* Contact & Hours */}
             <ContactAndHours />

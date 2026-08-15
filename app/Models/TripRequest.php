@@ -18,11 +18,34 @@ class TripRequest extends Model
 
     public const STATUS_COMPLETED = 'COMPLETED';
 
+    public const STATUS_CANCELLED = 'CANCELLED';
+
+    /**
+     * Sentinel used by the dashboard bookings status filter to request
+     * every status (as opposed to no filter, which means pending only).
+     */
+    public const STATUS_FILTER_ALL = '__all';
+
     public const STATUSES = [
         self::STATUS_PENDING_DISPATCH,
         self::STATUS_BAMBI_DISPATCHED,
         self::STATUS_IN_TRANSIT,
         self::STATUS_COMPLETED,
+        self::STATUS_CANCELLED,
+    ];
+
+    /**
+     * Statuses a manager may assign directly via the status dropdown.
+     * CANCELLED is assignable too: the dedicated cancel action remains
+     * for the refund-first flow, but managers may also mark a booking
+     * cancelled directly.
+     */
+    public const ASSIGNABLE_STATUSES = [
+        self::STATUS_PENDING_DISPATCH,
+        self::STATUS_BAMBI_DISPATCHED,
+        self::STATUS_IN_TRANSIT,
+        self::STATUS_COMPLETED,
+        self::STATUS_CANCELLED,
     ];
 
     public const PAYMENT_STATUS_PENDING = 'PENDING';
@@ -96,6 +119,7 @@ class TripRequest extends Model
         'stripe_checkout_session_id',
         'payment_status',
         'paid_at',
+        'refunded_at',
     ];
 
     protected $attributes = [
@@ -122,6 +146,7 @@ class TripRequest extends Model
             'dropoff_latitude' => 'float',
             'dropoff_longitude' => 'float',
             'paid_at' => 'datetime',
+            'refunded_at' => 'datetime',
         ];
     }
 

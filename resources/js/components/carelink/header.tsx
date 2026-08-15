@@ -73,7 +73,7 @@ function pathToTab(path: string): string | null {
 export default function Header() {
     const { url } = usePage();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [isScrolled, setIsScrolled] = useState(false);
+    const [hideDispatchBar, setHideDispatchBar] = useState(false);
     const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(
         null,
     );
@@ -82,8 +82,25 @@ export default function Header() {
     const activeTab = pathToTab(url.split('?')[0]) ?? null;
 
     useEffect(() => {
+        // Hysteresis: hide the dispatch bar only once the user has scrolled
+        // down a good distance (120px) and bring it back only when they
+        // return near the top (60px). Two different thresholds plus a
+        // functional update mean the state flips exactly once per interval,
+        // so the bar never flickers while scrolling.
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20);
+            const scrollY = window.scrollY;
+
+            setHideDispatchBar((hidden) => {
+                if (!hidden && scrollY > 120) {
+                    return true;
+                }
+
+                if (hidden && scrollY < 60) {
+                    return false;
+                }
+
+                return hidden;
+            });
         };
 
         window.addEventListener('scroll', handleScroll, { passive: true });
@@ -118,7 +135,7 @@ export default function Header() {
             {/* Top Utility Bar */}
             <div
                 className={`overflow-hidden border-gray-100 bg-[#E64A19] text-white transition-all duration-300 ease-in-out ${
-                    isScrolled
+                    hideDispatchBar
                         ? 'pointer-events-none max-h-0 border-none py-0 opacity-0'
                         : 'max-h-24 border-b px-4 py-1.5 opacity-100 sm:px-6 lg:px-12'
                 }`}

@@ -30,7 +30,7 @@ class StoreTripRequestRequest extends FormRequest
             'pickup_address' => ['required', 'string', 'max:255'],
             'pickup_time' => ['required', 'string', 'max:32'],
             'dropoff_address' => ['required', 'string', 'max:255'],
-            'passenger_phone_number' => ['nullable', 'string', 'regex:/^(?:\+1|1)?\s*(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/'],
+            'passenger_phone_number' => ['required', 'string', 'regex:/^(?:\+1|1)?\s*(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/'],
             'passenger_email' => ['required', 'email', 'max:255'],
             'passenger_dob' => ['nullable', 'date', 'before:today'],
             'passenger_gender' => ['nullable', 'string', 'max:32'],

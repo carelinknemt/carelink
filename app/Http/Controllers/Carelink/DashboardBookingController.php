@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Carelink;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateTripRequestRequest;
 use App\Http\Requests\UpdateTripRequestStatusRequest;
+use App\Mail\TripRequestCancelled;
 use App\Models\TripRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Cashier\Cashier;
+use Stripe\Exception\ApiErrorException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DashboardBookingController extends Controller
@@ -52,7 +56,7 @@ class DashboardBookingController extends Controller
 
         return Inertia::render('dashboard/bookings/show', [
             'booking' => $booking,
-            'statuses' => TripRequest::STATUSES,
+            'statuses' => TripRequest::ASSIGNABLE_STATUSES,
         ]);
     }
 
@@ -82,6 +86,101 @@ class DashboardBookingController extends Controller
         ]);
 
         return back();
+    }
+
+    /**
+     * Cancel a booking and refund the collected booking fee through Stripe.
+     * The booking is only cancelled when the refund succeeds, so a customer
+     * is never left with a cancelled trip and an un-refunded payment.
+     */
+    public function cancel(TripRequest $booking): RedirectResponse
+    {
+        abort_if($booking->payment_status !== TripRequest::PAYMENT_STATUS_PAID, 404);
+
+        if ($booking->status === TripRequest::STATUS_CANCELLED) {
+            Inertia::flash('toast', [
+                'type' => 'warning',
+                'message' => "{$booking->booking_number} is already cancelled.",
+            ]);
+
+            return back();
+        }
+
+        if ($booking->status === TripRequest::STATUS_COMPLETED) {
+            Inertia::flash('toast', [
+                'type' => 'warning',
+                'message' => "{$booking->booking_number} is completed and cannot be cancelled.",
+            ]);
+
+            return back();
+        }
+
+        $hasStripePayment = (bool) $booking->stripe_checkout_session_id;
+
+        if ($hasStripePayment && ! $this->refundBookingFee($booking)) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => "{$booking->booking_number} could not be cancelled because refunding the booking fee failed. Please try again or contact support.",
+            ]);
+
+            return back();
+        }
+
+        $booking->update([
+            'status' => TripRequest::STATUS_CANCELLED,
+            'refunded_at' => $hasStripePayment ? now() : null,
+        ]);
+
+        if ($hasStripePayment) {
+            $this->sendCancellationEmail($booking);
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => "{$booking->booking_number} was cancelled".($hasStripePayment ? ' and the booking fee was refunded' : '').'.',
+        ]);
+
+        return back();
+    }
+
+    /**
+     * Notify the passenger that their booking was cancelled and the
+     * booking fee refunded.
+     */
+    private function sendCancellationEmail(TripRequest $booking): void
+    {
+        if (! $booking->passenger_email) {
+            return;
+        }
+
+        Mail::to($booking->passenger_email)->send(new TripRequestCancelled($booking));
+    }
+
+    /**
+     * Refund the booking fee charged to the checkout session's payment
+     * intent. Returns true when the refund was created (or there was
+     * nothing to refund) and false when Stripe rejected it.
+     */
+    private function refundBookingFee(TripRequest $booking): bool
+    {
+        try {
+            $session = Cashier::stripe()->checkout->sessions->retrieve($booking->stripe_checkout_session_id);
+
+            if (! ($session->payment_intent ?? null)) {
+                return true;
+            }
+
+            Cashier::stripe()->refunds->create([
+                'payment_intent' => $session->payment_intent,
+                'metadata' => ['booking_number' => $booking->booking_number],
+            ]);
+
+            return true;
+        } catch (ApiErrorException $exception) {
+            report($exception);
+
+            return false;
+        }
     }
 
     public function showExport(TripRequest $booking): StreamedResponse
@@ -120,12 +219,23 @@ class DashboardBookingController extends Controller
     /**
      * Paid bookings (the $30 booking fee has been processed), with
      * optional search, status, date range, service type filters and a
-     * whitelisted sort applied.
+     * whitelisted sort applied. By default only bookings pending
+     * dispatch are shown; the status filter reveals the rest.
      */
     private function filteredQuery(Request $request): Builder
     {
-        return TripRequest::query()
-            ->where('payment_status', TripRequest::PAYMENT_STATUS_PAID)
+        $status = $request->string('status')->toString();
+
+        $query = TripRequest::query()
+            ->where('payment_status', TripRequest::PAYMENT_STATUS_PAID);
+
+        if ($status !== TripRequest::STATUS_FILTER_ALL) {
+            // No status filter defaults to bookings pending dispatch;
+            // the '__all' sentinel reveals every status.
+            $query->where('status', $status !== '' ? $status : TripRequest::STATUS_PENDING_DISPATCH);
+        }
+
+        return $query
             ->when($request->filled('search'), function (Builder $query) use ($request): void {
                 $search = $request->string('search')->trim()->toString();
 
@@ -136,9 +246,6 @@ class DashboardBookingController extends Controller
                         ->orWhere('passenger_phone_number', 'like', "%{$search}%")
                         ->orWhere('passenger_email', 'like', "%{$search}%");
                 });
-            })
-            ->when($request->filled('status'), function (Builder $query) use ($request): void {
-                $query->where('status', $request->string('status')->toString());
             })
             ->when($request->filled('date_from'), function (Builder $query) use ($request): void {
                 $query->whereDate('trip_date', '>=', $request->string('date_from')->toString());
@@ -159,7 +266,8 @@ class DashboardBookingController extends Controller
     {
         return [
             'search' => $request->string('search')->trim()->toString() ?: null,
-            'status' => $request->string('status')->toString() ?: null,
+            'status' => $request->string('status')->toString()
+                ?: TripRequest::STATUS_PENDING_DISPATCH,
             'date_from' => $request->string('date_from')->toString() ?: null,
             'date_to' => $request->string('date_to')->toString() ?: null,
             'service_type' => $request->string('service_type')->toString() ?: null,

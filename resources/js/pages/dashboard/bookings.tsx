@@ -143,9 +143,7 @@ function FilterFields({
                 <Label htmlFor="filter-status">Status</Label>
                 <Select
                     value={draft.status}
-                    onValueChange={(value) =>
-                        onChange({ status: value === '__all' ? '' : value })
-                    }
+                    onValueChange={(value) => onChange({ status: value })}
                 >
                     <SelectTrigger id="filter-status" className="w-full">
                         <SelectValue placeholder="All statuses" />

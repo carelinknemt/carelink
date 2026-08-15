@@ -22,6 +22,7 @@ $validPayload = [
     'dropoff_latitude' => 40.7868351,
     'dropoff_longitude' => -124.1608896,
     'passenger_email' => 'jane@example.com',
+    'passenger_phone_number' => '+1 707-555-0192',
     'passenger_is_bariatric' => true,
     'oxygen_required' => true,
     'oxygen_liters_per_min' => 3,
@@ -91,6 +92,7 @@ test('the trip request form validates required fields', function () {
         ->assertSessionHasErrors([
             'passenger_first_name',
             'passenger_last_name',
+            'passenger_phone_number',
             'passenger_email',
             'payer',
             'transport_type',
@@ -101,6 +103,15 @@ test('the trip request form validates required fields', function () {
             'pickup_time',
             'dropoff_address',
         ]);
+
+    $this->assertDatabaseCount('trip_requests', 0);
+});
+
+test('a trip request requires a passenger phone number', function () use ($validPayload) {
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'passenger_phone_number' => '',
+    ])->assertSessionHasErrors('passenger_phone_number');
 
     $this->assertDatabaseCount('trip_requests', 0);
 });

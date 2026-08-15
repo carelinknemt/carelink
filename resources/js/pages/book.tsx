@@ -68,7 +68,12 @@ const STEPS = [
 ] as const;
 
 const STEP_REQUIRED: Record<number, (keyof TripRequestFormData)[]> = {
-    0: ['passenger_first_name', 'passenger_last_name', 'passenger_email'],
+    0: [
+        'passenger_first_name',
+        'passenger_last_name',
+        'passenger_phone_number',
+        'passenger_email',
+    ],
     1: ['trip_date', 'pickup_time', 'pickup_address', 'dropoff_address'],
     2: ['transport_type', 'service_type', 'will_call'],
     3: [],
@@ -770,7 +775,8 @@ export default function Book() {
                                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                                     <div className="grid gap-2">
                                         <Label htmlFor="passenger_phone_number">
-                                            Phone Number
+                                            Phone Number{' '}
+                                            <span className="text-red-500">*</span>
                                         </Label>
                                         <PhoneInput
                                             id="passenger_phone_number"
@@ -800,7 +806,8 @@ export default function Book() {
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="passenger_email">
-                                            Email Address
+                                            Email Address{' '}
+                                            <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="passenger_email"

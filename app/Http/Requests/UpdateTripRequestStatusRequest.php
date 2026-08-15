@@ -19,7 +19,7 @@ class UpdateTripRequestStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', Rule::in(TripRequest::STATUSES)],
+            'status' => ['required', Rule::in(TripRequest::ASSIGNABLE_STATUSES)],
         ];
     }
 }

@@ -4,9 +4,11 @@ use App\Http\Controllers\Carelink\AboutController;
 use App\Http\Controllers\Carelink\AppointmentController;
 use App\Http\Controllers\Carelink\BlogController;
 use App\Http\Controllers\Carelink\BookController;
+use App\Http\Controllers\Carelink\BusinessPartnerController;
 use App\Http\Controllers\Carelink\CareersController;
 use App\Http\Controllers\Carelink\DashboardAnalyticsController;
 use App\Http\Controllers\Carelink\DashboardBookingController;
+use App\Http\Controllers\Carelink\DashboardBusinessPartnerController;
 use App\Http\Controllers\Carelink\DashboardController;
 use App\Http\Controllers\Carelink\FaqController;
 use App\Http\Controllers\Carelink\FleetController;
@@ -26,6 +28,8 @@ Route::post('/bookings', [BookController::class, 'store'])->name('bookings.store
 Route::get('/bookings/{booking}', [BookController::class, 'show'])->name('bookings.show');
 Route::get('/bookings/{booking}/status', [BookController::class, 'status'])->name('bookings.status');
 Route::post('/careers/apply', [CareersController::class, 'store'])->name('careers.apply');
+Route::get('/for-businesses', [BusinessPartnerController::class, 'index'])->name('business');
+Route::post('/business-partners', [BusinessPartnerController::class, 'store'])->name('business.store');
 
 Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
 
@@ -38,6 +42,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/bookings/{booking}/export', [DashboardBookingController::class, 'showExport'])->name('dashboard.bookings.show-export');
     Route::put('/dashboard/bookings/{booking}', [DashboardBookingController::class, 'update'])->name('dashboard.bookings.update');
     Route::patch('/dashboard/bookings/{booking}/status', [DashboardBookingController::class, 'updateStatus'])->name('dashboard.bookings.update-status');
+    Route::post('/dashboard/bookings/{booking}/cancel', [DashboardBookingController::class, 'cancel'])->name('dashboard.bookings.cancel');
+    Route::get('/dashboard/business-partners', [DashboardBusinessPartnerController::class, 'index'])->name('dashboard.business-partners');
+    Route::post('/dashboard/business-partners/{businessRequest}/approve', [DashboardBusinessPartnerController::class, 'approve'])->name('dashboard.business-partners.approve');
+    Route::post('/dashboard/business-partners/{businessRequest}/reject', [DashboardBusinessPartnerController::class, 'reject'])->name('dashboard.business-partners.reject');
 });
 
 require __DIR__.'/settings.php';

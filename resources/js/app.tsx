@@ -21,6 +21,7 @@ createInertiaApp({
                 'faqs',
                 'blog',
                 'careers',
+                'business',
                 'book',
                 'bookings/track',
             ].includes(name):

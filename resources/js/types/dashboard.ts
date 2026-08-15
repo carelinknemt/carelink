@@ -25,6 +25,39 @@ export type BookingFilters = {
     per_page?: string | null;
 };
 
+export type BusinessPartnerRequest = {
+    id: number;
+    company_name: string;
+    contact_name: string;
+    email: string;
+    phone: string;
+    business_type: string;
+    estimated_monthly_trips: number | null;
+    message: string | null;
+    status: string;
+    submitted_at: string;
+};
+
+export type PaginatedBusinessPartnerRequests = {
+    data: BusinessPartnerRequest[];
+    current_page: number;
+    first_page_url: string;
+    from: number | null;
+    last_page: number;
+    last_page_url: string;
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number | null;
+    total: number;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+};
+
 export type PaginatedBookingsWithFilters = PaginatedBookings & {
     filters: BookingFilters;
 };

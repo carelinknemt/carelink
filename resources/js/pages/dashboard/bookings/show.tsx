@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { Download, MapPinned, Pencil } from 'lucide-react';
+import { Ban, Download, MapPinned, Pencil } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { CopyButton } from '@/components/carelink/copy-button';
@@ -33,6 +33,7 @@ import { formatDate, formatDateTime, statusLabel } from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
 import {
+    cancel as cancelBooking,
     showExport as showBookingExport,
     update as updateBooking,
     updateStatus as updateBookingStatus,
@@ -43,7 +44,14 @@ type BookingDetail = Record<string, string | number | boolean | null>;
 type DetailField = {
     key: string;
     label: string;
-    type?: 'bool' | 'date' | 'datetime' | 'money' | 'number' | 'phone' | 'textarea';
+    type?:
+        | 'bool'
+        | 'date'
+        | 'datetime'
+        | 'money'
+        | 'number'
+        | 'phone'
+        | 'textarea';
 };
 
 type DetailSection = {
@@ -64,7 +72,11 @@ const detailSections: DetailSection[] = [
             { key: 'passenger_dob', label: 'Date of birth', type: 'date' },
             { key: 'passenger_gender', label: 'Gender' },
             { key: 'passenger_weight', label: 'Weight (lbs)', type: 'number' },
-            { key: 'passenger_is_bariatric', label: 'Bariatric passenger', type: 'bool' },
+            {
+                key: 'passenger_is_bariatric',
+                label: 'Bariatric passenger',
+                type: 'bool',
+            },
             { key: 'passenger_notes', label: 'Notes', type: 'textarea' },
         ],
     },
@@ -92,10 +104,18 @@ const detailSections: DetailSection[] = [
             { key: 'pickup_address', label: 'Address' },
             { key: 'pickup_address_details', label: 'Address details' },
             { key: 'pickup_contact_name', label: 'Contact name' },
-            { key: 'pickup_contact_phone_number', label: 'Contact phone', type: 'phone' },
+            {
+                key: 'pickup_contact_phone_number',
+                label: 'Contact phone',
+                type: 'phone',
+            },
             { key: 'pickup_stairs', label: 'Stairs', type: 'bool' },
             { key: 'pickup_stair_equipment', label: 'Stair equipment' },
-            { key: 'pickup_driver_notes', label: 'Driver notes', type: 'textarea' },
+            {
+                key: 'pickup_driver_notes',
+                label: 'Driver notes',
+                type: 'textarea',
+            },
             { key: 'pickup_latitude', label: 'Latitude', type: 'number' },
             { key: 'pickup_longitude', label: 'Longitude', type: 'number' },
         ],
@@ -107,10 +127,18 @@ const detailSections: DetailSection[] = [
             { key: 'dropoff_address', label: 'Address' },
             { key: 'dropoff_address_details', label: 'Address details' },
             { key: 'dropoff_contact_name', label: 'Contact name' },
-            { key: 'dropoff_contact_phone_number', label: 'Contact phone', type: 'phone' },
+            {
+                key: 'dropoff_contact_phone_number',
+                label: 'Contact phone',
+                type: 'phone',
+            },
             { key: 'dropoff_stairs', label: 'Stairs', type: 'number' },
             { key: 'dropoff_stair_equipment', label: 'Stair equipment' },
-            { key: 'dropoff_driver_notes', label: 'Driver notes', type: 'textarea' },
+            {
+                key: 'dropoff_driver_notes',
+                label: 'Driver notes',
+                type: 'textarea',
+            },
             { key: 'dropoff_latitude', label: 'Latitude', type: 'number' },
             { key: 'dropoff_longitude', label: 'Longitude', type: 'number' },
         ],
@@ -120,14 +148,42 @@ const detailSections: DetailSection[] = [
         editable: true,
         fields: [
             { key: 'oxygen_required', label: 'Oxygen required', type: 'bool' },
-            { key: 'oxygen_liters_per_min', label: 'Oxygen (L/min)', type: 'number' },
-            { key: 'attendants_needed', label: 'Attendants needed', type: 'number' },
-            { key: 'additional_passengers', label: 'Additional passengers', type: 'number' },
-            { key: 'must_provide_wheelchair', label: 'Must provide wheelchair', type: 'bool' },
-            { key: 'has_infectious_disease', label: 'Infectious disease', type: 'bool' },
+            {
+                key: 'oxygen_liters_per_min',
+                label: 'Oxygen (L/min)',
+                type: 'number',
+            },
+            {
+                key: 'attendants_needed',
+                label: 'Attendants needed',
+                type: 'number',
+            },
+            {
+                key: 'additional_passengers',
+                label: 'Additional passengers',
+                type: 'number',
+            },
+            {
+                key: 'must_provide_wheelchair',
+                label: 'Must provide wheelchair',
+                type: 'bool',
+            },
+            {
+                key: 'has_infectious_disease',
+                label: 'Infectious disease',
+                type: 'bool',
+            },
             { key: 'requested_by_name', label: 'Requested by' },
-            { key: 'requested_by_phone_number', label: 'Requested by phone', type: 'phone' },
-            { key: 'dispatcher_notes', label: 'Dispatcher notes', type: 'textarea' },
+            {
+                key: 'requested_by_phone_number',
+                label: 'Requested by phone',
+                type: 'phone',
+            },
+            {
+                key: 'dispatcher_notes',
+                label: 'Dispatcher notes',
+                type: 'textarea',
+            },
         ],
     },
     {
@@ -136,6 +192,7 @@ const detailSections: DetailSection[] = [
             { key: 'booking_number', label: 'Booking number' },
             { key: 'payment_status', label: 'Payment status' },
             { key: 'paid_at', label: 'Paid at', type: 'datetime' },
+            { key: 'refunded_at', label: 'Refunded at', type: 'datetime' },
             { key: 'stripe_checkout_session_id', label: 'Stripe session' },
             { key: 'trip_request_csv_path', label: 'CSV file' },
             { key: 'created_at', label: 'Booked at', type: 'datetime' },
@@ -143,7 +200,10 @@ const detailSections: DetailSection[] = [
     },
 ];
 
-function formatValue(value: string | number | boolean | null, type?: string): string {
+function formatValue(
+    value: string | number | boolean | null,
+    type?: string,
+): string {
     if (value === null || value === undefined || value === '') {
         return '—';
     }
@@ -162,7 +222,10 @@ function formatValue(value: string | number | boolean | null, type?: string): st
     }
 }
 
-function toFormValue(value: string | number | boolean | null, type?: string): string | boolean {
+function toFormValue(
+    value: string | number | boolean | null,
+    type?: string,
+): string | boolean {
     if (type === 'bool') {
         return Boolean(value);
     }
@@ -188,7 +251,10 @@ function SectionEditDialog({
     onClose: () => void;
 }) {
     const defaults = Object.fromEntries(
-        section.fields.map((field) => [field.key, toFormValue(booking[field.key], field.type)]),
+        section.fields.map((field) => [
+            field.key,
+            toFormValue(booking[field.key], field.type),
+        ]),
     );
 
     const form = useForm<Record<string, string | boolean>>(defaults);
@@ -206,49 +272,72 @@ function SectionEditDialog({
         <Dialog open onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>Edit {section.title.toLowerCase()}</DialogTitle>
+                    <DialogTitle>
+                        Edit {section.title.toLowerCase()}
+                    </DialogTitle>
                     <DialogDescription>
-                        Update the {section.title.toLowerCase()} details for {booking.booking_number}.
+                        Update the {section.title.toLowerCase()} details for{' '}
+                        {booking.booking_number}.
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
                     {section.fields.map((field) => {
                         const error = form.errors[field.key];
-                        const spanAll = field.type === 'textarea' || field.type === 'bool';
+                        const spanAll =
+                            field.type === 'textarea' || field.type === 'bool';
 
                         return (
                             <div
                                 key={field.key}
-                                className={spanAll ? 'sm:col-span-2' : undefined}
+                                className={
+                                    spanAll ? 'sm:col-span-2' : undefined
+                                }
                             >
                                 {field.type === 'bool' ? (
                                     <label className="flex items-center gap-2 text-sm font-medium">
                                         <Checkbox
-                                            checked={Boolean(form.data[field.key])}
+                                            checked={Boolean(
+                                                form.data[field.key],
+                                            )}
                                             onCheckedChange={(checked) =>
-                                                form.setData(field.key, Boolean(checked))
+                                                form.setData(
+                                                    field.key,
+                                                    Boolean(checked),
+                                                )
                                             }
                                         />
                                         {field.label}
                                     </label>
                                 ) : (
                                     <div className="grid gap-2">
-                                        <Label htmlFor={`edit-${field.key}`}>{field.label}</Label>
+                                        <Label htmlFor={`edit-${field.key}`}>
+                                            {field.label}
+                                        </Label>
                                         {field.type === 'textarea' ? (
                                             <Textarea
                                                 id={`edit-${field.key}`}
-                                                value={String(form.data[field.key] ?? '')}
+                                                value={String(
+                                                    form.data[field.key] ?? '',
+                                                )}
                                                 onChange={(event) =>
-                                                    form.setData(field.key, event.target.value)
+                                                    form.setData(
+                                                        field.key,
+                                                        event.target.value,
+                                                    )
                                                 }
                                             />
                                         ) : field.type === 'phone' ? (
                                             <PhoneInput
                                                 id={`edit-${field.key}`}
-                                                value={String(form.data[field.key] ?? '')}
+                                                value={String(
+                                                    form.data[field.key] ?? '',
+                                                )}
                                                 onChange={(value) =>
-                                                    form.setData(field.key, value)
+                                                    form.setData(
+                                                        field.key,
+                                                        value,
+                                                    )
                                                 }
                                             />
                                         ) : (
@@ -257,28 +346,45 @@ function SectionEditDialog({
                                                 type={
                                                     field.type === 'date'
                                                         ? 'date'
-                                                        : field.type === 'number' ||
-                                                            field.type === 'money'
+                                                        : field.type ===
+                                                                'number' ||
+                                                            field.type ===
+                                                                'money'
                                                           ? 'number'
                                                           : 'text'
                                                 }
                                                 step={
-                                                    field.type === 'money' ? '0.01' : undefined
+                                                    field.type === 'money'
+                                                        ? '0.01'
+                                                        : undefined
                                                 }
-                                                value={String(form.data[field.key] ?? '')}
+                                                value={String(
+                                                    form.data[field.key] ?? '',
+                                                )}
                                                 onChange={(event) =>
-                                                    form.setData(field.key, event.target.value)
+                                                    form.setData(
+                                                        field.key,
+                                                        event.target.value,
+                                                    )
                                                 }
                                             />
                                         )}
                                     </div>
                                 )}
-                                {error && <p className="text-destructive mt-1 text-xs">{error}</p>}
+                                {error && (
+                                    <p className="mt-1 text-xs text-destructive">
+                                        {error}
+                                    </p>
+                                )}
                                 {field.type === 'phone' &&
                                     !error &&
-                                    String(form.data[field.key] ?? '').trim() !== '' &&
-                                    !isUsPhoneNumber(String(form.data[field.key])) && (
-                                        <p className="text-destructive mt-1 text-xs">
+                                    String(
+                                        form.data[field.key] ?? '',
+                                    ).trim() !== '' &&
+                                    !isUsPhoneNumber(
+                                        String(form.data[field.key]),
+                                    ) && (
+                                        <p className="mt-1 text-xs text-destructive">
                                             Enter a valid US phone number.
                                         </p>
                                     )}
@@ -314,8 +420,10 @@ export default function BookingDetail({
 }) {
     const [statusTarget, setStatusTarget] = useState<string | null>(null);
     const [editSection, setEditSection] = useState<DetailSection | null>(null);
+    const [cancelOpen, setCancelOpen] = useState(false);
 
     const statusForm = useForm({ status: '' });
+    const cancelForm = useForm({});
 
     function confirmStatusChange() {
         if (!statusTarget) {
@@ -323,11 +431,25 @@ export default function BookingDetail({
         }
 
         statusForm.setData('status', statusTarget);
-        statusForm.patch(updateBookingStatus.url({ booking: Number(booking.id) }), {
+        statusForm.patch(
+            updateBookingStatus.url({ booking: Number(booking.id) }),
+            {
+                preserveScroll: true,
+                onSuccess: () => setStatusTarget(null),
+            },
+        );
+    }
+
+    function confirmCancellation() {
+        cancelForm.post(cancelBooking.url({ booking: Number(booking.id) }), {
             preserveScroll: true,
-            onSuccess: () => setStatusTarget(null),
+            onSuccess: () => setCancelOpen(false),
         });
     }
+
+    const isCancelled = booking.status === 'CANCELLED';
+    const isCompleted = booking.status === 'COMPLETED';
+    const canCancel = !isCancelled && !isCompleted;
 
     const mapPoints: MapPoint[] = [];
 
@@ -385,19 +507,45 @@ export default function BookingDetail({
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
-                                {booking.payment_status} · $30 fee paid
+                            <Badge
+                                variant="outline"
+                                className={
+                                    isCancelled
+                                        ? 'border-rose-200 bg-rose-50 text-rose-700'
+                                        : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                }
+                            >
+                                {isCancelled
+                                    ? 'CANCELLED · $30 fee refunded'
+                                    : `${booking.payment_status} · $30 fee paid`}
                             </Badge>
                         </div>
-                        <Button variant="outline" size="sm" asChild>
-                            <a href={showBookingExport.url({ booking: Number(booking.id) })}>
-                                <Download />
-                                Export CSV
-                            </a>
-                        </Button>
+                        <div className="flex flex-wrap items-center gap-2">
+                            {canCancel && (
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => setCancelOpen(true)}
+                                >
+                                    <Ban />
+                                    Cancel booking
+                                </Button>
+                            )}
+                            <Button variant="outline" size="sm" asChild>
+                                <a
+                                    href={showBookingExport.url({
+                                        booking: Number(booking.id),
+                                    })}
+                                >
+                                    <Download />
+                                    Export CSV
+                                </a>
+                            </Button>
+                        </div>
                     </div>
-                    <p className="text-muted-foreground text-sm">
-                        {String(booking.passenger_first_name)} {String(booking.passenger_last_name)} · booked{' '}
+                    <p className="text-sm text-muted-foreground">
+                        {String(booking.passenger_first_name)}{' '}
+                        {String(booking.passenger_last_name)} · booked{' '}
                         {formatDateTime(String(booking.created_at))}
                     </p>
                 </div>
@@ -406,7 +554,9 @@ export default function BookingDetail({
                     {detailSections.map((section) => (
                         <Card key={section.title}>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                                <CardTitle className="text-base">{section.title}</CardTitle>
+                                <CardTitle className="text-base">
+                                    {section.title}
+                                </CardTitle>
                                 {section.editable && (
                                     <Button
                                         variant="ghost"
@@ -425,20 +575,32 @@ export default function BookingDetail({
                                         <div key={field.key}>
                                             {index > 0 && <Separator />}
                                             <div className="flex flex-col gap-0.5 py-2.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                                                <dt className="text-muted-foreground min-w-0 text-sm">
+                                                <dt className="min-w-0 text-sm text-muted-foreground">
                                                     {field.label}
                                                 </dt>
                                                 <dd className="text-sm font-medium break-words sm:min-w-0 sm:text-right">
                                                     {field.type === 'phone' &&
                                                     booking[field.key] ? (
                                                         <span className="inline-flex items-center gap-1.5">
-                                                            {String(booking[field.key])}
+                                                            {String(
+                                                                booking[
+                                                                    field.key
+                                                                ],
+                                                            )}
                                                             <CopyButton
-                                                                value={String(booking[field.key])}
+                                                                value={String(
+                                                                    booking[
+                                                                        field
+                                                                            .key
+                                                                    ],
+                                                                )}
                                                             />
                                                         </span>
                                                     ) : (
-                                                        formatValue(booking[field.key], field.type)
+                                                        formatValue(
+                                                            booking[field.key],
+                                                            field.type,
+                                                        )
                                                     )}
                                                 </dd>
                                             </div>
@@ -461,15 +623,65 @@ export default function BookingDetail({
                         <CardContent>
                             <MapPreview points={mapPoints} height={360} />
                             <p className="mt-2 text-xs text-muted-foreground">
-                                <span className="font-bold text-[#004B87]">Blue</span> pickup
+                                <span className="font-bold text-[#004B87]">
+                                    Blue
+                                </span>{' '}
+                                pickup
                                 {' · '}
-                                <span className="font-bold text-[#E64A19]">orange</span>{' '}
+                                <span className="font-bold text-[#E64A19]">
+                                    orange
+                                </span>{' '}
                                 dropoff
                             </p>
                         </CardContent>
                     </Card>
                 )}
             </div>
+
+            <Dialog
+                open={cancelOpen}
+                onOpenChange={(open) => {
+                    if (!open && !cancelForm.processing) {
+                        setCancelOpen(false);
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Cancel booking and refund?</DialogTitle>
+                        <DialogDescription>
+                            You are about to cancel{' '}
+                            <span className="font-medium text-foreground">
+                                {booking.booking_number}
+                            </span>
+                            . The paid booking fee of{' '}
+                            <span className="font-medium text-foreground">
+                                $30.00
+                            </span>{' '}
+                            will be refunded to the customer. This cannot be
+                            undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setCancelOpen(false)}
+                            disabled={cancelForm.processing}
+                        >
+                            Keep booking
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={confirmCancellation}
+                            disabled={cancelForm.processing}
+                        >
+                            {cancelForm.processing
+                                ? 'Cancelling…'
+                                : 'Cancel booking & refund'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <Dialog
                 open={statusTarget !== null}
@@ -484,29 +696,35 @@ export default function BookingDetail({
                         <DialogTitle>Change booking status?</DialogTitle>
                         <DialogDescription>
                             You are about to change{' '}
-                            <span className="text-foreground font-medium">
+                            <span className="font-medium text-foreground">
                                 {booking.booking_number}
                             </span>{' '}
                             from{' '}
-                            <span className="text-foreground font-medium">
+                            <span className="font-medium text-foreground">
                                 {statusLabel(String(booking.status))}
                             </span>{' '}
                             to{' '}
-                            <span className="text-foreground font-medium">
+                            <span className="font-medium text-foreground">
                                 {statusLabel(statusTarget ?? '')}
                             </span>
                             . This will be visible to the dispatch team.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setStatusTarget(null)} disabled={statusForm.processing}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setStatusTarget(null)}
+                            disabled={statusForm.processing}
+                        >
                             Cancel
                         </Button>
                         <Button
                             onClick={confirmStatusChange}
                             disabled={statusForm.processing}
                         >
-                            {statusForm.processing ? 'Updating…' : 'Confirm change'}
+                            {statusForm.processing
+                                ? 'Updating…'
+                                : 'Confirm change'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

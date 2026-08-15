@@ -3,11 +3,15 @@
 namespace Tests\Support;
 
 use Stripe\Checkout\Session;
+use Stripe\Refund;
 use Throwable;
 
 class FakeStripeClient
 {
-    public function __construct(public FakeStripeCheckoutService $checkout = new FakeStripeCheckoutService) {}
+    public function __construct(
+        public FakeStripeCheckoutService $checkout = new FakeStripeCheckoutService,
+        public FakeStripeRefunds $refunds = new FakeStripeRefunds,
+    ) {}
 }
 
 class FakeStripeCheckoutService
@@ -23,6 +27,8 @@ class FakeStripeSessions
     public ?Throwable $createException = null;
 
     public string $retrievePaymentStatus = 'paid';
+
+    public ?string $paymentIntent = 'pi_test_fake';
 
     public function create(array $data): Session
     {
@@ -45,6 +51,30 @@ class FakeStripeSessions
             'id' => $id,
             'url' => 'https://checkout.stripe.com/c/pay/cs_test_fake',
             'payment_status' => $this->retrievePaymentStatus,
+            'payment_intent' => $this->paymentIntent,
+        ]);
+    }
+}
+
+class FakeStripeRefunds
+{
+    /** @var array<int, array<string, mixed>> */
+    public array $created = [];
+
+    public ?Throwable $createException = null;
+
+    public function create(array $data): Refund
+    {
+        if ($this->createException) {
+            throw $this->createException;
+        }
+
+        $this->created[] = $data;
+
+        return Refund::constructFrom([
+            'id' => 're_test_fake',
+            'payment_intent' => $data['payment_intent'],
+            'status' => 'succeeded',
         ]);
     }
 }
