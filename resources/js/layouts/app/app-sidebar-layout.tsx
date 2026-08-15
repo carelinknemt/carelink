@@ -2,12 +2,18 @@ import { AppContent } from '@/components/app-content';
 import { AppShell } from '@/components/app-shell';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
+import AccessibilityWidget from '@/components/carelink/accessibility-widget';
+import { useEffect } from 'react';
 import type { AppLayoutProps } from '@/types';
 
 export default function AppSidebarLayout({
     children,
     breadcrumbs = [],
 }: AppLayoutProps) {
+    useEffect(() => {
+        document.documentElement.style.colorScheme = 'light';
+    }, []);
+
     return (
         <AppShell variant="sidebar">
             <AppSidebar />
@@ -15,6 +21,7 @@ export default function AppSidebarLayout({
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
                 {children}
             </AppContent>
+            <AccessibilityWidget />
         </AppShell>
     );
 }
