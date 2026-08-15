@@ -1,6 +1,6 @@
 import type { PageProps } from '@inertiajs/core';
 import { router, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, ArrowRight, CalendarCheck, CheckCircle2, Loader2, Send } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Send } from 'lucide-react';
 import { useEffect, useCallback, useState } from 'react';
 import AppHead from '@/components/app-head';
 import DatePicker, { formatIsoDate } from '@/components/carelink/date-picker';
@@ -655,8 +655,6 @@ export default function Book() {
 
             {/* Page Header */}
             <PageHero
-                badge="Book Online"
-                badgeIcon={CalendarCheck}
                 title="Book Your Ride Online"
                 subtitle="Complete the trip request form below and our dispatch team will review and confirm your request."
             />

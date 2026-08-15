@@ -1,4 +1,4 @@
-import { CheckCircle2, Bus } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
 import type { TransportService } from '@/types/carelink';
@@ -42,8 +42,6 @@ export default function Services({ services }: ServicesProps) {
             />
 
             <PageHero
-                badge="Our Services"
-                badgeIcon={Bus}
                 title="Medical & Non-Medical Transport Services"
                 subtitle="Curb-to-curb wheelchair vans, group transit shuttles, and ambulatory sedans serving Humboldt, Del Norte, Trinity, and Shasta counties."
             />

@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { Briefcase, CheckCircle, FileText, Send } from 'lucide-react';
+import { CheckCircle, FileText, Send } from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
@@ -73,8 +73,6 @@ export default function Careers({ careers }: CareersProps) {
 
             {/* Hero Header */}
             <PageHero
-                badge="Join Our Team"
-                badgeIcon={Briefcase}
                 title="Build a Career of Compassion and Purpose"
                 subtitle="Carelink Medical Transportation is looking for dedicated individuals to join our Northern California team. Help us bridge the healthcare gap in our community."
             />

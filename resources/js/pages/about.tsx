@@ -47,8 +47,6 @@ export default function About({ team }: AboutProps) {
             />
 
             <PageHero
-                badge="About Us"
-                badgeIcon={Building2}
                 title="About Carelink Medical Transportation LLC"
                 subtitle="Headquartered in Eureka, California. Family Owned to provide dignified, compassionate, and punctual non-emergency medical transportation across Humboldt, Del Norte, Trinity, and Shasta counties."
             />

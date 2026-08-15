@@ -1,4 +1,4 @@
-import { Bus, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
@@ -39,8 +39,6 @@ export default function Fleet({ fleet }: FleetProps) {
             />
 
             <PageHero
-                badge="Our Fleet"
-                badgeIcon={Bus}
                 title="Our Modern NEMT Fleet"
                 subtitle="Inspect our BraunAbility wheelchair hydraulic lift vans, multi-passenger transit shuttles, and climate-controlled ambulatory cruisers maintained to strict clinical safety protocols."
             />

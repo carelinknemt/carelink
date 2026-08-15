@@ -93,8 +93,6 @@ export default function Faqs({ faqs }: FaqsProps) {
             />
 
             <PageHero
-                badge="Help Center"
-                badgeIcon={HelpCircle}
                 title="Carelink Help & Advisory Center"
                 subtitle="Clear answers regarding Medi-Cal coverage, wheelchair ramp assistance, hospital discharge dispatch times, and group transit shuttle rides."
             />

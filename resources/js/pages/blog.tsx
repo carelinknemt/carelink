@@ -1,4 +1,4 @@
-import { Calendar, Clock, User, ArrowRight, Search, X, Newspaper } from 'lucide-react';
+import { Calendar, Clock, User, ArrowRight, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
@@ -71,8 +71,6 @@ export default function Blog({ posts }: BlogProps) {
             />
 
             <PageHero
-                badge="NEMT Insights"
-                badgeIcon={Newspaper}
                 title="NEMT Insights & Healthcare Guides"
                 subtitle="Educational articles on securing Medi-Cal transportation vouchers, organizing dialysis rides, and hospital discharge efficiency across Humboldt, Del Norte, Trinity, and Shasta counties."
             />

@@ -1,6 +1,5 @@
 import { usePoll } from '@inertiajs/react';
 import {
-    CalendarClock,
     CheckCircle2,
     Copy,
     ExternalLink,
@@ -70,8 +69,6 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
             />
 
             <PageHero
-                badge="Booking Status"
-                badgeIcon={CalendarClock}
                 title="Track Your Booking"
                 subtitle={`View the status of trip request ${booking.booking_number} and its booking fee payment.`}
             />
