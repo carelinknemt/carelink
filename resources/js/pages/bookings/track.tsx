@@ -55,7 +55,7 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
     return (
         <div className="bg-slate-50">
             <AppHead
-                title={`Track Booking ${booking.booking_number} — CareLink Medical Transportation`}
+                title={`Track Booking ${booking.booking_number}`}
                 description="Track your CareLink trip request status and booking fee payment."
                 canonical={`/bookings/${booking.booking_number}`}
                 type="website"
@@ -174,7 +174,7 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
                                         : 'text-amber-600'
                                 }`}
                             >
-                                ${BOOKING_FEE.toFixed(2)} —{' '}
+                                ${BOOKING_FEE.toFixed(2)} ·{' '}
                                 {paymentPaid ? 'Paid' : 'Pending'}
                             </dd>
                         </div>

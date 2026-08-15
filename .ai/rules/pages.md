@@ -1,6 +1,7 @@
 ---
 paths:
   - resources/js/pages/book.tsx
+  - 'resources/js/pages/**'
 ---
 
 # Pages
@@ -13,3 +14,6 @@ Do not use native inputs type=date/time on the book form — they render inconsi
 
 ## Submit requires review confirmation gate
 The review step's Submit button is type="button" (never a native submit) and stays disabled until reviewReady (800ms after arriving on the review step). This prevents double-click/Enter from submitting the trip while the reviewer is still on earlier steps; pressing Enter on earlier steps only advances via handleSubmit.
+
+## Public page content width matches blog (max-w-7xl)
+All public pages outside the landing page use the same content container width as the blog page: mx-auto max-w-7xl with px-4 sm:px-6 lg:px-12 (blog.tsx is the reference). careers, faqs, book, business all use max-w-7xl now.

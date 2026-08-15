@@ -56,7 +56,7 @@ export default function Careers({ careers }: CareersProps) {
     return (
         <div className="min-h-screen bg-slate-50 pb-16">
             <AppHead
-                title="Careers — Join Our Team"
+                title="Careers"
                 description={CAREERS_DESCRIPTION}
                 keywords={[
                     'NEMT jobs',
@@ -97,7 +97,7 @@ export default function Careers({ careers }: CareersProps) {
                 </div>
             </div>
 
-            <div className="mx-auto mt-12 max-w-4xl px-4 sm:px-6 lg:px-12">
+            <div className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-12">
                 <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
                     <div className="border-b border-slate-100 p-8 sm:p-12">
                         <h2 className="text-2xl font-black text-[#004B87]">

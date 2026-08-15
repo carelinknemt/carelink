@@ -35,7 +35,7 @@ export default function Business({ business_types }: BusinessProps) {
     return (
         <div className="min-h-screen bg-slate-50 pb-16">
             <AppHead
-                title="For Businesses — Partner With CareLink"
+                title="For Businesses"
                 description={BUSINESS_DESCRIPTION}
                 keywords={[
                     'NEMT partnership',
@@ -73,7 +73,7 @@ export default function Business({ business_types }: BusinessProps) {
                 </div>
             </div>
 
-            <div className="mx-auto mt-12 max-w-5xl px-4 sm:px-6 lg:px-12">
+            <div className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-12">
                 {/* Inquiry Form */}
                 <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
                     <div className="border-b border-slate-100 p-8 sm:p-12">

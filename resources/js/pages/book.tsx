@@ -516,7 +516,7 @@ export default function Book() {
                         <span className="font-bold text-slate-800">
                             ${BOOKING_FEE.toFixed(2)}
                         </span>{' '}
-                        booking fee there — this page updates automatically
+                        booking fee there. This page updates automatically
                         once the payment is received.
                     </p>
                     <div className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
@@ -577,7 +577,7 @@ export default function Book() {
                     >
                         {paymentPaid
                             ? `Booking fee of $${BOOKING_FEE.toFixed(2)} paid via Stripe.`
-                            : `Booking fee of $${BOOKING_FEE.toFixed(2)} is pending — our team will contact you to arrange payment.`}
+                            : `Booking fee of $${BOOKING_FEE.toFixed(2)} is pending. Our team will contact you to arrange payment.`}
                     </div>
                     <dl className="mx-auto mt-8 max-w-xl divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white/60 px-6 py-2 text-left text-sm">
                         <div className="flex items-center justify-between py-3">
@@ -619,7 +619,7 @@ export default function Book() {
                                         : 'text-amber-600'
                                 }`}
                             >
-                                ${BOOKING_FEE.toFixed(2)} —{' '}
+                                ${BOOKING_FEE.toFixed(2)} ·{' '}
                                 {paymentPaid ? 'Paid' : 'Pending'}
                             </dd>
                         </div>
@@ -638,7 +638,7 @@ export default function Book() {
     return (
         <div className="bg-slate-50">
             <AppHead
-                title="Book a Ride — Online Trip Request"
+                title="Book a Ride"
                 description={BOOK_DESCRIPTION}
                 keywords={[
                     'book NEMT ride online',
@@ -670,11 +670,11 @@ export default function Book() {
                 </a>
             </div>
 
-            <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:px-12">
+            <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-12">
                 {/* Current Phase */}
                 <div className="mb-8">
                     <p className="text-xs font-black tracking-widest text-[#E64A19] uppercase">
-                        Step {step + 1} of {STEPS.length} — {STEPS[step].label}
+                        Step {step + 1} of {STEPS.length}: {STEPS[step].label}
                     </p>
                     <h2 className="mt-1 text-2xl font-black text-slate-900 sm:text-3xl">
                         {STEPS[step].title}

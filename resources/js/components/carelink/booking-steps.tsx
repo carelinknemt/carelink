@@ -15,7 +15,7 @@ const BOOKING_STEPS: BookingStep[] = [
         icon: MapPin,
         points: [
             { icon: Repeat, text: 'Round-trip by default; return leg removable anytime.' },
-            { icon: Car, text: 'Wheelchair van or sedan — matched to mobility needs.' },
+            { icon: Car, text: 'Wheelchair van or sedan matched to mobility needs.' },
             { icon: CreditCard, text: 'Passenger, payer & institutional billing details up front.' },
         ],
     },
@@ -26,7 +26,7 @@ const BOOKING_STEPS: BookingStep[] = [
         icon: ShieldCheck,
         points: [
             { icon: Radar, text: 'Live availability check: available, full, or uncertain.' },
-            { icon: Headset, text: 'Uncertain? Dispatch confirms manually — never blocked.' },
+            { icon: Headset, text: 'Uncertain? Dispatch confirms manually; never blocked.' },
             { icon: Banknote, text: '$30 fee locks the ride; waived & invoiced for B2B clients.' },
         ],
     },
@@ -37,7 +37,7 @@ const BOOKING_STEPS: BookingStep[] = [
         icon: Flag,
         points: [
             { icon: Receipt, text: 'Final charge: base fare + actual billable mileage.' },
-            { icon: Route, text: 'Only the $30 fee up front — the ride is billed after.' },
+            { icon: Route, text: 'Only the $30 fee up front; the ride is billed after.' },
             { icon: RotateCcw, text: 'Cancel 24+ hrs: full refund · later: $30 · dispatch cancels: auto-refund.' },
         ],
     },

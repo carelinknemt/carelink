@@ -19,11 +19,11 @@ export default function AppLogo() {
     }
 
     return (
-        <span className="flex min-w-0 items-center">
+        <span className="flex w-full min-w-0 items-center">
             <img
                 src={COMPANY_INFO.logoUrl}
                 alt={COMPANY_INFO.name}
-                className="h-7 w-auto max-w-full rounded-md bg-white px-1.5 py-0.5 object-contain"
+                className="h-auto w-full max-w-full rounded-md bg-white px-2 py-1.5 object-contain"
                 referrerPolicy="no-referrer"
             />
         </span>

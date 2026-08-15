@@ -91,7 +91,7 @@ export default function Faqs({ faqs }: FaqsProps) {
                 }}
             />
 
-            <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
+            <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
                 {/* Page Hero Header */}
                 <div className="relative overflow-hidden rounded-3xl bg-[#004B87] p-8 text-white shadow-2xl sm:p-12">
                     <div className="relative z-10 max-w-3xl space-y-4">

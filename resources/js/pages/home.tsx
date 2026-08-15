@@ -17,7 +17,7 @@ interface HomeProps {
 }
 
 const HOME_DESCRIPTION =
-    'CareLink Medical Transportation LLC provides compassionate non-emergency medical transportation (NEMT) across Humboldt, Del Norte, Trinity, and Shasta counties — ADA wheelchair vans, dialysis rides, hospital discharges, and curb-to-curb support. Call (707) 854-9350.';
+    'CareLink Medical Transportation LLC provides compassionate non-emergency medical transportation (NEMT) across Humboldt, Del Norte, Trinity, and Shasta counties. ADA wheelchair vans, dialysis rides, hospital discharges, and curb-to-curb support. Call (707) 854-9350.';
 
 function to24Hour(expr: string): string {
     const match = expr.trim().match(/(\d{1,2}):(\d{2})\s*(a\.m\.|p\.m\.)/);
