@@ -1,6 +1,7 @@
-import { Calendar, Clock, User, ArrowRight, Search, X } from 'lucide-react';
+import { Calendar, Clock, User, ArrowRight, Search, X, Newspaper } from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
+import PageHero from '@/components/carelink/page-hero';
 import type { BlogPost } from '@/types/carelink';
 
 interface BlogProps {
@@ -35,7 +36,7 @@ export default function Blog({ posts }: BlogProps) {
     });
 
     return (
-        <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-12">
+        <div className="min-h-screen bg-slate-50 pb-16">
             <AppHead
                 title="NEMT Insights & Healthcare Guides"
                 description={BLOG_DESCRIPTION}
@@ -69,22 +70,14 @@ export default function Blog({ posts }: BlogProps) {
                 }}
             />
 
-            <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-                {/* Page Hero Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-[#004B87] p-8 text-white shadow-2xl sm:p-12">
-                    <div className="relative z-10 max-w-3xl space-y-4">
-                        <h1 className="text-3xl leading-tight font-black tracking-tight sm:text-4xl lg:text-5xl">
-                            NEMT Insights & Healthcare Guides
-                        </h1>
-                        <p className="text-sm leading-relaxed text-orange-100 sm:text-base">
-                            Educational articles on securing Medi-Cal
-                            transportation vouchers, organizing dialysis rides,
-                            and hospital discharge efficiency across Humboldt,
-                            Del Norte, Trinity, and Shasta counties.
-                        </p>
-                    </div>
-                </div>
+            <PageHero
+                badge="NEMT Insights"
+                badgeIcon={Newspaper}
+                title="NEMT Insights & Healthcare Guides"
+                subtitle="Educational articles on securing Medi-Cal transportation vouchers, organizing dialysis rides, and hospital discharge efficiency across Humboldt, Del Norte, Trinity, and Shasta counties."
+            />
 
+            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-12">
                 {/* Filter and Search Bar */}
                 <div className="flex flex-col items-stretch justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 md:flex-row md:items-center">
                     <div className="flex scrollbar-none items-center gap-2 overflow-x-auto pb-2 md:pb-0">

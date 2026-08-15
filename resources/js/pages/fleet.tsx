@@ -1,6 +1,7 @@
-import { ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Bus, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
+import PageHero from '@/components/carelink/page-hero';
 import type { FleetVehicle } from '@/types/carelink';
 
 interface FleetProps {
@@ -20,7 +21,7 @@ export default function Fleet({ fleet }: FleetProps) {
     );
 
     return (
-        <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-12">
+        <div className="min-h-screen bg-slate-50 pb-16">
             <AppHead
                 title="Our Modern NEMT Fleet"
                 description={FLEET_DESCRIPTION}
@@ -37,21 +38,14 @@ export default function Fleet({ fleet }: FleetProps) {
                 type="article"
             />
 
-            <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-                {/* Page Hero Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-[#004B87] p-8 text-white shadow-2xl sm:p-12">
-                    <div className="relative z-10 max-w-3xl space-y-4">
-                        <h1 className="text-3xl leading-tight font-black tracking-tight sm:text-4xl lg:text-5xl">
-                            Our Modern NEMT Fleet
-                        </h1>
-                        <p className="max-w-2xl text-sm leading-relaxed text-orange-100 sm:text-base">
-                            Inspect our BraunAbility wheelchair hydraulic lift
-                            vans, multi-passenger transit shuttles, and
-                            climate-controlled ambulatory cruisers maintained to
-                            strict clinical safety protocols.
-                        </p>
-                    </div>
-                </div>
+            <PageHero
+                badge="Our Fleet"
+                badgeIcon={Bus}
+                title="Our Modern NEMT Fleet"
+                subtitle="Inspect our BraunAbility wheelchair hydraulic lift vans, multi-passenger transit shuttles, and climate-controlled ambulatory cruisers maintained to strict clinical safety protocols."
+            />
+
+            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-12">
 
                 {/* Filter Bar */}
                 <div className="flex scrollbar-none items-center gap-3 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-4 pb-2">

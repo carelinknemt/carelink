@@ -1,5 +1,6 @@
 import { Award, ShieldCheck, Building2, User } from 'lucide-react';
 import AppHead from '@/components/app-head';
+import PageHero from '@/components/carelink/page-hero';
 import { COMPANY_INFO } from '@/data/carelink';
 import type { TeamMember } from '@/types/carelink';
 
@@ -12,7 +13,7 @@ const ABOUT_DESCRIPTION =
 
 export default function About({ team }: AboutProps) {
     return (
-        <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-12">
+        <div className="min-h-screen bg-slate-50 pb-16">
             <AppHead
                 title="About Carelink Medical Transportation"
                 description={ABOUT_DESCRIPTION}
@@ -45,21 +46,14 @@ export default function About({ team }: AboutProps) {
                 }}
             />
 
-            <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-                {/* Page Hero Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-[#004B87] p-8 text-white shadow-2xl sm:p-12">
-                    <div className="relative z-10 max-w-3xl space-y-4">
-                        <h1 className="text-3xl leading-tight font-black tracking-tight sm:text-4xl lg:text-5xl">
-                            About Carelink Medical Transportation LLC
-                        </h1>
-                        <p className="max-w-2xl text-sm leading-relaxed text-orange-100 sm:text-base">
-                            Headquartered in Eureka, California. Family Owned to
-                            provide dignified, compassionate, and punctual
-                            non-emergency medical transportation across
-                            Humboldt, Del Norte, Trinity, and Shasta counties.
-                        </p>
-                    </div>
-                </div>
+            <PageHero
+                badge="About Us"
+                badgeIcon={Building2}
+                title="About Carelink Medical Transportation LLC"
+                subtitle="Headquartered in Eureka, California. Family Owned to provide dignified, compassionate, and punctual non-emergency medical transportation across Humboldt, Del Norte, Trinity, and Shasta counties."
+            />
+
+            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-12">
 
                 {/* Story & Vision Section */}
                 <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12">

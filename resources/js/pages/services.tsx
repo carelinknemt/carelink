@@ -1,5 +1,6 @@
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Bus } from 'lucide-react';
 import AppHead from '@/components/app-head';
+import PageHero from '@/components/carelink/page-hero';
 import type { TransportService } from '@/types/carelink';
 
 interface ServicesProps {
@@ -11,7 +12,7 @@ const SERVICES_DESCRIPTION =
 
 export default function Services({ services }: ServicesProps) {
     return (
-        <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-12">
+        <div className="min-h-screen bg-slate-50 pb-16">
             <AppHead
                 title="Medical & Non-Medical Transport Services"
                 description={SERVICES_DESCRIPTION}
@@ -40,20 +41,14 @@ export default function Services({ services }: ServicesProps) {
                 }}
             />
 
-            <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-                {/* Header Banner */}
-                <div className="relative overflow-hidden rounded-3xl bg-[#004B87] p-8 text-white shadow-2xl sm:p-12">
-                    <div className="relative z-10 max-w-3xl space-y-4">
-                        <h1 className="text-3xl leading-tight font-black tracking-tight sm:text-4xl lg:text-5xl">
-                            Medical & Non-Medical Transport Services
-                        </h1>
-                        <p className="max-w-2xl text-sm leading-relaxed text-orange-100 sm:text-base">
-                            Curb-to-curb wheelchair vans, group transit
-                            shuttles, and ambulatory sedans serving Humboldt,
-                            Del Norte, Trinity, and Shasta counties.
-                        </p>
-                    </div>
-                </div>
+            <PageHero
+                badge="Our Services"
+                badgeIcon={Bus}
+                title="Medical & Non-Medical Transport Services"
+                subtitle="Curb-to-curb wheelchair vans, group transit shuttles, and ambulatory sedans serving Humboldt, Del Norte, Trinity, and Shasta counties."
+            />
+
+            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-12">
 
                 {/* NEMT Service Banner Image */}
                 <div className="w-full overflow-hidden rounded-3xl shadow-lg">

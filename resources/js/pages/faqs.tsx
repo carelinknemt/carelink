@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
+import PageHero from '@/components/carelink/page-hero';
 import { COMPANY_INFO } from '@/data/carelink';
 import type { FaqItem } from '@/types/carelink';
 
@@ -62,7 +63,7 @@ export default function Faqs({ faqs }: FaqsProps) {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-12">
+        <div className="min-h-screen bg-slate-50 pb-16">
             <AppHead
                 title="FAQs & Contact"
                 description={FAQS_DESCRIPTION}
@@ -91,20 +92,14 @@ export default function Faqs({ faqs }: FaqsProps) {
                 }}
             />
 
-            <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-                {/* Page Hero Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-[#004B87] p-8 text-white shadow-2xl sm:p-12">
-                    <div className="relative z-10 max-w-3xl space-y-4">
-                        <h1 className="text-3xl leading-tight font-black tracking-tight sm:text-4xl lg:text-5xl">
-                            Carelink Help & Advisory Center
-                        </h1>
-                        <p className="text-sm leading-relaxed text-orange-100 sm:text-base">
-                            Clear answers regarding Medi-Cal coverage,
-                            wheelchair ramp assistance, hospital discharge
-                            dispatch times, and group transit shuttle rides.
-                        </p>
-                    </div>
-                </div>
+            <PageHero
+                badge="Help Center"
+                badgeIcon={HelpCircle}
+                title="Carelink Help & Advisory Center"
+                subtitle="Clear answers regarding Medi-Cal coverage, wheelchair ramp assistance, hospital discharge dispatch times, and group transit shuttle rides."
+            />
+
+            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-12">
 
                 {/* Search & Category Filter Bar */}
                 <div className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">

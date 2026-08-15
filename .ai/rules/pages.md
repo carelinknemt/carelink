@@ -2,6 +2,7 @@
 paths:
   - resources/js/pages/book.tsx
   - 'resources/js/pages/**'
+  - 'resources/js/pages/*.tsx'
 ---
 
 # Pages
@@ -17,3 +18,6 @@ The review step's Submit button is type="button" (never a native submit) and sta
 
 ## Public page content width matches blog (max-w-7xl)
 All public pages outside the landing page use the same content container width as the blog page: mx-auto max-w-7xl with px-4 sm:px-6 lg:px-12 (blog.tsx is the reference). careers, faqs, book, business all use max-w-7xl now.
+
+## Public pages use PageHero component
+All public pages (except home/landing) use the shared full-bleed hero from components/carelink/page-hero.tsx (careers-style: border-b-8 orange, image background, badge pill optional, title/subtitle). Structure: min-h-screen bg-slate-50 pb-16 wrapper > PageHero > content div mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-12. Use PageHero for any new public page.

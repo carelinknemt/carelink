@@ -1,12 +1,13 @@
 import type { PageProps } from '@inertiajs/core';
 import { router, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Phone, Send } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CalendarCheck, CheckCircle2, Loader2, Send } from 'lucide-react';
 import { useEffect, useCallback, useState } from 'react';
 import AppHead from '@/components/app-head';
 import DatePicker, { formatIsoDate } from '@/components/carelink/date-picker';
 import LocationPicker from '@/components/carelink/location-picker';
 import MapPreview from '@/components/carelink/map-preview';
 import type {MapPoint} from '@/components/carelink/map-preview';
+import PageHero from '@/components/carelink/page-hero';
 import PhoneInput, { isUsPhoneNumber } from '@/components/carelink/phone-input';
 import TimePicker from '@/components/carelink/time-picker';
 import InputError from '@/components/input-error';
@@ -22,7 +23,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { COMPANY_INFO } from '@/data/carelink';
 import { book } from '@/routes';
 import { show, status, store } from '@/routes/bookings';
 
@@ -654,22 +654,12 @@ export default function Book() {
             />
 
             {/* Page Header */}
-            <div className="bg-[#004B87] px-4 py-8 text-center sm:px-6 lg:px-12">
-                <h1 className="text-2xl font-black text-white sm:text-3xl">
-                    Book Your Ride Online
-                </h1>
-                <p className="mx-auto mt-2 max-w-2xl text-sm text-cyan-100">
-                    Complete the trip request form below and our dispatch team
-                    will confirm your ride.
-                </p>
-                <a
-                    href={`tel:${COMPANY_INFO.dispatchPhone.replace(/[^0-9+]/g, '')}`}
-                    className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold text-white transition hover:bg-white/20"
-                >
-                    <Phone className="h-3.5 w-3.5 text-orange-300" />
-                    Prefer to call? {COMPANY_INFO.dispatchPhone}
-                </a>
-            </div>
+            <PageHero
+                badge="Book Online"
+                badgeIcon={CalendarCheck}
+                title="Book Your Ride Online"
+                subtitle="Complete the trip request form below and our dispatch team will review and confirm your request."
+            />
 
             <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-12">
                 {/* Current Phase */}

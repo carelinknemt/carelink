@@ -1,7 +1,15 @@
 import { usePoll } from '@inertiajs/react';
-import { CheckCircle2, Copy, ExternalLink, Loader2, Phone } from 'lucide-react';
+import {
+    CalendarClock,
+    CheckCircle2,
+    Copy,
+    ExternalLink,
+    Loader2,
+    Phone,
+} from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
+import PageHero from '@/components/carelink/page-hero';
 import { Button } from '@/components/ui/button';
 import { COMPANY_INFO } from '@/data/carelink';
 import { book } from '@/routes';
@@ -61,17 +69,14 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
                 type="website"
             />
 
-            <div className="bg-[#004B87] px-4 py-8 text-center sm:px-6 lg:px-12">
-                <h1 className="text-2xl font-black text-white sm:text-3xl">
-                    Track Your Booking
-                </h1>
-                <p className="mt-2 text-sm text-cyan-100">
-                    Booking{' '}
-                    <span className="font-black">{booking.booking_number}</span>
-                </p>
-            </div>
+            <PageHero
+                badge="Booking Status"
+                badgeIcon={CalendarClock}
+                title="Track Your Booking"
+                subtitle={`View the status of trip request ${booking.booking_number} and its booking fee payment.`}
+            />
 
-            <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-12">
+            <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-12">
                 <div
                     className={`rounded-2xl border px-5 py-6 text-center ${
                         paymentPaid

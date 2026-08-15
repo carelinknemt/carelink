@@ -1,6 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { Building2, CheckCircle, Send } from 'lucide-react';
 import AppHead from '@/components/app-head';
+import PageHero from '@/components/carelink/page-hero';
 import { COMPANY_INFO } from '@/data/carelink';
 import { store as submitBusinessRequest } from '@/routes/business';
 
@@ -50,28 +51,10 @@ export default function Business({ business_types }: BusinessProps) {
             />
 
             {/* Hero Header */}
-            <div className="relative overflow-hidden border-b-8 border-[#E64A19] bg-[#004B87] py-16 sm:py-24">
-                <div className="absolute inset-0 opacity-20">
-                    <img
-                        src="/images/Img-Carelink-hero.webp"
-                        alt="Carelink Fleet Background"
-                        className="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-[#004B87] mix-blend-multiply" />
-                </div>
-
-                <div className="relative z-10 mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-12">
-                    <h1 className="mx-auto max-w-3xl text-4xl leading-tight font-black tracking-tight text-white sm:text-5xl">
-                        Let's Get Your Patients Moving Together
-                    </h1>
-                    <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed font-medium text-cyan-100 sm:text-base">
-                        CareLink provides dependable non-emergency medical
-                        transportation for hospitals, clinics, care facilities,
-                        and community organizations across Northern California.
-                        Tell us about your needs and our team will reach out.
-                    </p>
-                </div>
-            </div>
+            <PageHero
+                title="Let's Get Your Patients Moving Together"
+                subtitle="CareLink provides dependable non-emergency medical transportation for hospitals, clinics, care facilities, and community organizations across Northern California. Tell us about your needs and our team will reach out."
+            />
 
             <div className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-12">
                 {/* Inquiry Form */}
