@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
-import { Ban, Download, MapPinned, Pencil } from 'lucide-react';
+import { Ban, Download, Loader2, MapPinned, Pencil } from 'lucide-react';
 import type { FormEvent } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CopyButton } from '@/components/carelink/copy-button';
 import MapPreview from '@/components/carelink/map-preview';
 import type { MapPoint } from '@/components/carelink/map-preview';
@@ -40,6 +40,23 @@ import {
 } from '@/routes/dashboard/bookings';
 
 type BookingDetail = Record<string, string | number | boolean | null>;
+
+interface RouteInfo {
+    coordinates: [number, number][];
+    distanceMiles: number;
+}
+
+interface OsrmRouteResponse {
+    code: string;
+    routes?: Array<{
+        distance: number;
+        geometry: { coordinates: [number, number][] };
+    }>;
+}
+
+const OSRM_ENDPOINT = 'https://router.project-osrm.org/route/v1/driving';
+
+const MILES_PER_METER = 0.000621371;
 
 type DetailField = {
     key: string;
@@ -421,6 +438,8 @@ export default function BookingDetail({
     const [statusTarget, setStatusTarget] = useState<string | null>(null);
     const [editSection, setEditSection] = useState<DetailSection | null>(null);
     const [cancelOpen, setCancelOpen] = useState(false);
+    const [route, setRoute] = useState<RouteInfo | null>(null);
+    const [routeLoading, setRouteLoading] = useState(false);
 
     const statusForm = useForm({ status: '' });
     const cancelForm = useForm({});
@@ -470,6 +489,80 @@ export default function BookingDetail({
             kind: 'dropoff',
         });
     }
+
+    useEffect(() => {
+        const pickupLatitude = booking.pickup_latitude;
+        const pickupLongitude = booking.pickup_longitude;
+        const dropoffLatitude = booking.dropoff_latitude;
+        const dropoffLongitude = booking.dropoff_longitude;
+
+        if (
+            !pickupLatitude ||
+            !pickupLongitude ||
+            !dropoffLatitude ||
+            !dropoffLongitude
+        ) {
+            return undefined;
+        }
+
+        const controller = new AbortController();
+        let cancelled = false;
+
+        setRouteLoading(true);
+
+        const url =
+            `${OSRM_ENDPOINT}/${pickupLongitude},${pickupLatitude};` +
+            `${dropoffLongitude},${dropoffLatitude}?overview=full&geometries=geojson`;
+
+        fetch(url, { signal: controller.signal })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Route request failed: ${response.status}`);
+                }
+
+                return response.json();
+            })
+            .then((data: OsrmRouteResponse) => {
+                if (cancelled) {
+                    return;
+                }
+
+                const result = data?.routes?.[0];
+
+                if (data.code !== 'Ok' || !result) {
+                    throw new Error('No route found');
+                }
+
+                const coordinates = result.geometry.coordinates.map(
+                    ([longitude, latitude]) =>
+                        [latitude, longitude] as [number, number],
+                );
+
+                setRoute({
+                    coordinates,
+                    distanceMiles: result.distance * MILES_PER_METER,
+                });
+                setRouteLoading(false);
+            })
+            .catch((error: unknown) => {
+                if (cancelled || (error as Error).name === 'AbortError') {
+                    return;
+                }
+
+                setRoute(null);
+                setRouteLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [
+        booking.pickup_latitude,
+        booking.pickup_longitude,
+        booking.dropoff_latitude,
+        booking.dropoff_longitude,
+    ]);
 
     return (
         <>
@@ -621,7 +714,17 @@ export default function BookingDetail({
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <MapPreview points={mapPoints} height={360} />
+                            {routeLoading && (
+                                <p className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    Calculating the driving route...
+                                </p>
+                            )}
+                            <MapPreview
+                                points={mapPoints}
+                                route={route?.coordinates}
+                                height={360}
+                            />
                             <p className="mt-2 text-xs text-muted-foreground">
                                 <span className="font-bold text-[#004B87]">
                                     Blue
@@ -632,6 +735,13 @@ export default function BookingDetail({
                                     orange
                                 </span>{' '}
                                 dropoff
+                                {' · '}
+                                <span className="font-bold text-[#004B87]">
+                                    blue line
+                                </span>{' '}
+                                driving route
+                                {route &&
+                                    ` · ${route.distanceMiles.toFixed(1)} miles`}
                             </p>
                         </CardContent>
                     </Card>
