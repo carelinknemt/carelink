@@ -1,5 +1,14 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Download, FileText, Search, Trash2 } from 'lucide-react';
+import {
+    Download,
+    Eye,
+    FileText,
+    MoreHorizontal,
+    Search,
+    ThumbsDown,
+    ThumbsUp,
+    Trash2,
+} from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +22,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -40,7 +55,12 @@ import {
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/bookings';
 import { applications as dashboardApplications } from '@/routes/dashboard';
-import { destroy as destroyApplication, resume as applicationResume } from '@/routes/dashboard/applications';
+import {
+    accept as acceptApplication,
+    destroy as destroyApplication,
+    reject as rejectApplication,
+    resume as applicationResume,
+} from '@/routes/dashboard/applications';
 import type { ApplicationRecord, ApplicationsFilters, PaginatedApplications } from '@/types/dashboard';
 
 type DashboardApplicationsProps = {
@@ -63,6 +83,13 @@ export default function DashboardApplications({
     const [deleteTarget, setDeleteTarget] = useState<ApplicationRecord | null>(
         null,
     );
+    const [detailsTarget, setDetailsTarget] = useState<ApplicationRecord | null>(
+        null,
+    );
+    const [decisionTarget, setDecisionTarget] = useState<{
+        application: ApplicationRecord;
+        decision: 'accept' | 'reject';
+    } | null>(null);
 
     function navigate() {
         form.get(dashboardApplications.url(), {
@@ -133,6 +160,24 @@ export default function DashboardApplications({
                 onSuccess: () => setDeleteTarget(null),
             },
         );
+    }
+
+    function confirmDecision() {
+        if (!decisionTarget) {
+            return;
+        }
+
+        const { application, decision } = decisionTarget;
+
+        const url =
+            decision === 'accept'
+                ? acceptApplication.url({ application: application.id })
+                : rejectApplication.url({ application: application.id });
+
+        router.post(url, {}, {
+            preserveScroll: true,
+            onSuccess: () => setDecisionTarget(null),
+        });
     }
 
     const searchActive = Boolean(filters.search);
@@ -230,21 +275,21 @@ export default function DashboardApplications({
                                     <TableRow>
                                         <TableHead>Applicant</TableHead>
                                         <TableHead>Role</TableHead>
-                                        <TableHead className="hidden md:table-cell">
-                                            Contact
-                                        </TableHead>
                                         <TableHead className="hidden lg:table-cell">
                                             Submitted
                                         </TableHead>
-                                        <TableHead>Resume</TableHead>
-                                        <TableHead className="w-10" />
+                                        <TableHead className="w-10">
+                                            <span className="sr-only">
+                                                Actions
+                                            </span>
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {applications.data.length === 0 ? (
                                         <TableRow>
                                             <TableCell
-                                                colSpan={6}
+                                                colSpan={4}
                                                 className="h-24 text-center"
                                             >
                                                 <p className="text-muted-foreground text-sm">
@@ -257,33 +302,15 @@ export default function DashboardApplications({
                                         applications.data.map((application) => (
                                             <TableRow key={application.id}>
                                                 <TableCell>
-                                                    <div className="flex flex-col gap-0.5">
-                                                        <span className="font-medium">
-                                                            {application.name}
-                                                        </span>
-                                                        <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
-                                                            <FileText className="size-3.5" />
-                                                            <span className="max-w-56 truncate">
-                                                                {
-                                                                    application.cover_letter
-                                                                }
-                                                            </span>
-                                                        </span>
-                                                    </div>
+                                                    <span className="font-medium">
+                                                        {application.name}
+                                                    </span>
                                                 </TableCell>
                                                 <TableCell>
-                                                    {application.position ??
-                                                        'Position'}
-                                                </TableCell>
-                                                <TableCell className="hidden md:table-cell">
-                                                    <div className="flex flex-col gap-0.5 text-sm">
-                                                        <span>
-                                                            {application.email}
-                                                        </span>
-                                                        <span className="text-muted-foreground text-xs">
-                                                            {application.phone}
-                                                        </span>
-                                                    </div>
+                                                    <span className="text-muted-foreground text-sm">
+                                                        {application.position ??
+                                                            'Position'}
+                                                    </span>
                                                 </TableCell>
                                                 <TableCell className="hidden whitespace-nowrap lg:table-cell">
                                                     {formatDate(
@@ -291,38 +318,49 @@ export default function DashboardApplications({
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {application.resume_name ? (
-                                                        <Link
-                                                            href={applicationResume.url(
-                                                                {
-                                                                    application:
-                                                                        application.id,
-                                                                },
-                                                            )}
-                                                            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#004B87] hover:underline"
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        <DropdownAction
+                                                            application={
+                                                                application
+                                                            }
+                                                            onDetails={
+                                                                setDetailsTarget
+                                                            }
+                                                            onAccept={(app) =>
+                                                                setDecisionTarget(
+                                                                    {
+                                                                        application:
+                                                                            app,
+                                                                        decision:
+                                                                            'accept',
+                                                                    },
+                                                                )
+                                                            }
+                                                            onReject={(app) =>
+                                                                setDecisionTarget(
+                                                                    {
+                                                                        application:
+                                                                            app,
+                                                                        decision:
+                                                                            'reject',
+                                                                    },
+                                                                )
+                                                            }
+                                                        />
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            aria-label="Delete application"
+                                                            onClick={() =>
+                                                                setDeleteTarget(
+                                                                    application,
+                                                                )
+                                                            }
                                                         >
-                                                            <Download className="size-4" />
-                                                            {application.resume_name}
-                                                        </Link>
-                                                    ) : (
-                                                        <span className="text-muted-foreground text-sm">
-                                                            None
-                                                        </span>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() =>
-                                                            setDeleteTarget(
-                                                                application,
-                                                            )
-                                                        }
-                                                    >
-                                                        <Trash2 className="size-4" />
-                                                    </Button>
+                                                            <Trash2 className="size-4" />
+                                                        </Button>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))
@@ -446,6 +484,182 @@ export default function DashboardApplications({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <Dialog
+                open={detailsTarget !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setDetailsTarget(null);
+                    }
+                }}
+            >
+                <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>{detailsTarget?.name}</DialogTitle>
+                        <DialogDescription>
+                            {detailsTarget?.position ?? 'Position'}
+                        </DialogDescription>
+                    </DialogHeader>
+                    {detailsTarget && (
+                        <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+                            <div>
+                                <dt className="text-muted-foreground text-xs">
+                                    Email
+                                </dt>
+                                <dd className="font-medium">
+                                    {detailsTarget.email}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt className="text-muted-foreground text-xs">
+                                    Phone
+                                </dt>
+                                <dd className="font-medium">
+                                    {detailsTarget.phone}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt className="text-muted-foreground text-xs">
+                                    Submitted
+                                </dt>
+                                <dd className="font-medium">
+                                    {formatDate(detailsTarget.submitted_at)}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt className="text-muted-foreground text-xs">
+                                    Resume
+                                </dt>
+                                <dd className="font-medium">
+                                    {detailsTarget.resume_name ? (
+                                        <Link
+                                            href={applicationResume.url({
+                                                application:
+                                                    detailsTarget.id,
+                                            })}
+                                            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#004B87] hover:underline"
+                                        >
+                                            <Download className="size-4" />
+                                            {detailsTarget.resume_name}
+                                        </Link>
+                                    ) : (
+                                        <span className="text-muted-foreground text-sm">
+                                            None
+                                        </span>
+                                    )}
+                                </dd>
+                            </div>
+                            <div className="sm:col-span-2">
+                                <dt className="text-muted-foreground flex items-center gap-1.5 text-xs">
+                                    <FileText className="size-3.5" />
+                                    Motivation / Cover letter
+                                </dt>
+                                <dd className="border-border mt-1 rounded-lg border p-3 text-sm whitespace-pre-wrap">
+                                    {detailsTarget.cover_letter ??
+                                        'No cover letter provided.'}
+                                </dd>
+                            </div>
+                        </dl>
+                    )}
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">
+                                Close
+                            </Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={decisionTarget !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setDecisionTarget(null);
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            {decisionTarget?.decision === 'accept'
+                                ? `Accept ${decisionTarget?.application.name}'s application?`
+                                : `Reject ${decisionTarget?.application.name}'s application?`}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {decisionTarget?.decision === 'accept'
+                                ? 'An acceptance email will be sent to the applicant.'
+                                : 'A rejection email will be sent to the applicant.'}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        <Button
+                            type="button"
+                            variant={
+                                decisionTarget?.decision === 'reject'
+                                    ? 'destructive'
+                                    : 'default'
+                            }
+                            onClick={confirmDecision}
+                        >
+                            {decisionTarget?.decision === 'accept' ? (
+                                <ThumbsUp />
+                            ) : (
+                                <ThumbsDown />
+                            )}
+                            {decisionTarget?.decision === 'accept'
+                                ? 'Accept application'
+                                : 'Reject application'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
+    );
+}
+
+function DropdownAction({
+    application,
+    onDetails,
+    onAccept,
+    onReject,
+}: {
+    application: ApplicationRecord;
+    onDetails: (application: ApplicationRecord) => void;
+    onAccept: (application: ApplicationRecord) => void;
+    onReject: (application: ApplicationRecord) => void;
+}) {
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label="Actions"
+                >
+                    <MoreHorizontal className="size-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onDetails(application)}>
+                    <Eye />
+                    View Details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAccept(application)}>
+                    <ThumbsUp />
+                    Accept
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onReject(application)}>
+                    <ThumbsDown />
+                    Reject
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }

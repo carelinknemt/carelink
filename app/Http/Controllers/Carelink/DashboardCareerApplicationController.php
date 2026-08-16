@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Carelink;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ApplicationAccepted;
+use App\Mail\ApplicationRejected;
 use App\Models\Career;
 use App\Models\CareerApplication;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -64,6 +67,50 @@ class DashboardCareerApplicationController extends Controller
         }
 
         return Storage::disk('local')->download($application->resume_path, $application->resume_name ?? 'resume');
+    }
+
+    /**
+     * Accepts an application and emails the applicant.
+     */
+    public function accept(Request $request, CareerApplication $application): RedirectResponse
+    {
+        abort_unless($request->user()->is_admin, 403);
+
+        $position = $application->career?->title ?? 'the position';
+
+        Mail::to($application->email)->send(new ApplicationAccepted(
+            name: $application->name,
+            position: $application->career?->title,
+        ));
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => "{$application->name} was accepted for {$position} and emailed.",
+        ]);
+
+        return back();
+    }
+
+    /**
+     * Rejects an application and emails the applicant.
+     */
+    public function reject(Request $request, CareerApplication $application): RedirectResponse
+    {
+        abort_unless($request->user()->is_admin, 403);
+
+        $position = $application->career?->title ?? 'the position';
+
+        Mail::to($application->email)->send(new ApplicationRejected(
+            name: $application->name,
+            position: $application->career?->title,
+        ));
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => "{$application->name} was rejected for {$position} and emailed.",
+        ]);
+
+        return back();
     }
 
     /**

@@ -55,6 +55,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/payments', [DashboardPaymentController::class, 'index'])->name('dashboard.payments');
     Route::get('/dashboard/applications', [DashboardCareerApplicationController::class, 'index'])->name('dashboard.applications');
     Route::get('/dashboard/applications/{application}/resume', [DashboardCareerApplicationController::class, 'resume'])->name('dashboard.applications.resume');
+    Route::post('/dashboard/applications/{application}/accept', [DashboardCareerApplicationController::class, 'accept'])->name('dashboard.applications.accept');
+    Route::post('/dashboard/applications/{application}/reject', [DashboardCareerApplicationController::class, 'reject'])->name('dashboard.applications.reject');
     Route::delete('/dashboard/applications/{application}', [DashboardCareerApplicationController::class, 'destroy'])->name('dashboard.applications.destroy');
     Route::get('/dashboard/job-openings', [DashboardJobOpeningController::class, 'index'])->name('dashboard.job-openings');
     Route::post('/dashboard/job-openings', [DashboardJobOpeningController::class, 'store'])->name('dashboard.job-openings.store');
