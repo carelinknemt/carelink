@@ -35,7 +35,7 @@ createInertiaApp({
 
                 return null;
             case name.startsWith('auth/'):
-                setIsPublicPage(false);
+                setIsPublicPage(true);
 
                 return AuthLayout;
             case name.startsWith('settings/'):

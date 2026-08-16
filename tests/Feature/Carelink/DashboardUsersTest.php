@@ -1,9 +1,9 @@
 <?php
 
+use App\Mail\ResetPasswordMail;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
 
 function actingAsAdmin(): User
@@ -73,7 +73,7 @@ test('users can be searched by name or email', function () {
 });
 
 test('adding a user sends a password reset link and no usable password', function () {
-    Notification::fake();
+    Mail::fake();
     actingAsAdmin();
 
     $this->post(route('dashboard.users.store'), [
@@ -90,7 +90,7 @@ test('adding a user sends a password reset link and no usable password', functio
 
     expect(Hash::check('password', $user->password))->toBeFalse();
 
-    Notification::assertSentTo($user, ResetPassword::class);
+    Mail::assertSent(ResetPasswordMail::class, fn ($mail) => $mail->hasTo('jane@example.com'));
 });
 
 test('adding a user rejects an email that is already registered', function () {

@@ -7,6 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { update } from '@/routes/password';
 
+const BRAND_BUTTON_CLASS =
+    'bg-[#004B87] text-white hover:bg-[#003d75] focus-visible:ring-[#004B87]/50';
+
 type Props = {
     token: string;
     email: string;
@@ -78,7 +81,7 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
 
                         <Button
                             type="submit"
-                            className="mt-4 w-full"
+                            className={`mt-4 w-full ${BRAND_BUTTON_CLASS}`}
                             disabled={processing}
                             data-test="reset-password-button"
                         >

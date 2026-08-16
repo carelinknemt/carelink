@@ -9,6 +9,9 @@ import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 
+const BRAND_BUTTON_CLASS =
+    'bg-[#004B87] text-white hover:bg-[#003d75] focus-visible:ring-[#004B87]/50';
+
 type Props = {
     passwordRules: string;
 };
@@ -94,7 +97,7 @@ export default function Register({ passwordRules }: Props) {
 
                             <Button
                                 type="submit"
-                                className="mt-2 w-full"
+                                className={`mt-2 w-full ${BRAND_BUTTON_CLASS}`}
                                 tabIndex={5}
                                 data-test="register-user-button"
                             >

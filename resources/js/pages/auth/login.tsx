@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import AuthStatusBanner from '@/components/auth-status-banner';
 import InputError from '@/components/input-error';
 import PasskeyVerify from '@/components/passkey-verify';
 import PasswordInput from '@/components/password-input';
@@ -17,6 +18,9 @@ type Props = {
     canResetPassword: boolean;
 };
 
+const BRAND_BUTTON_CLASS =
+    'bg-[#004B87] text-white hover:bg-[#003d75] focus-visible:ring-[#004B87]/50';
+
 export default function Login({ status, canResetPassword }: Props) {
     return (
         <>
@@ -33,6 +37,8 @@ export default function Login({ status, canResetPassword }: Props) {
             >
                 {({ processing, errors }) => (
                     <>
+                        <AuthStatusBanner message={status} />
+
                         <div className="grid gap-6">
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email address</Label>
@@ -84,7 +90,7 @@ export default function Login({ status, canResetPassword }: Props) {
 
                             <Button
                                 type="submit"
-                                className="mt-4 w-full"
+                                className={`mt-4 w-full ${BRAND_BUTTON_CLASS}`}
                                 tabIndex={4}
                                 disabled={processing}
                                 data-test="login-button"
@@ -103,12 +109,6 @@ export default function Login({ status, canResetPassword }: Props) {
                     </>
                 )}
             </Form>
-
-            {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
         </>
     );
 }

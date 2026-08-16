@@ -11,6 +11,9 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { store } from '@/routes/password/confirm';
 
+const BRAND_BUTTON_CLASS =
+    'bg-[#004B87] text-white hover:bg-[#003d75] focus-visible:ring-[#004B87]/50';
+
 export default function ConfirmPassword() {
     return (
         <>
@@ -46,7 +49,7 @@ export default function ConfirmPassword() {
 
                         <div className="flex items-center">
                             <Button
-                                className="w-full"
+                                className={`w-full ${BRAND_BUTTON_CLASS}`}
                                 disabled={processing}
                                 data-test="confirm-password-button"
                             >

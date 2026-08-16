@@ -11,8 +11,9 @@ Before planning or editing, find the row whose globs match the file's path and r
 | resources/js/** | .ai/rules/js.md |
 | resources/js/layouts/** | .ai/rules/layouts.md |
 | app/Listeners/** | .ai/rules/listeners.md |
+| app/Mail/** | .ai/rules/mail.md |
 | app/Http/Middleware/EnsureUserNotBanned.php | .ai/rules/middleware.md |
-| app/Models/** | .ai/rules/models.md |
+| app/Models/**, app/Models/User.php | .ai/rules/models.md |
 | resources/js/pages/book.tsx, resources/js/pages/**, resources/js/pages/*.tsx | .ai/rules/pages.md |
 | app/Providers/** | .ai/rules/providers.md |
 | resources/js/routes/** | .ai/rules/routes.md |

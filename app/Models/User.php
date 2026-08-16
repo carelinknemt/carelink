@@ -3,13 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Mail\ResetPasswordMail;
+use App\Mail\VerifyEmailMail;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Cashier\Billable;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
@@ -56,5 +60,50 @@ class User extends Authenticatable implements PasskeyUser
     public function isBanned(): bool
     {
         return $this->banned_at !== null;
+    }
+
+    /**
+     * Send the branded password reset email. Called by the Fortify
+     * password broker (and the dashboard invite flow) with the reset token.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        Mail::to($this->email)->send(new ResetPasswordMail($this, $token));
+    }
+
+    /**
+     * Send the branded verification email. Called by Fortify's
+     * verification-notification route (verify page resend and profile page).
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        Mail::to($this->email)->send(new VerifyEmailMail($this));
+    }
+
+    public function getEmailForVerification(): string
+    {
+        return $this->email;
+    }
+
+    public function hasVerifiedEmail(): bool
+    {
+        return $this->email_verified_at !== null;
+    }
+
+    /**
+     * Mark the account as verified. Verification is not enforced (users
+     * keep dashboard access) but the confirmation link still works.
+     */
+    public function markEmailAsVerified(): bool
+    {
+        if ($this->hasVerifiedEmail()) {
+            return false;
+        }
+
+        $this->forceFill(['email_verified_at' => $this->freshTimestamp()])->save();
+
+        event(new Verified($this));
+
+        return true;
     }
 }

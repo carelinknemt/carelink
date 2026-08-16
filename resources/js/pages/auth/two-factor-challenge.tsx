@@ -12,6 +12,9 @@ import {
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 import { store } from '@/routes/two-factor/login';
 
+const BRAND_BUTTON_CLASS =
+    'bg-[#004B87] text-white hover:bg-[#003d75] focus-visible:ring-[#004B87]/50';
+
 export default function TwoFactorChallenge() {
     const [showRecoveryInput, setShowRecoveryInput] = useState<boolean>(false);
     const [code, setCode] = useState<string>('');
@@ -108,7 +111,7 @@ export default function TwoFactorChallenge() {
 
                             <Button
                                 type="submit"
-                                className="w-full"
+                                className={`w-full ${BRAND_BUTTON_CLASS}`}
                                 disabled={processing}
                             >
                                 Continue

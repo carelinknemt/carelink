@@ -1,13 +1,17 @@
 // Components
 import { Form, Head } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import AuthStatusBanner from '@/components/auth-status-banner';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 import { email } from '@/routes/password';
+
+const BRAND_BUTTON_CLASS =
+    'bg-[#004B87] text-white hover:bg-[#003d75] focus-visible:ring-[#004B87]/50';
 
 export default function ForgotPassword({ status }: { status?: string }) {
     return (
@@ -16,13 +20,9 @@ export default function ForgotPassword({ status }: { status?: string }) {
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
 
-            {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
+            <div className="flex flex-col gap-6">
+                <AuthStatusBanner message={status} />
 
-            <div className="space-y-6">
                 <Form {...email.form()}>
                     {({ processing, errors }) => (
                         <>
@@ -42,13 +42,11 @@ export default function ForgotPassword({ status }: { status?: string }) {
 
                             <div className="my-6 flex items-center justify-start">
                                 <Button
-                                    className="w-full"
+                                    className={`w-full ${BRAND_BUTTON_CLASS}`}
                                     disabled={processing}
                                     data-test="email-password-reset-link-button"
                                 >
-                                    {processing && (
-                                        <LoaderCircle className="h-4 w-4 animate-spin" />
-                                    )}
+                                    {processing && <Spinner />}
                                     Email password reset link
                                 </Button>
                             </div>
