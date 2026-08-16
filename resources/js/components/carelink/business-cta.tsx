@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ArrowRight, Building2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { business } from '@/routes';
 
 export default function BusinessCta() {
@@ -20,12 +20,8 @@ export default function BusinessCta() {
             <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-12">
                 <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
                     <div className="max-w-2xl">
-                        <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-black tracking-widest text-cyan-300 uppercase shadow-sm backdrop-blur-sm">
-                            <Building2 className="h-4 w-4" />
-                            For Businesses
-                        </span>
                         <h2 className="text-3xl leading-tight font-black tracking-tight text-white sm:text-4xl">
-                            Partner with CareLink for Your Transportation Needs
+                            Partner with CareLink for Your Organizational Transportation Needs
                         </h2>
                         <p className="mt-4 max-w-xl text-sm leading-relaxed font-medium text-cyan-100 sm:text-base">
                             Hospitals, clinics, care facilities, and community
@@ -38,10 +34,9 @@ export default function BusinessCta() {
 
                     <Link
                         href={business.url()}
-                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#E64A19] px-7 py-4 text-sm font-black whitespace-nowrap text-white shadow-lg shadow-orange-900/30 transition hover:bg-[#d83f0e] active:scale-95"
+                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#E64A19] px-4 py-4 text-sm font-black whitespace-nowrap text-white shadow-lg shadow-orange-900/30 transition hover:bg-[#d83f0e] active:scale-95"
                     >
                         Start Working With Us
-                        <ArrowRight className="h-4 w-4" />
                     </Link>
                 </div>
             </div>

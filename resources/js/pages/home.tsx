@@ -121,11 +121,12 @@ export default function Home({ services }: HomeProps) {
             {/* Google Patient Reviews */}
             <SmileThatShine />
 
+            {/* Business Partnerships */}
+            <BusinessCta />
+
             {/* Stripe Payment Spotlight */}
             <StripePartnershipSpotlight />
 
-            {/* Business Partnerships */}
-            <BusinessCta />
 
             {/* Contact & Hours */}
             <ContactAndHours />

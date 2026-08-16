@@ -100,29 +100,17 @@ export default function BookingSteps() {
                     </p>
                 </div>
 
-                {/* Desktop: horizontal route */}
                 <div className="relative hidden lg:grid grid-cols-3 gap-10">
-                    <span className="route-rail animate-route-rail absolute top-0 right-[16.5%] left-[16.5%] h-1 rounded-full opacity-70" />
                     {BOOKING_STEPS.map((step) => (
-                        <div key={step.number} className="relative flex flex-col pt-20">
-                            <div className="absolute top-0 left-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
-                                <StepMarker step={step} />
-                            </div>
+                        <div key={step.number} className="relative flex flex-col pt-8">
                             <StepCard step={step} />
                         </div>
                     ))}
                 </div>
 
-                {/* Mobile/Tablet: vertical route */}
-                <div className="lg:hidden space-y-10">
+                <div className="lg:hidden space-y-5">
                     {BOOKING_STEPS.map((step, i) => (
                         <div key={step.number} className="relative flex gap-4">
-                            <div className="flex shrink-0 flex-col items-center">
-                                <StepMarker step={step} />
-                                {i < BOOKING_STEPS.length - 1 && (
-                                    <span className="route-rail-vertical animate-route-rail-vertical my-2 w-1 flex-1 rounded-full opacity-70" />
-                                )}
-                            </div>
                             <div className="flex-1">
                                 <StepCard step={step} />
                             </div>
