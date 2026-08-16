@@ -62,16 +62,150 @@ const DEFAULT_SETTINGS: AccessibilitySettings = {
     speechRate: 1.0,
 };
 
+const STORAGE_KEY = 'ssd_accessibility_settings_v2';
+
+function loadSettings(): AccessibilitySettings {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (!saved) {
+            return DEFAULT_SETTINGS;
+        }
+
+        return { ...DEFAULT_SETTINGS, ...JSON.parse(saved) };
+    } catch {
+        return DEFAULT_SETTINGS;
+    }
+}
+
+function applySettingsToRoot(settings: AccessibilitySettings): void {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
+    const root = document.documentElement;
+
+    // 1. Font Size
+    root.classList.remove('a11y-font-100', 'a11y-font-110', 'a11y-font-120', 'a11y-font-130', 'a11y-font-140', 'a11y-font-150');
+
+    if (settings.fontSize === '100%') {
+root.classList.add('a11y-font-100');
+}
+
+    if (settings.fontSize === '110%') {
+root.classList.add('a11y-font-110');
+}
+
+    if (settings.fontSize === '120%') {
+root.classList.add('a11y-font-120');
+}
+
+    if (settings.fontSize === '130%') {
+root.classList.add('a11y-font-130');
+}
+
+    if (settings.fontSize === '140%') {
+root.classList.add('a11y-font-140');
+}
+
+    if (settings.fontSize === '150%') {
+root.classList.add('a11y-font-150');
+}
+
+    // 2. Line Height
+    root.classList.remove('a11y-line-height-normal', 'a11y-line-height-relaxed', 'a11y-line-height-loose');
+
+    if (settings.lineHeight === 'relaxed') {
+root.classList.add('a11y-line-height-relaxed');
+}
+
+    if (settings.lineHeight === 'loose') {
+root.classList.add('a11y-line-height-loose');
+}
+
+    // 3. Letter Spacing
+    root.classList.remove('a11y-letter-spacing-normal', 'a11y-letter-spacing-wide', 'a11y-letter-spacing-extra');
+
+    if (settings.letterSpacing === 'wide') {
+root.classList.add('a11y-letter-spacing-wide');
+}
+
+    if (settings.letterSpacing === 'extra') {
+root.classList.add('a11y-letter-spacing-extra');
+}
+
+    // 4. Color Modes
+    if (settings.highContrast) {
+root.classList.add('a11y-high-contrast');
+} else {
+root.classList.remove('a11y-high-contrast');
+}
+
+    if (settings.invertColors) {
+root.classList.add('a11y-invert-colors');
+} else {
+root.classList.remove('a11y-invert-colors');
+}
+
+    if (settings.grayscale) {
+root.classList.add('a11y-grayscale');
+} else {
+root.classList.remove('a11y-grayscale');
+}
+
+    if (settings.saturate) {
+root.classList.add('a11y-saturate');
+} else {
+root.classList.remove('a11y-saturate');
+}
+
+    // 5. Typography & Focus
+    if (settings.dyslexiaFont) {
+root.classList.add('a11y-dyslexia');
+} else {
+root.classList.remove('a11y-dyslexia');
+}
+
+    if (settings.highlightLinks) {
+root.classList.add('a11y-highlight-links');
+} else {
+root.classList.remove('a11y-highlight-links');
+}
+
+    if (settings.highlightHeadings) {
+root.classList.add('a11y-highlight-headings');
+} else {
+root.classList.remove('a11y-highlight-headings');
+}
+
+    if (settings.largeCursor) {
+root.classList.add('a11y-large-cursor');
+} else {
+root.classList.remove('a11y-large-cursor');
+}
+
+    if (settings.hideImages) {
+root.classList.add('a11y-hide-images');
+} else {
+root.classList.remove('a11y-hide-images');
+}
+
+    if (settings.reduceMotion) {
+root.classList.add('a11y-reduce-motion');
+} else {
+root.classList.remove('a11y-reduce-motion');
+}
+}
+
 export default function AccessibilityWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [settings, setSettings] = useState<AccessibilitySettings>(() => {
-        try {
-            const saved = localStorage.getItem('ssd_accessibility_settings_v2');
+        const loaded = loadSettings();
 
-            return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
-        } catch {
-            return DEFAULT_SETTINGS;
-        }
+        // Apply saved settings before the first paint so users never see an unstyled flash.
+        applySettingsToRoot(loaded);
+
+        return loaded;
     });
 
     const [mousePosY, setMousePosY] = useState(0);
@@ -79,123 +213,12 @@ export default function AccessibilityWidget() {
     // Apply Settings to Root HTML
     useEffect(() => {
         try {
-            localStorage.setItem('ssd_accessibility_settings_v2', JSON.stringify(settings));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
         } catch (e) {
             console.warn('Could not save accessibility settings', e);
         }
 
-        const root = document.documentElement;
-
-        // 1. Font Size
-        root.classList.remove('a11y-font-100', 'a11y-font-110', 'a11y-font-120', 'a11y-font-130', 'a11y-font-140', 'a11y-font-150');
-
-        if (settings.fontSize === '100%') {
-root.classList.add('a11y-font-100');
-}
-
-        if (settings.fontSize === '110%') {
-root.classList.add('a11y-font-110');
-}
-
-        if (settings.fontSize === '120%') {
-root.classList.add('a11y-font-120');
-}
-
-        if (settings.fontSize === '130%') {
-root.classList.add('a11y-font-130');
-}
-
-        if (settings.fontSize === '140%') {
-root.classList.add('a11y-font-140');
-}
-
-        if (settings.fontSize === '150%') {
-root.classList.add('a11y-font-150');
-}
-
-        // 2. Line Height
-        root.classList.remove('a11y-line-height-normal', 'a11y-line-height-relaxed', 'a11y-line-height-loose');
-
-        if (settings.lineHeight === 'relaxed') {
-root.classList.add('a11y-line-height-relaxed');
-}
-
-        if (settings.lineHeight === 'loose') {
-root.classList.add('a11y-line-height-loose');
-}
-
-        // 3. Letter Spacing
-        root.classList.remove('a11y-letter-spacing-normal', 'a11y-letter-spacing-wide', 'a11y-letter-spacing-extra');
-
-        if (settings.letterSpacing === 'wide') {
-root.classList.add('a11y-letter-spacing-wide');
-}
-
-        if (settings.letterSpacing === 'extra') {
-root.classList.add('a11y-letter-spacing-extra');
-}
-
-        // 4. Color Modes
-        if (settings.highContrast) {
-root.classList.add('a11y-high-contrast');
-} else {
-root.classList.remove('a11y-high-contrast');
-}
-
-        if (settings.invertColors) {
-root.classList.add('a11y-invert-colors');
-} else {
-root.classList.remove('a11y-invert-colors');
-}
-
-        if (settings.grayscale) {
-root.classList.add('a11y-grayscale');
-} else {
-root.classList.remove('a11y-grayscale');
-}
-
-        if (settings.saturate) {
-root.classList.add('a11y-saturate');
-} else {
-root.classList.remove('a11y-saturate');
-}
-
-        // 5. Typography & Focus
-        if (settings.dyslexiaFont) {
-root.classList.add('a11y-dyslexia');
-} else {
-root.classList.remove('a11y-dyslexia');
-}
-
-        if (settings.highlightLinks) {
-root.classList.add('a11y-highlight-links');
-} else {
-root.classList.remove('a11y-highlight-links');
-}
-
-        if (settings.highlightHeadings) {
-root.classList.add('a11y-highlight-headings');
-} else {
-root.classList.remove('a11y-highlight-headings');
-}
-
-        if (settings.largeCursor) {
-root.classList.add('a11y-large-cursor');
-} else {
-root.classList.remove('a11y-large-cursor');
-}
-
-        if (settings.hideImages) {
-root.classList.add('a11y-hide-images');
-} else {
-root.classList.remove('a11y-hide-images');
-}
-
-        if (settings.reduceMotion) {
-root.classList.add('a11y-reduce-motion');
-} else {
-root.classList.remove('a11y-reduce-motion');
-}
+        applySettingsToRoot(settings);
     }, [settings]);
 
     // Reading Guide Mouse Follower

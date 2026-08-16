@@ -1,4 +1,3 @@
-import { AlertTriangle, ArrowLeft, Compass, ShieldAlert } from 'lucide-react';
 import AppHead from '@/components/app-head';
 import { home } from '@/routes';
 
@@ -43,17 +42,7 @@ export default function ErrorPage({ status }: { status: number }) {
             />
 
             <div className="mx-auto flex max-w-7xl flex-col items-center px-4 py-20 text-center sm:px-6 lg:px-12 lg:py-28">
-                <div className="flex items-center justify-center">
-                    {status === 404 ? (
-                        <Compass className="h-20 w-20 text-[#004B87]" />
-                    ) : status === 403 ? (
-                        <ShieldAlert className="h-20 w-20 text-[#004B87]" />
-                    ) : (
-                        <AlertTriangle className="h-20 w-20 text-[#004B87]" />
-                    )}
-                </div>
-
-                <p className="mt-8 text-xs font-black tracking-widest text-[#E64A19] uppercase">
+                <p className="text-xs font-black tracking-widest text-[#E64A19] uppercase">
                     Error {status}
                 </p>
 
@@ -69,7 +58,6 @@ export default function ErrorPage({ status }: { status: number }) {
                     href={home.url()}
                     className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#004B87] px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#003d75]"
                 >
-                    <ArrowLeft className="h-4 w-4" />
                     Go Back to Home Page
                 </a>
             </div>
