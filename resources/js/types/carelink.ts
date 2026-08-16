@@ -67,6 +67,17 @@ export interface Career {
     requirements: string[];
 }
 
+export interface CareerApplicationRecord {
+    id: number;
+    position: string | null;
+    name: string;
+    email: string;
+    phone: string;
+    cover_letter: string;
+    resume_name: string | null;
+    submitted_at: string;
+}
+
 export interface RideBooking {
     id: number;
     booking_number: string;

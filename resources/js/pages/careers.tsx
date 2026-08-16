@@ -1,6 +1,6 @@
-import { useForm } from '@inertiajs/react';
-import { CheckCircle, FileText, Send } from 'lucide-react';
-import { useState } from 'react';
+import { useForm, usePage } from '@inertiajs/react';
+import { CheckCircle, FileText, Send, Upload } from 'lucide-react';
+import { useRef, useState } from 'react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
 import { apply } from '@/routes/careers';
@@ -14,15 +14,18 @@ const CAREERS_DESCRIPTION =
     'Join CareLink Medical Transportation as a driver, dispatcher, or transport specialist. We are hiring compassionate, PASS-certified professionals across Humboldt, Del Norte, Trinity, and Shasta counties.';
 
 export default function Careers({ careers }: CareersProps) {
+    const { auth } = usePage<{ auth: { user: { id: number } | null } }>().props;
     const [selectedPosition, setSelectedPosition] = useState<string | null>(
         null,
     );
+    const resumeInputRef = useRef<HTMLInputElement>(null);
     const form = useForm({
         career_id: null as number | null,
         name: '',
         email: '',
         phone: '',
         cover_letter: '',
+        resume: null as File | null,
     });
 
     const handleApplyNow = (career: Career) => {
@@ -41,12 +44,20 @@ export default function Careers({ careers }: CareersProps) {
         setSelectedPosition(career ? career.title : null);
     };
 
+    const handleResumeChange = (file: File | null) => {
+        form.setData('resume', file);
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         form.post(apply.url(), {
             onSuccess: () => {
                 setSelectedPosition(null);
                 form.reset();
+
+                if (resumeInputRef.current) {
+                    resumeInputRef.current.value = '';
+                }
             },
         });
     };
@@ -137,11 +148,21 @@ export default function Careers({ careers }: CareersProps) {
                             Employment Application
                         </h2>
                         <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                            Don't see a position that matches your skills? We
-                            are always looking for passionate people to join
-                            Carelink. Submit a general application and we will
-                            keep your resume on file.
+                            Pick the role you are applying for and attach your
+                            resume or CV. Our hiring team reviews every
+                            application.
                         </p>
+                        {auth.user ? (
+                            <p className="mt-2 text-sm font-semibold text-[#004B87]">
+                                Track your submissions anytime from the My
+                                Applications page in your dashboard.
+                            </p>
+                        ) : (
+                            <p className="mt-2 text-sm text-slate-500">
+                                Tip: sign in before applying to track your
+                                submissions in your dashboard.
+                            </p>
+                        )}
 
                         {form.wasSuccessful ? (
                             <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
@@ -160,40 +181,42 @@ export default function Careers({ careers }: CareersProps) {
                                 className="mt-6 space-y-4"
                                 onSubmit={handleSubmit}
                             >
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-700">
-                                        Position
-                                    </label>
-                                    <select
-                                        value={
-                                            form.data.career_id === null
-                                                ? ''
-                                                : String(form.data.career_id)
-                                        }
-                                        onChange={(e) =>
-                                            handlePositionChange(e.target.value)
-                                        }
-                                        className={inputClass}
-                                    >
-                                        <option value="">
-                                            General Application (no specific
-                                            position)
-                                        </option>
-                                        {careers.map((career) => (
-                                            <option
-                                                key={career.id}
-                                                value={career.id}
-                                            >
-                                                {career.title}
+<div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-700">
+                                            Position
+                                        </label>
+                                        <select
+                                            value={
+                                                form.data.career_id === null
+                                                    ? ''
+                                                    : String(form.data.career_id)
+                                            }
+                                            onChange={(e) =>
+                                                handlePositionChange(
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className={inputClass}
+                                            required
+                                        >
+                                            <option value="">
+                                                Select a position
                                             </option>
-                                        ))}
-                                    </select>
-                                    {form.errors.career_id && (
-                                        <p className="text-xs font-semibold text-red-600">
-                                            {form.errors.career_id}
-                                        </p>
-                                    )}
-                                </div>
+                                            {careers.map((career) => (
+                                                <option
+                                                    key={career.id}
+                                                    value={career.id}
+                                                >
+                                                    {career.title}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {form.errors.career_id && (
+                                            <p className="text-xs font-semibold text-red-600">
+                                                {form.errors.career_id}
+                                            </p>
+                                        )}
+                                    </div>
 
                                 {selectedPosition && (
                                     <div className="rounded-xl border border-[#004B87]/20 bg-[#004B87]/5 px-4 py-3 text-sm font-bold text-[#004B87]">
@@ -295,6 +318,43 @@ export default function Careers({ careers }: CareersProps) {
                                     {form.errors.cover_letter && (
                                         <p className="text-xs font-semibold text-red-600">
                                             {form.errors.cover_letter}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-slate-700">
+                                        Resume / CV
+                                    </label>
+                                    <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-slate-300 bg-white px-4 py-3.5 transition-all hover:border-[#E64A19] hover:bg-orange-50/50">
+                                        <Upload className="h-5 w-5 shrink-0 text-[#E64A19]" />
+                                        <span className="min-w-0 flex-1">
+                                            {form.data.resume ? (
+                                                <span className="block truncate text-sm font-bold text-slate-800">
+                                                    {form.data.resume.name}
+                                                </span>
+                                            ) : (
+                                                <span className="block text-sm text-slate-500">
+                                                    Click to upload (PDF, DOC, or
+                                                    DOCX, max 5 MB)
+                                                </span>
+                                            )}
+                                        </span>
+                                        <input
+                                            ref={resumeInputRef}
+                                            type="file"
+                                            accept=".pdf,.doc,.docx"
+                                            className="hidden"
+                                            onChange={(e) =>
+                                                handleResumeChange(
+                                                    e.target.files?.[0] ?? null,
+                                                )
+                                            }
+                                            required
+                                        />
+                                    </label>
+                                    {form.errors.resume && (
+                                        <p className="text-xs font-semibold text-red-600">
+                                            {form.errors.resume}
                                         </p>
                                     )}
                                 </div>

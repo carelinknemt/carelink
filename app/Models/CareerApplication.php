@@ -12,14 +12,22 @@ class CareerApplication extends Model
 
     protected $fillable = [
         'career_id',
+        'user_id',
         'name',
         'email',
         'phone',
         'cover_letter',
+        'resume_path',
+        'resume_name',
     ];
 
     public function career(): BelongsTo
     {
         return $this->belongsTo(Career::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

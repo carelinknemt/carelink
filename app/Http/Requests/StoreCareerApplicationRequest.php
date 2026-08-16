@@ -17,11 +17,12 @@ class StoreCareerApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'career_id' => ['nullable', 'integer', 'exists:careers,id'],
+            'career_id' => ['required', 'integer', 'exists:careers,id'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['required', 'string', 'max:32'],
             'cover_letter' => ['required', 'string', 'max:5000'],
+            'resume' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
         ];
     }
 }

@@ -9,6 +9,7 @@ use App\Http\Controllers\Carelink\CareersController;
 use App\Http\Controllers\Carelink\DashboardAnalyticsController;
 use App\Http\Controllers\Carelink\DashboardBookingController;
 use App\Http\Controllers\Carelink\DashboardBusinessPartnerController;
+use App\Http\Controllers\Carelink\DashboardCareerApplicationController;
 use App\Http\Controllers\Carelink\DashboardController;
 use App\Http\Controllers\Carelink\DashboardPaymentController;
 use App\Http\Controllers\Carelink\DashboardUserController;
@@ -52,6 +53,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/dashboard/business-partners/{businessRequest}/reject', [DashboardBusinessPartnerController::class, 'reject'])->name('dashboard.business-partners.reject');
     Route::get('/dashboard/payments', [DashboardPaymentController::class, 'index'])->name('dashboard.payments');
     Route::post('/dashboard/payments/{booking}/refund', [DashboardPaymentController::class, 'refund'])->name('dashboard.payments.refund');
+    Route::get('/dashboard/career-applications', [DashboardCareerApplicationController::class, 'index'])->name('dashboard.career-applications');
+    Route::get('/dashboard/career-applications/{application}/resume', [DashboardCareerApplicationController::class, 'resume'])->name('dashboard.career-applications.resume');
     Route::get('/dashboard/users', [DashboardUserController::class, 'index'])->name('dashboard.users');
     Route::post('/dashboard/users', [DashboardUserController::class, 'store'])->name('dashboard.users.store');
     Route::post('/dashboard/users/{user}/ban-toggle', [DashboardUserController::class, 'toggleBan'])->name('dashboard.users.ban-toggle');

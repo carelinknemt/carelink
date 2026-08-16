@@ -292,7 +292,7 @@ return;
     const toggleShortcuts = [
         { key: 'highContrast', title: 'High Contrast', icon: Sun },
         { key: 'invertColors', title: 'Invert Colors', icon: Contrast },
-        { key: 'dyslexiaFont', title: 'Dyslexia Font', icon: BookOpen },
+        { key: 'dyslexiaFont', title: 'Readable Font', icon: BookOpen },
         { key: 'largeCursor', title: 'Large Cursor', icon: MousePointer },
         { key: 'readingGuide', title: 'Reading Guide', icon: Sliders },
         { key: 'readingMask', title: 'Focus Mask', icon: Focus },
@@ -384,7 +384,7 @@ return;
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     {[
                                         { title: 'Vision Assist', icon: Eye, config: { fontSize: '140%', highContrast: true, largeCursor: true } },
-                                        { title: 'Dyslexia', icon: BookOpen, config: { dyslexiaFont: true, fontSize: '130%', lineHeight: 'loose' } },
+                                        { title: 'Reading Comfort', icon: BookOpen, config: { lineHeight: 'loose', letterSpacing: 'wide', readingGuide: true } },
                                         { title: 'ADHD Focus', icon: Focus, config: { readingGuide: true, readingMask: true, reduceMotion: true } },
                                         { title: 'Motor Assist', icon: MousePointer, config: { largeCursor: true, highlightLinks: true } },
                                     ].map((p) => {

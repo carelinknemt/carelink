@@ -6,6 +6,7 @@ paths:
   - app/Http/Controllers/Carelink/DashboardAnalyticsController.php
   - app/Http/Controllers/Carelink/DashboardPaymentController.php
   - app/Http/Controllers/Carelink/DashboardUserController.php
+  - app/Http/Controllers/Carelink/DashboardCareerApplicationController.php
 ---
 
 # Controllers Carelink
@@ -39,3 +40,6 @@ Payments page lists only bookings that reached Stripe checkout (stripe_checkout_
 
 ## User management is admin-gated, invites via reset link
 User management is admin-only: abort_unless($request->user()->is_admin, 403) in every method. Adding a user creates it with a random Str::password(32) (no usable password) and immediately sends the Fortify password reset link via Password::broker()->sendResetLink — email flows to Fortify's password.reset view. Admins cannot ban themselves (toggleBan guard). Never seed admin passwords (repo rule).
+
+## My Applications is user-scoped, resumes private
+My Applications (dashboard.career-applications, page 'dashboard/career-applications') lists only applications where user_id = auth id, newest first, with career title. Resume download route is owner-only (abort 403 if user_id mismatch). Resumes are uploaded from the public careers form and stored on the private 'local' disk under resumes/ with the original name in resume_name — never expose resume_path publicly.

@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import {
     BarChart3,
+    Briefcase,
     Building2,
     CalendarCheck,
     CreditCard,
@@ -24,6 +25,7 @@ import {
     analytics,
     bookings as dashboardBookings,
     businessPartners,
+    careerApplications,
     payments,
     users,
 } from '@/routes/dashboard';
@@ -34,6 +36,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'My Applications',
+        href: careerApplications(),
+        icon: Briefcase,
     },
     {
         title: 'Bookings',
