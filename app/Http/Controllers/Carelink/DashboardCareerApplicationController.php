@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Carelink;
 
 use App\Http\Controllers\Controller;
+use App\Models\Career;
 use App\Models\CareerApplication;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -12,35 +15,72 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DashboardCareerApplicationController extends Controller
 {
+    private const PER_PAGE = 15;
+
     /**
-     * Lists the signed-in applicant's own job applications.
+     * Admin-only listing of employment applications, filterable by role.
      */
     public function index(Request $request): Response
     {
-        $applications = CareerApplication::query()
-            ->where('user_id', $request->user()->id)
-            ->with('career:id,title')
-            ->latest()
-            ->get()
-            ->map(fn (CareerApplication $application): array => $this->summary($application));
+        abort_unless($request->user()->is_admin, 403);
 
-        return Inertia::render('dashboard/career-applications', [
+        $applications = CareerApplication::query()
+            ->with('career:id,title')
+            ->when($request->filled('role'), function (Builder $query) use ($request): void {
+                $query->where('career_id', $request->integer('role'));
+            })
+            ->when($request->filled('search'), function (Builder $query) use ($request): void {
+                $search = $request->string('search')->trim()->toString();
+
+                $query->where(function (Builder $query) use ($search): void {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(self::PER_PAGE)
+            ->withQueryString()
+            ->through(fn (CareerApplication $application): array => $this->summary($application));
+
+        return Inertia::render('dashboard/applications', [
             'applications' => $applications,
+            'roles' => Career::ordered()->get(['id', 'title']),
+            'filters' => [
+                'role' => $request->integer('role') ?: null,
+                'search' => $request->string('search')->trim()->toString() ?: null,
+            ],
         ]);
     }
 
     /**
-     * Downloads the applicant's own resume from private storage.
+     * Downloads an applicant's resume from private storage.
      */
     public function resume(Request $request, CareerApplication $application): StreamedResponse
     {
-        abort_unless($application->user_id === $request->user()->id, 403);
+        abort_unless($request->user()->is_admin, 403);
 
         if (! $application->resume_path || ! Storage::disk('local')->exists($application->resume_path)) {
             abort(404);
         }
 
         return Storage::disk('local')->download($application->resume_path, $application->resume_name ?? 'resume');
+    }
+
+    /**
+     * Removes an application.
+     */
+    public function destroy(Request $request, CareerApplication $application): RedirectResponse
+    {
+        abort_unless($request->user()->is_admin, 403);
+
+        $application->delete();
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => "{$application->name}'s application was deleted.",
+        ]);
+
+        return back();
     }
 
     /**
@@ -55,7 +95,6 @@ class DashboardCareerApplicationController extends Controller
             'email' => $application->email,
             'phone' => $application->phone,
             'cover_letter' => $application->cover_letter,
-            'resume_path' => $application->resume_path,
             'resume_name' => $application->resume_name,
             'submitted_at' => $application->created_at?->toIso8601String(),
         ];

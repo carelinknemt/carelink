@@ -157,3 +157,33 @@ type PaginatedRecords<T> = {
 export type PaginatedPayments = PaginatedRecords<PaymentRecord>;
 
 export type PaginatedUsers = PaginatedRecords<UserRecord>;
+
+export type ApplicationRecord = {
+    id: number;
+    position: string | null;
+    name: string;
+    email: string;
+    phone: string;
+    cover_letter: string;
+    resume_name: string | null;
+    submitted_at: string;
+};
+
+export type ApplicationsFilters = {
+    role?: number | null;
+    search?: string | null;
+};
+
+export type PaginatedApplications = PaginatedRecords<ApplicationRecord>;
+
+export type JobOpeningRecord = {
+    id: number;
+    title: string;
+    location: string;
+    employment_type: string;
+    summary: string | null;
+    requirements: string[];
+    sort_order: number;
+    active: boolean;
+    applications_count: number;
+};

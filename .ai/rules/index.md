@@ -6,7 +6,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | --- | --- |
 | tests/Feature/Carelink/** | .ai/rules/carelink.md |
 | resources/js/components/carelink/** | .ai/rules/components-carelink.md |
-| app/Http/Controllers/Carelink/**, app/Http/Controllers/Carelink/BookController.php, app/Http/Controllers/Carelink/DashboardBookingController.php, app/Http/Controllers/Carelink/DashboardAnalyticsController.php, app/Http/Controllers/Carelink/DashboardPaymentController.php, app/Http/Controllers/Carelink/DashboardUserController.php, app/Http/Controllers/Carelink/DashboardCareerApplicationController.php | .ai/rules/controllers-carelink.md |
+| app/Http/Controllers/Carelink/**, app/Http/Controllers/Carelink/BookController.php, app/Http/Controllers/Carelink/DashboardBookingController.php, app/Http/Controllers/Carelink/DashboardAnalyticsController.php, app/Http/Controllers/Carelink/DashboardPaymentController.php, app/Http/Controllers/Carelink/DashboardUserController.php, app/Http/Controllers/Carelink/DashboardCareerApplicationController.php, app/Http/Controllers/Carelink/DashboardJobOpeningController.php | .ai/rules/controllers-carelink.md |
 | ** | .ai/rules/general.md |
 | resources/js/** | .ai/rules/js.md |
 | resources/js/layouts/** | .ai/rules/layouts.md |

@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     BarChart3,
     Briefcase,
@@ -23,9 +23,10 @@ import {
 import { dashboard } from '@/routes';
 import {
     analytics,
+    applications,
     bookings as dashboardBookings,
     businessPartners,
-    careerApplications,
+    jobOpenings,
     payments,
     users,
 } from '@/routes/dashboard';
@@ -36,11 +37,6 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
-    },
-    {
-        title: 'My Applications',
-        href: careerApplications(),
-        icon: Briefcase,
     },
     {
         title: 'Bookings',
@@ -58,6 +54,16 @@ const mainNavItems: NavItem[] = [
         icon: Users,
     },
     {
+        title: 'Applications',
+        href: applications(),
+        icon: Briefcase,
+    },
+    {
+        title: 'Job Openings',
+        href: jobOpenings(),
+        icon: Building2,
+    },
+    {
         title: 'Business Partners',
         href: businessPartners(),
         icon: Building2,
@@ -70,6 +76,8 @@ const mainNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<{ auth: { user: { is_admin: boolean } | null } }>().props;
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -85,7 +93,15 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain
+                    items={mainNavItems.filter(
+                        (item) =>
+                            auth.user?.is_admin ||
+                            !['Applications', 'Job Openings'].includes(
+                                item.title,
+                            ),
+                    )}
+                />
             </SidebarContent>
 
             <SidebarFooter>

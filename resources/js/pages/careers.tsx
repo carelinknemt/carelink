@@ -275,28 +275,68 @@ export default function Careers({ careers }: CareersProps) {
                                         )}
                                     </div>
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-700">
-                                        Phone Number
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        value={form.data.phone}
-                                        onChange={(e) =>
-                                            form.setData(
-                                                'phone',
-                                                e.target.value,
-                                            )
-                                        }
-                                        className={inputClass}
-                                        placeholder="(555) 123-4567"
-                                        required
-                                    />
-                                    {form.errors.phone && (
-                                        <p className="text-xs font-semibold text-red-600">
-                                            {form.errors.phone}
-                                        </p>
-                                    )}
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-700">
+                                            Phone Number
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            value={form.data.phone}
+                                            onChange={(e) =>
+                                                form.setData(
+                                                    'phone',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className={inputClass}
+                                            placeholder="(555) 123-4567"
+                                            required
+                                        />
+                                        {form.errors.phone && (
+                                            <p className="text-xs font-semibold text-red-600">
+                                                {form.errors.phone}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-xs font-bold text-slate-700">
+                                            Resume / CV
+                                        </label>
+                                        <label className="flex h-full cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-slate-300 bg-white px-4 py-3.5 transition-all hover:border-[#E64A19] hover:bg-orange-50/50">
+                                            <Upload className="h-5 w-5 shrink-0 text-[#E64A19]" />
+                                            <span className="min-w-0 flex-1">
+                                                {form.data.resume ? (
+                                                    <span className="block truncate text-sm font-bold text-slate-800">
+                                                        {form.data.resume.name}
+                                                    </span>
+                                                ) : (
+                                                    <span className="block text-sm text-slate-500">
+                                                        PDF, DOC, or DOCX (max
+                                                        5 MB)
+                                                    </span>
+                                                )}
+                                            </span>
+                                            <input
+                                                ref={resumeInputRef}
+                                                type="file"
+                                                accept=".pdf,.doc,.docx"
+                                                className="hidden"
+                                                onChange={(e) =>
+                                                    handleResumeChange(
+                                                        e.target.files?.[0] ??
+                                                            null,
+                                                    )
+                                                }
+                                                required
+                                            />
+                                        </label>
+                                        {form.errors.resume && (
+                                            <p className="text-xs font-semibold text-red-600">
+                                                {form.errors.resume}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-slate-700">
@@ -318,43 +358,6 @@ export default function Careers({ careers }: CareersProps) {
                                     {form.errors.cover_letter && (
                                         <p className="text-xs font-semibold text-red-600">
                                             {form.errors.cover_letter}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-700">
-                                        Resume / CV
-                                    </label>
-                                    <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-slate-300 bg-white px-4 py-3.5 transition-all hover:border-[#E64A19] hover:bg-orange-50/50">
-                                        <Upload className="h-5 w-5 shrink-0 text-[#E64A19]" />
-                                        <span className="min-w-0 flex-1">
-                                            {form.data.resume ? (
-                                                <span className="block truncate text-sm font-bold text-slate-800">
-                                                    {form.data.resume.name}
-                                                </span>
-                                            ) : (
-                                                <span className="block text-sm text-slate-500">
-                                                    Click to upload (PDF, DOC, or
-                                                    DOCX, max 5 MB)
-                                                </span>
-                                            )}
-                                        </span>
-                                        <input
-                                            ref={resumeInputRef}
-                                            type="file"
-                                            accept=".pdf,.doc,.docx"
-                                            className="hidden"
-                                            onChange={(e) =>
-                                                handleResumeChange(
-                                                    e.target.files?.[0] ?? null,
-                                                )
-                                            }
-                                            required
-                                        />
-                                    </label>
-                                    {form.errors.resume && (
-                                        <p className="text-xs font-semibold text-red-600">
-                                            {form.errors.resume}
                                         </p>
                                     )}
                                 </div>

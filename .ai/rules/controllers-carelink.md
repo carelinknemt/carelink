@@ -7,6 +7,7 @@ paths:
   - app/Http/Controllers/Carelink/DashboardPaymentController.php
   - app/Http/Controllers/Carelink/DashboardUserController.php
   - app/Http/Controllers/Carelink/DashboardCareerApplicationController.php
+  - app/Http/Controllers/Carelink/DashboardJobOpeningController.php
 ---
 
 # Controllers Carelink
@@ -43,3 +44,9 @@ User management is admin-only: abort_unless($request->user()->is_admin, 403) in 
 
 ## My Applications is user-scoped, resumes private
 My Applications (dashboard.career-applications, page 'dashboard/career-applications') lists only applications where user_id = auth id, newest first, with career title. Resume download route is owner-only (abort 403 if user_id mismatch). Resumes are uploaded from the public careers form and stored on the private 'local' disk under resumes/ with the original name in resume_name — never expose resume_path publicly.
+
+## Applications page is admin-only with role switcher
+Dashboard applications management is ADMIN-ONLY (abort_unless is_admin, 403) — no user-facing "My Applications" page. Route dashboard.applications lists all career_applications paginated (15), filterable by role (career_id) and search (name/email); roles list prop feeds the frontend role switcher. Resume download (dashboard.applications.resume) streams from the private 'local' disk; destroy removes the application.
+
+## Job openings CRUD is admin-only via DashboardJobOpeningController
+Job opening management (dashboard.job-openings*) is ADMIN-ONLY: index lists careers with applications_count (withCount), store/update create/update roles, toggle flips active (closes/reopens the public role), destroy deletes the career. The form sends requirements as a newline-separated string; the controller splits it into the requirements array. Career::applications() hasMany exists for the count.
