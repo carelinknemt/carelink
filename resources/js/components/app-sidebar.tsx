@@ -30,53 +30,84 @@ import {
     payments,
     users,
 } from '@/routes/dashboard';
-import type { NavItem } from '@/types';
+import type { NavGroup, NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
+const navGroups: NavGroup[] = [
     {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
+        label: 'Overview',
+        items: [
+            {
+                title: 'Dashboard',
+                href: dashboard(),
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Analytics',
+                href: analytics(),
+                icon: BarChart3,
+            },
+        ],
     },
     {
-        title: 'Bookings',
-        href: dashboardBookings(),
-        icon: CalendarCheck,
+        label: 'Trips & Billing',
+        items: [
+            {
+                title: 'Bookings',
+                href: dashboardBookings(),
+                icon: CalendarCheck,
+            },
+            {
+                title: 'Payments',
+                href: payments(),
+                icon: CreditCard,
+            },
+        ],
     },
     {
-        title: 'Payments',
-        href: payments(),
-        icon: CreditCard,
+        label: 'Recruitment',
+        items: [
+            {
+                title: 'Applications',
+                href: applications(),
+                icon: Briefcase,
+                adminOnly: true,
+            },
+            {
+                title: 'Job Openings',
+                href: jobOpenings(),
+                icon: Building2,
+                adminOnly: true,
+            },
+        ],
     },
     {
-        title: 'Users',
-        href: users(),
-        icon: Users,
-    },
-    {
-        title: 'Applications',
-        href: applications(),
-        icon: Briefcase,
-    },
-    {
-        title: 'Job Openings',
-        href: jobOpenings(),
-        icon: Building2,
-    },
-    {
-        title: 'Business Partners',
-        href: businessPartners(),
-        icon: Building2,
-    },
-    {
-        title: 'Analytics',
-        href: analytics(),
-        icon: BarChart3,
+        label: 'Administration',
+        items: [
+            {
+                title: 'Users',
+                href: users(),
+                icon: Users,
+            },
+            {
+                title: 'Business Partners',
+                href: businessPartners(),
+                icon: Building2,
+            },
+        ],
     },
 ];
 
 export function AppSidebar() {
     const { auth } = usePage<{ auth: { user: { is_admin: boolean } | null } }>().props;
+
+    const visibleGroups: NavGroup[] = navGroups
+        .map((group) => ({
+            ...group,
+            items: group.items.filter(
+                (item: NavItem) => auth.user?.is_admin || !item.adminOnly,
+            ),
+        }))
+        .filter((group) => group.items.length > 0);
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -93,15 +124,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain
-                    items={mainNavItems.filter(
-                        (item) =>
-                            auth.user?.is_admin ||
-                            !['Applications', 'Job Openings'].includes(
-                                item.title,
-                            ),
-                    )}
-                />
+                <NavMain groups={visibleGroups} />
             </SidebarContent>
 
             <SidebarFooter>
