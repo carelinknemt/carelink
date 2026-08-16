@@ -1,18 +1,9 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { BadgeDollarSign, Search, Undo2 } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { BadgeDollarSign, Search } from 'lucide-react';
 import type { FormEvent } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -41,7 +32,6 @@ import {
 import { formatDate, formatMoney } from '@/lib/bookings';
 import { cn } from '@/lib/utils';
 import { payments as dashboardPayments } from '@/routes/dashboard';
-import { refund as refundPayment } from '@/routes/dashboard/payments';
 import type { PaginatedPayments, PaymentRecord, PaymentsFilters, PaymentsSummary } from '@/types/dashboard';
 
 type DashboardPaymentsProps = {
@@ -112,12 +102,10 @@ export default function DashboardPayments({
 }: DashboardPaymentsProps) {
     const form = useForm({
         search: filters.search ?? '',
-        status: filters.status ?? '',
+        status: filters.status ?? 'PAID',
     });
 
     const searchTimer = useRef<number | null>(null);
-
-    const [refundTarget, setRefundTarget] = useState<PaymentRecord | null>(null);
 
     function navigate() {
         form.get(dashboardPayments.url(), {
@@ -167,11 +155,11 @@ export default function DashboardPayments({
         }
 
         form.setData('search', '');
-        form.setData('status', '');
+        form.setData('status', 'PAID');
         navigate();
     }
 
-    const hasFilters = Boolean(filters.search || filters.status);
+    const hasFilters = Boolean(filters.search);
 
     return (
         <>
@@ -305,19 +293,6 @@ export default function DashboardPayments({
                                                     >
                                                         {paymentBadgeLabel(payment)}
                                                     </span>
-                                                    {payment.payment_status === 'PAID' &&
-                                                        payment.refunded_at === null && (
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    setRefundTarget(payment)
-                                                                }
-                                                            >
-                                                                Refund
-                                                            </Button>
-                                                        )}
                                                 </div>
                                             </div>
                                         </li>
@@ -333,7 +308,6 @@ export default function DashboardPayments({
                                                 <TableHead>Trip Date</TableHead>
                                                 <TableHead>Status</TableHead>
                                                 <TableHead className="text-right">Fee</TableHead>
-                                                <TableHead className="text-right">Actions</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -367,26 +341,6 @@ export default function DashboardPayments({
                                                     </TableCell>
                                                     <TableCell className="text-right">
                                                         {formatMoney(payment.amount)}
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        {payment.payment_status === 'PAID' &&
-                                                        payment.refunded_at === null ? (
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    setRefundTarget(payment)
-                                                                }
-                                                            >
-                                                                <Undo2 />
-                                                                Refund
-                                                            </Button>
-                                                        ) : (
-                                                            <span className="text-muted-foreground text-sm">
-                                                                —
-                                                            </span>
-                                                        )}
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -491,55 +445,6 @@ export default function DashboardPayments({
                     </CardContent>
                 </Card>
             </div>
-
-            <Dialog
-                open={refundTarget !== null}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        setRefundTarget(null);
-                    }
-                }}
-            >
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>
-                            Refund the {formatMoney(refundTarget?.amount)} booking fee?
-                        </DialogTitle>
-                        <DialogDescription>
-                            Refund the fee paid for {refundTarget?.booking_number} (
-                            {refundTarget?.passenger_name}). The booking itself stays active and
-                            will not be cancelled or emailed.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button type="button" variant="outline">
-                                Keep payment
-                            </Button>
-                        </DialogClose>
-                        <Button
-                            type="button"
-                            onClick={() => {
-                                if (!refundTarget) {
-                                    return;
-                                }
-
-                                router.post(
-                                    refundPayment.url({ booking: refundTarget.id }),
-                                    {},
-                                    {
-                                        preserveScroll: true,
-                                        onSuccess: () => setRefundTarget(null),
-                                    },
-                                );
-                            }}
-                        >
-                            <Undo2 />
-                            Refund fee
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </>
     );
 }

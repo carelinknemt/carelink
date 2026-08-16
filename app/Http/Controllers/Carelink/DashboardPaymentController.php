@@ -5,12 +5,9 @@ namespace App\Http\Controllers\Carelink;
 use App\Http\Controllers\Controller;
 use App\Models\TripRequest;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Laravel\Cashier\Cashier;
-use Stripe\Exception\ApiErrorException;
 
 class DashboardPaymentController extends Controller
 {
@@ -22,20 +19,19 @@ class DashboardPaymentController extends Controller
 
     /**
      * Bookings that reached the Stripe checkout (a payment record exists),
-     * with collected/refunded fee totals. Refund actions come through
-     * dashboard.payments.refund.
+     * with collected/refunded fee totals. Defaults to PAID payments only.
      */
     public function index(Request $request): Response
     {
         $status = $request->string('status')->toString();
+        $filter = $status === '' ? TripRequest::PAYMENT_STATUS_PAID : $status;
 
         $query = TripRequest::query()->whereNotNull('stripe_checkout_session_id');
 
-        if ($status === self::STATUS_REFUNDED) {
+        if ($filter === self::STATUS_REFUNDED) {
             $query->whereNotNull('refunded_at');
-        } elseif ($status !== '' && $status !== self::STATUS_FILTER_ALL) {
-            // An empty status means no filter: every payment record is shown.
-            $query->where('payment_status', $status);
+        } elseif ($filter !== self::STATUS_FILTER_ALL) {
+            $query->where('payment_status', $filter);
         }
 
         $payments = $query
@@ -59,37 +55,9 @@ class DashboardPaymentController extends Controller
             'summary' => $this->summary(),
             'filters' => [
                 'search' => $request->string('search')->trim()->toString() ?: null,
-                'status' => $status ?: self::STATUS_FILTER_ALL,
+                'status' => $filter,
             ],
         ]);
-    }
-
-    /**
-     * Refund the booking fee without touching the booking's status or
-     * dispatch state; the trip itself stays active.
-     */
-    public function refund(TripRequest $booking): RedirectResponse
-    {
-        abort_if($booking->payment_status !== TripRequest::PAYMENT_STATUS_PAID, 404);
-        abort_if($booking->refunded_at !== null, 404);
-
-        if ($this->refundBookingFee($booking)) {
-            $booking->update(['refunded_at' => now()]);
-
-            Inertia::flash('toast', [
-                'type' => 'success',
-                'message' => "The {$booking->booking_number} booking fee was refunded.",
-            ]);
-
-            return back();
-        }
-
-        Inertia::flash('toast', [
-            'type' => 'error',
-            'message' => "The {$booking->booking_number} booking fee could not be refunded. Please try again or contact support.",
-        ]);
-
-        return back();
     }
 
     /**
@@ -116,33 +84,6 @@ class DashboardPaymentController extends Controller
             'pending' => ($total - $paid) * $fee,
             'refunded' => $refunded * $fee,
         ];
-    }
-
-    /**
-     * Refund the booking fee charged to the checkout session's payment
-     * intent. Returns true when the refund was created and false when
-     * Stripe rejected it.
-     */
-    private function refundBookingFee(TripRequest $booking): bool
-    {
-        try {
-            $session = Cashier::stripe()->checkout->sessions->retrieve($booking->stripe_checkout_session_id);
-
-            if (! ($session->payment_intent ?? null)) {
-                return false;
-            }
-
-            Cashier::stripe()->refunds->create([
-                'payment_intent' => $session->payment_intent,
-                'metadata' => ['booking_number' => $booking->booking_number],
-            ]);
-
-            return true;
-        } catch (ApiErrorException $exception) {
-            report($exception);
-
-            return false;
-        }
     }
 
     /**

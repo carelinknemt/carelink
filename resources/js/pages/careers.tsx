@@ -1,4 +1,4 @@
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { CheckCircle, FileText, Send, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 import AppHead from '@/components/app-head';
@@ -14,7 +14,6 @@ const CAREERS_DESCRIPTION =
     'Join CareLink Medical Transportation as a driver, dispatcher, or transport specialist. We are hiring compassionate, PASS-certified professionals across Humboldt, Del Norte, Trinity, and Shasta counties.';
 
 export default function Careers({ careers }: CareersProps) {
-    const { auth } = usePage<{ auth: { user: { id: number } | null } }>().props;
     const [selectedPosition, setSelectedPosition] = useState<string | null>(
         null,
     );
@@ -152,17 +151,10 @@ export default function Careers({ careers }: CareersProps) {
                             resume or CV. Our hiring team reviews every
                             application.
                         </p>
-                        {auth.user ? (
-                            <p className="mt-2 text-sm font-semibold text-[#004B87]">
-                                Track your submissions anytime from the My
-                                Applications page in your dashboard.
-                            </p>
-                        ) : (
-                            <p className="mt-2 text-sm text-slate-500">
-                                Tip: sign in before applying to track your
-                                submissions in your dashboard.
-                            </p>
-                        )}
+                        <p className="mt-2 text-sm text-slate-500">
+                            Our team will get in contact with you about your
+                            application.
+                        </p>
 
                         {form.wasSuccessful ? (
                             <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">

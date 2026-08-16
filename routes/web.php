@@ -53,7 +53,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/dashboard/business-partners/{businessRequest}/approve', [DashboardBusinessPartnerController::class, 'approve'])->name('dashboard.business-partners.approve');
     Route::post('/dashboard/business-partners/{businessRequest}/reject', [DashboardBusinessPartnerController::class, 'reject'])->name('dashboard.business-partners.reject');
     Route::get('/dashboard/payments', [DashboardPaymentController::class, 'index'])->name('dashboard.payments');
-    Route::post('/dashboard/payments/{booking}/refund', [DashboardPaymentController::class, 'refund'])->name('dashboard.payments.refund');
     Route::get('/dashboard/applications', [DashboardCareerApplicationController::class, 'index'])->name('dashboard.applications');
     Route::get('/dashboard/applications/{application}/resume', [DashboardCareerApplicationController::class, 'resume'])->name('dashboard.applications.resume');
     Route::delete('/dashboard/applications/{application}', [DashboardCareerApplicationController::class, 'destroy'])->name('dashboard.applications.destroy');
