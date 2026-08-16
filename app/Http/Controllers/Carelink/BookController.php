@@ -20,7 +20,7 @@ use Stripe\Exception\ApiErrorException;
 
 class BookController extends Controller
 {
-    private const BOOKING_FEE_AMOUNT = 3000;
+    public const BOOKING_FEE_AMOUNT = 3000;
 
     private const BOOKING_FEE_LABEL = 'CareLink Booking Fee';
 
@@ -43,6 +43,7 @@ class BookController extends Controller
 
         return Inertia::render('book', [
             'services' => $this->servicesForBookPage(),
+            'transport_rates' => $this->transportRatesForBookPage(),
             'booking' => $booking ? $this->bookingSummary($booking) : null,
         ]);
     }
@@ -65,6 +66,7 @@ class BookController extends Controller
 
             return Inertia::render('book', [
                 'services' => $this->servicesForBookPage(),
+                'transport_rates' => $this->transportRatesForBookPage(),
                 'booking' => $this->bookingSummary($tripRequest),
                 'checkout' => [
                     'url' => $checkout->url,
@@ -135,6 +137,30 @@ class BookController extends Controller
                 ],
             ])
             ->all();
+    }
+
+    /**
+     * Pricing rates keyed by the transport types offered on the book form,
+     * so the estimated fare matches the service the vehicle type provides:
+     * wheelchair transport rates for every wheelchair-compatible vehicle,
+     * ambulance sedan rates for ambulatory trips.
+     */
+    private function transportRatesForBookPage(): array
+    {
+        $byTitle = collect($this->servicesForBookPage());
+
+        $wheelchair = $byTitle->get('Wheelchair Transport');
+        $ambulatory = $byTitle->get('Ambulatory Sedan');
+
+        $rates = [];
+
+        foreach (['wheelchair', 'wheelchair xl', 'broda chair', 'geri chair'] as $type) {
+            $rates[$type] = $wheelchair;
+        }
+
+        $rates['ambulatory'] = $ambulatory;
+
+        return $rates;
     }
 
     /**

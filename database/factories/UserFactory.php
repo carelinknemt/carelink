@@ -47,7 +47,7 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the model has two-factor authentication configured.
+     * Indicate that the user has two-factor authentication configured.
      */
     public function withTwoFactor(): static
     {
@@ -55,6 +55,26 @@ class UserFactory extends Factory
             'two_factor_secret' => encrypt('secret'),
             'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-1'])),
             'two_factor_confirmed_at' => now(),
+        ]);
+    }
+
+    /**
+     * Indicate that the user has dashboard admin privileges.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_admin' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the user's account is banned.
+     */
+    public function banned(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'banned_at' => now(),
         ]);
     }
 }

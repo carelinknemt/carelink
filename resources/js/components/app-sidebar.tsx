@@ -1,5 +1,12 @@
 import { Link } from '@inertiajs/react';
-import { BarChart3, Building2, CalendarCheck, LayoutGrid } from 'lucide-react';
+import {
+    BarChart3,
+    Building2,
+    CalendarCheck,
+    CreditCard,
+    LayoutGrid,
+    Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -17,6 +24,8 @@ import {
     analytics,
     bookings as dashboardBookings,
     businessPartners,
+    payments,
+    users,
 } from '@/routes/dashboard';
 import type { NavItem } from '@/types';
 
@@ -30,6 +39,16 @@ const mainNavItems: NavItem[] = [
         title: 'Bookings',
         href: dashboardBookings(),
         icon: CalendarCheck,
+    },
+    {
+        title: 'Payments',
+        href: payments(),
+        icon: CreditCard,
+    },
+    {
+        title: 'Users',
+        href: users(),
+        icon: Users,
     },
     {
         title: 'Business Partners',

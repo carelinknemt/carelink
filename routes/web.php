@@ -10,13 +10,17 @@ use App\Http\Controllers\Carelink\DashboardAnalyticsController;
 use App\Http\Controllers\Carelink\DashboardBookingController;
 use App\Http\Controllers\Carelink\DashboardBusinessPartnerController;
 use App\Http\Controllers\Carelink\DashboardController;
+use App\Http\Controllers\Carelink\DashboardPaymentController;
+use App\Http\Controllers\Carelink\DashboardUserController;
 use App\Http\Controllers\Carelink\FaqController;
 use App\Http\Controllers\Carelink\FleetController;
 use App\Http\Controllers\Carelink\HomeController;
 use App\Http\Controllers\Carelink\ServicesController;
+use App\Http\Controllers\Carelink\TermsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/terms', TermsController::class)->name('terms');
 Route::get('/services', [ServicesController::class, 'index'])->name('services');
 Route::get('/fleet', [FleetController::class, 'index'])->name('fleet');
 Route::get('/about', [AboutController::class, 'index'])->name('about');
@@ -46,6 +50,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/business-partners', [DashboardBusinessPartnerController::class, 'index'])->name('dashboard.business-partners');
     Route::post('/dashboard/business-partners/{businessRequest}/approve', [DashboardBusinessPartnerController::class, 'approve'])->name('dashboard.business-partners.approve');
     Route::post('/dashboard/business-partners/{businessRequest}/reject', [DashboardBusinessPartnerController::class, 'reject'])->name('dashboard.business-partners.reject');
+    Route::get('/dashboard/payments', [DashboardPaymentController::class, 'index'])->name('dashboard.payments');
+    Route::post('/dashboard/payments/{booking}/refund', [DashboardPaymentController::class, 'refund'])->name('dashboard.payments.refund');
+    Route::get('/dashboard/users', [DashboardUserController::class, 'index'])->name('dashboard.users');
+    Route::post('/dashboard/users', [DashboardUserController::class, 'store'])->name('dashboard.users.store');
+    Route::post('/dashboard/users/{user}/ban-toggle', [DashboardUserController::class, 'toggleBan'])->name('dashboard.users.ban-toggle');
 });
 
 require __DIR__.'/settings.php';

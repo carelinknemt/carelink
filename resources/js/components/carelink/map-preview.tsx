@@ -2,7 +2,14 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapPin } from 'lucide-react';
 import { useEffect } from 'react';
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import {
+    MapContainer,
+    Marker,
+    Polyline,
+    Popup,
+    TileLayer,
+    useMap,
+} from 'react-leaflet';
 
 export interface MapPoint {
     label: string;
@@ -13,6 +20,7 @@ export interface MapPoint {
 
 interface MapPreviewProps {
     points: MapPoint[];
+    route?: [number, number][];
     height?: number;
 }
 
@@ -40,35 +48,43 @@ const dropoffIcon = L.divIcon({
     popupAnchor: [0, -30],
 });
 
-function FitPoints({ points }: { points: MapPoint[] }) {
+function FitPoints({ points, route }: { points: MapPoint[]; route?: [number, number][] }) {
     const map = useMap();
 
     useEffect(() => {
-        if (points.length === 0) {
-            return;
-        }
-
-        if (points.length === 1) {
-            map.setView([points[0].latitude, points[0].longitude], 14);
-
-            return;
-        }
-
-        map.fitBounds(
-            points.map((point) => [point.latitude, point.longitude]),
-            { padding: [40, 40] },
+        const markers = points.map(
+            (point) => [point.latitude, point.longitude] as [number, number],
         );
-    }, [map, points]);
+
+        const bounds = [...markers, ...(route ?? [])];
+
+        if (bounds.length === 0) {
+            return;
+        }
+
+        if (bounds.length === 1) {
+            map.setView(bounds[0], 14);
+
+            return;
+        }
+
+        map.fitBounds(bounds, { padding: [40, 40] });
+    }, [map, points, route]);
 
     return null;
 }
 
-export default function MapPreview({ points, height = 380 }: MapPreviewProps) {
+export default function MapPreview({
+    points,
+    route,
+    height = 380,
+}: MapPreviewProps) {
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="relative z-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
             <MapContainer
                 center={EUREKA}
                 zoom={8}
+                className="relative z-0"
                 style={{ height, width: '100%' }}
                 scrollWheelZoom={false}
                 attributionControl={true}
@@ -77,7 +93,13 @@ export default function MapPreview({ points, height = 380 }: MapPreviewProps) {
                     url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                 />
-                <FitPoints points={points} />
+                <FitPoints points={points} route={route} />
+                {route && route.length > 1 && (
+                    <Polyline
+                        positions={route}
+                        pathOptions={{ color: '#004B87', weight: 4, opacity: 0.55 }}
+                    />
+                )}
                 {points.map((point) => (
                     <Marker
                         key={`${point.kind}-${point.latitude}-${point.longitude}`}

@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Inertia\ExceptionResponse;
+use Inertia\Inertia;
 use Laravel\Cashier\Events\WebhookHandled;
 use Laravel\Cashier\Events\WebhookReceived;
 
@@ -28,6 +30,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        Inertia::handleExceptionsUsing(function (ExceptionResponse $response) {
+            if (in_array($response->statusCode(), [403, 404, 500, 503])) {
+                return $response->render('error', [
+                    'status' => $response->statusCode(),
+                ])->withSharedData();
+            }
+        });
 
         Event::listen(WebhookReceived::class, StripeEventListener::class);
         Event::listen(WebhookHandled::class, StripeEventListener::class);

@@ -1,18 +1,32 @@
 import type { PageProps } from '@inertiajs/core';
-import { router, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Send } from 'lucide-react';
+import { Link, router, useForm, usePage } from '@inertiajs/react';
+import {
+    ArrowLeft,
+    ArrowRight,
+    CheckCircle2,
+    Loader2,
+    Send,
+} from 'lucide-react';
 import { useEffect, useCallback, useState } from 'react';
 import AppHead from '@/components/app-head';
 import DatePicker, { formatIsoDate } from '@/components/carelink/date-picker';
 import LocationPicker from '@/components/carelink/location-picker';
 import MapPreview from '@/components/carelink/map-preview';
-import type {MapPoint} from '@/components/carelink/map-preview';
+import type { MapPoint } from '@/components/carelink/map-preview';
 import PageHero from '@/components/carelink/page-hero';
 import PhoneInput, { isUsPhoneNumber } from '@/components/carelink/phone-input';
 import TimePicker from '@/components/carelink/time-picker';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -23,7 +37,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { book } from '@/routes';
+import { book, terms } from '@/routes';
 import { show, status, store } from '@/routes/bookings';
 
 interface TripRequestFormData {
@@ -204,13 +218,34 @@ interface ServiceRates {
     mileage_rate: number;
 }
 
+interface RouteInfo {
+    coordinates: [number, number][];
+    distanceMiles: number;
+}
+
+interface OsrmRouteResponse {
+    code: string;
+    routes?: Array<{
+        distance: number;
+        geometry: { coordinates: [number, number][] };
+    }>;
+}
+
 interface BookPageProps extends PageProps {
     booking?: Record<string, unknown>;
     checkout?: { url: string; booking_number: string };
     services?: Record<string, ServiceRates>;
+    transport_rates?: Record<string, ServiceRates | null>;
 }
 
 const BOOKING_FEE = 30.0;
+
+const MILES_PER_METER = 0.000621371;
+
+/** Miles covered by the base fare before per-mile charges apply. */
+const BASE_FARE_MILEAGE = 5;
+
+const OSRM_ENDPOINT = 'https://router.project-osrm.org/route/v1/driving';
 
 const PENDING_PAYMENT_KEY = 'carelink_pending_payment';
 
@@ -223,7 +258,11 @@ export default function Book() {
     const [step, setStep] = useState(0);
     const [stepErrors, setStepErrors] = useState<Errors>({});
     const [reviewReady, setReviewReady] = useState(false);
-    const { booking, services } = usePage<BookPageProps>().props;
+    const [route, setRoute] = useState<RouteInfo | null>(null);
+    const [routeLoading, setRouteLoading] = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [agreedToFee, setAgreedToFee] = useState(false);
+    const { booking, transport_rates } = usePage<BookPageProps>().props;
     const form = useForm<TripRequestFormData>(initialForm);
     const [pendingPayment, setPendingPayment] = useState<PendingPayment | null>(() => {
         try {
@@ -266,6 +305,80 @@ export default function Book() {
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [step]);
+
+    useEffect(() => {
+        const pickupLatitude = form.data.pickup_latitude;
+        const pickupLongitude = form.data.pickup_longitude;
+        const dropoffLatitude = form.data.dropoff_latitude;
+        const dropoffLongitude = form.data.dropoff_longitude;
+
+        if (
+            !pickupLatitude ||
+            !pickupLongitude ||
+            !dropoffLatitude ||
+            !dropoffLongitude
+        ) {
+            return undefined;
+        }
+
+        const controller = new AbortController();
+        let cancelled = false;
+
+        setRouteLoading(true);
+
+        const url =
+            `${OSRM_ENDPOINT}/${pickupLongitude},${pickupLatitude};` +
+            `${dropoffLongitude},${dropoffLatitude}?overview=full&geometries=geojson`;
+
+        fetch(url, { signal: controller.signal })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Route request failed: ${response.status}`);
+                }
+
+                return response.json();
+            })
+            .then((data: OsrmRouteResponse) => {
+                if (cancelled) {
+                    return;
+                }
+
+                const result = data?.routes?.[0];
+
+                if (data.code !== 'Ok' || !result) {
+                    throw new Error('No route found');
+                }
+
+                const coordinates = result.geometry.coordinates.map(
+                    ([longitude, latitude]) =>
+                        [latitude, longitude] as [number, number],
+                );
+
+                setRoute({
+                    coordinates,
+                    distanceMiles: result.distance * MILES_PER_METER,
+                });
+                setRouteLoading(false);
+            })
+            .catch((error: unknown) => {
+                if (cancelled || (error as Error).name === 'AbortError') {
+                    return;
+                }
+
+                setRoute(null);
+                setRouteLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [
+        form.data.pickup_latitude,
+        form.data.pickup_longitude,
+        form.data.dropoff_latitude,
+        form.data.dropoff_longitude,
+    ]);
 
     const checkPaymentStatus = useCallback(async () => {
         if (!pendingPayment) {
@@ -380,7 +493,7 @@ export default function Book() {
         form.data.dropoff_latitude &&
         form.data.dropoff_longitude;
 
-    const distanceMiles: number | null = hasRouteCoordinates
+    const straightLineMiles: number | null = hasRouteCoordinates
         ? haversineMiles(
               Number(form.data.pickup_latitude),
               Number(form.data.pickup_longitude),
@@ -389,16 +502,23 @@ export default function Book() {
           )
         : null;
 
-    const serviceRates = form.data.service_type
-        ? services?.[form.data.service_type]
+    const distanceMiles: number | null = hasRouteCoordinates && route
+        ? route.distanceMiles
+        : straightLineMiles;
+
+    const routeLoadingShown = hasRouteCoordinates && routeLoading;
+
+    const transportRates = form.data.transport_type
+        ? transport_rates?.[form.data.transport_type]
         : null;
 
     const estimatedPrice: number | null =
-        serviceRates && distanceMiles !== null
+        transportRates && distanceMiles !== null
             ? Math.max(
                   0,
-                  serviceRates.base_rate +
-                      distanceMiles * serviceRates.mileage_rate,
+                  transportRates.base_rate +
+                      Math.max(0, distanceMiles - BASE_FARE_MILEAGE) *
+                          transportRates.mileage_rate,
               )
             : null;
 
@@ -463,7 +583,10 @@ export default function Book() {
             }
         }
 
-        form.setData('input_price' as never, '0' as never);
+        form.setData(
+            'input_price' as never,
+            (estimatedPrice ?? 0).toFixed(2) as never,
+        );
 
         form.post(store.url(), {
             onSuccess: (page) => {
@@ -499,45 +622,61 @@ export default function Book() {
             return;
         }
 
+        if (!reviewReady) {
+            return;
+        }
+
+        setAgreedToFee(false);
+        setConfirmOpen(true);
+    };
+
+    const handleConfirmSubmit = () => {
+        if (!agreedToFee) {
+            return;
+        }
+
+        setConfirmOpen(false);
         submitForm();
     };
 
     if (pendingPayment) {
         return (
-            <div className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-12">
-                <div className="mx-auto max-w-2xl text-center">
-                    <Loader2 className="mx-auto h-16 w-16 animate-spin text-[#004B87]" />
-                    <h1 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl">
-                        Complete Your Payment
-                    </h1>
-                    <p className="mt-3 text-sm text-slate-600 sm:text-base">
-                        We opened the secure payment page in a new tab. Finish
-                        the{' '}
-                        <span className="font-bold text-slate-800">
-                            ${BOOKING_FEE.toFixed(2)}
-                        </span>{' '}
-                        booking fee there. This page updates automatically
-                        once the payment is received.
-                    </p>
-                    <div className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
-                        Waiting for payment for{' '}
-                        <span className="font-black">{pendingPayment.booking_number}</span>
-                    </div>
-                    <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                        <Button
-                            type="button"
-                            onClick={() => window.open(pendingPayment.url, '_blank', 'noopener')}
-                        >
-                            Open Payment Page Again
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                            onClick={clearPendingPayment}
-                        >
-                            Cancel
-                        </Button>
+            <div className="bg-slate-50 px-4 py-10 sm:px-6 lg:px-12">
+                <div className="mx-auto w-full max-w-7xl">
+                    <div className="mx-auto max-w-2xl text-center">
+                        <Loader2 className="mx-auto h-16 w-16 animate-spin text-[#004B87]" />
+                        <h1 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl">
+                            Complete Your Payment
+                        </h1>
+                        <p className="mt-3 text-sm text-slate-600 sm:text-base">
+                            We opened the secure payment page in a new tab. Finish
+                            the{' '}
+                            <span className="font-bold text-slate-800">
+                                ${BOOKING_FEE.toFixed(2)}
+                            </span>{' '}
+                            booking fee there. This page updates automatically
+                            once the payment is received.
+                        </p>
+                        <div className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
+                            Waiting for payment for{' '}
+                            <span className="font-black">{pendingPayment.booking_number}</span>
+                        </div>
+                        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                            <Button
+                                type="button"
+                                onClick={() => window.open(pendingPayment.url, '_blank', 'noopener')}
+                            >
+                                Open Payment Page Again
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                                onClick={clearPendingPayment}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -548,8 +687,9 @@ export default function Book() {
         const paymentPaid = booking.payment_status === 'PAID';
 
         return (
-            <div className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-12">
-                <div className="mx-auto max-w-2xl text-center">
+            <div className="bg-slate-50 px-4 py-10 sm:px-6 lg:px-12">
+                <div className="mx-auto w-full max-w-7xl">
+                    <div className="mx-auto max-w-2xl text-center">
                     {paymentPaid ? (
                         <CheckCircle2 className="mx-auto h-16 w-16 text-emerald-600" />
                     ) : (
@@ -606,9 +746,13 @@ export default function Book() {
                             </dd>
                         </div>
                         <div className="flex items-center justify-between py-3">
-                            <dt className="text-slate-500">Price</dt>
+                            <dt className="text-slate-500">
+                                Estimated Trip Price
+                            </dt>
                             <dd className="font-semibold text-slate-800">
-                                Confirm with dispatch
+                                {Number(booking.input_price) > 0
+                                    ? `$${Number(booking.input_price).toFixed(2)}`
+                                    : 'Confirm with dispatch'}
                             </dd>
                         </div>
                         <div className="flex items-center justify-between py-3">
@@ -631,6 +775,7 @@ export default function Book() {
                     >
                         Book Another Ride
                     </a>
+                    </div>
                 </div>
             </div>
         );
@@ -761,7 +906,7 @@ export default function Book() {
                                     </div>
                                 </div>
 
-                                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid gap-5 sm:grid-cols-2">
                                     <div className="grid gap-2">
                                         <Label htmlFor="passenger_phone_number">
                                             Phone Number{' '}
@@ -822,7 +967,7 @@ export default function Book() {
                                             )}
                                         />
                                     </div>
-                                    <div className="grid gap-2">
+                                    <div className="grid gap-2 sm:col-span-2">
                                         <Label htmlFor="passenger_dob">
                                             Date of Birth
                                         </Label>
@@ -847,7 +992,7 @@ export default function Book() {
                                     </div>
                                 </div>
 
-                                <div className="grid gap-3 rounded-xl border border-slate-200 bg-white/60 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-4">
+                                <div className="grid gap-3 rounded-xl border border-slate-200 bg-white/60 p-4 sm:grid-cols-2 sm:p-5">
                                     <div className="flex items-center gap-2.5">
                                         <Checkbox
                                             id="must_provide_wheelchair"
@@ -899,7 +1044,7 @@ export default function Book() {
                                         </Label>
                                     </div>
                                     {form.data.oxygen_required && (
-                                        <div className="grid gap-2 sm:col-span-2 lg:col-span-4">
+                                        <div className="grid gap-2 sm:col-span-2">
                                             <Label htmlFor="oxygen_liters_per_min">
                                                 Oxygen flow (liters / min)
                                             </Label>
@@ -949,7 +1094,7 @@ export default function Book() {
                     {step === 1 && (
                         <>
                             <div className="space-y-6">
-                                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid gap-5 sm:grid-cols-2">
                                     <div className="grid gap-2">
                                         <Label htmlFor="trip_date">
                                             Trip Date{' '}
@@ -995,7 +1140,7 @@ export default function Book() {
                                             message={fieldError('pickup_time')}
                                         />
                                     </div>
-                                    <div className="grid gap-2">
+                                    <div className="grid gap-2 sm:col-span-2">
                                         <Label htmlFor="appointment_time">
                                             Appointment Time
                                         </Label>
@@ -1172,23 +1317,7 @@ export default function Book() {
                     {step === 2 && (
                         <>
                             <div className="space-y-6">
-                                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                                    <div className="grid gap-2">
-                                        <Label>
-                                            Payer{' '}
-                                            <span className="text-red-500">
-                                                *
-                                            </span>
-                                        </Label>
-                                        <Input
-                                            value={PRIVATE_PAY}
-                                            disabled
-                                            className={`w-full ${FIELD_BG}`}
-                                        />
-                                        <p className="text-xs text-slate-500">
-                                            Bookings are private pay only.
-                                        </p>
-                                    </div>
+                                <div className="grid gap-5 sm:grid-cols-2">
                                     <div className="grid gap-2">
                                         <Label>
                                             Transport Type{' '}
@@ -1411,6 +1540,13 @@ export default function Book() {
                                         </dd>
                                     </div>
                                 </dl>
+                                {routeLoadingShown && (
+                                    <p className="mt-4 flex items-center gap-2 text-xs text-slate-500">
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                        Calculating the driving route and
+                                        distance...
+                                    </p>
+                                )}
                                 <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                                     A non-refundable booking fee of{' '}
                                     <span className="font-bold text-slate-800">
@@ -1425,7 +1561,14 @@ export default function Book() {
                                         <h4 className="mb-2 text-xs font-black tracking-wide text-[#004B87] uppercase">
                                             Route Preview
                                         </h4>
-                                        <MapPreview points={mapPoints} />
+                                        <MapPreview
+                                            points={mapPoints}
+                                            route={
+                                                hasRouteCoordinates
+                                                    ? route?.coordinates
+                                                    : undefined
+                                            }
+                                        />
                                         <p className="mt-2 text-xs text-slate-400">
                                             <span className="font-bold text-[#004B87]">
                                                 Blue
@@ -1434,7 +1577,11 @@ export default function Book() {
                                             <span className="font-bold text-[#E64A19]">
                                                 orange
                                             </span>{' '}
-                                            dropoff
+                                            dropoff ·{' '}
+                                            <span className="font-bold text-[#004B87]">
+                                                blue line
+                                            </span>{' '}
+                                            driving route
                                         </p>
                                     </div>
                                 )}
@@ -1460,10 +1607,10 @@ export default function Book() {
                                 <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         ) : (
-<Button
+                            <Button
                                 type="button"
                                 className="bg-[#E64A19] text-white hover:bg-[#d84315]"
-                                onClick={submitForm}
+                                onClick={handleSubmit}
                                 disabled={form.processing || !reviewReady}
                             >
                                 <Send className="mr-2 h-4 w-4" />
@@ -1471,11 +1618,79 @@ export default function Book() {
                                     ? 'Submitting...'
                                     : !reviewReady
                                     ? 'Confirming...'
-                                    : `Submit & Pay $${BOOKING_FEE.toFixed(2)}`}
+                                    : 'Submit'}
                             </Button>
                         )}
                     </div>
                 </form>
+
+                <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Confirm Your Booking</DialogTitle>
+                            <DialogDescription>
+                                Review the charge before submitting your trip
+                                request.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 text-sm text-slate-600">
+                            <p>
+                                By submitting this booking, you agree to pay a
+                                non-refundable booking fee of{' '}
+                                <span className="font-bold text-slate-800">
+                                    ${BOOKING_FEE.toFixed(2)}
+                                </span>
+                                . You will be redirected to a secure payment
+                                page to complete the charge.
+                            </p>
+                            <div className="flex items-start gap-2.5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                                <Checkbox
+                                    id="agree_to_booking_fee"
+                                    checked={agreedToFee}
+                                    onCheckedChange={(checked) =>
+                                        setAgreedToFee(Boolean(checked))
+                                    }
+                                />
+                                <Label
+                                    htmlFor="agree_to_booking_fee"
+                                    className="font-normal leading-snug text-slate-600"
+                                >
+                                    By agreeing to pay the $
+                                    {BOOKING_FEE.toFixed(2)} booking fee, you
+                                    are agreeing to our{' '}
+                                    <Link
+                                        href={terms.url()}
+                                        target="_blank"
+                                        className="font-semibold text-[#004B87] underline underline-offset-2 hover:text-[#003d75]"
+                                    >
+                                        terms and conditions
+                                    </Link>
+                                    .
+                                </Label>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                                onClick={() => setConfirmOpen(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="button"
+                                className="bg-[#E64A19] text-white hover:bg-[#d84315]"
+                                onClick={handleConfirmSubmit}
+                                disabled={!agreedToFee || form.processing}
+                            >
+                                {form.processing
+                                    ? 'Submitting...'
+                                    : 'Agree & Submit'}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
     );

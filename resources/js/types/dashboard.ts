@@ -94,3 +94,66 @@ export type AnalyticsPageProps = {
     services: AnalyticsLabelCount[];
     repeat_passengers: RepeatPassenger[];
 };
+
+export type PaymentRecord = {
+    id: number;
+    booking_number: string;
+    passenger_name: string;
+    passenger_email: string | null;
+    trip_date: string | null;
+    input_price: string | null;
+    payment_status: string;
+    amount: number;
+    paid_at: string | null;
+    refunded_at: string | null;
+    stripe_checkout_session_id: string | null;
+};
+
+export type PaymentsSummary = {
+    total_payments: number;
+    collected: number;
+    pending: number;
+    refunded: number;
+};
+
+export type PaymentsFilters = {
+    search?: string | null;
+    status?: string | null;
+};
+
+export type UserRecord = {
+    id: number;
+    name: string;
+    email: string;
+    is_admin: boolean;
+    banned_at: string | null;
+    joined_at: string;
+};
+
+export type UsersFilters = {
+    search?: string | null;
+};
+
+type PaginatedRecords<T> = {
+    data: T[];
+    current_page: number;
+    first_page_url: string;
+    from: number | null;
+    last_page: number;
+    last_page_url: string;
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number | null;
+    total: number;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+};
+
+export type PaginatedPayments = PaginatedRecords<PaymentRecord>;
+
+export type PaginatedUsers = PaginatedRecords<UserRecord>;

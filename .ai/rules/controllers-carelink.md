@@ -4,6 +4,8 @@ paths:
   - app/Http/Controllers/Carelink/BookController.php
   - app/Http/Controllers/Carelink/DashboardBookingController.php
   - app/Http/Controllers/Carelink/DashboardAnalyticsController.php
+  - app/Http/Controllers/Carelink/DashboardPaymentController.php
+  - app/Http/Controllers/Carelink/DashboardUserController.php
 ---
 
 # Controllers Carelink
@@ -31,3 +33,9 @@ DashboardBookingController::filteredQuery() constrains status to PENDING_DISPATC
 
 ## Business partnership inquiry flow
 Public form at GET /for-businesses (route business, Inertia page 'business', CarelinkLayout public layout) posts to business.store (POST /business-partners), validated by StoreBusinessPartnerRequestRequest, stored in business_partner_requests with business_type limited to BusinessPartnerRequest::BUSINESS_TYPES. Inquiries are managed at GET /dashboard/business-partners (route dashboard.business-partners, page 'dashboard/business-partners') - newest first, 15 per page, searchable, and status-filtered: defaults to PENDING, '__all' (STATUS_FILTER_ALL) reveals every status, mirroring the bookings list contract. POST dashboard.business-partners.approve validates an email input and updates status to APPROVED + emails that address with BusinessPartnerApproved; POST dashboard.business-partners.reject requires a reason and updates status to REJECTED + emails the registered address with BusinessPartnerRejected. Approve/reject are only offered for PENDING rows in the UI.
+
+## Payments list default shows all payment records
+Payments page lists only bookings that reached Stripe checkout (stripe_checkout_session_id not null). Status filter: '__all' is the default — an empty status means NO filter (unlike bookings/business-partners which default to an actionable state). 'refunded' sentinel filters refunded_at not null. Summary: collected = (paid - refunded) * $30 fee (net), pending = unpaid * fee, refunded = refunded * fee, computed in PHP.
+
+## User management is admin-gated, invites via reset link
+User management is admin-only: abort_unless($request->user()->is_admin, 403) in every method. Adding a user creates it with a random Str::password(32) (no usable password) and immediately sends the Fortify password reset link via Password::broker()->sendResetLink — email flows to Fortify's password.reset view. Admins cannot ban themselves (toggleBan guard). Never seed admin passwords (repo rule).

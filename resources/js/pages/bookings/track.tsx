@@ -162,9 +162,13 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
                             </dd>
                         </div>
                         <div className="flex items-center justify-between py-3">
-                            <dt className="text-slate-500">Price</dt>
+                            <dt className="text-slate-500">
+                                Estimated Trip Price
+                            </dt>
                             <dd className="font-semibold text-slate-800">
-                                Confirm with dispatch
+                                {Number(booking.input_price) > 0
+                                    ? `$${Number(booking.input_price).toFixed(2)}`
+                                    : 'Confirm with dispatch'}
                             </dd>
                         </div>
                         <div className="flex items-center justify-between py-3">
