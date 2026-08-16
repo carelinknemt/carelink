@@ -19,6 +19,62 @@
             })();
         </script>
 
+        {{-- Inline script to apply saved accessibility settings before first paint (mirrors resources/js/components/carelink/accessibility-widget.tsx) --}}
+        <script>
+            (function() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem('ssd_accessibility_settings_v2'));
+
+                    if (!saved || typeof saved !== 'object') {
+                        return;
+                    }
+
+                    const root = document.documentElement;
+                    const fontSizes = { '100%': 'a11y-font-100', '110%': 'a11y-font-110', '120%': 'a11y-font-120', '130%': 'a11y-font-130', '140%': 'a11y-font-140', '150%': 'a11y-font-150' };
+                    const toggles = {
+                        highContrast: 'a11y-high-contrast',
+                        invertColors: 'a11y-invert-colors',
+                        grayscale: 'a11y-grayscale',
+                        saturate: 'a11y-saturate',
+                        dyslexiaFont: 'a11y-dyslexia',
+                        highlightLinks: 'a11y-highlight-links',
+                        highlightHeadings: 'a11y-highlight-headings',
+                        largeCursor: 'a11y-large-cursor',
+                        hideImages: 'a11y-hide-images',
+                        reduceMotion: 'a11y-reduce-motion',
+                    };
+
+                    if (fontSizes[saved.fontSize]) {
+                        root.classList.add(fontSizes[saved.fontSize]);
+                    }
+
+                    if (saved.lineHeight === 'relaxed') {
+                        root.classList.add('a11y-line-height-relaxed');
+                    }
+
+                    if (saved.lineHeight === 'loose') {
+                        root.classList.add('a11y-line-height-loose');
+                    }
+
+                    if (saved.letterSpacing === 'wide') {
+                        root.classList.add('a11y-letter-spacing-wide');
+                    }
+
+                    if (saved.letterSpacing === 'extra') {
+                        root.classList.add('a11y-letter-spacing-extra');
+                    }
+
+                    Object.keys(toggles).forEach((key) => {
+                        if (saved[key]) {
+                            root.classList.add(toggles[key]);
+                        }
+                    });
+                } catch (e) {
+                    return;
+                }
+            })();
+        </script>
+
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
             html {
