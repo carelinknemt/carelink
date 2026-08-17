@@ -47,6 +47,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 ## Committing Work
 
 - After finishing any task or prompt, always stage only the intended files, write a concise commit message following the repo's style (e.g. `location-picker: stop re-searching after a location is selected`), commit, and push to origin main. Do not wait to be asked; this is the expected workflow for every completed prompt.
+- The repo tracks a fresh frontend build at `public/build.zip` (used by CI/CD). Before committing, always regenerate it: run `npm run build`, then re-zip the new output with `cd public && rm -f build.zip && zip -r build.zip build`. Stage `public/build.zip` together with your code changes so every push ships the latest build.
 
 === boost rules ===
 
