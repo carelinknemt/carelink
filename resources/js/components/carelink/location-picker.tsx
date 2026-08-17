@@ -172,9 +172,14 @@ export default function LocationPicker({
     const [status, setStatus] = useState<SearchStatus>('idle');
     const [open, setOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const suppressSearchRef = useRef(false);
 
     useEffect(() => {
         const query = value.trim();
+
+        if (suppressSearchRef.current) {
+            return;
+        }
 
         if (query.length < MIN_QUERY_LENGTH) {
             setResults([]);
@@ -261,6 +266,7 @@ export default function LocationPicker({
         const { primary } = formatFeature(feature);
         const [longitude, latitude] = feature.geometry.coordinates;
 
+        suppressSearchRef.current = true;
         onSelect(primary, latitude, longitude);
         setResults([]);
         setStatus('idle');
@@ -276,7 +282,10 @@ export default function LocationPicker({
                 placeholder={placeholder}
                 autoComplete="off"
                 className="bg-white pl-9 dark:border-slate-300 dark:bg-white dark:text-slate-900 dark:placeholder:text-slate-400"
-                onChange={(event) => onValueChange(event.target.value)}
+                onChange={(event) => {
+                    suppressSearchRef.current = false;
+                    onValueChange(event.target.value);
+                }}
                 onFocus={() => {
                     if (status === 'ok' || status === 'searching') {
                         setOpen(true);
