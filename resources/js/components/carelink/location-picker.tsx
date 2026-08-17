@@ -19,6 +19,23 @@ interface PhotonResponse {
     features: GeocodingFeature[];
 }
 
+interface MapboxFeature {
+    geometry: { coordinates: [number, number] };
+    place_type: string[];
+    address?: string;
+    text?: string;
+    context?: Array<{ id?: string; text?: string }>;
+    properties?: {
+        name?: string;
+        address?: string;
+        context?: Record<string, { text?: string }>;
+    };
+}
+
+interface MapboxResponse {
+    features: MapboxFeature[];
+}
+
 interface LocationPickerProps {
     id: string;
     value: string;
@@ -29,11 +46,17 @@ interface LocationPickerProps {
 
 const PHOTON_ENDPOINT = 'https://photon.komoot.io/api/';
 
+const MAPBOX_ENDPOINT = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
+
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+
 const CALIFORNIA_BBOX = '-124.482,32.528,-114.131,42.010';
 
 const MIN_QUERY_LENGTH = 3;
 
-function isInCalifornia(feature: GeocodingFeature): boolean {
+function isInCalifornia(
+    feature: Pick<GeocodingFeature, 'geometry'>,
+): boolean {
     const [longitude, latitude] = feature.geometry.coordinates;
 
     return (
@@ -60,6 +83,80 @@ function formatFeature(feature: GeocodingFeature): {
         primary: primaryParts.join(', ') || city || 'Selected location',
         secondary: city,
     };
+}
+
+function mapboxFeatureToGeocodingFeature(
+    feature: MapboxFeature,
+): GeocodingFeature {
+    const isAddress = feature.place_type.includes('address');
+    const contextEntries = Array.isArray(feature.context)
+        ? feature.context
+        : Object.entries(feature.properties?.context ?? {}).map(
+              ([id, value]) => ({ id, text: value.text }),
+          );
+
+    const contextText = (idPrefix: string): string | undefined =>
+        contextEntries.find((entry) => entry.id?.startsWith(idPrefix))?.text;
+
+    const name = feature.properties?.name ?? feature.text;
+    const addressNumber = feature.address ?? feature.properties?.address;
+
+    return {
+        geometry: { coordinates: feature.geometry.coordinates },
+        properties: {
+            name:
+                isAddress && addressNumber && name
+                    ? `${addressNumber} ${name}`.trim()
+                    : name,
+            postcode: contextText('postcode.'),
+            city: contextText('place.') ?? contextText('locality.'),
+            state: contextText('region.'),
+            country: contextText('country.'),
+        },
+    };
+}
+
+async function searchPhoton(
+    query: string,
+    signal: AbortSignal,
+): Promise<GeocodingFeature[]> {
+    const response = await fetch(
+        `${PHOTON_ENDPOINT}?q=${encodeURIComponent(query)}&bbox=${CALIFORNIA_BBOX}&limit=6&lang=en`,
+        { signal },
+    );
+
+    if (!response.ok) {
+        throw new Error(`Geocoding request failed: ${response.status}`);
+    }
+
+    const data: PhotonResponse = await response.json();
+
+    return (data.features ?? []).filter(isInCalifornia).slice(0, 5);
+}
+
+async function searchMapbox(
+    query: string,
+    signal: AbortSignal,
+): Promise<GeocodingFeature[]> {
+    if (!MAPBOX_TOKEN) {
+        return [];
+    }
+
+    const response = await fetch(
+        `${MAPBOX_ENDPOINT}/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&bbox=${CALIFORNIA_BBOX}&limit=5&language=en`,
+        { signal },
+    );
+
+    if (!response.ok) {
+        throw new Error(`Mapbox request failed: ${response.status}`);
+    }
+
+    const data: MapboxResponse = await response.json();
+
+    return (data.features ?? [])
+        .filter(isInCalifornia)
+        .map(mapboxFeatureToGeocodingFeature)
+        .slice(0, 5);
 }
 
 type SearchStatus = 'idle' | 'searching' | 'ok' | 'empty' | 'error';
@@ -91,35 +188,47 @@ export default function LocationPicker({
         setOpen(true);
 
         const controller = new AbortController();
-        const timer = window.setTimeout(() => {
-            fetch(
-                `${PHOTON_ENDPOINT}?q=${encodeURIComponent(query)}&bbox=${CALIFORNIA_BBOX}&limit=6&lang=en`,
-                { signal: controller.signal },
-            )
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(
-                            `Geocoding request failed: ${response.status}`,
-                        );
-                    }
+        const timer = window.setTimeout(async () => {
+            try {
+                const photonResults = await searchPhoton(
+                    query,
+                    controller.signal,
+                );
 
-                    return response.json();
-                })
-                .then((data: PhotonResponse) => {
-                    const inCalifornia = (data.features ?? [])
-                        .filter(isInCalifornia)
-                        .slice(0, 5);
+                if (photonResults.length > 0) {
+                    setResults(photonResults);
+                    setStatus('ok');
 
-                    setResults(inCalifornia);
-                    setStatus(inCalifornia.length === 0 ? 'empty' : 'ok');
-                })
-                .catch((error: unknown) => {
-                    if ((error as Error).name === 'AbortError') {
-                        return;
-                    }
+                    return;
+                }
+            } catch (error: unknown) {
+                if ((error as Error).name === 'AbortError') {
+                    return;
+                }
+            }
 
-                    setStatus('error');
-                });
+            try {
+                const mapboxResults = await searchMapbox(
+                    query,
+                    controller.signal,
+                );
+
+                if (mapboxResults.length > 0) {
+                    setResults(mapboxResults);
+                    setStatus('ok');
+
+                    return;
+                }
+
+                setResults([]);
+                setStatus('empty');
+            } catch (error: unknown) {
+                if ((error as Error).name === 'AbortError') {
+                    return;
+                }
+
+                setStatus('error');
+            }
         }, 350);
 
         return () => {
