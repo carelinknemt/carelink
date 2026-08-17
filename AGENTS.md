@@ -44,6 +44,10 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Be concise in your explanations - focus on what's important rather than explaining obvious details.
 
+## Committing Work
+
+- After finishing any task or prompt, always stage only the intended files, write a concise commit message following the repo's style (e.g. `location-picker: stop re-searching after a location is selected`), commit, and push to origin main. Do not wait to be asked; this is the expected workflow for every completed prompt.
+
 === boost rules ===
 
 # Laravel Boost
