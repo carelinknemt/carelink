@@ -5,6 +5,7 @@ import { initializeTheme, setIsPublicPage } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import CarelinkLayout from '@/layouts/carelink-layout';
+import CmsLayout from '@/layouts/cms-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -38,6 +39,10 @@ createInertiaApp({
                 setIsPublicPage(true);
 
                 return AuthLayout;
+            case name.startsWith('cms/'):
+                setIsPublicPage(false);
+
+                return CmsLayout;
             case name.startsWith('settings/'):
                 setIsPublicPage(false);
 

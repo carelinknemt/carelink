@@ -21,6 +21,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import cmsRoutes from '@/routes/cms';
 import {
     analytics,
     applications,
@@ -93,12 +94,19 @@ const navGroups: NavGroup[] = [
                 href: businessPartners(),
                 icon: Building2,
             },
+            {
+                title: 'Website Content',
+                href: cmsRoutes.index(),
+                icon: LayoutGrid,
+                adminOnly: true,
+            },
         ],
     },
 ];
 
 export function AppSidebar() {
-    const { auth } = usePage<{ auth: { user: { is_admin: boolean } | null } }>().props;
+    const { auth } = usePage<{ auth: { user: { is_admin: boolean } | null } }>()
+        .props;
 
     const visibleGroups: NavGroup[] = navGroups
         .map((group) => ({

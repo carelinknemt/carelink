@@ -1,16 +1,10 @@
 import { usePoll } from '@inertiajs/react';
-import {
-    CheckCircle2,
-    Copy,
-    ExternalLink,
-    Loader2,
-    Phone,
-} from 'lucide-react';
+import { CheckCircle2, Copy, ExternalLink, Loader2, Phone } from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
 import { Button } from '@/components/ui/button';
-import { COMPANY_INFO } from '@/data/carelink';
+import { useCompanyInfo, usePageHero } from '@/lib/cms';
 import { book } from '@/routes';
 
 interface BookingSummary {
@@ -28,6 +22,12 @@ interface BookingSummary {
 interface TrackPageProps {
     booking: BookingSummary;
     checkout_url: string | null;
+    booking_fee?: {
+        amount_cents: number;
+        amount_dollars: string;
+        label: string;
+        dollars: string;
+    };
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -37,15 +37,20 @@ const STATUS_LABELS: Record<string, string> = {
     COMPLETED: 'Completed',
 };
 
-const BOOKING_FEE = 30.0;
-
 function PaymentWatcher() {
     usePoll(5000, { only: ['booking', 'checkout_url'] });
 
     return null;
 }
 
-export default function Track({ booking, checkout_url }: TrackPageProps) {
+export default function Track({
+    booking,
+    checkout_url,
+    booking_fee,
+}: TrackPageProps) {
+    const company = useCompanyInfo();
+    const hero = usePageHero('book');
+    const bookingFeeDollars = booking_fee?.dollars ?? '$30.00';
     const [copied, setCopied] = useState(false);
     const paymentPaid = booking.payment_status === 'PAID';
 
@@ -69,8 +74,11 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
             />
 
             <PageHero
-                title="Track Your Booking"
-                subtitle={`View the status of trip request ${booking.booking_number} and its booking fee payment.`}
+                title={hero.title || 'Track Your Booking'}
+                subtitle={
+                    hero.subtitle ||
+                    `View the status of trip request ${booking.booking_number} and its booking fee payment.`
+                }
             />
 
             <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-12">
@@ -87,9 +95,7 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
                         <Loader2 className="mx-auto h-12 w-12 animate-spin text-amber-500" />
                     )}
                     <h2 className="mt-3 text-xl font-black text-slate-900">
-                        {paymentPaid
-                            ? 'Booking Confirmed'
-                            : 'Payment Pending'}
+                        {paymentPaid ? 'Booking Confirmed' : 'Payment Pending'}
                     </h2>
                     <p className="mt-2 text-sm font-semibold text-slate-600">
                         {paymentPaid ? (
@@ -103,7 +109,7 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
                                 request. Thank you!
                             </>
                         ) : (
-                            `The $${BOOKING_FEE.toFixed(2)} booking fee has not been received yet. Complete the payment to confirm your trip request.`
+                            `The ${bookingFeeDollars} booking fee has not been received yet. Complete the payment to confirm your trip request.`
                         )}
                     </p>
                     {!paymentPaid && (
@@ -112,7 +118,11 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
                                 <Button
                                     type="button"
                                     onClick={() =>
-                                        window.open(checkout_url, '_blank', 'noopener')
+                                        window.open(
+                                            checkout_url,
+                                            '_blank',
+                                            'noopener',
+                                        )
                                     }
                                 >
                                     <ExternalLink className="mr-2 h-4 w-4" />
@@ -174,7 +184,8 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
                         <div className="flex items-center justify-between py-3">
                             <dt className="text-slate-500">Trip Status</dt>
                             <dd className="font-bold text-[#004B87]">
-                                {STATUS_LABELS[booking.status] ?? booking.status}
+                                {STATUS_LABELS[booking.status] ??
+                                    booking.status}
                             </dd>
                         </div>
                         <div className="flex items-center justify-between py-3">
@@ -186,7 +197,7 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
                                         : 'text-amber-600'
                                 }`}
                             >
-                                ${BOOKING_FEE.toFixed(2)} ·{' '}
+                                {bookingFeeDollars} ·{' '}
                                 {paymentPaid ? 'Paid' : 'Pending'}
                             </dd>
                         </div>
@@ -201,11 +212,11 @@ export default function Track({ booking, checkout_url }: TrackPageProps) {
                         Book Another Ride
                     </a>
                     <a
-                        href={`tel:${COMPANY_INFO.dispatchPhone.replace(/[^0-9+]/g, '')}`}
+                        href={`tel:${(company.dispatch_phone ?? '').replace(/[^0-9+]/g, '')}`}
                         className="inline-flex items-center gap-2 text-sm font-bold text-[#004B87] hover:underline"
                     >
                         <Phone className="h-4 w-4 text-orange-500" />
-                        {COMPANY_INFO.dispatchPhone}
+                        {company.dispatch_phone}
                     </a>
                 </div>
 

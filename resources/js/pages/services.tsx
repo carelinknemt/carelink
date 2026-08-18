@@ -1,6 +1,7 @@
 import { CheckCircle2 } from 'lucide-react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
+import { usePageHero } from '@/lib/cms';
 import type { TransportService } from '@/types/carelink';
 
 interface ServicesProps {
@@ -11,6 +12,8 @@ const SERVICES_DESCRIPTION =
     'Curb-to-curb wheelchair vans, ambulatory sedans, and group transit shuttles for dialysis, hospital discharges, and senior transport across Humboldt, Del Norte, Trinity, and Shasta counties. Book with CareLink NEMT today.';
 
 export default function Services({ services }: ServicesProps) {
+    const hero = usePageHero('services');
+
     return (
         <div className="min-h-screen bg-slate-50 pb-16">
             <AppHead
@@ -42,12 +45,14 @@ export default function Services({ services }: ServicesProps) {
             />
 
             <PageHero
-                title="Medical & Non-Medical Transport Services"
-                subtitle="Curb-to-curb wheelchair vans, group transit shuttles, and ambulatory sedans serving Humboldt, Del Norte, Trinity, and Shasta counties."
+                title={hero.title || 'Medical & Non-Medical Transport Services'}
+                subtitle={
+                    hero.subtitle ||
+                    'Curb-to-curb wheelchair vans, group transit shuttles, and ambulatory sedans serving Humboldt, Del Norte, Trinity, and Shasta counties.'
+                }
             />
 
             <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-12">
-
                 {/* NEMT Service Banner Image */}
                 <div className="w-full overflow-hidden rounded-3xl shadow-lg">
                     <img

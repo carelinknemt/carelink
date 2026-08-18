@@ -37,6 +37,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { usePageHero } from '@/lib/cms';
 import { book, terms } from '@/routes';
 import { show, status, store } from '@/routes/bookings';
 
@@ -236,9 +237,13 @@ interface BookPageProps extends PageProps {
     checkout?: { url: string; booking_number: string };
     services?: Record<string, ServiceRates>;
     transport_rates?: Record<string, ServiceRates | null>;
+    booking_fee?: {
+        amount_cents: number;
+        amount_dollars: string;
+        label: string;
+        dollars: string;
+    };
 }
-
-const BOOKING_FEE = 30.0;
 
 const MILES_PER_METER = 0.000621371;
 
@@ -262,7 +267,10 @@ export default function Book() {
     const [routeLoading, setRouteLoading] = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [agreedToFee, setAgreedToFee] = useState(false);
-    const { booking, transport_rates } = usePage<BookPageProps>().props;
+    const { booking, transport_rates, booking_fee } =
+        usePage<BookPageProps>().props;
+    const bookingFeeDollars = booking_fee?.dollars ?? '$30.00';
+    const pageHero = usePageHero('book');
     const form = useForm<TripRequestFormData>(initialForm);
     const [pendingPayment, setPendingPayment] = useState<PendingPayment | null>(
         () => {
@@ -666,7 +674,7 @@ export default function Book() {
                             We opened the secure payment page in a new tab.
                             Finish the{' '}
                             <span className="font-bold text-slate-800">
-                                ${BOOKING_FEE.toFixed(2)}
+                                {bookingFeeDollars}
                             </span>{' '}
                             booking fee there. This page updates automatically
                             once the payment is received.
@@ -739,8 +747,8 @@ export default function Book() {
                             }`}
                         >
                             {paymentPaid
-                                ? `Booking fee of $${BOOKING_FEE.toFixed(2)} paid via Stripe.`
-                                : `Booking fee of $${BOOKING_FEE.toFixed(2)} is pending. Our team will contact you to arrange payment.`}
+                                ? `Booking fee of ${bookingFeeDollars} paid via Stripe.`
+                                : `Booking fee of ${bookingFeeDollars} is pending. Our team will contact you to arrange payment.`}
                         </div>
                         <dl className="mx-auto mt-8 max-w-xl divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white/60 px-6 py-2 text-left text-sm">
                             <div className="flex items-center justify-between py-3">
@@ -790,7 +798,7 @@ export default function Book() {
                                             : 'text-amber-600'
                                     }`}
                                 >
-                                    ${BOOKING_FEE.toFixed(2)} ·{' '}
+                                    {bookingFeeDollars} ·{' '}
                                     {paymentPaid ? 'Paid' : 'Pending'}
                                 </dd>
                             </div>
@@ -826,8 +834,11 @@ export default function Book() {
 
             {/* Page Header */}
             <PageHero
-                title="Book Your Ride Online"
-                subtitle="Complete the trip request form below and our dispatch team will review and confirm your request."
+                title={pageHero?.title || 'Book Your Ride Online'}
+                subtitle={
+                    pageHero?.subtitle ||
+                    'Complete the trip request form below and our dispatch team will review and confirm your request.'
+                }
             />
 
             <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-12">
@@ -1568,7 +1579,7 @@ export default function Book() {
                                 <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                                     A non-refundable booking fee of{' '}
                                     <span className="font-bold text-slate-800">
-                                        ${BOOKING_FEE.toFixed(2)}
+                                        {bookingFeeDollars}
                                     </span>{' '}
                                     is charged via Stripe when you submit. You
                                     will be redirected to a secure payment page
@@ -1656,7 +1667,7 @@ export default function Book() {
                                 By submitting this booking, you agree to pay a
                                 non-refundable booking fee of{' '}
                                 <span className="font-bold text-slate-800">
-                                    ${BOOKING_FEE.toFixed(2)}
+                                    {bookingFeeDollars}
                                 </span>
                                 . You will be redirected to a secure payment
                                 page to complete the charge.
@@ -1673,9 +1684,8 @@ export default function Book() {
                                     htmlFor="agree_to_booking_fee"
                                     className="leading-snug font-normal text-slate-600"
                                 >
-                                    By agreeing to pay the $
-                                    {BOOKING_FEE.toFixed(2)} booking fee, you
-                                    are agreeing to our{' '}
+                                    By agreeing to pay the {bookingFeeDollars}{' '}
+                                    booking fee, you are agreeing to our{' '}
                                     <Link
                                         href={terms.url()}
                                         target="_blank"

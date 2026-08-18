@@ -2,6 +2,7 @@ import { CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
+import { usePageHero } from '@/lib/cms';
 import type { FleetVehicle } from '@/types/carelink';
 
 interface FleetProps {
@@ -12,6 +13,7 @@ const FLEET_DESCRIPTION =
     'Explore CareLink\u2019s modern NEMT fleet: BraunAbility wheelchair hydraulic lift vans, multi-passenger transit shuttles, and climate-controlled ambulatory sedans maintained to strict clinical safety protocols.';
 
 export default function Fleet({ fleet }: FleetProps) {
+    const hero = usePageHero('fleet');
     const [activeTab, setActiveTab] = useState<
         'ALL' | 'WHEELCHAIR' | 'AMBULATORY' | 'TRANSIT_SHUTTLE'
     >('ALL');
@@ -39,12 +41,14 @@ export default function Fleet({ fleet }: FleetProps) {
             />
 
             <PageHero
-                title="Our Modern NEMT Fleet"
-                subtitle="Inspect our BraunAbility wheelchair hydraulic lift vans, multi-passenger transit shuttles, and climate-controlled ambulatory cruisers maintained to strict clinical safety protocols."
+                title={hero.title || 'Our Modern NEMT Fleet'}
+                subtitle={
+                    hero.subtitle ||
+                    'Inspect our BraunAbility wheelchair hydraulic lift vans, multi-passenger transit shuttles, and climate-controlled ambulatory cruisers maintained to strict clinical safety protocols.'
+                }
             />
 
             <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-12">
-
                 {/* Filter Bar */}
                 <div className="flex scrollbar-none items-center gap-3 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-4 pb-2">
                     {[

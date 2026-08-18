@@ -1,6 +1,6 @@
+import { Link } from '@inertiajs/react';
 import { X, CheckCircle2, ChevronRight, Ambulance } from 'lucide-react';
 import { useEffect } from 'react';
-import { Link } from '@inertiajs/react';
 import { book } from '@/routes';
 import type { TransportService } from '@/types/carelink';
 

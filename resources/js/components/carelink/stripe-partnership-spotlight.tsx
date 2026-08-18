@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
-import { PAYMENT_METHODS } from '@/data/carelink';
+import { useCms } from '@/lib/cms';
+import type { PaymentMethod } from '@/lib/cms';
 
 export default function StripePartnershipSpotlight() {
+    const cms = useCms();
+    const paymentMethods = (cms.payment_methods?.methods ??
+        []) as PaymentMethod[];
     const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
 
     useEffect(() => {
@@ -45,7 +49,7 @@ export default function StripePartnershipSpotlight() {
     return (
         <section
             id="stripe-partnership-spotlight"
-            className="py-20 bg-slate-100 relative overflow-hidden bg-cover bg-no-repeat bg-center"
+            className="relative overflow-hidden bg-slate-100 bg-cover bg-center bg-no-repeat py-20"
             style={{
                 backgroundImage: bgImage,
                 backgroundSize: '100vw 100%',
@@ -54,51 +58,65 @@ export default function StripePartnershipSpotlight() {
             }}
         >
             {/* ATM background image on the right with custom Leva adjustments */}
-            <img src="/images/atm.png" alt="" style={imageStyle} className="select-none pointer-events-none" referrerPolicy="no-referrer" />
+            <img
+                src="/images/atm.png"
+                alt=""
+                style={imageStyle}
+                className="pointer-events-none select-none"
+                referrerPolicy="no-referrer"
+            />
             {/* Decorative background overlay and shapes */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-emerald-50/30 to-cyan-50/30 rounded-full blur-3xl z-0" />
+            <div className="absolute top-1/2 left-1/2 z-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-tr from-emerald-50/30 to-cyan-50/30 blur-3xl" />
 
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 {/* Spotlight Box Container */}
                 <div className="bg-transparent">
-                    <div className="-mt-[90px] grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div className="-mt-[90px] grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
                         {/* Left/Main Side: Text and Trust Highlights */}
-                        <div className="lg:col-span-6 p-8 sm:p-12 lg:p-16 flex flex-col justify-between">
+                        <div className="flex flex-col justify-between p-8 sm:p-12 lg:col-span-6 lg:p-16">
                             <div>
-                                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+                                <h2 className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-3xl leading-tight font-black tracking-tight text-slate-900 sm:text-4xl">
                                     <span>Powered by</span>
                                     <img
                                         src="/images/payments/Stripe.png"
                                         alt="Stripe"
-                                        className="h-[50px] sm:h-[60px] w-auto object-contain inline-block align-middle"
+                                        className="inline-block h-[50px] w-auto object-contain align-middle sm:h-[60px]"
                                         referrerPolicy="no-referrer"
                                     />
                                 </h2>
 
-                                <p className="mt-4 text-slate-700 text-sm leading-relaxed">
-                                    Carelink utilizes Stripe to process over 10+ major global payment networks and express wallets instantly and securely.
+                                <p className="mt-4 text-sm leading-relaxed text-slate-700">
+                                    Carelink utilizes Stripe to process over 10+
+                                    major global payment networks and express
+                                    wallets instantly and securely.
                                 </p>
                             </div>
                         </div>
 
                         {/* Right Side: Visual Accepted Cards showcase using individual uploaded images */}
-                        <div className="lg:col-span-6 bg-transparent p-8 sm:p-12 flex flex-col justify-center">
+                        <div className="flex flex-col justify-center bg-transparent p-8 sm:p-12 lg:col-span-6">
                             <div className="space-y-6">
                                 <div>
-                                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-1">
+                                    <h3 className="mb-1 text-sm font-black tracking-wider text-slate-900 uppercase">
                                         Accepted Networks & Express Wallets
                                     </h3>
-                                    <p className="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider font-extrabold">Secure Payment Integrations</p>
+                                    <p className="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase sm:text-xs">
+                                        Secure Payment Integrations
+                                    </p>
                                 </div>
 
                                 {/* Clean display of imported logo files without card background/canvas wrappers */}
                                 <div className="flex flex-wrap items-center gap-6 sm:gap-8">
-                                    {PAYMENT_METHODS.map((item, idx) => (
-                                        <div key={idx} className="group relative transition-transform hover:scale-110" title={item.name}>
+                                    {paymentMethods.map((item, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="group relative transition-transform hover:scale-110"
+                                            title={item.name}
+                                        >
                                             <img
                                                 src={item.src}
                                                 alt={item.name}
-                                                className="h-[32px] sm:h-[44px] lg:h-[50px] w-auto object-contain select-none"
+                                                className="h-[32px] w-auto object-contain select-none sm:h-[44px] lg:h-[50px]"
                                                 referrerPolicy="no-referrer"
                                             />
                                         </div>

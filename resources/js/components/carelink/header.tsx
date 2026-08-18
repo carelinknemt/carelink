@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { Phone, Menu, X, Ambulance, ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { COMPANY_INFO } from '@/data/carelink';
+import { useCompanyInfo } from '@/lib/cms';
 import { book } from '@/routes';
 
 const navItems = [
@@ -72,6 +72,8 @@ function pathToTab(path: string): string | null {
 
 export default function Header() {
     const { url } = usePage();
+    const company = useCompanyInfo();
+    const dispatchPhone = company.dispatch_phone ?? company.phone ?? '';
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [hideDispatchBar, setHideDispatchBar] = useState(false);
     const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(
@@ -142,14 +144,14 @@ export default function Header() {
             >
                 <div className="mx-auto flex max-w-7xl items-center justify-center">
                     <a
-                        href={`tel:${COMPANY_INFO.dispatchPhone.replace(/[^0-9+]/g, '')}`}
+                        href={`tel:${dispatchPhone.replace(/[^0-9+]/g, '')}`}
                         className="flex items-center gap-2 text-orange-50 transition-colors hover:text-white"
                     >
                         <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-white">
                             <Phone className="h-2.5 w-2.5" />
                         </div>
                         <span className="text-[11px] font-bold text-white sm:text-xs">
-                            {COMPANY_INFO.dispatchPhone}
+                            {dispatchPhone}
                         </span>
                         <span className="hidden text-[9px] tracking-wider text-orange-200 uppercase sm:inline sm:text-[10px]">
                             Dependable Dispatch
@@ -167,8 +169,8 @@ export default function Header() {
                     className="group flex shrink-0 cursor-pointer items-center"
                 >
                     <img
-                        src={COMPANY_INFO.logoUrl}
-                        alt={COMPANY_INFO.name}
+                        src={company.logo_url}
+                        alt={company.name}
                         className="h-7 w-auto max-w-[115px] object-contain transition-transform group-hover:scale-105 min-[360px]:max-w-[135px] min-[380px]:h-8 min-[400px]:max-w-[170px] sm:h-11 sm:max-w-[280px] lg:mr-[80px] lg:-ml-[40px]"
                         referrerPolicy="no-referrer"
                     />

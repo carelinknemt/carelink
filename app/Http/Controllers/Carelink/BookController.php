@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Carelink;
 
+use App\Cms\BookingFee;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTripRequestRequest;
 use App\Mail\TripRequestPaymentConfirmed;
@@ -20,9 +21,11 @@ use Stripe\Exception\ApiErrorException;
 
 class BookController extends Controller
 {
-    public const BOOKING_FEE_AMOUNT = 3000;
-
-    private const BOOKING_FEE_LABEL = 'CareLink Booking Fee';
+    /**
+     * Backwards-compatible default for the booking fee; the live amount and
+     * label come from the booking_fee_settings CMS section via BookingFee.
+     */
+    public const BOOKING_FEE_AMOUNT = BookingFee::DEFAULT_AMOUNT_CENTS;
 
     public function index(Request $request): Response
     {
@@ -44,6 +47,7 @@ class BookController extends Controller
         return Inertia::render('book', [
             'services' => $this->servicesForBookPage(),
             'transport_rates' => $this->transportRatesForBookPage(),
+            'booking_fee' => $this->bookingFeeProp(),
             'booking' => $booking ? $this->bookingSummary($booking) : null,
         ]);
     }
@@ -67,6 +71,7 @@ class BookController extends Controller
             return Inertia::render('book', [
                 'services' => $this->servicesForBookPage(),
                 'transport_rates' => $this->transportRatesForBookPage(),
+                'booking_fee' => $this->bookingFeeProp(),
                 'booking' => $this->bookingSummary($tripRequest),
                 'checkout' => [
                     'url' => $checkout->url,
@@ -104,6 +109,7 @@ class BookController extends Controller
 
         return Inertia::render('bookings/track', [
             'booking' => $this->bookingSummary($tripRequest),
+            'booking_fee' => $this->bookingFeeProp(),
             'checkout_url' => $this->checkoutUrl($tripRequest),
         ]);
     }
@@ -195,9 +201,9 @@ class BookController extends Controller
             [
                 'price_data' => [
                     'currency' => config('cashier.currency', 'usd'),
-                    'unit_amount' => self::BOOKING_FEE_AMOUNT,
+                    'unit_amount' => BookingFee::amountInCents(),
                     'product_data' => [
-                        'name' => self::BOOKING_FEE_LABEL,
+                        'name' => BookingFee::label(),
                         'description' => "Non-refundable booking fee for trip request {$tripRequest->booking_number}",
                     ],
                 ],
@@ -283,7 +289,20 @@ class BookController extends Controller
 
     private function bookingFeeLabel(): string
     {
-        return '$'.number_format(self::BOOKING_FEE_AMOUNT / 100, 2);
+        return BookingFee::dollars();
+    }
+
+    /**
+     * @return array{amount_cents: int, amount_dollars: string, label: string, dollars: string}
+     */
+    private function bookingFeeProp(): array
+    {
+        return [
+            'amount_cents' => BookingFee::amountInCents(),
+            'amount_dollars' => BookingFee::amountInDollars(),
+            'label' => BookingFee::label(),
+            'dollars' => BookingFee::dollars(),
+        ];
     }
 
     private function generateBookingNumber(): string

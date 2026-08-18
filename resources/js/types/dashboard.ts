@@ -187,3 +187,72 @@ export type JobOpeningRecord = {
     active: boolean;
     applications_count: number;
 };
+
+export type CmsServiceRecord = {
+    id: number;
+    slug: string;
+    category: 'MEDICAL' | 'NON_MEDICAL' | 'SPECIALTY';
+    title: string;
+    short_description: string;
+    full_description: string | null;
+    benefits: string[];
+    image: string | null;
+    icon_name: string | null;
+    suitable_for: string[];
+    typical_destinations: string[];
+    base_rate: string | null;
+    mileage_rate: string | null;
+    sort_order: number;
+    active: boolean;
+};
+
+export type CmsFleetVehicleRecord = {
+    id: number;
+    name: string;
+    type: 'AMBULATORY' | 'WHEELCHAIR' | 'GURNEY' | 'TRANSIT_SHUTTLE';
+    capacity: string | null;
+    features: string[];
+    description: string | null;
+    image: string | null;
+    accessibility_specs: string[];
+    hourly_rate_est: string | null;
+    sort_order: number;
+    active: boolean;
+};
+
+export type CmsTeamMemberRecord = {
+    id: number;
+    name: string;
+    role: string | null;
+    title: string | null;
+    bio: string | null;
+    image: string | null;
+    certifications: string[];
+    experience_years: number | null;
+    sort_order: number;
+    active: boolean;
+};
+
+export type CmsFaqRecord = {
+    id: number;
+    question: string;
+    answer: string;
+    category: string | null;
+    sort_order: number;
+    active: boolean;
+};
+
+export type CmsBlogPostRecord = {
+    id: number;
+    title: string;
+    slug: string;
+    category: string | null;
+    read_time: string | null;
+    summary: string | null;
+    excerpt: string | null;
+    content: string | null;
+    author: string | null;
+    image: string | null;
+    published_at: string | null;
+    active: boolean;
+};

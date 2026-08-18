@@ -2,7 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { Building2, CheckCircle, Send } from 'lucide-react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
-import { COMPANY_INFO } from '@/data/carelink';
+import { useCompanyInfo, usePageHero } from '@/lib/cms';
 import { store as submitBusinessRequest } from '@/routes/business';
 
 interface BusinessProps {
@@ -13,6 +13,8 @@ const BUSINESS_DESCRIPTION =
     'Partner with CareLink Medical Transportation for dependable non-emergency medical transportation. Hospitals, clinics, and care facilities across Humboldt, Del Norte, Trinity, and Shasta counties work with us for wheelchair vans, dialysis rides, and facility transfers.';
 
 export default function Business({ business_types }: BusinessProps) {
+    const company = useCompanyInfo();
+    const hero = usePageHero('business');
     const form = useForm({
         company_name: '',
         contact_name: '',
@@ -52,8 +54,11 @@ export default function Business({ business_types }: BusinessProps) {
 
             {/* Hero Header */}
             <PageHero
-                title="Let's Get Your Patients Moving Together"
-                subtitle="CareLink provides dependable non-emergency medical transportation for hospitals, clinics, care facilities, and community organizations across Northern California. Tell us about your needs and our team will reach out."
+                title={hero.title || "Let's Get Your Patients Moving Together"}
+                subtitle={
+                    hero.subtitle ||
+                    'CareLink provides dependable non-emergency medical transportation for hospitals, clinics, care facilities, and community organizations across Northern California. Tell us about your needs and our team will reach out.'
+                }
             />
 
             <div className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-12">
@@ -69,10 +74,10 @@ export default function Business({ business_types }: BusinessProps) {
                             we'll be in touch to design a transportation plan
                             that fits. You can also reach us directly at{' '}
                             <a
-                                href={`tel:${COMPANY_INFO.dispatchPhone.replace(/[^0-9+]/g, '')}`}
+                                href={`tel:${(company.dispatch_phone ?? '').replace(/[^0-9+]/g, '')}`}
                                 className="font-bold text-[#004B87] hover:underline"
                             >
-                                {COMPANY_INFO.dispatchPhone}
+                                {company.dispatch_phone}
                             </a>
                             .
                         </p>
@@ -211,10 +216,7 @@ export default function Business({ business_types }: BusinessProps) {
                                                 Select an organization type…
                                             </option>
                                             {business_types.map((type) => (
-                                                <option
-                                                    key={type}
-                                                    value={type}
-                                                >
+                                                <option key={type} value={type}>
                                                     {type}
                                                 </option>
                                             ))}
@@ -235,7 +237,10 @@ export default function Business({ business_types }: BusinessProps) {
                                         <input
                                             type="number"
                                             min="0"
-                                            value={form.data.estimated_monthly_trips}
+                                            value={
+                                                form.data
+                                                    .estimated_monthly_trips
+                                            }
                                             onChange={(e) =>
                                                 form.setData(
                                                     'estimated_monthly_trips',
@@ -245,9 +250,13 @@ export default function Business({ business_types }: BusinessProps) {
                                             className={inputClass}
                                             placeholder="e.g. 120"
                                         />
-                                        {form.errors.estimated_monthly_trips && (
+                                        {form.errors
+                                            .estimated_monthly_trips && (
                                             <p className="text-xs font-semibold text-red-600">
-                                                {form.errors.estimated_monthly_trips}
+                                                {
+                                                    form.errors
+                                                        .estimated_monthly_trips
+                                                }
                                             </p>
                                         )}
                                     </div>

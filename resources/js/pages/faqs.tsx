@@ -9,7 +9,7 @@ import {
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
-import { COMPANY_INFO } from '@/data/carelink';
+import { useCompanyInfo, usePageHero } from '@/lib/cms';
 import type { FaqItem } from '@/types/carelink';
 
 interface FaqsProps {
@@ -20,6 +20,8 @@ const FAQS_DESCRIPTION =
     'Answers about CareLink NEMT: Medi-Cal and insurance billing, wheelchair van reservations, dispatch hours, service areas in Humboldt, Del Norte, Trinity, and Shasta counties, and facility partnerships. Contact us at (707) 854-9350.';
 
 export default function Faqs({ faqs }: FaqsProps) {
+    const company = useCompanyInfo();
+    const hero = usePageHero('faq');
     const [openIndex, setOpenIndex] = useState<number | null>(0);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -93,12 +95,14 @@ export default function Faqs({ faqs }: FaqsProps) {
             />
 
             <PageHero
-                title="Carelink Help & Advisory Center"
-                subtitle="Clear answers regarding Medi-Cal coverage, wheelchair ramp assistance, hospital discharge dispatch times, and group transit shuttle rides."
+                title={hero.title || 'Carelink Help & Advisory Center'}
+                subtitle={
+                    hero.subtitle ||
+                    'Clear answers regarding Medi-Cal coverage, wheelchair ramp assistance, hospital discharge dispatch times, and group transit shuttle rides.'
+                }
             />
 
             <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-12">
-
                 {/* Search & Category Filter Bar */}
                 <div className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div className="relative">
@@ -285,11 +289,11 @@ export default function Faqs({ faqs }: FaqsProps) {
                     </div>
                     <div className="flex gap-4">
                         <a
-                            href={`tel:${COMPANY_INFO.dispatchPhone}`}
+                            href={`tel:${company.dispatch_phone ?? ''}`}
                             className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-xs font-black text-[#004B87] shadow transition-colors hover:bg-orange-50"
                         >
                             <PhoneCall className="h-4 w-4 text-[#E64A19]" />
-                            <span>Call {COMPANY_INFO.dispatchPhone}</span>
+                            <span>Call {company.dispatch_phone}</span>
                         </a>
                     </div>
                 </div>

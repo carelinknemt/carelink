@@ -2,6 +2,7 @@ import { Calendar, Clock, User, ArrowRight, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
+import { usePageHero } from '@/lib/cms';
 import type { BlogPost } from '@/types/carelink';
 
 interface BlogProps {
@@ -12,6 +13,7 @@ const BLOG_DESCRIPTION =
     'Educational NEMT articles on securing Medi-Cal transportation vouchers, organizing dialysis rides, wheelchair care, and hospital discharge efficiency across Humboldt, Del Norte, Trinity, and Shasta counties.';
 
 export default function Blog({ posts }: BlogProps) {
+    const hero = usePageHero('blog');
     const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -71,8 +73,11 @@ export default function Blog({ posts }: BlogProps) {
             />
 
             <PageHero
-                title="NEMT Insights & Healthcare Guides"
-                subtitle="Educational articles on securing Medi-Cal transportation vouchers, organizing dialysis rides, and hospital discharge efficiency across Humboldt, Del Norte, Trinity, and Shasta counties."
+                title={hero.title || 'NEMT Insights & Healthcare Guides'}
+                subtitle={
+                    hero.subtitle ||
+                    'Educational articles on securing Medi-Cal transportation vouchers, organizing dialysis rides, and hospital discharge efficiency across Humboldt, Del Norte, Trinity, and Shasta counties.'
+                }
             />
 
             <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-12">

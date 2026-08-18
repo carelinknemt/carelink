@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import { useEffect } from 'react';
 import AccessibilityWidget from '@/components/carelink/accessibility-widget';
-import { COMPANY_INFO } from '@/data/carelink';
+import { useCompanyInfo } from '@/lib/cms';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -10,6 +10,7 @@ export default function AuthSimpleLayout({
     title,
     description,
 }: AuthLayoutProps) {
+    const company = useCompanyInfo();
     useEffect(() => {
         document.documentElement.classList.remove('dark');
         document.documentElement.style.colorScheme = 'light';
@@ -26,8 +27,8 @@ export default function AuthSimpleLayout({
                                 className="flex flex-col items-center gap-2"
                             >
                                 <img
-                                    src={COMPANY_INFO.logoUrl}
-                                    alt={COMPANY_INFO.name}
+                                    src={company.logo_url}
+                                    alt={company.name}
                                     className="h-12 w-auto max-w-[200px] object-contain"
                                     referrerPolicy="no-referrer"
                                 />

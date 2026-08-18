@@ -9,14 +9,15 @@ import ServicesModal from '@/components/carelink/services-modal';
 import SmileThatShine from '@/components/carelink/smile-that-shine';
 import SpecializedTeam from '@/components/carelink/specialized-team';
 import StripePartnershipSpotlight from '@/components/carelink/stripe-partnership-spotlight';
-import { COMPANY_INFO, DISPATCH_HOURS } from '@/data/carelink';
+import { useCms, useCompanyInfo } from '@/lib/cms';
+import type { DispatchHours } from '@/lib/cms';
 import type { TransportService } from '@/types/carelink';
 
 interface HomeProps {
     services: TransportService[];
 }
 
-const HOME_DESCRIPTION =
+const FALLBACK_HOME_DESCRIPTION =
     'CareLink Medical Transportation LLC provides compassionate non-emergency medical transportation (NEMT) across Humboldt, Del Norte, Trinity, and Shasta counties. ADA wheelchair vans, dialysis rides, hospital discharges, and curb-to-curb support. Call (707) 854-9350.';
 
 function to24Hour(expr: string): string {
@@ -42,6 +43,12 @@ function to24Hour(expr: string): string {
 }
 
 export default function Home({ services }: HomeProps) {
+    const cms = useCms();
+    const company = useCompanyInfo();
+    const hours = (cms.dispatch_hours?.days ?? []) as DispatchHours[];
+    const homeDescription =
+        (cms.company_info?.home_description as string) ||
+        FALLBACK_HOME_DESCRIPTION;
     const [selectedService, setSelectedService] =
         useState<TransportService | null>(null);
     const [servicesModalOpen, setServicesModalOpen] = useState(false);
@@ -55,7 +62,7 @@ export default function Home({ services }: HomeProps) {
         <div>
             <AppHead
                 title="Non-Emergency Medical Transportation (NEMT) in Northern California"
-                description={HOME_DESCRIPTION}
+                description={homeDescription}
                 keywords={[
                     'NEMT',
                     'non-emergency medical transportation',
@@ -74,11 +81,11 @@ export default function Home({ services }: HomeProps) {
                     '@context': 'https://schema.org',
                     '@type': 'MedicalBusiness',
                     '@id': `${window.location.origin}/#organization`,
-                    name: COMPANY_INFO.name,
-                    description: HOME_DESCRIPTION,
+                    name: company.name,
+                    description: homeDescription,
                     url: window.location.origin,
-                    telephone: COMPANY_INFO.phone,
-                    email: COMPANY_INFO.email,
+                    telephone: company.phone,
+                    email: company.email,
                     image: `${window.location.origin}/images/Img-Carelink-hero.webp`,
                     priceRange: '$$',
                     address: {
@@ -89,17 +96,15 @@ export default function Home({ services }: HomeProps) {
                         postalCode: '95503',
                         addressCountry: 'US',
                     },
-                    areaServed: COMPANY_INFO.counties.map(
+                    areaServed: (company.counties ?? []).map(
                         (county) => `${county} County, California`,
                     ),
-                    openingHoursSpecification: DISPATCH_HOURS.map(
-                        (schedule) => ({
-                            '@type': 'OpeningHoursSpecification',
-                            dayOfWeek: schedule.day,
-                            opens: to24Hour(schedule.hours.split('-')[0]),
-                            closes: to24Hour(schedule.hours.split('-')[1]),
-                        }),
-                    ),
+                    openingHoursSpecification: hours.map((schedule) => ({
+                        '@type': 'OpeningHoursSpecification',
+                        dayOfWeek: schedule.day,
+                        opens: to24Hour(schedule.hours.split('-')[0]),
+                        closes: to24Hour(schedule.hours.split('-')[1]),
+                    })),
                 }}
             />
 
@@ -126,7 +131,6 @@ export default function Home({ services }: HomeProps) {
 
             {/* Stripe Payment Spotlight */}
             <StripePartnershipSpotlight />
-
 
             {/* Contact & Hours */}
             <ContactAndHours />

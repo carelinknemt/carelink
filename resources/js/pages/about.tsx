@@ -1,22 +1,29 @@
 import { Award, ShieldCheck, Building2, User } from 'lucide-react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
-import { COMPANY_INFO } from '@/data/carelink';
+import { useCompanyInfo, useCms, usePageHero } from '@/lib/cms';
 import type { TeamMember } from '@/types/carelink';
 
 interface AboutProps {
     team: TeamMember[];
 }
 
-const ABOUT_DESCRIPTION =
+const FALLBACK_ABOUT_DESCRIPTION =
     'CareLink Medical Transportation LLC is a family-owned NEMT provider headquartered in Eureka, California, delivering dignified, compassionate, and punctual non-emergency medical transportation across Humboldt, Del Norte, Trinity, and Shasta counties.';
 
 export default function About({ team }: AboutProps) {
+    const cms = useCms();
+    const company = useCompanyInfo();
+    const hero = usePageHero('about');
+    const aboutDescription =
+        (cms.company_info?.about_description as string) ||
+        FALLBACK_ABOUT_DESCRIPTION;
+
     return (
         <div className="min-h-screen bg-slate-50 pb-16">
             <AppHead
                 title="About Carelink Medical Transportation"
-                description={ABOUT_DESCRIPTION}
+                description={aboutDescription}
                 keywords={[
                     'about CareLink',
                     'CareLink Medical Transportation LLC',
@@ -30,11 +37,11 @@ export default function About({ team }: AboutProps) {
                 jsonLd={{
                     '@context': 'https://schema.org',
                     '@type': 'Organization',
-                    name: COMPANY_INFO.name,
-                    description: ABOUT_DESCRIPTION,
+                    name: company.name,
+                    description: aboutDescription,
                     url: window.location.origin,
-                    telephone: COMPANY_INFO.phone,
-                    email: COMPANY_INFO.email,
+                    telephone: company.phone,
+                    email: company.email,
                     address: {
                         '@type': 'PostalAddress',
                         streetAddress: '3857 Walnut Drive, Suite B',
@@ -47,12 +54,16 @@ export default function About({ team }: AboutProps) {
             />
 
             <PageHero
-                title="About Carelink Medical Transportation LLC"
-                subtitle="Headquartered in Eureka, California. Family Owned to provide dignified, compassionate, and punctual non-emergency medical transportation across Humboldt, Del Norte, Trinity, and Shasta counties."
+                title={
+                    hero.title || 'About Carelink Medical Transportation LLC'
+                }
+                subtitle={
+                    hero.subtitle ||
+                    'Headquartered in Eureka, California. Family Owned to provide dignified, compassionate, and punctual non-emergency medical transportation across Humboldt, Del Norte, Trinity, and Shasta counties.'
+                }
             />
 
             <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-12">
-
                 {/* Story & Vision Section */}
                 <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
                     <div className="space-y-6 lg:col-span-6">
@@ -120,7 +131,7 @@ export default function About({ team }: AboutProps) {
                                     Carelink Headquarters & Fleet Garage
                                 </p>
                                 <p className="text-lg font-black">
-                                    {COMPANY_INFO.address}
+                                    {company.address}
                                 </p>
                             </div>
                         </div>

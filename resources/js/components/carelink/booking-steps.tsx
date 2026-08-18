@@ -1,118 +1,97 @@
-import { Banknote, Car, CreditCard, Flag, Headset, MapPin, Radar, Receipt, Repeat, RotateCcw, Route, ShieldCheck } from 'lucide-react';
+import { useBookingFee, useCms, interpolateCmsText } from '@/lib/cms';
+import type { BookingStep } from '@/lib/cms';
 
-interface BookingStep {
-    number: number;
-    title: string;
-    tagline: string;
-    icon: typeof MapPin;
-    points: { icon: typeof MapPin; text: string }[];
-}
-const BOOKING_STEPS: BookingStep[] = [
-    {
-        number: 1,
-        title: 'Request Pickup',
-        tagline: 'Tell us where, when, and who.',
-        icon: MapPin,
-        points: [
-            { icon: Repeat, text: 'Round-trip by default; return leg removable anytime.' },
-            { icon: Car, text: 'Wheelchair van or sedan matched to mobility needs.' },
-            { icon: CreditCard, text: 'Passenger, payer & institutional billing details up front.' },
-        ],
-    },
-    {
-        number: 2,
-        title: 'Confirm',
-        tagline: 'We lock the slot before you pay.',
-        icon: ShieldCheck,
-        points: [
-            { icon: Radar, text: 'Live availability check: available, full, or uncertain.' },
-            { icon: Headset, text: 'Uncertain? Dispatch confirms manually; never blocked.' },
-            { icon: Banknote, text: '$30 fee locks the ride; waived & invoiced for B2B clients.' },
-        ],
-    },
-    {
-        number: 3,
-        title: 'Complete the Ride',
-        tagline: 'Ride out. Pay for what was driven.',
-        icon: Flag,
-        points: [
-            { icon: Receipt, text: 'Final charge: base fare + actual billable mileage.' },
-            { icon: Route, text: 'Only the $30 fee up front; the ride is billed after.' },
-            { icon: RotateCcw, text: 'Cancel 24+ hrs: full refund · later: $30 · dispatch cancels: auto-refund.' },
-        ],
-    },
-];
-
-function StepMarker({ step }: { step: BookingStep }) {
-    const Icon = step.icon;
-
+function StepCard({
+    step,
+    feePlaceholder,
+}: {
+    step: BookingStep;
+    feePlaceholder: string;
+}) {
     return (
-        <div className="relative flex h-10 w-10 lg:h-16 lg:w-16 rotate-45 items-center justify-center rounded-lg lg:rounded-2xl bg-gradient-to-br from-[#E64A19] to-[#b83710] shadow-lg shadow-orange-950/50 ring-2 lg:ring-4 ring-orange-400/20">
-            <div className="-rotate-45">
-                <Icon className="h-4 w-4 lg:h-6 lg:w-6 text-white" />
-            </div>
-        </div>
-    );
-}
-
-function StepCard({ step }: { step: BookingStep }) {
-    return (
-        <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm shadow-xl">
-            <span className="pointer-events-none absolute -top-3 right-3 text-7xl font-black text-white/5 select-none">{step.number}</span>
+        <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-sm">
+            <span className="pointer-events-none absolute -top-3 right-3 text-7xl font-black text-white/5 select-none">
+                {step.number}
+            </span>
 
             <div>
-                <span className="text-[10px] font-black tracking-widest text-orange-400 uppercase">Step {step.number}</span>
-                <h3 className="mt-1 text-lg font-black text-white tracking-tight">{step.title}</h3>
-                <p className="text-[11px] text-cyan-200/70 font-medium">{step.tagline}</p>
+                <span className="text-[10px] font-black tracking-widest text-orange-400 uppercase">
+                    Step {step.number}
+                </span>
+                <h3 className="mt-1 text-lg font-black tracking-tight text-white">
+                    {step.title}
+                </h3>
+                <p className="text-[11px] font-medium text-cyan-200/70">
+                    {step.tagline}
+                </p>
             </div>
 
             <ul className="mt-5 flex-1 space-y-3">
-                {step.points.map((point) => {
-                    const PointIcon = point.icon;
-
-                    return (
-                        <li key={point.text} className="flex items-start gap-2.5 text-xs text-slate-200/90 leading-relaxed">
-                            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-orange-400/15 text-orange-400 border border-orange-400/20">
-                                <PointIcon className="h-3.5 w-3.5" />
-                            </span>
-                            <span>{point.text}</span>
-                        </li>
-                    );
-                })}
+                {(step.points ?? []).map((point) => (
+                    <li
+                        key={point}
+                        className="flex items-start gap-2.5 text-xs leading-relaxed text-slate-200/90"
+                    >
+                        <span className="mt-0.5 block h-1.5 w-1.5 shrink-0 rounded-full bg-orange-400" />
+                        <span>
+                            {interpolateCmsText(point, { fee: feePlaceholder })}
+                        </span>
+                    </li>
+                ))}
             </ul>
         </div>
     );
 }
 
 export default function BookingSteps() {
+    const cms = useCms();
+    const fee = useBookingFee();
+    const steps = (cms.booking_steps?.steps ?? []) as BookingStep[];
+
+    if (steps.length === 0) {
+        return null;
+    }
+
     return (
         <section className="relative overflow-hidden bg-gradient-to-b from-[#013a6b] via-[#004B87] to-[#013a6b] py-20 text-white">
             {/* Decorative glows */}
             <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[#E64A19]/15 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl" />
+            <div className="pointer-events-none absolute -right-32 -bottom-32 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl" />
 
             <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-12">
                 {/* Header */}
                 <div className="mb-16 text-center">
-                    <h2 className="text-3xl sm:text-4xl font-black tracking-tight">Three Stops. One Smooth Ride.</h2>
-                    <p className="mx-auto mt-2 text-xs sm:text-sm text-cyan-100/70 max-w-xl">
-                        From request to dispatch, a booking flow built on predictability, transparency, and care.
+                    <h2 className="text-3xl font-black tracking-tight sm:text-4xl">
+                        Three Stops. One Smooth Ride.
+                    </h2>
+                    <p className="mx-auto mt-2 max-w-xl text-xs text-cyan-100/70 sm:text-sm">
+                        From request to dispatch, a booking flow built on
+                        predictability, transparency, and care.
                     </p>
                 </div>
 
-                <div className="relative hidden lg:grid grid-cols-3 gap-10">
-                    {BOOKING_STEPS.map((step) => (
-                        <div key={step.number} className="relative flex flex-col pt-8">
-                            <StepCard step={step} />
+                <div className="relative hidden grid-cols-3 gap-10 lg:grid">
+                    {steps.map((step) => (
+                        <div
+                            key={step.number}
+                            className="relative flex flex-col pt-8"
+                        >
+                            <StepCard
+                                step={step}
+                                feePlaceholder={fee.dollars}
+                            />
                         </div>
                     ))}
                 </div>
 
-                <div className="lg:hidden space-y-5">
-                    {BOOKING_STEPS.map((step, i) => (
+                <div className="space-y-5 lg:hidden">
+                    {steps.map((step) => (
                         <div key={step.number} className="relative flex gap-4">
                             <div className="flex-1">
-                                <StepCard step={step} />
+                                <StepCard
+                                    step={step}
+                                    feePlaceholder={fee.dollars}
+                                />
                             </div>
                         </div>
                     ))}

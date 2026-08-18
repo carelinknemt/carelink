@@ -21,5 +21,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(CarelinkContentSeeder::class);
+        $this->call(CmsContentSeeder::class);
     }
 }

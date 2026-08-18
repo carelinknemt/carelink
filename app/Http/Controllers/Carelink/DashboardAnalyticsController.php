@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Carelink;
 
+use App\Cms\BookingFee;
 use App\Http\Controllers\Controller;
 use App\Models\TripRequest;
 use Carbon\CarbonInterface;
@@ -12,8 +13,6 @@ use Inertia\Response;
 
 class DashboardAnalyticsController extends Controller
 {
-    private const FEE = 30.0;
-
     private const DAY_OPTIONS = [7, 30, 90];
 
     public function index(Request $request): Response
@@ -67,7 +66,7 @@ class DashboardAnalyticsController extends Controller
 
         return [
             'bookings' => $bookings->count(),
-            'revenue' => round($paid->count() * self::FEE, 2),
+            'revenue' => round($paid->count() * BookingFee::amountInDollars(), 2),
             'avg_trip_price' => $prices->isEmpty() ? 0.0 : round($prices->avg('input_price'), 2),
             'completed_rate' => $bookings->isEmpty() ? 0.0 : round($completed / $bookings->count() * 100, 1),
         ];
@@ -89,7 +88,7 @@ class DashboardAnalyticsController extends Controller
             return [
                 'date' => $key,
                 'bookings' => $rows->count(),
-                'revenue' => round($rows->whereNotNull('paid_at')->count() * self::FEE, 2),
+                'revenue' => round($rows->whereNotNull('paid_at')->count() * BookingFee::amountInDollars(), 2),
             ];
         })->values()->all();
     }

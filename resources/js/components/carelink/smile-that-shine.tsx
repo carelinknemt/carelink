@@ -9,7 +9,8 @@ import {
     CarouselItem,
 } from '@/components/ui/carousel';
 import type { CarouselApi } from '@/components/ui/carousel';
-import { PATIENT_REVIEWS } from '@/data/carelink';
+import { useCms } from '@/lib/cms';
+import type { PatientReview } from '@/lib/cms';
 import { cn } from '@/lib/utils';
 
 function useSelectedSnap(api: CarouselApi | undefined): number {
@@ -32,6 +33,9 @@ function useSelectedSnap(api: CarouselApi | undefined): number {
 }
 
 export default function SmileThatShine() {
+    const cms = useCms();
+    const reviews = (cms.patient_reviews?.reviews ?? []) as PatientReview[];
+    const ratingStats = cms.google_rating_stats ?? {};
     const [api, setApi] = useState<CarouselApi>();
     const [autoplay] = useState(() =>
         Autoplay({
@@ -76,18 +80,22 @@ export default function SmileThatShine() {
                             <div>
                                 <div className="flex items-center gap-1.5">
                                     <span className="text-lg leading-none font-black text-slate-900">
-                                        4.9
+                                        {Number(
+                                            ratingStats.rating ?? 4.9,
+                                        ).toFixed(1)}
                                     </span>
                                     <div className="flex items-center text-orange-500">
-                                        <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
-                                        <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
-                                        <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
-                                        <Star className="h-4 w-4 fill-orange-400 text-orange-500" />
-                                        <Star className="h-4 w-4 fill-orange-400 text-orange-500 opacity-90" />
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star
+                                                key={i}
+                                                className={`h-4 w-4 ${i < Math.round(Number(ratingStats.rating ?? 4.9)) ? 'fill-orange-400 text-orange-500' : 'fill-orange-400 text-orange-500 opacity-40'}`}
+                                            />
+                                        ))}
                                     </div>
                                 </div>
                                 <p className="mt-0.5 text-[11px] font-medium text-slate-500">
-                                    Based on 11+ reviews on Google
+                                    {ratingStats.badge_label ??
+                                        `Based on ${Number(ratingStats.review_count ?? 11)}+ reviews on Google`}
                                 </p>
                             </div>
                         </div>
@@ -127,9 +135,9 @@ export default function SmileThatShine() {
                     className="py-2"
                 >
                     <CarouselContent className="-ml-6">
-                        {PATIENT_REVIEWS.map((review) => (
+                        {reviews.map((review, index) => (
                             <CarouselItem
-                                key={review.id}
+                                key={`${review.author}-${index}`}
                                 className="basis-full pl-6 sm:basis-1/2 lg:basis-1/3"
                             >
                                 <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#E64A19]/40 hover:shadow-xl">
@@ -181,7 +189,7 @@ export default function SmileThatShine() {
                                                     />
                                                 ) : (
                                                     <div
-                                                        className={`flex h-full w-full items-center justify-center text-xs font-bold ${review.avatarBg}`}
+                                                        className={`flex h-full w-full items-center justify-center text-xs font-bold ${review.avatar_bg}`}
                                                     >
                                                         {review.initials}
                                                     </div>

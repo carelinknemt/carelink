@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Carelink;
 
+use App\Cms\BookingFee;
 use App\Http\Controllers\Controller;
 use App\Models\TripRequest;
 use Illuminate\Database\Eloquent\Builder;
@@ -65,7 +66,7 @@ class DashboardPaymentController extends Controller
      */
     private function summary(): array
     {
-        $fee = BookController::BOOKING_FEE_AMOUNT / 100;
+        $fee = BookingFee::amountInDollars();
 
         $counts = TripRequest::query()
             ->whereNotNull('stripe_checkout_session_id')
@@ -99,7 +100,7 @@ class DashboardPaymentController extends Controller
             'trip_date' => $tripRequest->trip_date?->toDateString(),
             'input_price' => $tripRequest->input_price,
             'payment_status' => $tripRequest->payment_status,
-            'amount' => BookController::BOOKING_FEE_AMOUNT / 100,
+            'amount' => BookingFee::amountInDollars(),
             'paid_at' => $tripRequest->paid_at?->toIso8601String(),
             'refunded_at' => $tripRequest->refunded_at?->toIso8601String(),
             'stripe_checkout_session_id' => $tripRequest->stripe_checkout_session_id,

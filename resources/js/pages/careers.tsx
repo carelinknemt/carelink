@@ -3,6 +3,7 @@ import { CheckCircle, FileText, Send, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
+import { usePageHero } from '@/lib/cms';
 import { apply } from '@/routes/careers';
 import type { Career } from '@/types/carelink';
 
@@ -14,6 +15,7 @@ const CAREERS_DESCRIPTION =
     'Join CareLink Medical Transportation as a driver, dispatcher, or transport specialist. We are hiring compassionate, PASS-certified professionals across Humboldt, Del Norte, Trinity, and Shasta counties.';
 
 export default function Careers({ careers }: CareersProps) {
+    const hero = usePageHero('careers');
     const [selectedPosition, setSelectedPosition] = useState<string | null>(
         null,
     );
@@ -83,8 +85,11 @@ export default function Careers({ careers }: CareersProps) {
 
             {/* Hero Header */}
             <PageHero
-                title="Build a Career of Compassion and Purpose"
-                subtitle="Carelink Medical Transportation is looking for dedicated individuals to join our Northern California team. Help us bridge the healthcare gap in our community."
+                title={hero.title || 'Build a Career of Compassion and Purpose'}
+                subtitle={
+                    hero.subtitle ||
+                    'Carelink Medical Transportation is looking for dedicated individuals to join our Northern California team. Help us bridge the healthcare gap in our community.'
+                }
             />
 
             <div className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-12">
@@ -173,42 +178,40 @@ export default function Careers({ careers }: CareersProps) {
                                 className="mt-6 space-y-4"
                                 onSubmit={handleSubmit}
                             >
-<div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-slate-700">
-                                            Position
-                                        </label>
-                                        <select
-                                            value={
-                                                form.data.career_id === null
-                                                    ? ''
-                                                    : String(form.data.career_id)
-                                            }
-                                            onChange={(e) =>
-                                                handlePositionChange(
-                                                    e.target.value,
-                                                )
-                                            }
-                                            className={inputClass}
-                                            required
-                                        >
-                                            <option value="">
-                                                Select a position
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-slate-700">
+                                        Position
+                                    </label>
+                                    <select
+                                        value={
+                                            form.data.career_id === null
+                                                ? ''
+                                                : String(form.data.career_id)
+                                        }
+                                        onChange={(e) =>
+                                            handlePositionChange(e.target.value)
+                                        }
+                                        className={inputClass}
+                                        required
+                                    >
+                                        <option value="">
+                                            Select a position
+                                        </option>
+                                        {careers.map((career) => (
+                                            <option
+                                                key={career.id}
+                                                value={career.id}
+                                            >
+                                                {career.title}
                                             </option>
-                                            {careers.map((career) => (
-                                                <option
-                                                    key={career.id}
-                                                    value={career.id}
-                                                >
-                                                    {career.title}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {form.errors.career_id && (
-                                            <p className="text-xs font-semibold text-red-600">
-                                                {form.errors.career_id}
-                                            </p>
-                                        )}
-                                    </div>
+                                        ))}
+                                    </select>
+                                    {form.errors.career_id && (
+                                        <p className="text-xs font-semibold text-red-600">
+                                            {form.errors.career_id}
+                                        </p>
+                                    )}
+                                </div>
 
                                 {selectedPosition && (
                                     <div className="rounded-xl border border-[#004B87]/20 bg-[#004B87]/5 px-4 py-3 text-sm font-bold text-[#004B87]">
@@ -304,8 +307,8 @@ export default function Careers({ careers }: CareersProps) {
                                                     </span>
                                                 ) : (
                                                     <span className="block text-sm text-slate-500">
-                                                        PDF, DOC, or DOCX (max
-                                                        5 MB)
+                                                        PDF, DOC, or DOCX (max 5
+                                                        MB)
                                                     </span>
                                                 )}
                                             </span>
