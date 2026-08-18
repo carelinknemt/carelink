@@ -1,5 +1,6 @@
 import { CheckCircle2, Loader2, MapPin } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import MapPreview from '@/components/carelink/map-preview';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -92,6 +93,34 @@ function formatAddress(feature: GeocodingFeature): string {
     );
 }
 
+function dedupeFeatures(features: GeocodingFeature[]): GeocodingFeature[] {
+    const seenAddresses = new Set<string>();
+    const seenCoordinates = new Set<string>();
+    const unique: GeocodingFeature[] = [];
+
+    for (const feature of features) {
+        const addressKey = formatAddress(feature)
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, ' ');
+        const [longitude, latitude] = feature.geometry.coordinates;
+        const coordinateKey = `${latitude.toFixed(5)},${longitude.toFixed(5)}`;
+
+        if (
+            seenAddresses.has(addressKey) ||
+            seenCoordinates.has(coordinateKey)
+        ) {
+            continue;
+        }
+
+        seenAddresses.add(addressKey);
+        seenCoordinates.add(coordinateKey);
+        unique.push(feature);
+    }
+
+    return unique;
+}
+
 function mapboxFeatureToGeocodingFeature(
     feature: MapboxFeature,
 ): GeocodingFeature {
@@ -138,7 +167,10 @@ async function searchPhoton(
 
     const data: PhotonResponse = await response.json();
 
-    return (data.features ?? []).filter(isInCalifornia).slice(0, 5);
+    return dedupeFeatures((data.features ?? []).filter(isInCalifornia)).slice(
+        0,
+        5,
+    );
 }
 
 async function searchMapbox(
@@ -160,10 +192,11 @@ async function searchMapbox(
 
     const data: MapboxResponse = await response.json();
 
-    return (data.features ?? [])
-        .filter(isInCalifornia)
-        .map(mapboxFeatureToGeocodingFeature)
-        .slice(0, 5);
+    return dedupeFeatures(
+        (data.features ?? [])
+            .filter(isInCalifornia)
+            .map(mapboxFeatureToGeocodingFeature),
+    ).slice(0, 5);
 }
 
 type SearchStatus = 'idle' | 'searching' | 'ok' | 'empty' | 'error';
@@ -377,7 +410,7 @@ export default function LocationPicker({
                     </Button>
 
                     <Dialog open={checkOpen} onOpenChange={setCheckOpen}>
-                        <DialogContent className="bg-white sm:max-w-md dark:bg-white">
+                        <DialogContent className="bg-white sm:max-w-lg dark:bg-white">
                             <DialogHeader>
                                 <DialogTitle>Selected Location</DialogTitle>
                                 <DialogDescription>
@@ -398,6 +431,18 @@ export default function LocationPicker({
                                     {selectedLocation.longitude.toFixed(6)}
                                 </p>
                             </div>
+                            <MapPreview
+                                points={[
+                                    {
+                                        label: selectedLocation.address,
+                                        latitude: selectedLocation.latitude,
+                                        longitude: selectedLocation.longitude,
+                                        kind: 'location',
+                                    },
+                                ]}
+                                satellite
+                                height={280}
+                            />
                         </DialogContent>
                     </Dialog>
                 </>
