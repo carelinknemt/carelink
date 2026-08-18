@@ -20,7 +20,6 @@ class CmsServiceController extends Controller
      */
     public function index(Request $request): Response
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $services = Service::query()->ordered()->get()->map(fn (Service $service): array => $this->summary($service));
 
@@ -31,7 +30,6 @@ class CmsServiceController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate($this->rules());
 
@@ -47,7 +45,6 @@ class CmsServiceController extends Controller
 
     public function update(Request $request, Service $service): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate($this->rules());
 
@@ -63,7 +60,6 @@ class CmsServiceController extends Controller
 
     public function destroy(Request $request, Service $service): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $title = $service->title;
         $service->delete();
@@ -84,7 +80,6 @@ class CmsServiceController extends Controller
      */
     public function restore(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         (new ResetsCmsContent)->resetCollection('services');
 

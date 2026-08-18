@@ -54,10 +54,10 @@ test('collections restore to exactly the default row count', function () {
     expect(Service::count())->toBe(count(CollectionDefinitions::all()['services']));
 });
 
-test('restoring a collection is gated to admins', function () {
+test('any authenticated user can restore a collection', function () {
     $user = User::factory()->create();
 
-    $this->actingAs($user)->post(route('cms.faqs.restore'))->assertForbidden();
+    $this->actingAs($user)->post(route('cms.faqs.restore'))->assertRedirect();
 
     expect(Faq::count())->toBe(count(CollectionDefinitions::all()['faqs']));
 });

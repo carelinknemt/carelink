@@ -17,7 +17,6 @@ class CmsFaqController extends Controller
      */
     public function index(Request $request): Response
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $faqs = Faq::query()->ordered()->get()->map(fn (Faq $faq): array => $this->summary($faq));
 
@@ -28,7 +27,6 @@ class CmsFaqController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate($this->rules());
 
@@ -44,7 +42,6 @@ class CmsFaqController extends Controller
 
     public function update(Request $request, Faq $faq): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate($this->rules());
 
@@ -60,7 +57,6 @@ class CmsFaqController extends Controller
 
     public function destroy(Request $request, Faq $faq): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $faq->delete();
 
@@ -80,7 +76,6 @@ class CmsFaqController extends Controller
      */
     public function restore(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         (new ResetsCmsContent)->resetCollection('faqs');
 

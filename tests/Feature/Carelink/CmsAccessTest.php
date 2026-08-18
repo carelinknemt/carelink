@@ -11,20 +11,20 @@ test('guests are redirected from the CMS editor', function () {
     ])->assertRedirect(route('login'));
 });
 
-test('non-admins cannot access the CMS editor', function () {
+test('any authenticated user can access the CMS editor', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->get(route('cms.index'))
-        ->assertForbidden();
+        ->assertOk();
 
     $this->actingAs($user)
         ->put(route('cms.sections.update', 'company_info'), ['name' => 'Hacked'])
-        ->assertForbidden();
+        ->assertRedirect();
 
     $this->actingAs($user)
         ->post(route('cms.services.store'), ['title' => 'Handicap Van'])
-        ->assertForbidden();
+        ->assertRedirect();
 });
 
 test('admins can open the CMS section editor', function () {

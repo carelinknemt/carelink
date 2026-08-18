@@ -140,16 +140,16 @@ test('admins can restore a section back to its defaults', function () {
             ));
 });
 
-test('restoring a section is gated to admins', function () {
+test('any authenticated user can restore a section', function () {
     $this->seed(CmsContentSeeder::class);
 
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->post(route('cms.sections.restore', 'company_info'))
-        ->assertForbidden();
+        ->assertRedirect();
 
-    expect(ContentSection::where('slug', 'company_info')->exists())->toBeTrue();
+    expect(ContentSection::where('slug', 'company_info')->exists())->toBeFalse();
 });
 
 test('restoring an unknown section returns 404', function () {
@@ -175,12 +175,12 @@ test('admins can restore all content at once', function () {
             ->has('flash.toast'));
 });
 
-test('restoring all content is gated to admins', function () {
+test('any authenticated user can restore all content', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
         ->post(route('cms.sections.restore-all'))
-        ->assertForbidden();
+        ->assertRedirect();
 
-    expect(ContentSection::count())->toBeGreaterThan(0);
+    expect(ContentSection::count())->toBe(0);
 });

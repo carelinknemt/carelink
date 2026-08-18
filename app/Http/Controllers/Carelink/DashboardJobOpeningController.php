@@ -16,7 +16,6 @@ class DashboardJobOpeningController extends Controller
      */
     public function index(Request $request): Response
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $openings = Career::query()
             ->withCount('applications')
@@ -31,7 +30,6 @@ class DashboardJobOpeningController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $this->validated($request);
 
@@ -51,7 +49,6 @@ class DashboardJobOpeningController extends Controller
 
     public function update(Request $request, Career $career): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $this->validated($request);
 
@@ -70,7 +67,6 @@ class DashboardJobOpeningController extends Controller
 
     public function toggle(Request $request, Career $career): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $career->update([
             'active' => ! $career->active,
@@ -88,7 +84,6 @@ class DashboardJobOpeningController extends Controller
 
     public function destroy(Request $request, Career $career): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $title = $career->title;
         $career->delete();

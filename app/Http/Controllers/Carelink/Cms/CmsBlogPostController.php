@@ -17,7 +17,6 @@ class CmsBlogPostController extends Controller
      */
     public function index(Request $request): Response
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $posts = BlogPost::query()->ordered()->get()->map(fn (BlogPost $post): array => $this->summary($post));
 
@@ -28,7 +27,6 @@ class CmsBlogPostController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate($this->rules());
 
@@ -44,7 +42,6 @@ class CmsBlogPostController extends Controller
 
     public function update(Request $request, BlogPost $post): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate($this->rules());
 
@@ -60,7 +57,6 @@ class CmsBlogPostController extends Controller
 
     public function destroy(Request $request, BlogPost $post): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $title = $post->title;
         $post->delete();
@@ -81,7 +77,6 @@ class CmsBlogPostController extends Controller
      */
     public function restore(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         (new ResetsCmsContent)->resetCollection('blog');
 

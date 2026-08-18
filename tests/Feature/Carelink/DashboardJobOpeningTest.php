@@ -8,29 +8,29 @@ test('guests are redirected from the job openings dashboard', function () {
     $this->get(route('dashboard.job-openings'))->assertRedirect(route('login'));
 });
 
-test('non-admins cannot manage job openings', function () {
+test('any authenticated user can manage job openings', function () {
     $user = User::factory()->create();
     $career = Career::factory()->create();
 
     $this->actingAs($user)
         ->get(route('dashboard.job-openings'))
-        ->assertForbidden();
+        ->assertOk();
 
     $this->actingAs($user)
         ->post(route('dashboard.job-openings.store'), ['title' => 'Driver'])
-        ->assertForbidden();
+        ->assertRedirect();
 
     $this->actingAs($user)
         ->put(route('dashboard.job-openings.update', $career), ['title' => 'Driver'])
-        ->assertForbidden();
+        ->assertRedirect();
 
     $this->actingAs($user)
         ->post(route('dashboard.job-openings.toggle', $career))
-        ->assertForbidden();
+        ->assertRedirect();
 
     $this->actingAs($user)
         ->delete(route('dashboard.job-openings.destroy', $career))
-        ->assertForbidden();
+        ->assertRedirect();
 });
 
 test('admins can post a job opening', function () {

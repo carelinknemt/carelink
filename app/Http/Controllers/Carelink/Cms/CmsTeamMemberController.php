@@ -19,7 +19,6 @@ class CmsTeamMemberController extends Controller
      */
     public function index(Request $request): Response
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $members = TeamMember::query()->ordered()->get()->map(fn (TeamMember $member): array => $this->summary($member));
 
@@ -30,7 +29,6 @@ class CmsTeamMemberController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate($this->rules());
 
@@ -46,7 +44,6 @@ class CmsTeamMemberController extends Controller
 
     public function update(Request $request, TeamMember $member): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate($this->rules());
 
@@ -62,7 +59,6 @@ class CmsTeamMemberController extends Controller
 
     public function destroy(Request $request, TeamMember $member): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $name = $member->name;
         $member->delete();
@@ -83,7 +79,6 @@ class CmsTeamMemberController extends Controller
      */
     public function restore(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         (new ResetsCmsContent)->resetCollection('team');
 

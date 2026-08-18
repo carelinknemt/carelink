@@ -20,7 +20,7 @@ test('admins can upload an image and receive its public URL', function () {
     Storage::disk('public')->assertExists('cms/'.basename($response->json('url')));
 });
 
-test('non-admin users cannot upload images', function () {
+test('any authenticated user can upload images', function () {
     Storage::fake('public');
 
     $user = User::factory()->create();
@@ -29,9 +29,9 @@ test('non-admin users cannot upload images', function () {
         ->post(route('cms.images.store'), [
             'image' => UploadedFile::fake()->image('logo.png', 200, 100),
         ])
-        ->assertForbidden();
+        ->assertOk();
 
-    expect(Storage::disk('public')->allFiles('cms'))->toBeEmpty();
+    expect(Storage::disk('public')->allFiles('cms'))->not->toBeEmpty();
 });
 
 test('guests are redirected from the image upload endpoint', function () {

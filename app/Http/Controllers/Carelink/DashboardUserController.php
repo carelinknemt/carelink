@@ -22,7 +22,6 @@ class DashboardUserController extends Controller
      */
     public function index(Request $request): Response
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $users = User::query()
             ->when($request->filled('search'), function (Builder $query) use ($request): void {
@@ -53,7 +52,6 @@ class DashboardUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -92,7 +90,6 @@ class DashboardUserController extends Controller
      */
     public function toggleBan(Request $request, User $user): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         if ($user->id === $request->user()->id) {
             Inertia::flash('toast', [

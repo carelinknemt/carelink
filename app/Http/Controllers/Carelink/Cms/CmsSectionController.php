@@ -19,7 +19,6 @@ class CmsSectionController extends Controller
      */
     public function index(Request $request): Response
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $sections = collect(SectionDefinitions::all())
             ->map(function (array $definition, string $slug): array {
@@ -48,7 +47,6 @@ class CmsSectionController extends Controller
      */
     public function update(Request $request, string $section): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $definitions = SectionDefinitions::all();
 
@@ -85,7 +83,6 @@ class CmsSectionController extends Controller
      */
     public function restore(Request $request, string $section): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $definitions = SectionDefinitions::all();
 
@@ -106,7 +103,6 @@ class CmsSectionController extends Controller
      */
     public function restoreAll(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         (new ResetsCmsContent)->resetAll();
 

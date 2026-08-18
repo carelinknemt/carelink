@@ -16,7 +16,6 @@ class CmsImageController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate([
             'image' => ['required', 'image', 'max:4096'],

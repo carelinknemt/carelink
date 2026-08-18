@@ -25,7 +25,6 @@ class DashboardCareerApplicationController extends Controller
      */
     public function index(Request $request): Response
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $applications = CareerApplication::query()
             ->with('career:id,title')
@@ -60,7 +59,6 @@ class DashboardCareerApplicationController extends Controller
      */
     public function resume(Request $request, CareerApplication $application): StreamedResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         if (! $application->resume_path || ! Storage::disk('local')->exists($application->resume_path)) {
             abort(404);
@@ -74,7 +72,6 @@ class DashboardCareerApplicationController extends Controller
      */
     public function accept(Request $request, CareerApplication $application): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $position = $application->career?->title ?? 'the position';
 
@@ -96,7 +93,6 @@ class DashboardCareerApplicationController extends Controller
      */
     public function reject(Request $request, CareerApplication $application): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $position = $application->career?->title ?? 'the position';
 
@@ -118,7 +114,6 @@ class DashboardCareerApplicationController extends Controller
      */
     public function destroy(Request $request, CareerApplication $application): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $application->delete();
 

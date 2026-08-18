@@ -15,33 +15,33 @@ function actingAsAdmin(): User
     return $admin;
 }
 
-test('only admins can view the user management page', function () {
+test('any authenticated user can view the user management page', function () {
     $manager = User::factory()->create();
     $this->actingAs($manager);
 
-    $this->get(route('dashboard.users'))->assertForbidden();
+    $this->get(route('dashboard.users'))->assertOk();
 });
 
-test('only admins can add users', function () {
+test('any authenticated user can add users', function () {
     $manager = User::factory()->create();
     $this->actingAs($manager);
 
     $this->post(route('dashboard.users.store'), [
         'name' => 'Jane Doe',
         'email' => 'jane@example.com',
-    ])->assertForbidden();
+    ])->assertRedirect();
 
-    expect(User::where('email', 'jane@example.com')->exists())->toBeFalse();
+    expect(User::where('email', 'jane@example.com')->exists())->toBeTrue();
 });
 
-test('only admins can ban or unban users', function () {
+test('any authenticated user can ban or unban users', function () {
     $manager = User::factory()->create();
     $target = User::factory()->create();
     $this->actingAs($manager);
 
-    $this->post(route('dashboard.users.ban-toggle', $target))->assertForbidden();
+    $this->post(route('dashboard.users.ban-toggle', $target))->assertRedirect();
 
-    expect($target->fresh()->banned_at)->toBeNull();
+    expect($target->fresh()->banned_at)->not->toBeNull();
 });
 
 test('admins see the user list with an add action', function () {

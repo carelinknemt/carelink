@@ -12,7 +12,10 @@ test('guests are redirected from the applications dashboard', function () {
     $this->get(route('dashboard.applications'))->assertRedirect(route('login'));
 });
 
-test('non-admins cannot view, download, delete, accept, or reject applications', function () {
+test('any authenticated user can view, download, delete, accept, or reject applications', function () {
+    Storage::fake('local');
+    Storage::disk('local')->put('resumes/mine.pdf', 'pdf-bytes');
+
     $user = User::factory()->create();
     $career = Career::factory()->create();
     $application = CareerApplication::create([
@@ -26,11 +29,11 @@ test('non-admins cannot view, download, delete, accept, or reject applications',
         'resume_name' => 'mine.pdf',
     ]);
 
-    $this->actingAs($user)->get(route('dashboard.applications'))->assertForbidden();
-    $this->actingAs($user)->get(route('dashboard.applications.resume', $application))->assertForbidden();
-    $this->actingAs($user)->delete(route('dashboard.applications.destroy', $application))->assertForbidden();
-    $this->actingAs($user)->post(route('dashboard.applications.accept', $application))->assertForbidden();
-    $this->actingAs($user)->post(route('dashboard.applications.reject', $application))->assertForbidden();
+    $this->actingAs($user)->get(route('dashboard.applications'))->assertOk();
+    $this->actingAs($user)->get(route('dashboard.applications.resume', $application))->assertOk();
+    $this->actingAs($user)->post(route('dashboard.applications.accept', $application))->assertRedirect();
+    $this->actingAs($user)->post(route('dashboard.applications.reject', $application))->assertRedirect();
+    $this->actingAs($user)->delete(route('dashboard.applications.destroy', $application))->assertRedirect();
 });
 
 test('admins see every application and can filter by role', function () {

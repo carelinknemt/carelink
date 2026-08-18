@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     BarChart3,
     Briefcase,
@@ -31,7 +31,7 @@ import {
     payments,
     users,
 } from '@/routes/dashboard';
-import type { NavGroup, NavItem } from '@/types';
+import type { NavGroup } from '@/types';
 
 const navGroups: NavGroup[] = [
     {
@@ -105,18 +105,6 @@ const navGroups: NavGroup[] = [
 ];
 
 export function AppSidebar() {
-    const { auth } = usePage<{ auth: { user: { is_admin: boolean } | null } }>()
-        .props;
-
-    const visibleGroups: NavGroup[] = navGroups
-        .map((group) => ({
-            ...group,
-            items: group.items.filter(
-                (item: NavItem) => auth.user?.is_admin || !item.adminOnly,
-            ),
-        }))
-        .filter((group) => group.items.length > 0);
-
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -132,7 +120,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain groups={visibleGroups} />
+                <NavMain groups={navGroups} />
             </SidebarContent>
 
             <SidebarFooter>

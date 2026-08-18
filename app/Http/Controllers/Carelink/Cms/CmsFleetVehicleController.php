@@ -19,7 +19,6 @@ class CmsFleetVehicleController extends Controller
      */
     public function index(Request $request): Response
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $vehicles = FleetVehicle::query()->ordered()->get()->map(fn (FleetVehicle $vehicle): array => $this->summary($vehicle));
 
@@ -30,7 +29,6 @@ class CmsFleetVehicleController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate($this->rules());
 
@@ -46,7 +44,6 @@ class CmsFleetVehicleController extends Controller
 
     public function update(Request $request, FleetVehicle $vehicle): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $validated = $request->validate($this->rules());
 
@@ -62,7 +59,6 @@ class CmsFleetVehicleController extends Controller
 
     public function destroy(Request $request, FleetVehicle $vehicle): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         $name = $vehicle->name;
         $vehicle->delete();
@@ -83,7 +79,6 @@ class CmsFleetVehicleController extends Controller
      */
     public function restore(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->is_admin, 403);
 
         (new ResetsCmsContent)->resetCollection('fleet');
 
