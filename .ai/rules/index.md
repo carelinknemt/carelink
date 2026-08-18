@@ -17,5 +17,6 @@ Before planning or editing, find the row whose globs match the file's path and r
 | resources/js/pages/book.tsx, resources/js/pages/**, resources/js/pages/*.tsx | .ai/rules/pages.md |
 | app/Providers/** | .ai/rules/providers.md |
 | app/Http/Requests/StoreCareerApplicationRequest.php | .ai/rules/requests.md |
+| routes/web.php | .ai/rules/routes-2.md |
 | resources/js/routes/** | .ai/rules/routes.md |
 | database/seeders/** | .ai/rules/seeders.md |

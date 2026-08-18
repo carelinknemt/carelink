@@ -39,6 +39,8 @@ Route::post('/business-partners', [BusinessPartnerController::class, 'store'])->
 
 Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
 
+Route::redirect('/admin', '/login');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/analytics', [DashboardAnalyticsController::class, 'index'])->name('dashboard.analytics');

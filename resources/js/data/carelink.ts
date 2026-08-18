@@ -46,14 +46,14 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
     {
         id: 'slide-2',
-        title: 'Dialysis & Specialist Care',
+        title: 'Every Medical Ride Covered',
         subtitle: 'Serving Humboldt, Del Norte, Trinity, & Shasta counties.',
-        highlightText: 'Guaranteed On-Time Patient Rides',
+        highlightText: 'On-Time Rides for Every Appointment',
         bgImage: '/images/Carelink-hero1.webp',
         features: [
             {
-                title: 'Recurring Transfers',
-                description: 'Scheduled multi-week dialysis & therapy rides',
+                title: 'Recurring Rides',
+                description: 'Scheduled trips for ongoing medical appointments',
                 icon: 'ShieldCheck',
             },
             {

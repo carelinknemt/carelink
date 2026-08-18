@@ -26,6 +26,10 @@ test('the terms page renders with the public layout', function () {
         ->assertInertia(fn ($page) => $page->component('terms'));
 });
 
+test('the admin route redirects to the login page', function () {
+    $this->get('/admin')->assertRedirect(route('login'));
+});
+
 test('unknown pages render the public error page with the status code', function () {
     $this->get('/this-page-does-not-exist')
         ->assertNotFound()
