@@ -92,6 +92,23 @@ test('submitting a trip request charges the 30 dollar booking fee through stripe
         ->cancel_url->toContain('payment=cancelled');
 });
 
+test('an ambulatory trip request charges the 20 dollar booking fee through stripe checkout', function () use ($validPayload) {
+    Storage::fake('local');
+    $stripe = fakeStripeClient(new FakeStripeClient);
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'transport_type' => 'ambulatory',
+    ])->assertOk();
+
+    $lineItem = $stripe->checkout->sessions->created[0]['line_items'][0];
+
+    expect($lineItem['price_data'])
+        ->currency->toBe('usd')
+        ->unit_amount->toBe(2000)
+        ->product_data->name->toBe('CareLink Booking Fee');
+});
+
 test('a trip request is still created when the booking fee checkout fails', function () use ($validPayload) {
     Storage::fake('local');
     $stripe = fakeStripeClient(new FakeStripeClient);

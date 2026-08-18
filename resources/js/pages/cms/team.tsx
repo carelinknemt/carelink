@@ -34,6 +34,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import cmsRoutes from '@/routes/cms';
 import {
     destroy as destroyMember,
     restore as restoreMember,
@@ -487,3 +488,15 @@ function TeamFields({ form }: { form: ReturnType<typeof useForm<TeamForm>> }) {
         </>
     );
 }
+CmsTeam.layout = {
+    breadcrumbs: [
+        {
+            title: 'Content Sections',
+            href: cmsRoutes.index(),
+        },
+        {
+            title: 'Team',
+            href: cmsRoutes.team.index(),
+        },
+    ],
+};

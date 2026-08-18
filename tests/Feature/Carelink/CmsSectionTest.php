@@ -40,18 +40,25 @@ test('admins can update a text section', function () {
     ]);
 });
 
-test('admins can change the booking fee and BookingFee reflects it', function () {
+test('admins can change the booking fees and BookingFee reflects them', function () {
     expect(BookingFee::amountInCents())->toBe(3000);
+    expect(BookingFee::amountInCentsFor('ambulatory'))->toBe(2000);
+    expect(BookingFee::amountInCentsFor('wheelchair'))->toBe(3000);
 
     $admin = User::factory()->admin()->create();
 
     $this->actingAs($admin)->put(route('cms.sections.update', 'booking_fee_settings'), [
         'fee_amount_cents' => '4500',
+        'ambulatory_fee_amount_cents' => '2500',
         'label' => 'CareLink Booking Fee',
     ])->assertRedirect();
 
     expect(BookingFee::amountInCents())->toBe(4500);
     expect(BookingFee::amountInDollars())->toBe('45.00');
+    expect(BookingFee::amountInCentsFor('ambulatory'))->toBe(2500);
+    expect(BookingFee::amountInCentsFor('wheelchair'))->toBe(4500);
+    expect(BookingFee::dollarsFor('ambulatory'))->toBe('$25.00');
+    expect(BookingFee::dollarsFor('wheelchair'))->toBe('$45.00');
 });
 
 test('list fields are trimmed and empty lines dropped', function () {

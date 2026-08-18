@@ -13,7 +13,7 @@ interface BookingSummary {
     trip_date: string;
     pickup_address: string;
     dropoff_address: string;
-    input_price: string | number;
+    transport_type: string;
     status: string;
     payment_status: string;
     paid_at: string | null;
@@ -23,10 +23,18 @@ interface TrackPageProps {
     booking: BookingSummary;
     checkout_url: string | null;
     booking_fee?: {
-        amount_cents: number;
-        amount_dollars: string;
-        label: string;
-        dollars: string;
+        standard?: {
+            amount_cents: number;
+            amount_dollars: string;
+            label: string;
+            dollars: string;
+        };
+        ambulatory?: {
+            amount_cents: number;
+            amount_dollars: string;
+            label: string;
+            dollars: string;
+        };
     };
 }
 
@@ -50,7 +58,11 @@ export default function Track({
 }: TrackPageProps) {
     const company = useCompanyInfo();
     const hero = usePageHero('book');
-    const bookingFeeDollars = booking_fee?.dollars ?? '$30.00';
+    const bookingFee =
+        booking.transport_type === 'ambulatory'
+            ? booking_fee?.ambulatory
+            : booking_fee?.standard;
+    const bookingFeeDollars = bookingFee?.dollars ?? '$30.00';
     const [copied, setCopied] = useState(false);
     const paymentPaid = booking.payment_status === 'PAID';
 
@@ -169,16 +181,6 @@ export default function Track({
                             <dt className="shrink-0 text-slate-500">Dropoff</dt>
                             <dd className="text-right font-semibold text-slate-800">
                                 {booking.dropoff_address}
-                            </dd>
-                        </div>
-                        <div className="flex items-center justify-between py-3">
-                            <dt className="text-slate-500">
-                                Estimated Trip Price
-                            </dt>
-                            <dd className="font-semibold text-slate-800">
-                                {Number(booking.input_price) > 0
-                                    ? `$${Number(booking.input_price).toFixed(2)}`
-                                    : 'Confirm with dispatch'}
                             </dd>
                         </div>
                         <div className="flex items-center justify-between py-3">

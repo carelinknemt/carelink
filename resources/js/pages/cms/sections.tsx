@@ -26,6 +26,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { CmsField, CmsSectionRecord } from '@/lib/cms';
 import { cn } from '@/lib/utils';
+import cmsRoutes from '@/routes/cms';
 import {
     restore as restoreSection,
     restoreAll as restoreAllSections,
@@ -621,3 +622,11 @@ export default function CmsSections({ sections }: CmsSectionsProps) {
         </>
     );
 }
+CmsSections.layout = {
+    breadcrumbs: [
+        {
+            title: 'Content Sections',
+            href: cmsRoutes.index(),
+        },
+    ],
+};

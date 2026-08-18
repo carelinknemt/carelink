@@ -33,6 +33,7 @@ class DashboardAnalyticsController extends Controller
                 'pickup_time',
                 'status',
                 'service_type',
+                'transport_type',
                 'pickup_address',
                 'passenger_first_name',
                 'passenger_last_name',
@@ -66,7 +67,7 @@ class DashboardAnalyticsController extends Controller
 
         return [
             'bookings' => $bookings->count(),
-            'revenue' => round($paid->count() * BookingFee::amountInDollars(), 2),
+            'revenue' => round($paid->sum(fn (TripRequest $tripRequest): float => BookingFee::amountInCentsFor($tripRequest->transport_type) / 100), 2),
             'avg_trip_price' => $prices->isEmpty() ? 0.0 : round($prices->avg('input_price'), 2),
             'completed_rate' => $bookings->isEmpty() ? 0.0 : round($completed / $bookings->count() * 100, 1),
         ];
@@ -88,7 +89,7 @@ class DashboardAnalyticsController extends Controller
             return [
                 'date' => $key,
                 'bookings' => $rows->count(),
-                'revenue' => round($rows->whereNotNull('paid_at')->count() * BookingFee::amountInDollars(), 2),
+                'revenue' => round($rows->whereNotNull('paid_at')->sum(fn (TripRequest $tripRequest): float => BookingFee::amountInCentsFor($tripRequest->transport_type) / 100), 2),
             ];
         })->values()->all();
     }

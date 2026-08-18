@@ -98,7 +98,6 @@ test('the trip request form validates required fields', function () {
             'transport_type',
             'service_type',
             'trip_date',
-            'input_price',
             'pickup_address',
             'pickup_time',
             'dropoff_address',

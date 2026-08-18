@@ -46,7 +46,6 @@ class BookController extends Controller
 
         return Inertia::render('book', [
             'services' => $this->servicesForBookPage(),
-            'transport_rates' => $this->transportRatesForBookPage(),
             'booking_fee' => $this->bookingFeeProp(),
             'booking' => $booking ? $this->bookingSummary($booking) : null,
         ]);
@@ -70,7 +69,6 @@ class BookController extends Controller
 
             return Inertia::render('book', [
                 'services' => $this->servicesForBookPage(),
-                'transport_rates' => $this->transportRatesForBookPage(),
                 'booking_fee' => $this->bookingFeeProp(),
                 'booking' => $this->bookingSummary($tripRequest),
                 'checkout' => [
@@ -84,7 +82,7 @@ class BookController extends Controller
             Inertia::flash('booking', $this->bookingSummary($tripRequest));
             Inertia::flash('toast', [
                 'type' => 'warning',
-                'message' => "Trip request {$tripRequest->booking_number} submitted, but we could not process the {$this->bookingFeeLabel()} right now. Our team will contact you to arrange payment.",
+                'message' => "Trip request {$tripRequest->booking_number} submitted, but we could not process the ".BookingFee::dollarsFor($tripRequest->transport_type).' right now. Our team will contact you to arrange payment.',
             ]);
 
             return back();
@@ -146,30 +144,6 @@ class BookController extends Controller
     }
 
     /**
-     * Pricing rates keyed by the transport types offered on the book form,
-     * so the estimated fare matches the service the vehicle type provides:
-     * wheelchair transport rates for every wheelchair-compatible vehicle,
-     * ambulance sedan rates for ambulatory trips.
-     */
-    private function transportRatesForBookPage(): array
-    {
-        $byTitle = collect($this->servicesForBookPage());
-
-        $wheelchair = $byTitle->get('Wheelchair Transport');
-        $ambulatory = $byTitle->get('Ambulatory Sedan');
-
-        $rates = [];
-
-        foreach (['wheelchair', 'wheelchair xl', 'broda chair', 'geri chair'] as $type) {
-            $rates[$type] = $wheelchair;
-        }
-
-        $rates['ambulatory'] = $ambulatory;
-
-        return $rates;
-    }
-
-    /**
      * The checkout session URL for an unpaid booking, so the customer can
      * resume the payment later, or null when there is nothing to pay.
      */
@@ -201,7 +175,7 @@ class BookController extends Controller
             [
                 'price_data' => [
                     'currency' => config('cashier.currency', 'usd'),
-                    'unit_amount' => BookingFee::amountInCents(),
+                    'unit_amount' => BookingFee::amountInCentsFor($tripRequest->transport_type),
                     'product_data' => [
                         'name' => BookingFee::label(),
                         'description' => "Non-refundable booking fee for trip request {$tripRequest->booking_number}",
@@ -280,6 +254,7 @@ class BookController extends Controller
             'trip_date' => $tripRequest->trip_date->toDateString(),
             'pickup_address' => $tripRequest->pickup_address,
             'dropoff_address' => $tripRequest->dropoff_address,
+            'transport_type' => $tripRequest->transport_type,
             'input_price' => $tripRequest->input_price,
             'status' => $tripRequest->status,
             'payment_status' => $tripRequest->payment_status,
@@ -287,21 +262,31 @@ class BookController extends Controller
         ];
     }
 
-    private function bookingFeeLabel(): string
+    /**
+     * Fee amounts for the book form, keyed by transport type so the shown
+     * fee matches the selected vehicle: ambulatory trips pay the ambulatory
+     * fee, every other transport type pays the standard fee.
+     *
+     * @return array{standard: array{amount_cents: int, amount_dollars: string, label: string, dollars: string}, ambulatory: array{amount_cents: int, amount_dollars: string, label: string, dollars: string}}
+     */
+    private function bookingFeeProp(): array
     {
-        return BookingFee::dollars();
+        return [
+            'standard' => $this->feeProp(BookingFee::amountInCents()),
+            'ambulatory' => $this->feeProp(BookingFee::ambulatoryAmountInCents()),
+        ];
     }
 
     /**
      * @return array{amount_cents: int, amount_dollars: string, label: string, dollars: string}
      */
-    private function bookingFeeProp(): array
+    private function feeProp(int $amountCents): array
     {
         return [
-            'amount_cents' => BookingFee::amountInCents(),
-            'amount_dollars' => BookingFee::amountInDollars(),
+            'amount_cents' => $amountCents,
+            'amount_dollars' => number_format($amountCents / 100, 2),
             'label' => BookingFee::label(),
-            'dollars' => BookingFee::dollars(),
+            'dollars' => '$'.number_format($amountCents / 100, 2),
         ];
     }
 

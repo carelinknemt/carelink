@@ -13,18 +13,21 @@ test('payments page lists only paid checkout sessions by default', function () {
         'payment_status' => TripRequest::PAYMENT_STATUS_PAID,
         'paid_at' => now(),
         'refunded_at' => null,
+        'transport_type' => 'wheelchair',
     ]);
     TripRequest::factory()->create([
         'stripe_checkout_session_id' => 'cs_test_2',
         'payment_status' => TripRequest::PAYMENT_STATUS_PENDING,
         'paid_at' => null,
         'refunded_at' => null,
+        'transport_type' => 'wheelchair',
     ]);
     TripRequest::factory()->create([
         'stripe_checkout_session_id' => 'cs_test_3',
         'payment_status' => TripRequest::PAYMENT_STATUS_PAID,
         'paid_at' => now(),
         'refunded_at' => now(),
+        'transport_type' => 'wheelchair',
     ]);
     TripRequest::factory()->create(); // never reached checkout
 

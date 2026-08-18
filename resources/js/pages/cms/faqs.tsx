@@ -33,6 +33,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import cmsRoutes from '@/routes/cms';
 import {
     destroy as destroyFaq,
     restore as restoreFaq,
@@ -449,3 +450,15 @@ function FaqFields({ form }: { form: ReturnType<typeof useForm<FaqForm>> }) {
         </>
     );
 }
+CmsFaqs.layout = {
+    breadcrumbs: [
+        {
+            title: 'Content Sections',
+            href: cmsRoutes.index(),
+        },
+        {
+            title: 'FAQs',
+            href: cmsRoutes.faqs.index(),
+        },
+    ],
+};

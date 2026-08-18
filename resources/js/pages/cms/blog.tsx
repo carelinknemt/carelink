@@ -34,6 +34,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import cmsRoutes from '@/routes/cms';
 import {
     destroy as destroyPost,
     restore as restorePost,
@@ -517,3 +518,15 @@ function BlogFields({ form }: { form: ReturnType<typeof useForm<BlogForm>> }) {
         </>
     );
 }
+CmsBlog.layout = {
+    breadcrumbs: [
+        {
+            title: 'Content Sections',
+            href: cmsRoutes.index(),
+        },
+        {
+            title: 'Blog',
+            href: cmsRoutes.blog.index(),
+        },
+    ],
+};

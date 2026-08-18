@@ -232,23 +232,24 @@ interface OsrmRouteResponse {
     }>;
 }
 
+interface BookingFeeProp {
+    amount_cents: number;
+    amount_dollars: string;
+    label: string;
+    dollars: string;
+}
+
 interface BookPageProps extends PageProps {
     booking?: Record<string, unknown>;
     checkout?: { url: string; booking_number: string };
     services?: Record<string, ServiceRates>;
-    transport_rates?: Record<string, ServiceRates | null>;
     booking_fee?: {
-        amount_cents: number;
-        amount_dollars: string;
-        label: string;
-        dollars: string;
+        standard?: BookingFeeProp;
+        ambulatory?: BookingFeeProp;
     };
 }
 
 const MILES_PER_METER = 0.000621371;
-
-/** Miles covered by the base fare before per-mile charges apply. */
-const BASE_FARE_MILEAGE = 5;
 
 const OSRM_ENDPOINT = 'https://router.project-osrm.org/route/v1/driving';
 
@@ -267,11 +268,14 @@ export default function Book() {
     const [routeLoading, setRouteLoading] = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [agreedToFee, setAgreedToFee] = useState(false);
-    const { booking, transport_rates, booking_fee } =
-        usePage<BookPageProps>().props;
-    const bookingFeeDollars = booking_fee?.dollars ?? '$30.00';
+    const { booking, booking_fee } = usePage<BookPageProps>().props;
     const pageHero = usePageHero('book');
     const form = useForm<TripRequestFormData>(initialForm);
+    const bookingFee =
+        form.data.transport_type === 'ambulatory'
+            ? booking_fee?.ambulatory
+            : booking_fee?.standard;
+    const bookingFeeDollars = bookingFee?.dollars ?? '$30.00';
     const [pendingPayment, setPendingPayment] = useState<PendingPayment | null>(
         () => {
             try {
@@ -527,20 +531,6 @@ export default function Book() {
 
     const routeLoadingShown = hasRouteCoordinates && routeLoading;
 
-    const transportRates = form.data.transport_type
-        ? transport_rates?.[form.data.transport_type]
-        : null;
-
-    const estimatedPrice: number | null =
-        transportRates && distanceMiles !== null
-            ? Math.max(
-                  0,
-                  transportRates.base_rate +
-                      Math.max(0, distanceMiles - BASE_FARE_MILEAGE) *
-                          transportRates.mileage_rate,
-              )
-            : null;
-
     const validateStep = (stepId: number): boolean => {
         const errors: Errors = {};
 
@@ -601,11 +591,6 @@ export default function Book() {
                 return;
             }
         }
-
-        form.setData(
-            'input_price' as never,
-            (estimatedPrice ?? 0).toFixed(2) as never,
-        );
 
         form.post(store.url(), {
             onSuccess: (page) => {
@@ -715,6 +700,12 @@ export default function Book() {
 
     if (booking) {
         const paymentPaid = booking.payment_status === 'PAID';
+        const submittedBookingFee =
+            booking.transport_type === 'ambulatory'
+                ? booking_fee?.ambulatory
+                : booking_fee?.standard;
+        const submittedBookingFeeDollars =
+            submittedBookingFee?.dollars ?? '$30.00';
 
         return (
             <div className="bg-slate-50 px-4 py-10 sm:px-6 lg:px-12">
@@ -747,8 +738,8 @@ export default function Book() {
                             }`}
                         >
                             {paymentPaid
-                                ? `Booking fee of ${bookingFeeDollars} paid via Stripe.`
-                                : `Booking fee of ${bookingFeeDollars} is pending. Our team will contact you to arrange payment.`}
+                                ? `Booking fee of ${submittedBookingFeeDollars} paid via Stripe.`
+                                : `Booking fee of ${submittedBookingFeeDollars} is pending. Our team will contact you to arrange payment.`}
                         </div>
                         <dl className="mx-auto mt-8 max-w-xl divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white/60 px-6 py-2 text-left text-sm">
                             <div className="flex items-center justify-between py-3">
@@ -780,16 +771,6 @@ export default function Book() {
                                 </dd>
                             </div>
                             <div className="flex items-center justify-between py-3">
-                                <dt className="text-slate-500">
-                                    Estimated Trip Price
-                                </dt>
-                                <dd className="font-semibold text-slate-800">
-                                    {Number(booking.input_price) > 0
-                                        ? `$${Number(booking.input_price).toFixed(2)}`
-                                        : 'Confirm with dispatch'}
-                                </dd>
-                            </div>
-                            <div className="flex items-center justify-between py-3">
                                 <dt className="text-slate-500">Booking Fee</dt>
                                 <dd
                                     className={`font-semibold ${
@@ -798,7 +779,7 @@ export default function Book() {
                                             : 'text-amber-600'
                                     }`}
                                 >
-                                    {bookingFeeDollars} ·{' '}
+                                    {submittedBookingFeeDollars} ·{' '}
                                     {paymentPaid ? 'Paid' : 'Pending'}
                                 </dd>
                             </div>
@@ -1476,15 +1457,6 @@ export default function Book() {
                                             pre-scheduled.
                                         </p>
                                     </div>
-                                    <div className="grid gap-2">
-                                        <Label>Pricing</Label>
-                                        <p className="text-sm text-slate-600">
-                                            Your trip price is estimated
-                                            automatically from the pickup to
-                                            dropoff distance and will be
-                                            confirmed on the review step.
-                                        </p>
-                                    </div>
                                 </div>
                             </div>
                         </>
@@ -1555,16 +1527,6 @@ export default function Book() {
                                         <dd className="font-semibold text-slate-800">
                                             {distanceMiles !== null
                                                 ? `${distanceMiles.toFixed(1)} miles`
-                                                : '—'}
-                                        </dd>
-                                    </div>
-                                    <div>
-                                        <dt className="text-xs font-bold text-slate-400 uppercase">
-                                            Estimated Price
-                                        </dt>
-                                        <dd className="font-bold text-[#E64A19]">
-                                            {estimatedPrice !== null
-                                                ? `$${estimatedPrice.toFixed(2)}`
                                                 : '—'}
                                         </dd>
                                     </div>

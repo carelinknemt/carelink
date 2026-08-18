@@ -66,24 +66,25 @@ class DashboardPaymentController extends Controller
      */
     private function summary(): array
     {
-        $fee = BookingFee::amountInDollars();
-
-        $counts = TripRequest::query()
+        $rows = TripRequest::query()
             ->whereNotNull('stripe_checkout_session_id')
-            ->selectRaw('count(*) as total')
-            ->selectRaw("sum(case when payment_status = 'PAID' then 1 else 0 end) as paid")
-            ->selectRaw('sum(case when refunded_at is not null then 1 else 0 end) as refunded')
-            ->first();
+            ->get(['payment_status', 'refunded_at', 'transport_type']);
 
-        $total = (int) ($counts?->total ?? 0);
-        $paid = (int) ($counts?->paid ?? 0);
-        $refunded = (int) ($counts?->refunded ?? 0);
+        $total = $rows->count();
+        $paid = $rows->where('payment_status', TripRequest::PAYMENT_STATUS_PAID)->count();
+        $refunded = $rows->filter(fn (TripRequest $tripRequest): bool => $tripRequest->refunded_at !== null)->count();
+
+        $feeDollars = fn (TripRequest $tripRequest): float => BookingFee::amountInCentsFor($tripRequest->transport_type) / 100;
+
+        $collected = round($rows->filter(fn (TripRequest $tripRequest): bool => $tripRequest->payment_status === TripRequest::PAYMENT_STATUS_PAID && $tripRequest->refunded_at === null)->sum($feeDollars), 2);
+        $pending = round($rows->filter(fn (TripRequest $tripRequest): bool => $tripRequest->payment_status !== TripRequest::PAYMENT_STATUS_PAID)->sum($feeDollars), 2);
+        $refundedTotal = round($rows->filter(fn (TripRequest $tripRequest): bool => $tripRequest->refunded_at !== null)->sum($feeDollars), 2);
 
         return [
             'total_payments' => $total,
-            'collected' => max(0, $paid - $refunded) * $fee,
-            'pending' => ($total - $paid) * $fee,
-            'refunded' => $refunded * $fee,
+            'collected' => $collected,
+            'pending' => $pending,
+            'refunded' => $refundedTotal,
         ];
     }
 
@@ -100,7 +101,7 @@ class DashboardPaymentController extends Controller
             'trip_date' => $tripRequest->trip_date?->toDateString(),
             'input_price' => $tripRequest->input_price,
             'payment_status' => $tripRequest->payment_status,
-            'amount' => BookingFee::amountInDollars(),
+            'amount' => BookingFee::amountInDollarsFor($tripRequest->transport_type),
             'paid_at' => $tripRequest->paid_at?->toIso8601String(),
             'refunded_at' => $tripRequest->refunded_at?->toIso8601String(),
             'stripe_checkout_session_id' => $tripRequest->stripe_checkout_session_id,

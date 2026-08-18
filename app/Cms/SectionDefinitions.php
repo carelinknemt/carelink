@@ -311,13 +311,15 @@ class SectionDefinitions
             ],
             'booking_fee_settings' => [
                 'title' => 'Booking Fee Settings',
-                'description' => 'The non-refundable booking fee charged at Stripe checkout. Changing this updates checkout, the book form, and the booking summaries.',
+                'description' => 'The non-refundable booking fee charged at Stripe checkout. Ambulatory trips use the ambulatory fee; every other transport type uses the standard fee. Changing these updates checkout, the book form, and the booking summaries.',
                 'fields' => [
-                    ['key' => 'fee_amount_cents', 'label' => 'Fee amount (cents)', 'type' => 'number'],
+                    ['key' => 'fee_amount_cents', 'label' => 'Standard fee amount (cents)', 'type' => 'number'],
+                    ['key' => 'ambulatory_fee_amount_cents', 'label' => 'Ambulatory fee amount (cents)', 'type' => 'number'],
                     ['key' => 'label', 'label' => 'Checkout line item name', 'type' => 'text'],
                 ],
                 'defaults' => [
                     'fee_amount_cents' => 3000,
+                    'ambulatory_fee_amount_cents' => 2000,
                     'label' => 'CareLink Booking Fee',
                 ],
             ],

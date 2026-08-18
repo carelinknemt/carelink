@@ -54,6 +54,7 @@ test('the analytics page aggregates paid bookings over the selected window', fun
         'paid_at' => now()->subDays(2),
         'passenger_first_name' => 'Jane',
         'passenger_last_name' => 'Doe',
+        'transport_type' => 'wheelchair',
     ]);
 
     $pending = paidBooking([
@@ -65,6 +66,7 @@ test('the analytics page aggregates paid bookings over the selected window', fun
         'input_price' => 80,
         'passenger_first_name' => 'Jane',
         'passenger_last_name' => 'Doe',
+        'transport_type' => 'wheelchair',
     ]);
 
     $this->get(route('dashboard.analytics', ['days' => 7]))

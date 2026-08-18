@@ -26,7 +26,7 @@ class StoreTripRequestRequest extends FormRequest
             'service_type' => ['required', 'string', Rule::in(['curb-to-curb', 'door-to-door', 'door-through-door', 'person-to-person'])],
             'will_call' => ['sometimes', 'boolean'],
             'trip_date' => ['required', 'date', 'after_or_equal:today'],
-            'input_price' => ['required', 'numeric', 'min:0', 'max:100000'],
+            'input_price' => ['nullable', 'numeric', 'min:0', 'max:100000'],
             'pickup_address' => ['required', 'string', 'max:255'],
             'pickup_time' => ['required', 'string', 'max:32'],
             'dropoff_address' => ['required', 'string', 'max:255'],
