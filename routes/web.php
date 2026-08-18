@@ -9,6 +9,7 @@ use App\Http\Controllers\Carelink\CareersController;
 use App\Http\Controllers\Carelink\Cms\CmsBlogPostController;
 use App\Http\Controllers\Carelink\Cms\CmsFaqController;
 use App\Http\Controllers\Carelink\Cms\CmsFleetVehicleController;
+use App\Http\Controllers\Carelink\Cms\CmsImageController;
 use App\Http\Controllers\Carelink\Cms\CmsSectionController;
 use App\Http\Controllers\Carelink\Cms\CmsServiceController;
 use App\Http\Controllers\Carelink\Cms\CmsTeamMemberController;
@@ -78,6 +79,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('cms')->name('cms.')->group(function () {
         Route::get('/', [CmsSectionController::class, 'index'])->name('index');
         Route::put('/sections/{section}', [CmsSectionController::class, 'update'])->name('sections.update');
+        Route::post('/sections/{section}/restore', [CmsSectionController::class, 'restore'])->name('sections.restore');
+        Route::post('/sections/restore-all', [CmsSectionController::class, 'restoreAll'])->name('sections.restore-all');
+        Route::post('/images', [CmsImageController::class, 'store'])->name('images.store');
         Route::get('/services', [CmsServiceController::class, 'index'])->name('services.index');
         Route::post('/services', [CmsServiceController::class, 'store'])->name('services.store');
         Route::put('/services/{service}', [CmsServiceController::class, 'update'])->name('services.update');

@@ -78,6 +78,50 @@ class CmsSectionController extends Controller
     }
 
     /**
+     * Drop a section's stored content so every field falls back to its
+     * SectionDefinitions default (the row is deleted; contentForAll returns
+     * the code defaults for missing rows).
+     */
+    public function restore(Request $request, string $section): RedirectResponse
+    {
+        abort_unless($request->user()->is_admin, 403);
+
+        $definitions = SectionDefinitions::all();
+
+        abort_unless(isset($definitions[$section]), 404);
+
+        ContentSection::where('slug', $section)->delete();
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => "{$definitions[$section]['title']} was reset to its defaults.",
+        ]);
+
+        return back();
+    }
+
+    /**
+     * Restore every section at once: drop all stored content rows.
+     */
+    public function restoreAll(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->is_admin, 403);
+
+        $count = ContentSection::count();
+
+        if ($count > 0) {
+            ContentSection::query()->delete();
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'All website content was reset to its defaults.',
+        ]);
+
+        return back();
+    }
+
+    /**
      * @param  array<int, array<string, mixed>>  $fields
      * @return array<string, array<int, string>>
      */

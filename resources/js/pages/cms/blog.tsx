@@ -1,6 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { CircleCheck, CircleDot, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import CmsImageUploader from '@/components/cms/image-uploader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -461,16 +462,10 @@ function BlogFields({ form }: { form: ReturnType<typeof useForm<BlogForm>> }) {
                 )}
             </div>
             <div className="grid gap-1.5">
-                <Label htmlFor="blog-image">
-                    Image URL (paste a hosted image path)
-                </Label>
-                <Input
-                    id="blog-image"
+                <CmsImageUploader
                     value={form.data.image}
-                    onChange={(event) =>
-                        form.setData('image', event.target.value)
-                    }
-                    placeholder="/images/carelink_hero_van_1785061463464.jpg"
+                    onChange={(url) => form.setData('image', url)}
+                    label="Featured image"
                 />
                 {form.errors.image && (
                     <p className="text-xs text-destructive">

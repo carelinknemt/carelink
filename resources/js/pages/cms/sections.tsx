@@ -1,6 +1,7 @@
-import { Head, useForm } from '@inertiajs/react';
-import { CalendarClock, Pencil } from 'lucide-react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { CalendarClock, Pencil, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
+import CmsImageUploader from '@/components/cms/image-uploader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +26,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { CmsField, CmsSectionRecord } from '@/lib/cms';
 import { cn } from '@/lib/utils';
-import { update as updateSection } from '@/routes/cms/sections';
+import {
+    restore as restoreSection,
+    restoreAll as restoreAllSections,
+    update as updateSection,
+} from '@/routes/cms/sections';
 
 type SectionDraft = Record<string, string | boolean | Record<string, string>[]>;
 
@@ -163,6 +168,16 @@ function FieldEditor({
         );
     }
 
+    if (field.type === 'image') {
+        return (
+            <CmsImageUploader
+                value={String(value ?? '')}
+                onChange={(url) => onChange(url)}
+                label={field.label}
+            />
+        );
+    }
+
     if (field.type === 'table') {
         const rows = (value as Record<string, string>[]) ?? [];
         const updateRow = (index: number, colKey: string, cell: string) => {
@@ -187,7 +202,16 @@ function FieldEditor({
                                     <Label className="text-xs text-slate-500">
                                         {col.label}
                                     </Label>
-                                    {col.type === 'textarea' ? (
+                                    {col.type === 'image' ? (
+                                        <CmsImageUploader
+                                            compact
+                                            value={row[col.key] ?? ''}
+                                            onChange={(cell) =>
+                                                updateRow(index, col.key, cell)
+                                            }
+                                            label={col.label}
+                                        />
+                                    ) : col.type === 'textarea' ? (
                                         <Textarea
                                             rows={3}
                                             value={row[col.key] ?? ''}
@@ -381,6 +405,42 @@ function SectionEditorDialog({
 
 export default function CmsSections({ sections }: CmsSectionsProps) {
     const [editing, setEditing] = useState<CmsSectionRecord | null>(null);
+    const [restoring, setRestoring] = useState<CmsSectionRecord | null>(null);
+    const [restoreAllOpen, setRestoreAllOpen] = useState(false);
+    const [restoreAllProcessing, setRestoreAllProcessing] = useState(false);
+
+    const confirmRestore = (section: CmsSectionRecord) => {
+        setRestoring(section);
+    };
+
+    const performRestore = () => {
+        if (!restoring) {
+            return;
+        }
+
+        router.post(
+            restoreSection.url({ section: restoring.slug }),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => setRestoring(null),
+            },
+        );
+    };
+
+    const performRestoreAll = () => {
+        setRestoreAllProcessing(true);
+
+        router.post(
+            restoreAllSections.url(),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => setRestoreAllOpen(false),
+                onFinish: () => setRestoreAllProcessing(false),
+            },
+        );
+    };
 
     return (
         <>
@@ -399,6 +459,15 @@ export default function CmsSections({ sections }: CmsSectionsProps) {
                             site. Changes go live immediately.
                         </p>
                     </div>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setRestoreAllOpen(true)}
+                    >
+                        <RotateCcw className="size-3.5" />
+                        Restore all content
+                    </Button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -419,15 +488,28 @@ export default function CmsSections({ sections }: CmsSectionsProps) {
                                         {section.description}
                                     </CardDescription>
                                 </div>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setEditing(section)}
-                                >
-                                    <Pencil className="size-3.5" />
-                                    Edit
-                                </Button>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        title="Reset this section to its defaults"
+                                        disabled={!section.updated_at}
+                                        onClick={() => confirmRestore(section)}
+                                    >
+                                        <RotateCcw className="size-3.5" />
+                                        Restore
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setEditing(section)}
+                                    >
+                                        <Pencil className="size-3.5" />
+                                        Edit
+                                    </Button>
+                                </div>
                             </CardHeader>
                             <CardContent>
                                 {section.updated_at ? (
@@ -464,6 +546,78 @@ export default function CmsSections({ sections }: CmsSectionsProps) {
                     }}
                 />
             )}
+
+            {restoring && (
+                <Dialog
+                    open={restoring !== null}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setRestoring(null);
+                        }
+                    }}
+                >
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>
+                                Restore {restoring.title}?
+                            </DialogTitle>
+                            <DialogDescription>
+                                Replace the current content with the default
+                                version. This cannot be undone.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button type="button" variant="outline">
+                                    Cancel
+                                </Button>
+                            </DialogClose>
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                onClick={performRestore}
+                            >
+                                Restore defaults
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            )}
+
+            <Dialog
+                open={restoreAllOpen}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setRestoreAllOpen(false);
+                    }
+                }}
+            >
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Restore all content?</DialogTitle>
+                        <DialogDescription>
+                            Reset every section, service, team member, fleet
+                            vehicle, FAQ answer, and blog post back to the
+                            defaults. This cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">
+                                Cancel
+                            </Button>
+                        </DialogClose>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            disabled={restoreAllProcessing}
+                            onClick={performRestoreAll}
+                        >
+                            Restore everything
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

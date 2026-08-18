@@ -1,3 +1,4 @@
+import FlashToasts from '@/components/flash-toasts';
 import CmsSidebarLayoutTemplate from '@/layouts/cms/cms-sidebar-layout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -11,6 +12,7 @@ export default function CmsLayout({
     return (
         <CmsSidebarLayoutTemplate breadcrumbs={breadcrumbs}>
             {children}
+            <FlashToasts />
         </CmsSidebarLayoutTemplate>
     );
 }

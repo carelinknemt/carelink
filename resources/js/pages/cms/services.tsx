@@ -1,6 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { CircleCheck, CircleDot, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import CmsImageUploader from '@/components/cms/image-uploader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -484,16 +485,10 @@ function ServiceFields({
                 {field('sort_order', 'Display order', '1')}
             </div>
             <div className="grid gap-1.5">
-                <Label htmlFor="service-image">
-                    Image URL (paste a hosted image path)
-                </Label>
-                <Input
-                    id="service-image"
+                <CmsImageUploader
                     value={form.data.image}
-                    onChange={(event) =>
-                        form.setData('image', event.target.value)
-                    }
-                    placeholder="/images/wheelchair.webp"
+                    onChange={(url) => form.setData('image', url)}
+                    label="Service image"
                 />
                 {form.errors.image && (
                     <p className="text-xs text-destructive">

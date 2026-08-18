@@ -4,9 +4,11 @@ namespace App\Cms;
 
 /**
  * Schema definitions for every CMS-editable content section. The `fields`
- * drive the admin editor UI (text, textarea, number, switch, list, table),
- * and the `defaults` are both the seed values and the site-wide fallback
- * when a section row is missing. Field keys are snake_case.
+ * drive the admin editor UI (text, textarea, number, switch, list, image,
+ * table), and the `defaults` are both the seed values and the site-wide
+ * fallback when a section row is missing. Field keys are snake_case.
+ * Image fields store a URL (site path or /storage/... upload), so they
+ * validate like text.
  *
  * Public pages consume these via ContentSection::contentForAll(), shared
  * with every Inertia response under the `cms` prop.
@@ -20,9 +22,9 @@ class SectionDefinitions
      *     fields: array<int, array{
      *         key: string,
      *         label: string,
-     *         type: 'text'|'textarea'|'number'|'switch'|'list'|'table',
+     *         type: 'text'|'textarea'|'number'|'switch'|'list'|'image'|'table',
      *         hint?: string,
-     *         cols?: array<int, array{key: string, label: string, type: 'text'|'textarea'|'number'}>,
+     *         cols?: array<int, array{key: string, label: string, type: 'text'|'textarea'|'number'|'image'}>,
      *     }>,
      *     defaults: array<string, mixed>,
      * }>
@@ -35,7 +37,7 @@ class SectionDefinitions
                 'description' => 'Brand name, contact details, address, and service area shown in the header, footer, and contact sections.',
                 'fields' => [
                     ['key' => 'name', 'label' => 'Company name', 'type' => 'text'],
-                    ['key' => 'logo_url', 'label' => 'Logo image URL', 'type' => 'text'],
+                    ['key' => 'logo_url', 'label' => 'Logo image', 'type' => 'image'],
                     ['key' => 'tagline', 'label' => 'Tagline', 'type' => 'textarea'],
                     ['key' => 'headquarters', 'label' => 'Headquarters', 'type' => 'text'],
                     ['key' => 'phone', 'label' => 'Phone', 'type' => 'text'],
@@ -98,7 +100,7 @@ class SectionDefinitions
                         'type' => 'table',
                         'cols' => [
                             ['key' => 'name', 'label' => 'Name', 'type' => 'text'],
-                            ['key' => 'src', 'label' => 'Logo image URL', 'type' => 'text'],
+                            ['key' => 'src', 'label' => 'Logo image', 'type' => 'image'],
                         ],
                     ],
                 ],
@@ -130,7 +132,7 @@ class SectionDefinitions
                             ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
                             ['key' => 'highlight_text', 'label' => 'Highlight text', 'type' => 'text'],
                             ['key' => 'subtitle', 'label' => 'Subtitle', 'type' => 'textarea'],
-                            ['key' => 'bg_image', 'label' => 'Background image URL', 'type' => 'text'],
+                            ['key' => 'bg_image', 'label' => 'Background image', 'type' => 'image'],
                         ],
                     ],
                 ],
@@ -182,7 +184,7 @@ class SectionDefinitions
                             ['key' => 'rating', 'label' => 'Rating (1-5)', 'type' => 'number'],
                             ['key' => 'date', 'label' => 'Date label', 'type' => 'text'],
                             ['key' => 'text', 'label' => 'Review text', 'type' => 'textarea'],
-                            ['key' => 'avatar', 'label' => 'Avatar image URL', 'type' => 'text'],
+                            ['key' => 'avatar', 'label' => 'Avatar image', 'type' => 'image'],
                             ['key' => 'avatar_bg', 'label' => 'Avatar fallback class', 'type' => 'text'],
                         ],
                     ],

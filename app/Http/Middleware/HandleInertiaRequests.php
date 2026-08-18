@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\ContentSection;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Inertia\Support\SessionKey;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -44,6 +45,11 @@ class HandleInertiaRequests extends Middleware
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'cms' => fn () => ContentSection::contentForAll(),
+            'flash' => [
+                'toast' => $request->hasSession()
+                    ? ($request->session()->get(SessionKey::FLASH_DATA)['toast'] ?? null)
+                    : null,
+            ],
         ];
     }
 }

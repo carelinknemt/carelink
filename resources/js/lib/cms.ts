@@ -5,7 +5,7 @@ export type CmsField =
     | {
           key: string;
           label: string;
-          type: 'text' | 'textarea' | 'number' | 'switch' | 'list';
+          type: 'text' | 'textarea' | 'number' | 'switch' | 'list' | 'image';
       }
     | {
           key: string;
@@ -14,7 +14,7 @@ export type CmsField =
           cols: {
               key: string;
               label: string;
-              type: 'text' | 'textarea' | 'number';
+              type: 'text' | 'textarea' | 'number' | 'image';
           }[];
       };
 

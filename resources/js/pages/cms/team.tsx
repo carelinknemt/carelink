@@ -1,6 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { CircleCheck, CircleDot, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import CmsImageUploader from '@/components/cms/image-uploader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -412,16 +413,10 @@ function TeamFields({ form }: { form: ReturnType<typeof useForm<TeamForm>> }) {
                 )}
             </div>
             <div className="grid gap-1.5">
-                <Label htmlFor="team-image">
-                    Image URL (paste a hosted image path)
-                </Label>
-                <Input
-                    id="team-image"
+                <CmsImageUploader
                     value={form.data.image}
-                    onChange={(event) =>
-                        form.setData('image', event.target.value)
-                    }
-                    placeholder="https://images.unsplash.com/..."
+                    onChange={(url) => form.setData('image', url)}
+                    label="Team member photo"
                 />
                 {form.errors.image && (
                     <p className="text-xs text-destructive">
