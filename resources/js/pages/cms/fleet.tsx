@@ -1,6 +1,14 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { CircleCheck, CircleDot, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+    CircleCheck,
+    CircleDot,
+    Pencil,
+    Plus,
+    RotateCcw,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
+import CollectionRestoreDialog from '@/components/cms/collection-restore-dialog';
 import CmsImageUploader from '@/components/cms/image-uploader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -35,6 +43,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import {
     destroy as destroyVehicle,
+    restore as restoreVehicle,
     store as storeVehicle,
     update as updateVehicle,
 } from '@/routes/cms/fleet';
@@ -81,6 +90,7 @@ export default function CmsFleet({
 }) {
     const form = useForm<FleetForm>(EMPTY_FORM);
     const [postOpen, setPostOpen] = useState(false);
+    const [restoreOpen, setRestoreOpen] = useState(false);
     const [editTarget, setEditTarget] = useState<CmsFleetVehicleRecord | null>(
         null,
     );
@@ -150,10 +160,22 @@ export default function CmsFleet({
                             The vehicles shown on the public fleet page.
                         </p>
                     </div>
-                    <Button type="button" onClick={openPost}>
-                        <Plus />
-                        Add a vehicle
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            title="Reset this collection to its defaults"
+                            onClick={() => setRestoreOpen(true)}
+                        >
+                            <RotateCcw className="size-3.5" />
+                            Restore defaults
+                        </Button>
+                        <Button type="button" onClick={openPost}>
+                            <Plus />
+                            Add a vehicle
+                        </Button>
+                    </div>
                 </div>
 
                 <Card>
@@ -366,6 +388,12 @@ export default function CmsFleet({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <CollectionRestoreDialog
+                open={restoreOpen}
+                onOpenChange={setRestoreOpen}
+                label="Fleet vehicles"
+                url={restoreVehicle.url()}
+            />
         </>
     );
 }

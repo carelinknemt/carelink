@@ -1,6 +1,14 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { CircleCheck, CircleDot, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+    CircleCheck,
+    CircleDot,
+    Pencil,
+    Plus,
+    RotateCcw,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
+import CollectionRestoreDialog from '@/components/cms/collection-restore-dialog';
 import CmsImageUploader from '@/components/cms/image-uploader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,6 +36,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import {
     destroy as destroyMember,
+    restore as restoreMember,
     store as storeMember,
     update as updateMember,
 } from '@/routes/cms/team';
@@ -75,6 +84,7 @@ export default function CmsTeam({
 }) {
     const form = useForm<TeamForm>(EMPTY_FORM);
     const [postOpen, setPostOpen] = useState(false);
+    const [restoreOpen, setRestoreOpen] = useState(false);
     const [editTarget, setEditTarget] = useState<CmsTeamMemberRecord | null>(
         null,
     );
@@ -157,10 +167,22 @@ export default function CmsTeam({
                             The leadership shown on the home and about pages.
                         </p>
                     </div>
-                    <Button type="button" onClick={openPost}>
-                        <Plus />
-                        Add a member
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            title="Reset this collection to its defaults"
+                            onClick={() => setRestoreOpen(true)}
+                        >
+                            <RotateCcw className="size-3.5" />
+                            Restore defaults
+                        </Button>
+                        <Button type="button" onClick={openPost}>
+                            <Plus />
+                            Add a member
+                        </Button>
+                    </div>
                 </div>
 
                 <Card>
@@ -361,6 +383,12 @@ export default function CmsTeam({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <CollectionRestoreDialog
+                open={restoreOpen}
+                onOpenChange={setRestoreOpen}
+                label="Team members"
+                url={restoreMember.url()}
+            />
         </>
     );
 }

@@ -86,22 +86,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/services', [CmsServiceController::class, 'store'])->name('services.store');
         Route::put('/services/{service}', [CmsServiceController::class, 'update'])->name('services.update');
         Route::delete('/services/{service}', [CmsServiceController::class, 'destroy'])->name('services.destroy');
+        Route::post('/services/restore', [CmsServiceController::class, 'restore'])->name('services.restore');
         Route::get('/fleet', [CmsFleetVehicleController::class, 'index'])->name('fleet.index');
         Route::post('/fleet', [CmsFleetVehicleController::class, 'store'])->name('fleet.store');
         Route::put('/fleet/{vehicle}', [CmsFleetVehicleController::class, 'update'])->name('fleet.update');
         Route::delete('/fleet/{vehicle}', [CmsFleetVehicleController::class, 'destroy'])->name('fleet.destroy');
+        Route::post('/fleet/restore', [CmsFleetVehicleController::class, 'restore'])->name('fleet.restore');
         Route::get('/team', [CmsTeamMemberController::class, 'index'])->name('team.index');
         Route::post('/team', [CmsTeamMemberController::class, 'store'])->name('team.store');
         Route::put('/team/{member}', [CmsTeamMemberController::class, 'update'])->name('team.update');
         Route::delete('/team/{member}', [CmsTeamMemberController::class, 'destroy'])->name('team.destroy');
+        Route::post('/team/restore', [CmsTeamMemberController::class, 'restore'])->name('team.restore');
         Route::get('/faqs', [CmsFaqController::class, 'index'])->name('faqs.index');
         Route::post('/faqs', [CmsFaqController::class, 'store'])->name('faqs.store');
         Route::put('/faqs/{faq}', [CmsFaqController::class, 'update'])->name('faqs.update');
         Route::delete('/faqs/{faq}', [CmsFaqController::class, 'destroy'])->name('faqs.destroy');
+        Route::post('/faqs/restore', [CmsFaqController::class, 'restore'])->name('faqs.restore');
         Route::get('/blog', [CmsBlogPostController::class, 'index'])->name('blog.index');
         Route::post('/blog', [CmsBlogPostController::class, 'store'])->name('blog.store');
         Route::put('/blog/{post}', [CmsBlogPostController::class, 'update'])->name('blog.update');
         Route::delete('/blog/{post}', [CmsBlogPostController::class, 'destroy'])->name('blog.destroy');
+        Route::post('/blog/restore', [CmsBlogPostController::class, 'restore'])->name('blog.restore');
     });
 });
 

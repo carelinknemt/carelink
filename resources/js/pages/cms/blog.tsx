@@ -1,6 +1,14 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { CircleCheck, CircleDot, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+    CircleCheck,
+    CircleDot,
+    Pencil,
+    Plus,
+    RotateCcw,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
+import CollectionRestoreDialog from '@/components/cms/collection-restore-dialog';
 import CmsImageUploader from '@/components/cms/image-uploader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,6 +36,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import {
     destroy as destroyPost,
+    restore as restorePost,
     store as storePost,
     update as updatePost,
 } from '@/routes/cms/blog';
@@ -68,6 +77,7 @@ function fromRecord(post: CmsBlogPostRecord): BlogForm {
 export default function CmsBlog({ posts }: { posts: CmsBlogPostRecord[] }) {
     const form = useForm<BlogForm>(EMPTY_FORM);
     const [postOpen, setPostOpen] = useState(false);
+    const [restoreOpen, setRestoreOpen] = useState(false);
     const [editTarget, setEditTarget] = useState<CmsBlogPostRecord | null>(
         null,
     );
@@ -151,10 +161,22 @@ export default function CmsBlog({ posts }: { posts: CmsBlogPostRecord[] }) {
                             The posts behind the public blog pages.
                         </p>
                     </div>
-                    <Button type="button" onClick={openPost}>
-                        <Plus />
-                        Write a post
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            title="Reset this collection to its defaults"
+                            onClick={() => setRestoreOpen(true)}
+                        >
+                            <RotateCcw className="size-3.5" />
+                            Restore defaults
+                        </Button>
+                        <Button type="button" onClick={openPost}>
+                            <Plus />
+                            Write a post
+                        </Button>
+                    </div>
                 </div>
 
                 <Card>
@@ -353,6 +375,12 @@ export default function CmsBlog({ posts }: { posts: CmsBlogPostRecord[] }) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <CollectionRestoreDialog
+                open={restoreOpen}
+                onOpenChange={setRestoreOpen}
+                label="Blog posts"
+                url={restorePost.url()}
+            />
         </>
     );
 }

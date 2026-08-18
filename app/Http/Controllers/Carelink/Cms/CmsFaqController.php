@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Carelink\Cms;
 
+use App\Cms\ResetsCmsContent;
 use App\Http\Controllers\Controller;
 use App\Models\Faq;
 use Illuminate\Http\RedirectResponse;
@@ -74,6 +75,23 @@ class CmsFaqController extends Controller
     /**
      * @return array<string, array<int, mixed>>
      */
+    /**
+     * Replace every row with the CollectionDefinitions defaults.
+     */
+    public function restore(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->is_admin, 403);
+
+        (new ResetsCmsContent)->resetCollection('faqs');
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'FAQs were reset to their defaults.',
+        ]);
+
+        return back();
+    }
+
     private function rules(): array
     {
         return [

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Carelink\Cms;
 
+use App\Cms\ResetsCmsContent;
 use App\Cms\SectionDefinitions;
 use App\Http\Controllers\Controller;
 use App\Models\ContentSection;
@@ -101,17 +102,13 @@ class CmsSectionController extends Controller
     }
 
     /**
-     * Restore every section at once: drop all stored content rows.
+     * Reset every section and collection back to the shipped defaults.
      */
     public function restoreAll(Request $request): RedirectResponse
     {
         abort_unless($request->user()->is_admin, 403);
 
-        $count = ContentSection::count();
-
-        if ($count > 0) {
-            ContentSection::query()->delete();
-        }
+        (new ResetsCmsContent)->resetAll();
 
         Inertia::flash('toast', [
             'type' => 'success',

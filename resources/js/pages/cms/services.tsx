@@ -1,6 +1,14 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { CircleCheck, CircleDot, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+    CircleCheck,
+    CircleDot,
+    Pencil,
+    Plus,
+    RotateCcw,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
+import CollectionRestoreDialog from '@/components/cms/collection-restore-dialog';
 import CmsImageUploader from '@/components/cms/image-uploader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -35,6 +43,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import {
     destroy as destroyService,
+    restore as restoreService,
     store as storeService,
     update as updateService,
 } from '@/routes/cms/services';
@@ -89,6 +98,7 @@ export default function CmsServices({
 }) {
     const form = useForm<ServiceForm>(EMPTY_FORM);
     const [postOpen, setPostOpen] = useState(false);
+    const [restoreOpen, setRestoreOpen] = useState(false);
     const [editTarget, setEditTarget] = useState<CmsServiceRecord | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<CmsServiceRecord | null>(
         null,
@@ -158,10 +168,22 @@ export default function CmsServices({
                             book form rates.
                         </p>
                     </div>
-                    <Button type="button" onClick={openPost}>
-                        <Plus />
-                        Add a service
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            title="Reset this collection to its defaults"
+                            onClick={() => setRestoreOpen(true)}
+                        >
+                            <RotateCcw className="size-3.5" />
+                            Restore defaults
+                        </Button>
+                        <Button type="button" onClick={openPost}>
+                            <Plus />
+                            Add a service
+                        </Button>
+                    </div>
                 </div>
 
                 <Card>
@@ -380,6 +402,12 @@ export default function CmsServices({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <CollectionRestoreDialog
+                open={restoreOpen}
+                onOpenChange={setRestoreOpen}
+                label="Services"
+                url={restoreService.url()}
+            />
         </>
     );
 }

@@ -1,6 +1,14 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { CircleCheck, CircleDot, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+    CircleCheck,
+    CircleDot,
+    Pencil,
+    Plus,
+    RotateCcw,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
+import CollectionRestoreDialog from '@/components/cms/collection-restore-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +35,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import {
     destroy as destroyFaq,
+    restore as restoreFaq,
     store as storeFaq,
     update as updateFaq,
 } from '@/routes/cms/faqs';
@@ -55,6 +64,7 @@ function fromRecord(faq: CmsFaqRecord): FaqForm {
 export default function CmsFaqs({ faqs }: { faqs: CmsFaqRecord[] }) {
     const form = useForm<FaqForm>(EMPTY_FORM);
     const [postOpen, setPostOpen] = useState(false);
+    const [restoreOpen, setRestoreOpen] = useState(false);
     const [editTarget, setEditTarget] = useState<CmsFaqRecord | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<CmsFaqRecord | null>(null);
 
@@ -135,10 +145,22 @@ export default function CmsFaqs({ faqs }: { faqs: CmsFaqRecord[] }) {
                             page.
                         </p>
                     </div>
-                    <Button type="button" onClick={openPost}>
-                        <Plus />
-                        Add an FAQ
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            title="Reset this collection to its defaults"
+                            onClick={() => setRestoreOpen(true)}
+                        >
+                            <RotateCcw className="size-3.5" />
+                            Restore defaults
+                        </Button>
+                        <Button type="button" onClick={openPost}>
+                            <Plus />
+                            Add an FAQ
+                        </Button>
+                    </div>
                 </div>
 
                 <Card>
@@ -328,6 +350,12 @@ export default function CmsFaqs({ faqs }: { faqs: CmsFaqRecord[] }) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <CollectionRestoreDialog
+                open={restoreOpen}
+                onOpenChange={setRestoreOpen}
+                label="FAQs"
+                url={restoreFaq.url()}
+            />
         </>
     );
 }
