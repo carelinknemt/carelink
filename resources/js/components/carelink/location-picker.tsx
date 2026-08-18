@@ -48,7 +48,6 @@ interface MapboxResponse {
 interface LocationPickerProps {
     id: string;
     value: string;
-    placeholder?: string;
     onValueChange: (value: string) => void;
     onSelect: (address: string, latitude: number, longitude: number) => void;
 }
@@ -210,7 +209,6 @@ interface SelectedLocation {
 export default function LocationPicker({
     id,
     value,
-    placeholder,
     onValueChange,
     onSelect,
 }: LocationPickerProps) {
@@ -325,76 +323,77 @@ export default function LocationPicker({
 
     return (
         <div ref={containerRef} className="relative">
-            <MapPin className="pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-                id={id}
-                value={value}
-                placeholder={placeholder}
-                autoComplete="off"
-                className="bg-white pl-9 dark:border-slate-300 dark:bg-white dark:text-slate-900 dark:placeholder:text-slate-400"
-                onChange={(event) => {
-                    suppressSearchRef.current = false;
-                    setSelectedLocation(null);
-                    onValueChange(event.target.value);
-                }}
-                onFocus={() => {
-                    if (status === 'ok' || status === 'searching') {
-                        setOpen(true);
-                    }
-                }}
-                onKeyDown={(event) => {
-                    if (event.key === 'Escape') {
-                        setOpen(false);
-                    }
-                }}
-            />
+            <div className="relative">
+                <MapPin className="pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                    id={id}
+                    value={value}
+                    autoComplete="off"
+                    className="bg-white pl-9 dark:border-slate-300 dark:bg-white dark:text-slate-900 dark:placeholder:text-slate-400"
+                    onChange={(event) => {
+                        suppressSearchRef.current = false;
+                        setSelectedLocation(null);
+                        onValueChange(event.target.value);
+                    }}
+                    onFocus={() => {
+                        if (status === 'ok' || status === 'searching') {
+                            setOpen(true);
+                        }
+                    }}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Escape') {
+                            setOpen(false);
+                        }
+                    }}
+                />
 
-            {open && value.trim().length >= MIN_QUERY_LENGTH && (
-                <div className="absolute top-full right-0 left-0 z-20 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
-                    {status === 'searching' && (
-                        <div className="flex items-center gap-2 px-4 py-3 text-sm text-slate-500">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Searching locations...
-                        </div>
-                    )}
+                {open && value.trim().length >= MIN_QUERY_LENGTH && (
+                    <div className="absolute top-full right-0 left-0 z-20 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+                        {status === 'searching' && (
+                            <div className="flex items-center gap-2 px-4 py-3 text-sm text-slate-500">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Searching locations...
+                            </div>
+                        )}
 
-                    {status === 'error' && (
-                        <div className="px-4 py-3 text-sm text-red-600">
-                            Location search is unavailable right now. Please
-                            type the address manually.
-                        </div>
-                    )}
+                        {status === 'error' && (
+                            <div className="px-4 py-3 text-sm text-red-600">
+                                Location search is unavailable right now. Please
+                                type the address manually.
+                            </div>
+                        )}
 
-                    {status === 'empty' && (
-                        <div className="px-4 py-3 text-sm text-slate-500">
-                            No locations found in California. Try a more
-                            specific address.
-                        </div>
-                    )}
+                        {status === 'empty' && (
+                            <div className="px-4 py-3 text-sm text-slate-500">
+                                No locations found in California. Try a more
+                                specific address.
+                            </div>
+                        )}
 
-                    {status === 'ok' &&
-                        results.map((feature) => {
-                            const address = formatAddress(feature);
+                        {status === 'ok' &&
+                            results.map((feature) => {
+                                const address = formatAddress(feature);
 
-                            return (
-                                <button
-                                    key={`${feature.geometry.coordinates[0]}-${feature.geometry.coordinates[1]}-${address}`}
-                                    type="button"
-                                    className={cn(
-                                        'flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition',
-                                        'hover:bg-slate-50 focus:bg-slate-50 focus:outline-none',
-                                    )}
-                                    onClick={() => handleSelect(feature)}
-                                >
-                                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E64A19]" />
-                                    <span className="min-w-0 truncate text-sm font-semibold text-slate-800">
-                                        {address}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                </div>
-            )}
+                                return (
+                                    <button
+                                        key={`${feature.geometry.coordinates[0]}-${feature.geometry.coordinates[1]}-${address}`}
+                                        type="button"
+                                        className={cn(
+                                            'flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition',
+                                            'hover:bg-slate-50 focus:bg-slate-50 focus:outline-none',
+                                        )}
+                                        onClick={() => handleSelect(feature)}
+                                    >
+                                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E64A19]" />
+                                        <span className="min-w-0 truncate text-sm font-semibold text-slate-800">
+                                            {address}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                    </div>
+                )}
+            </div>
 
             {selectedLocation && value.trim() !== '' && (
                 <>

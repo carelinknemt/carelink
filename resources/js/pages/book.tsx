@@ -264,15 +264,17 @@ export default function Book() {
     const [agreedToFee, setAgreedToFee] = useState(false);
     const { booking, transport_rates } = usePage<BookPageProps>().props;
     const form = useForm<TripRequestFormData>(initialForm);
-    const [pendingPayment, setPendingPayment] = useState<PendingPayment | null>(() => {
-        try {
-            const raw = window.sessionStorage.getItem(PENDING_PAYMENT_KEY);
+    const [pendingPayment, setPendingPayment] = useState<PendingPayment | null>(
+        () => {
+            try {
+                const raw = window.sessionStorage.getItem(PENDING_PAYMENT_KEY);
 
-            return raw ? (JSON.parse(raw) as PendingPayment) : null;
-        } catch {
-            return null;
-        }
-    });
+                return raw ? (JSON.parse(raw) as PendingPayment) : null;
+            } catch {
+                return null;
+            }
+        },
+    );
 
     useEffect(() => {
         if (step === STEPS.length - 1) {
@@ -386,7 +388,9 @@ export default function Book() {
         }
 
         try {
-            const response = await fetch(status.url({ booking: pendingPayment.booking_number }));
+            const response = await fetch(
+                status.url({ booking: pendingPayment.booking_number }),
+            );
 
             if (!response.ok) {
                 return;
@@ -397,7 +401,9 @@ export default function Book() {
             if (data.payment_status === 'PAID') {
                 window.sessionStorage.removeItem(PENDING_PAYMENT_KEY);
                 setPendingPayment(null);
-                router.visit(show.url({ booking: pendingPayment.booking_number }));
+                router.visit(
+                    show.url({ booking: pendingPayment.booking_number }),
+                );
             }
         } catch {
             // The request failed, keep polling on the next tick.
@@ -409,7 +415,10 @@ export default function Book() {
             return undefined;
         }
 
-        const interval = window.setInterval(() => void checkPaymentStatus(), 3000);
+        const interval = window.setInterval(
+            () => void checkPaymentStatus(),
+            3000,
+        );
 
         return () => window.clearInterval(interval);
     }, [pendingPayment, checkPaymentStatus]);
@@ -425,7 +434,10 @@ export default function Book() {
     const inputClass = (field: keyof TripRequestFormData): string =>
         `${FIELD_BG} ${fieldError(field) ? 'border-red-500/80 focus-visible:border-red-500' : ''}`;
 
-    const set = (key: keyof TripRequestFormData, value: string | boolean | number) => {
+    const set = (
+        key: keyof TripRequestFormData,
+        value: string | boolean | number,
+    ) => {
         form.setData(key as never, value as never);
         setStepErrors((prev) => {
             const next = { ...prev };
@@ -502,9 +514,8 @@ export default function Book() {
           )
         : null;
 
-    const distanceMiles: number | null = hasRouteCoordinates && route
-        ? route.distanceMiles
-        : straightLineMiles;
+    const distanceMiles: number | null =
+        hasRouteCoordinates && route ? route.distanceMiles : straightLineMiles;
 
     const routeLoadingShown = hasRouteCoordinates && routeLoading;
 
@@ -600,7 +611,10 @@ export default function Book() {
                         url: pageProps.checkout.url,
                     };
 
-                    window.sessionStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(pending));
+                    window.sessionStorage.setItem(
+                        PENDING_PAYMENT_KEY,
+                        JSON.stringify(pending),
+                    );
                     setPendingPayment(pending);
 
                     return;
@@ -649,8 +663,8 @@ export default function Book() {
                             Complete Your Payment
                         </h1>
                         <p className="mt-3 text-sm text-slate-600 sm:text-base">
-                            We opened the secure payment page in a new tab. Finish
-                            the{' '}
+                            We opened the secure payment page in a new tab.
+                            Finish the{' '}
                             <span className="font-bold text-slate-800">
                                 ${BOOKING_FEE.toFixed(2)}
                             </span>{' '}
@@ -659,12 +673,20 @@ export default function Book() {
                         </p>
                         <div className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
                             Waiting for payment for{' '}
-                            <span className="font-black">{pendingPayment.booking_number}</span>
+                            <span className="font-black">
+                                {pendingPayment.booking_number}
+                            </span>
                         </div>
                         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                             <Button
                                 type="button"
-                                onClick={() => window.open(pendingPayment.url, '_blank', 'noopener')}
+                                onClick={() =>
+                                    window.open(
+                                        pendingPayment.url,
+                                        '_blank',
+                                        'noopener',
+                                    )
+                                }
                             >
                                 Open Payment Page Again
                             </Button>
@@ -690,91 +712,95 @@ export default function Book() {
             <div className="bg-slate-50 px-4 py-10 sm:px-6 lg:px-12">
                 <div className="mx-auto w-full max-w-7xl">
                     <div className="mx-auto max-w-2xl text-center">
-                    {paymentPaid ? (
-                        <CheckCircle2 className="mx-auto h-16 w-16 text-emerald-600" />
-                    ) : (
-                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
-                            <span className="text-2xl">⏳</span>
+                        {paymentPaid ? (
+                            <CheckCircle2 className="mx-auto h-16 w-16 text-emerald-600" />
+                        ) : (
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+                                <span className="text-2xl">⏳</span>
+                            </div>
+                        )}
+                        <h1 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl">
+                            Trip Request Submitted
+                        </h1>
+                        <p className="mt-3 text-sm text-slate-600 sm:text-base">
+                            Your booking request has been received. Your
+                            confirmation number is{' '}
+                            <span className="font-black text-[#004B87]">
+                                {String(booking.booking_number)}
+                            </span>
+                            . Our dispatch team will review and confirm your
+                            request. Thank you!
+                        </p>
+                        <div
+                            className={`mx-auto mt-6 max-w-xl rounded-xl border px-4 py-3 text-sm font-semibold ${
+                                paymentPaid
+                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                    : 'border-amber-200 bg-amber-50 text-amber-700'
+                            }`}
+                        >
+                            {paymentPaid
+                                ? `Booking fee of $${BOOKING_FEE.toFixed(2)} paid via Stripe.`
+                                : `Booking fee of $${BOOKING_FEE.toFixed(2)} is pending. Our team will contact you to arrange payment.`}
                         </div>
-                    )}
-                    <h1 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl">
-                        Trip Request Submitted
-                    </h1>
-                    <p className="mt-3 text-sm text-slate-600 sm:text-base">
-                        Your booking request has been received. Your
-                        confirmation number is{' '}
-                        <span className="font-black text-[#004B87]">
-                            {String(booking.booking_number)}
-                        </span>
-                        . Our dispatch team will review and confirm your
-                        request. Thank you!
-                    </p>
-                    <div
-                        className={`mx-auto mt-6 max-w-xl rounded-xl border px-4 py-3 text-sm font-semibold ${
-                            paymentPaid
-                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                                : 'border-amber-200 bg-amber-50 text-amber-700'
-                        }`}
-                    >
-                        {paymentPaid
-                            ? `Booking fee of $${BOOKING_FEE.toFixed(2)} paid via Stripe.`
-                            : `Booking fee of $${BOOKING_FEE.toFixed(2)} is pending. Our team will contact you to arrange payment.`}
-                    </div>
-                    <dl className="mx-auto mt-8 max-w-xl divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white/60 px-6 py-2 text-left text-sm">
-                        <div className="flex items-center justify-between py-3">
-                            <dt className="text-slate-500">Passenger</dt>
-                            <dd className="font-semibold text-slate-800">
-                                {String(booking.passenger_name)}
-                            </dd>
-                        </div>
-                        <div className="flex items-center justify-between py-3">
-                            <dt className="text-slate-500">Date</dt>
-                            <dd className="font-semibold text-slate-800">
-                                {String(booking.trip_date)}
-                            </dd>
-                        </div>
-                        <div className="flex items-center justify-between gap-6 py-3">
-                            <dt className="shrink-0 text-slate-500">Pickup</dt>
-                            <dd className="text-right font-semibold text-slate-800">
-                                {String(booking.pickup_address)}
-                            </dd>
-                        </div>
-                        <div className="flex items-center justify-between gap-6 py-3">
-                            <dt className="shrink-0 text-slate-500">Dropoff</dt>
-                            <dd className="text-right font-semibold text-slate-800">
-                                {String(booking.dropoff_address)}
-                            </dd>
-                        </div>
-                        <div className="flex items-center justify-between py-3">
-                            <dt className="text-slate-500">
-                                Estimated Trip Price
-                            </dt>
-                            <dd className="font-semibold text-slate-800">
-                                {Number(booking.input_price) > 0
-                                    ? `$${Number(booking.input_price).toFixed(2)}`
-                                    : 'Confirm with dispatch'}
-                            </dd>
-                        </div>
-                        <div className="flex items-center justify-between py-3">
-                            <dt className="text-slate-500">Booking Fee</dt>
-                            <dd
-                                className={`font-semibold ${
-                                    paymentPaid
-                                        ? 'text-emerald-600'
-                                        : 'text-amber-600'
-                                }`}
-                            >
-                                ${BOOKING_FEE.toFixed(2)} ·{' '}
-                                {paymentPaid ? 'Paid' : 'Pending'}
-                            </dd>
-                        </div>
-                    </dl>
-                    <a
-                        href={book.url()}
-                        className="mt-8 inline-flex h-10 items-center justify-center rounded-md bg-[#004B87] px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#003d75]"
-                    >
-                        Book Another Ride
-                    </a>
+                        <dl className="mx-auto mt-8 max-w-xl divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white/60 px-6 py-2 text-left text-sm">
+                            <div className="flex items-center justify-between py-3">
+                                <dt className="text-slate-500">Passenger</dt>
+                                <dd className="font-semibold text-slate-800">
+                                    {String(booking.passenger_name)}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between py-3">
+                                <dt className="text-slate-500">Date</dt>
+                                <dd className="font-semibold text-slate-800">
+                                    {String(booking.trip_date)}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between gap-6 py-3">
+                                <dt className="shrink-0 text-slate-500">
+                                    Pickup
+                                </dt>
+                                <dd className="text-right font-semibold text-slate-800">
+                                    {String(booking.pickup_address)}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between gap-6 py-3">
+                                <dt className="shrink-0 text-slate-500">
+                                    Dropoff
+                                </dt>
+                                <dd className="text-right font-semibold text-slate-800">
+                                    {String(booking.dropoff_address)}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between py-3">
+                                <dt className="text-slate-500">
+                                    Estimated Trip Price
+                                </dt>
+                                <dd className="font-semibold text-slate-800">
+                                    {Number(booking.input_price) > 0
+                                        ? `$${Number(booking.input_price).toFixed(2)}`
+                                        : 'Confirm with dispatch'}
+                                </dd>
+                            </div>
+                            <div className="flex items-center justify-between py-3">
+                                <dt className="text-slate-500">Booking Fee</dt>
+                                <dd
+                                    className={`font-semibold ${
+                                        paymentPaid
+                                            ? 'text-emerald-600'
+                                            : 'text-amber-600'
+                                    }`}
+                                >
+                                    ${BOOKING_FEE.toFixed(2)} ·{' '}
+                                    {paymentPaid ? 'Paid' : 'Pending'}
+                                </dd>
+                            </div>
+                        </dl>
+                        <a
+                            href={book.url()}
+                            className="mt-8 inline-flex h-10 items-center justify-center rounded-md bg-[#004B87] px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#003d75]"
+                        >
+                            Book Another Ride
+                        </a>
                     </div>
                 </div>
             </div>
@@ -854,7 +880,6 @@ export default function Book() {
                                                     e.target.value,
                                                 )
                                             }
-                                            placeholder="Jane"
                                             aria-invalid={Boolean(
                                                 fieldError(
                                                     'passenger_first_name',
@@ -888,7 +913,6 @@ export default function Book() {
                                                     e.target.value,
                                                 )
                                             }
-                                            placeholder="Doe"
                                             aria-invalid={Boolean(
                                                 fieldError(
                                                     'passenger_last_name',
@@ -910,7 +934,9 @@ export default function Book() {
                                     <div className="grid gap-2">
                                         <Label htmlFor="passenger_phone_number">
                                             Phone Number{' '}
-                                            <span className="text-red-500">*</span>
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </Label>
                                         <PhoneInput
                                             id="passenger_phone_number"
@@ -941,7 +967,9 @@ export default function Book() {
                                     <div className="grid gap-2">
                                         <Label htmlFor="passenger_email">
                                             Email Address{' '}
-                                            <span className="text-red-500">*</span>
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </Label>
                                         <Input
                                             id="passenger_email"
@@ -953,7 +981,6 @@ export default function Book() {
                                                     e.target.value,
                                                 )
                                             }
-                                            placeholder="jane@example.com"
                                             aria-invalid={Boolean(
                                                 fieldError('passenger_email'),
                                             )}
@@ -977,7 +1004,7 @@ export default function Book() {
                                             onChange={(value) =>
                                                 set('passenger_dob', value)
                                             }
-                                            placeholder="Select date of birth"
+                                            placeholder=""
                                             captionLayout="dropdown"
                                             disabled={(date) => date > TODAY}
                                             error={Boolean(
@@ -1062,7 +1089,6 @@ export default function Book() {
                                                         e.target.value,
                                                     )
                                                 }
-                                                placeholder="3"
                                                 className={`max-w-[200px] ${FIELD_BG}`}
                                             />
                                         </div>
@@ -1083,7 +1109,6 @@ export default function Book() {
                                                 e.target.value,
                                             )
                                         }
-                                        placeholder="Mobility aids, medications, or anything our driver should know..."
                                         className={FIELD_BG}
                                     />
                                 </div>
@@ -1108,7 +1133,7 @@ export default function Book() {
                                             onChange={(value) =>
                                                 set('trip_date', value)
                                             }
-                                            placeholder="Select trip date"
+                                            placeholder=""
                                             disabled={(date) => date < TODAY}
                                             error={Boolean(
                                                 fieldError('trip_date'),
@@ -1131,7 +1156,7 @@ export default function Book() {
                                             onChange={(value) =>
                                                 set('pickup_time', value)
                                             }
-                                            placeholder="Select pickup time"
+                                            placeholder=""
                                             error={Boolean(
                                                 fieldError('pickup_time'),
                                             )}
@@ -1150,7 +1175,7 @@ export default function Book() {
                                             onChange={(value) =>
                                                 set('appointment_time', value)
                                             }
-                                            placeholder="Select appointment time"
+                                            placeholder=""
                                         />
                                     </div>
                                 </div>
@@ -1170,7 +1195,6 @@ export default function Book() {
                                             <LocationPicker
                                                 id="pickup_address"
                                                 value={form.data.pickup_address}
-                                                placeholder="Search and select, e.g. 1420 Harrison Ave, Eureka, CA"
                                                 onValueChange={
                                                     handlePickupTextChange
                                                 }
@@ -1205,7 +1229,6 @@ export default function Book() {
                                                         e.target.value,
                                                     )
                                                 }
-                                                placeholder="Gate code 1234, Apt 2B"
                                                 className={FIELD_BG}
                                             />
                                         </div>
@@ -1244,7 +1267,6 @@ export default function Book() {
                                                 value={
                                                     form.data.dropoff_address
                                                 }
-                                                placeholder="Search and select, e.g. St. Joseph Hospital, Eureka, CA"
                                                 onValueChange={
                                                     handleDropoffTextChange
                                                 }
@@ -1279,7 +1301,6 @@ export default function Book() {
                                                         e.target.value,
                                                     )
                                                 }
-                                                placeholder="Main entrance, 3rd floor"
                                                 className={FIELD_BG}
                                             />
                                         </div>
@@ -1293,9 +1314,7 @@ export default function Book() {
                                                 min={0}
                                                 max={99}
                                                 step={1}
-                                                value={
-                                                    form.data.dropoff_stairs
-                                                }
+                                                value={form.data.dropoff_stairs}
                                                 onChange={(e) =>
                                                     set(
                                                         'dropoff_stairs',
@@ -1304,7 +1323,6 @@ export default function Book() {
                                                         ) || 0,
                                                     )
                                                 }
-                                                placeholder="0"
                                                 className={`max-w-[120px] ${FIELD_BG}`}
                                             />
                                         </div>
@@ -1341,7 +1359,7 @@ export default function Book() {
                                                     ),
                                                 )}
                                             >
-                                                <SelectValue placeholder="Select transport type" />
+                                                <SelectValue aria-label="Transport type" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {TRANSPORT_TYPE_OPTIONS.map(
@@ -1383,7 +1401,7 @@ export default function Book() {
                                                     fieldError('service_type'),
                                                 )}
                                             >
-                                                <SelectValue placeholder="Select service type" />
+                                                <SelectValue aria-label="Service type" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {SERVICE_TYPE_OPTIONS.map(
@@ -1421,7 +1439,7 @@ export default function Book() {
                                                     fieldError('will_call'),
                                                 )}
                                             >
-                                                <SelectValue placeholder="Select an option" />
+                                                <SelectValue aria-label="Will call" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {WILL_CALL_OPTIONS.map(
@@ -1617,8 +1635,8 @@ export default function Book() {
                                 {form.processing
                                     ? 'Submitting...'
                                     : !reviewReady
-                                    ? 'Confirming...'
-                                    : 'Submit'}
+                                      ? 'Confirming...'
+                                      : 'Submit'}
                             </Button>
                         )}
                     </div>
@@ -1653,7 +1671,7 @@ export default function Book() {
                                 />
                                 <Label
                                     htmlFor="agree_to_booking_fee"
-                                    className="font-normal leading-snug text-slate-600"
+                                    className="leading-snug font-normal text-slate-600"
                                 >
                                     By agreeing to pay the $
                                     {BOOKING_FEE.toFixed(2)} booking fee, you
