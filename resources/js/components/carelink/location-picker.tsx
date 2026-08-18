@@ -1,5 +1,13 @@
-import { Loader2, MapPin } from 'lucide-react';
+import { CheckCircle2, Loader2, MapPin } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
@@ -54,9 +62,7 @@ const CALIFORNIA_BBOX = '-124.482,32.528,-114.131,42.010';
 
 const MIN_QUERY_LENGTH = 3;
 
-function isInCalifornia(
-    feature: Pick<GeocodingFeature, 'geometry'>,
-): boolean {
+function isInCalifornia(feature: Pick<GeocodingFeature, 'geometry'>): boolean {
     const [longitude, latitude] = feature.geometry.coordinates;
 
     return (
@@ -67,22 +73,23 @@ function isInCalifornia(
     );
 }
 
-function formatFeature(feature: GeocodingFeature): {
-    primary: string;
-    secondary: string;
-} {
-    const { properties } = feature;
-    const primaryParts = [properties.name, properties.street].filter(
-        (part) => part !== undefined && part.trim() !== '',
-    );
-    const city = [properties.postcode, properties.city, properties.state]
+function formatAddress(feature: GeocodingFeature): string {
+    const { name, street, postcode, city, state, country } = feature.properties;
+    const streetLine = [name, street]
         .filter((part) => part !== undefined && part.trim() !== '')
         .join(' ');
+    const cityPart = city?.trim();
+    const stateZip = [state, postcode]
+        .filter((part) => part !== undefined && part.trim() !== '')
+        .join(' ');
+    const countryPart =
+        country?.trim() === 'United States' ? 'USA' : country?.trim();
 
-    return {
-        primary: primaryParts.join(', ') || city || 'Selected location',
-        secondary: city,
-    };
+    return (
+        [streetLine, cityPart, stateZip, countryPart]
+            .filter((part) => part !== undefined && part !== '')
+            .join(', ') || 'Selected location'
+    );
 }
 
 function mapboxFeatureToGeocodingFeature(
@@ -161,6 +168,12 @@ async function searchMapbox(
 
 type SearchStatus = 'idle' | 'searching' | 'ok' | 'empty' | 'error';
 
+interface SelectedLocation {
+    address: string;
+    latitude: number;
+    longitude: number;
+}
+
 export default function LocationPicker({
     id,
     value,
@@ -171,6 +184,9 @@ export default function LocationPicker({
     const [results, setResults] = useState<GeocodingFeature[]>([]);
     const [status, setStatus] = useState<SearchStatus>('idle');
     const [open, setOpen] = useState(false);
+    const [selectedLocation, setSelectedLocation] =
+        useState<SelectedLocation | null>(null);
+    const [checkOpen, setCheckOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const suppressSearchRef = useRef(false);
 
@@ -263,11 +279,12 @@ export default function LocationPicker({
     }, [open]);
 
     const handleSelect = (feature: GeocodingFeature) => {
-        const { primary } = formatFeature(feature);
+        const address = formatAddress(feature);
         const [longitude, latitude] = feature.geometry.coordinates;
 
         suppressSearchRef.current = true;
-        onSelect(primary, latitude, longitude);
+        onSelect(address, latitude, longitude);
+        setSelectedLocation({ address, latitude, longitude });
         setResults([]);
         setStatus('idle');
         setOpen(false);
@@ -284,6 +301,7 @@ export default function LocationPicker({
                 className="bg-white pl-9 dark:border-slate-300 dark:bg-white dark:text-slate-900 dark:placeholder:text-slate-400"
                 onChange={(event) => {
                     suppressSearchRef.current = false;
+                    setSelectedLocation(null);
                     onValueChange(event.target.value);
                 }}
                 onFocus={() => {
@@ -323,12 +341,11 @@ export default function LocationPicker({
 
                     {status === 'ok' &&
                         results.map((feature) => {
-                            const { primary, secondary } =
-                                formatFeature(feature);
+                            const address = formatAddress(feature);
 
                             return (
                                 <button
-                                    key={`${feature.geometry.coordinates[0]}-${feature.geometry.coordinates[1]}-${primary}`}
+                                    key={`${feature.geometry.coordinates[0]}-${feature.geometry.coordinates[1]}-${address}`}
                                     type="button"
                                     className={cn(
                                         'flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition',
@@ -337,20 +354,53 @@ export default function LocationPicker({
                                     onClick={() => handleSelect(feature)}
                                 >
                                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E64A19]" />
-                                    <span className="min-w-0">
-                                        <span className="block truncate text-sm font-semibold text-slate-800">
-                                            {primary}
-                                        </span>
-                                        {secondary !== primary && (
-                                            <span className="block truncate text-xs text-slate-500">
-                                                {secondary}
-                                            </span>
-                                        )}
+                                    <span className="min-w-0 truncate text-sm font-semibold text-slate-800">
+                                        {address}
                                     </span>
                                 </button>
                             );
                         })}
                 </div>
+            )}
+
+            {selectedLocation && value.trim() !== '' && (
+                <>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 border-[#004B87]/25 bg-white text-[#004B87] hover:bg-slate-50 hover:text-[#003d75]"
+                        onClick={() => setCheckOpen(true)}
+                    >
+                        <CheckCircle2 className="h-4 w-4" />
+                        Check Location
+                    </Button>
+
+                    <Dialog open={checkOpen} onOpenChange={setCheckOpen}>
+                        <DialogContent className="bg-white sm:max-w-md dark:bg-white">
+                            <DialogHeader>
+                                <DialogTitle>Selected Location</DialogTitle>
+                                <DialogDescription>
+                                    The address selected for this field.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                                <div className="flex items-start gap-3">
+                                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#E64A19]" />
+                                    <p className="text-sm font-semibold text-slate-800">
+                                        {selectedLocation.address}
+                                    </p>
+                                </div>
+                                <p className="mt-3 text-xs text-slate-500">
+                                    Latitude:{' '}
+                                    {selectedLocation.latitude.toFixed(6)} ·
+                                    Longitude:{' '}
+                                    {selectedLocation.longitude.toFixed(6)}
+                                </p>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                </>
             )}
         </div>
     );
