@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import {
     BookOpen,
+    ChevronLeft,
     ChevronRight,
     Info,
     Lightbulb,
@@ -217,14 +218,20 @@ function KmsBlocks({ blocks }: { blocks: KmsBlock[] }) {
     );
 }
 
+type KmsEntry = { category: KmsCategory; article: KmsArticle };
+
 function ArticleView({
     article,
     category,
-    onBack,
+    previous,
+    next,
+    onNavigate,
 }: {
     article: KmsArticle;
     category: KmsCategory;
-    onBack: () => void;
+    previous: KmsEntry | null;
+    next: KmsEntry | null;
+    onNavigate: (entry: KmsEntry) => void;
 }) {
     const toc: { title: string; index: number }[] = article.blocks.flatMap(
         (block, index) =>
@@ -281,15 +288,26 @@ function ArticleView({
                         steps={tour.steps}
                     />
                 )}
-                <div>
+                <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
                     <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={onBack}
+                        disabled={!previous}
+                        onClick={() => previous && onNavigate(previous)}
                     >
-                        <ChevronRight className="size-4 rotate-180" />
-                        All topics
+                        <ChevronLeft />
+                        Previous
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!next}
+                        onClick={() => next && onNavigate(next)}
+                    >
+                        Next
+                        <ChevronRight />
                     </Button>
                 </div>
             </CardContent>
@@ -452,6 +470,35 @@ export default function KmsPage() {
             (candidate) => candidate.slug === hashArticleSlug,
         ) ?? null;
 
+    const allArticles = useMemo<KmsEntry[]>(
+        () =>
+            kmsCategories.flatMap((item) =>
+                item.articles.map((itemArticle) => ({
+                    category: item,
+                    article: itemArticle,
+                })),
+            ),
+        [],
+    );
+
+    const currentIndex = useMemo(() => {
+        if (!category || !article) {
+            return -1;
+        }
+
+        return allArticles.findIndex(
+            (entry) =>
+                entry.category.slug === category.slug &&
+                entry.article.slug === article.slug,
+        );
+    }, [allArticles, category, article]);
+
+    const previous = currentIndex > 0 ? allArticles[currentIndex - 1] : null;
+    const next =
+        currentIndex >= 0 && currentIndex < allArticles.length - 1
+            ? allArticles[currentIndex + 1]
+            : null;
+
     function openArticle(nextCategory: KmsCategory, nextArticle: KmsArticle) {
         setQuery('');
         setCategorySlug(nextCategory.slug);
@@ -459,9 +506,8 @@ export default function KmsPage() {
         window.scrollTo({ top: 0 });
     }
 
-    function goHome() {
-        setTargetHash('');
-        window.scrollTo({ top: 0 });
+    function navigateTo(entry: KmsEntry) {
+        openArticle(entry.category, entry.article);
     }
 
     function changeCategory(nextSlug: string) {
@@ -577,7 +623,9 @@ export default function KmsPage() {
                         <ArticleView
                             article={article}
                             category={category}
-                            onBack={goHome}
+                            previous={previous}
+                            next={next}
+                            onNavigate={navigateTo}
                         />
                     ) : (
                         <KmsHome onOpen={openArticle} />
