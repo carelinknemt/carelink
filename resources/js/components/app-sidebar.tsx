@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import {
     BarChart3,
+    BookOpen,
     Briefcase,
     Building2,
     CalendarCheck,
@@ -20,7 +21,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { dashboard, kms } from '@/routes';
 import cmsRoutes from '@/routes/cms';
 import {
     analytics,
@@ -78,6 +79,16 @@ const navGroups: NavGroup[] = [
                 href: jobOpenings(),
                 icon: Building2,
                 adminOnly: true,
+            },
+        ],
+    },
+    {
+        label: 'Resources',
+        items: [
+            {
+                title: 'Knowledge Base',
+                href: kms(),
+                icon: BookOpen,
             },
         ],
     },

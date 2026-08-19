@@ -24,6 +24,7 @@ use App\Http\Controllers\Carelink\DashboardUserController;
 use App\Http\Controllers\Carelink\FaqController;
 use App\Http\Controllers\Carelink\FleetController;
 use App\Http\Controllers\Carelink\HomeController;
+use App\Http\Controllers\Carelink\KmsController;
 use App\Http\Controllers\Carelink\ServicesController;
 use App\Http\Controllers\Carelink\TermsController;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +76,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/users', [DashboardUserController::class, 'index'])->name('dashboard.users');
     Route::post('/dashboard/users', [DashboardUserController::class, 'store'])->name('dashboard.users.store');
     Route::post('/dashboard/users/{user}/ban-toggle', [DashboardUserController::class, 'toggleBan'])->name('dashboard.users.ban-toggle');
+
+    Route::get('/kms', [KmsController::class, 'index'])->name('kms');
 
     Route::prefix('cms')->name('cms.')->group(function () {
         Route::get('/', [CmsSectionController::class, 'index'])->name('index');

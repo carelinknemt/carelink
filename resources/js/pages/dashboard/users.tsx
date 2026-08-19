@@ -1,14 +1,16 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Ban, CheckCircle2, Search, ShieldCheck, UserPlus, Users as UsersIcon } from 'lucide-react';
+import {
+    Ban,
+    CheckCircle2,
+    Search,
+    ShieldCheck,
+    UserPlus,
+    Users as UsersIcon,
+} from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -39,7 +41,11 @@ import {
 import { formatDate } from '@/lib/bookings';
 import { users as dashboardUsers } from '@/routes/dashboard';
 import { banToggle, store as storeUser } from '@/routes/dashboard/users';
-import type { PaginatedUsers, UserRecord, UsersFilters } from '@/types/dashboard';
+import type {
+    PaginatedUsers,
+    UserRecord,
+    UsersFilters,
+} from '@/types/dashboard';
 
 type DashboardUsersProps = {
     users: PaginatedUsers;
@@ -141,7 +147,11 @@ export default function DashboardUsers({
     }
 
     function toggleBanDirect(user: UserRecord) {
-        router.post(banToggle.url({ user: user.id }), {}, { preserveScroll: true });
+        router.post(
+            banToggle.url({ user: user.id }),
+            {},
+            { preserveScroll: true },
+        );
     }
 
     const searchActive = Boolean(filters.search);
@@ -155,10 +165,12 @@ export default function DashboardUsers({
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-                        <p className="text-muted-foreground text-sm">
-                            Manage dashboard accounts. New users receive a password
-                            reset link by email.
+                        <h1 className="text-2xl font-semibold tracking-tight">
+                            Users
+                        </h1>
+                        <p className="text-sm text-muted-foreground">
+                            Manage dashboard accounts. New users receive a
+                            password reset link by email.
                         </p>
                     </div>
                     <Button type="button" onClick={openInvite}>
@@ -172,11 +184,16 @@ export default function DashboardUsers({
                         <CardTitle className="text-base">Search</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={submitSearch} className="flex flex-col gap-4">
+                        <form
+                            onSubmit={submitSearch}
+                            className="flex flex-col gap-4"
+                        >
                             <div className="grid gap-1.5 sm:max-w-xl">
-                                <Label htmlFor="user-search">Name or email</Label>
+                                <Label htmlFor="user-search">
+                                    Name or email
+                                </Label>
                                 <div className="relative">
-                                    <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                     <Input
                                         id="user-search"
                                         type="search"
@@ -188,7 +205,7 @@ export default function DashboardUsers({
                                         }
                                     />
                                 </div>
-                                <p className="text-muted-foreground text-xs">
+                                <p className="text-xs text-muted-foreground">
                                     Results update as you type.
                                 </p>
                             </div>
@@ -202,8 +219,9 @@ export default function DashboardUsers({
                                     >
                                         Clear search
                                     </Button>
-                                    <span className="text-muted-foreground text-xs">
-                                        {users.total} match{users.total === 1 ? '' : 'es'}
+                                    <span className="text-xs text-muted-foreground">
+                                        {users.total} match
+                                        {users.total === 1 ? '' : 'es'}
                                     </span>
                                 </div>
                             )}
@@ -213,17 +231,18 @@ export default function DashboardUsers({
 
                 <Card className="flex-1">
                     <div className="px-6 pt-6">
-                        <p className="text-muted-foreground text-sm">
-                            Showing {users.from ?? 0}–{users.to ?? 0} of {users.total} users
+                        <p className="text-sm text-muted-foreground">
+                            Showing {users.from ?? 0}–{users.to ?? 0} of{' '}
+                            {users.total} users
                         </p>
                     </div>
 
                     <CardContent className="pt-6">
                         {users.data.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-16 text-center">
-                                <UsersIcon className="text-muted-foreground size-10" />
+                                <UsersIcon className="size-10 text-muted-foreground" />
                                 <p className="font-medium">No users found</p>
-                                <p className="text-muted-foreground text-sm">
+                                <p className="text-sm text-muted-foreground">
                                     {searchActive
                                         ? 'Try a different name or email.'
                                         : 'Add the first user with the Add user button.'}
@@ -235,19 +254,20 @@ export default function DashboardUsers({
                                     {users.data.map((user) => (
                                         <li
                                             key={user.id}
-                                            className="border-border rounded-lg border p-4"
+                                            className="rounded-lg border border-border p-4"
                                         >
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="min-w-0">
                                                     <p className="flex items-center gap-2 font-medium">
                                                         {user.name}
-                                                        {user.id === current_user_id && (
-                                                            <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                                                        {user.id ===
+                                                            current_user_id && (
+                                                            <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
                                                                 You
                                                             </span>
                                                         )}
                                                     </p>
-                                                    <p className="text-muted-foreground text-sm">
+                                                    <p className="text-sm text-muted-foreground">
                                                         {user.email}
                                                     </p>
                                                 </div>
@@ -258,7 +278,8 @@ export default function DashboardUsers({
                                                             Admin
                                                         </span>
                                                     )}
-                                                    {user.banned_at !== null && (
+                                                    {user.banned_at !==
+                                                        null && (
                                                         <span className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700">
                                                             Banned
                                                         </span>
@@ -266,8 +287,9 @@ export default function DashboardUsers({
                                                 </div>
                                             </div>
                                             <div className="mt-3 flex items-center justify-between gap-3">
-                                                <span className="text-muted-foreground text-sm">
-                                                    Joined {formatDate(user.joined_at)}
+                                                <span className="text-sm text-muted-foreground">
+                                                    Joined{' '}
+                                                    {formatDate(user.joined_at)}
                                                 </span>
                                                 {user.id !== current_user_id &&
                                                     (user.banned_at === null ? (
@@ -276,7 +298,9 @@ export default function DashboardUsers({
                                                             variant="outline"
                                                             size="sm"
                                                             onClick={() =>
-                                                                setBanTarget(user)
+                                                                setBanTarget(
+                                                                    user,
+                                                                )
                                                             }
                                                         >
                                                             <Ban />
@@ -288,7 +312,9 @@ export default function DashboardUsers({
                                                             variant="outline"
                                                             size="sm"
                                                             onClick={() =>
-                                                                toggleBanDirect(user)
+                                                                toggleBanDirect(
+                                                                    user,
+                                                                )
                                                             }
                                                         >
                                                             <CheckCircle2 />
@@ -320,14 +346,17 @@ export default function DashboardUsers({
                                                     <TableCell className="font-medium">
                                                         <span className="flex items-center gap-2">
                                                             {user.name}
-                                                            {user.id === current_user_id && (
-                                                                <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                                                            {user.id ===
+                                                                current_user_id && (
+                                                                <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
                                                                     You
                                                                 </span>
                                                             )}
                                                         </span>
                                                     </TableCell>
-                                                    <TableCell>{user.email}</TableCell>
+                                                    <TableCell>
+                                                        {user.email}
+                                                    </TableCell>
                                                     <TableCell>
                                                         {user.is_admin ? (
                                                             <span className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-700">
@@ -335,13 +364,14 @@ export default function DashboardUsers({
                                                                 Admin
                                                             </span>
                                                         ) : (
-                                                            <span className="text-muted-foreground text-sm">
+                                                            <span className="text-sm text-muted-foreground">
                                                                 Manager
                                                             </span>
                                                         )}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {user.banned_at !== null ? (
+                                                        {user.banned_at !==
+                                                        null ? (
                                                             <span className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700">
                                                                 Banned
                                                             </span>
@@ -352,20 +382,26 @@ export default function DashboardUsers({
                                                         )}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {formatDate(user.joined_at)}
+                                                        {formatDate(
+                                                            user.joined_at,
+                                                        )}
                                                     </TableCell>
                                                     <TableCell className="text-right">
-                                                        {user.id === current_user_id ? (
-                                                            <span className="text-muted-foreground text-sm">
+                                                        {user.id ===
+                                                        current_user_id ? (
+                                                            <span className="text-sm text-muted-foreground">
                                                                 —
                                                             </span>
-                                                        ) : user.banned_at === null ? (
+                                                        ) : user.banned_at ===
+                                                          null ? (
                                                             <Button
                                                                 type="button"
                                                                 variant="outline"
                                                                 size="sm"
                                                                 onClick={() =>
-                                                                    setBanTarget(user)
+                                                                    setBanTarget(
+                                                                        user,
+                                                                    )
                                                                 }
                                                             >
                                                                 <Ban />
@@ -377,7 +413,9 @@ export default function DashboardUsers({
                                                                 variant="outline"
                                                                 size="sm"
                                                                 onClick={() =>
-                                                                    toggleBanDirect(user)
+                                                                    toggleBanDirect(
+                                                                        user,
+                                                                    )
                                                                 }
                                                             >
                                                                 <CheckCircle2 />
@@ -400,8 +438,15 @@ export default function DashboardUsers({
                                         <PaginationItem>
                                             {users.prev_page_url ? (
                                                 <PaginationPrevious asChild>
-                                                    <Link href={users.prev_page_url} prefetch>
-                                                        <span className="hidden sm:block">Previous</span>
+                                                    <Link
+                                                        href={
+                                                            users.prev_page_url
+                                                        }
+                                                        prefetch
+                                                    >
+                                                        <span className="hidden sm:block">
+                                                            Previous
+                                                        </span>
                                                     </Link>
                                                 </PaginationPrevious>
                                             ) : (
@@ -417,18 +462,22 @@ export default function DashboardUsers({
                                             }
 
                                             const label =
-                                                link.label === '&laquo; Previous'
+                                                link.label ===
+                                                '&laquo; Previous'
                                                     ? '…'
-                                                    : link.label === '&raquo; Next'
+                                                    : link.label ===
+                                                        '&raquo; Next'
                                                       ? '…'
                                                       : link.label;
 
                                             return (
-                                                <PaginationItem key={`${link.label}-${link.url}`}>
+                                                <PaginationItem
+                                                    key={`${link.label}-${link.url}`}
+                                                >
                                                     <PaginationLink
                                                         href={link.url}
                                                         isActive={link.active}
-                                                                                                            >
+                                                    >
                                                         {label}
                                                     </PaginationLink>
                                                 </PaginationItem>
@@ -437,8 +486,15 @@ export default function DashboardUsers({
                                         <PaginationItem>
                                             {users.next_page_url ? (
                                                 <PaginationNext asChild>
-                                                    <Link href={users.next_page_url} prefetch>
-                                                        <span className="hidden sm:block">Next</span>
+                                                    <Link
+                                                        href={
+                                                            users.next_page_url
+                                                        }
+                                                        prefetch
+                                                    >
+                                                        <span className="hidden sm:block">
+                                                            Next
+                                                        </span>
                                                     </Link>
                                                 </PaginationNext>
                                             ) : (
@@ -460,7 +516,12 @@ export default function DashboardUsers({
                                         <PaginationItem>
                                             {users.prev_page_url ? (
                                                 <PaginationPrevious asChild>
-                                                    <Link href={users.prev_page_url} prefetch />
+                                                    <Link
+                                                        href={
+                                                            users.prev_page_url
+                                                        }
+                                                        prefetch
+                                                    />
                                                 </PaginationPrevious>
                                             ) : (
                                                 <PaginationPrevious
@@ -472,7 +533,12 @@ export default function DashboardUsers({
                                         <PaginationItem>
                                             {users.next_page_url ? (
                                                 <PaginationNext asChild>
-                                                    <Link href={users.next_page_url} prefetch />
+                                                    <Link
+                                                        href={
+                                                            users.next_page_url
+                                                        }
+                                                        prefetch
+                                                    />
                                                 </PaginationNext>
                                             ) : (
                                                 <PaginationNext
@@ -501,9 +567,9 @@ export default function DashboardUsers({
                     <DialogHeader>
                         <DialogTitle>Add a user</DialogTitle>
                         <DialogDescription>
-                            The account is created without a password and a reset
-                            link is emailed so they choose their own. Only admins
-                            can manage users.
+                            The account is created without a password. The new
+                            user receives a password reset link and a guide to
+                            the Knowledge Base by email.
                         </DialogDescription>
                     </DialogHeader>
                     <form
@@ -519,12 +585,15 @@ export default function DashboardUsers({
                                 id="invite-name"
                                 value={inviteForm.data.name}
                                 onChange={(event) =>
-                                    inviteForm.setData('name', event.target.value)
+                                    inviteForm.setData(
+                                        'name',
+                                        event.target.value,
+                                    )
                                 }
                                 placeholder="Jane Doe"
                             />
                             {inviteForm.errors.name && (
-                                <p className="text-destructive text-xs">
+                                <p className="text-xs text-destructive">
                                     {inviteForm.errors.name}
                                 </p>
                             )}
@@ -536,12 +605,15 @@ export default function DashboardUsers({
                                 type="email"
                                 value={inviteForm.data.email}
                                 onChange={(event) =>
-                                    inviteForm.setData('email', event.target.value)
+                                    inviteForm.setData(
+                                        'email',
+                                        event.target.value,
+                                    )
                                 }
                                 placeholder="jane@example.com"
                             />
                             {inviteForm.errors.email && (
-                                <p className="text-destructive text-xs">
+                                <p className="text-xs text-destructive">
                                     {inviteForm.errors.email}
                                 </p>
                             )}
@@ -551,14 +623,17 @@ export default function DashboardUsers({
                                 type="checkbox"
                                 checked={inviteForm.data.is_admin}
                                 onChange={(event) =>
-                                    inviteForm.setData('is_admin', event.target.checked)
+                                    inviteForm.setData(
+                                        'is_admin',
+                                        event.target.checked,
+                                    )
                                 }
                                 className="rounded border-slate-300"
                             />
                             Admin user (can manage users and payments)
                         </label>
                         {inviteForm.recentlySuccessful && (
-                            <p className="text-muted-foreground text-xs">
+                            <p className="text-xs text-muted-foreground">
                                 User added and reset link sent.
                             </p>
                         )}
@@ -572,10 +647,13 @@ export default function DashboardUsers({
                                     Cancel
                                 </Button>
                             </DialogClose>
-                            <Button type="submit" disabled={inviteForm.processing}>
+                            <Button
+                                type="submit"
+                                disabled={inviteForm.processing}
+                            >
                                 {inviteForm.processing
                                     ? 'Adding…'
-                                    : 'Add user and send reset link'}
+                                    : 'Add user and send links'}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -592,13 +670,12 @@ export default function DashboardUsers({
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>
-                            Ban {banTarget?.name}?
-                        </DialogTitle>
+                        <DialogTitle>Ban {banTarget?.name}?</DialogTitle>
                         <DialogDescription>
-                            {banTarget?.name} ({banTarget?.email}) will be signed out
-                            immediately and blocked from signing in until the ban is
-                            lifted. Their existing bookings stay active.
+                            {banTarget?.name} ({banTarget?.email}) will be
+                            signed out immediately and blocked from signing in
+                            until the ban is lifted. Their existing bookings
+                            stay active.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -607,7 +684,11 @@ export default function DashboardUsers({
                                 Keep them signed in
                             </Button>
                         </DialogClose>
-                        <Button type="button" variant="destructive" onClick={confirmBan}>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={confirmBan}
+                        >
                             <Ban />
                             Ban user
                         </Button>

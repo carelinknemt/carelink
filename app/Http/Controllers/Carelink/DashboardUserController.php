@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Carelink;
 
 use App\Http\Controllers\Controller;
+use App\Mail\KmsIntroMail;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -77,9 +79,11 @@ class DashboardUserController extends Controller
             return back();
         }
 
+        Mail::to($user->email)->send(new KmsIntroMail($user));
+
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "{$user->email} was added and a password reset link was sent.",
+            'message' => "{$user->email} was added and their welcome links were sent.",
         ]);
 
         return back();

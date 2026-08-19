@@ -1,5 +1,6 @@
 <?php
 
+use App\Mail\KmsIntroMail;
 use App\Mail\ResetPasswordMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -72,7 +73,7 @@ test('users can be searched by name or email', function () {
             ->where('users.data.0.name', 'Jane Doe'));
 });
 
-test('adding a user sends a password reset link and no usable password', function () {
+test('adding a user sends reset and knowledge base links and no usable password', function () {
     Mail::fake();
     actingAsAdmin();
 
@@ -91,6 +92,7 @@ test('adding a user sends a password reset link and no usable password', functio
     expect(Hash::check('password', $user->password))->toBeFalse();
 
     Mail::assertSent(ResetPasswordMail::class, fn ($mail) => $mail->hasTo('jane@example.com'));
+    Mail::assertSent(KmsIntroMail::class, fn ($mail) => $mail->hasTo('jane@example.com'));
 });
 
 test('adding a user rejects an email that is already registered', function () {
