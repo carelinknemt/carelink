@@ -16,7 +16,6 @@ import {
 } from '@/components/ui/sidebar';
 import { kmsCategories } from '@/data/kms-docs';
 import { KMS_CATEGORY_ICONS } from '@/data/kms-icons';
-import { cn } from '@/lib/utils';
 import { dashboard, kms } from '@/routes';
 
 function parseHash(hash: string): [string | null, string | null] {
@@ -35,7 +34,7 @@ function SidebarLink({
     return (
         <a
             href={href}
-            className="flex min-h-8 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="flex min-h-8 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground transition-colors"
         >
             {children}
         </a>
@@ -107,10 +106,6 @@ export function KmsSidebar() {
                                             <SidebarMenuButton
                                                 asChild
                                                 isActive={activeArticle}
-                                                className={cn(
-                                                    activeArticle &&
-                                                        'bg-primary/10 font-medium text-primary',
-                                                )}
                                             >
                                                 <SidebarLink
                                                     href={`#/${category.slug}/${article.slug}`}
