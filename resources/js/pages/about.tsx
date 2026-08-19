@@ -1,4 +1,4 @@
-import { Award, ShieldCheck, Building2, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
 import { useCompanyInfo, useCms, usePageHero } from '@/lib/cms';
@@ -67,11 +67,6 @@ export default function About({ team }: AboutProps) {
                 {/* Story & Vision Section */}
                 <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
                     <div className="space-y-6 lg:col-span-6">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-bold tracking-widest text-[#E64A19] uppercase">
-                            <Building2 className="h-4 w-4 text-[#E64A19]" />
-                            <span>Our Mission</span>
-                        </div>
-
                         <h2 className="text-3xl leading-tight font-black tracking-tight text-slate-900">
                             Connecting Patients to Health, Healing, & Community
                         </h2>
@@ -91,31 +86,6 @@ export default function About({ team }: AboutProps) {
                             transport specialists who treat every passenger like
                             family.
                         </p>
-
-                        {/* Key Pillars */}
-                        <div className="grid grid-cols-2 gap-4 pt-4">
-                            <div className="space-y-1 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <div className="flex items-center gap-2 text-sm font-bold text-[#004B87]">
-                                    <ShieldCheck className="h-5 w-5 text-[#E64A19]" />
-                                    <span>100% PASS Certified</span>
-                                </div>
-                                <p className="text-[11px] text-slate-500">
-                                    All drivers complete Passenger Assistance
-                                    Safety and CPR training.
-                                </p>
-                            </div>
-
-                            <div className="space-y-1 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                                <div className="flex items-center gap-2 text-sm font-bold text-[#004B87]">
-                                    <Award className="h-5 w-5 text-[#E64A19]" />
-                                    <span>Curb-to-Curb Help</span>
-                                </div>
-                                <p className="text-[11px] text-slate-500">
-                                    Safe assistance at the driveway, helping
-                                    passengers load and unload securely.
-                                </p>
-                            </div>
-                        </div>
                     </div>
 
                     <div className="relative lg:col-span-6">
@@ -142,9 +112,6 @@ export default function About({ team }: AboutProps) {
                 <div className="space-y-8 border-t border-slate-200 pt-8">
                     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
                         <div>
-                            <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-bold tracking-widest text-[#E64A19] uppercase">
-                                Leadership & Dispatch
-                            </span>
                             <h2 className="mt-2 text-2xl font-black text-slate-900 sm:text-3xl">
                                 Carelink Leadership Team
                             </h2>

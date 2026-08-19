@@ -90,9 +90,6 @@ export default function Fleet({ fleet }: FleetProps) {
                                     <span className="absolute top-4 left-4 rounded-full bg-[#E64A19] px-3 py-1 text-[10px] font-black tracking-wider text-white uppercase shadow">
                                         {vehicle.type.replace('_', ' ')}
                                     </span>
-                                    <span className="absolute right-4 bottom-4 rounded-full border border-orange-400/30 bg-slate-900/80 px-3 py-1 text-xs font-bold text-orange-300 backdrop-blur-md">
-                                        Est. ${vehicle.hourly_rate_est}/hr
-                                    </span>
                                 </div>
 
                                 <div className="space-y-4 p-6">

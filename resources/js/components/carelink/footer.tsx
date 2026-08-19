@@ -190,6 +190,13 @@ export default function Footer() {
                     </div>
 
                     <div className="flex items-center gap-3 text-xs font-bold text-slate-300">
+                        <Link
+                            href="/terms"
+                            className="transition-colors hover:text-orange-400"
+                        >
+                            Terms & Conditions
+                        </Link>
+                        <span className="text-slate-600">•</span>
                         <button
                             onClick={scrollToTop}
                             className="inline-flex items-center gap-1 text-[#E64A19] transition-colors hover:text-orange-300"
