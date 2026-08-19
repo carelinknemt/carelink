@@ -18,10 +18,30 @@ import {
 import { formatDate, formatMoney } from '@/lib/bookings';
 
 const SUMMARY = [
-    { label: 'Total payments', value: '128', accent: false },
-    { label: 'Collected', value: '$3,712.00', accent: true },
-    { label: 'Pending', value: '$240.00', accent: false },
-    { label: 'Refunded', value: '$90.00', accent: false },
+    {
+        id: 'kms-demo-pm-summary-total',
+        label: 'Total payments',
+        value: '128',
+        accent: false,
+    },
+    {
+        id: 'kms-demo-pm-summary-collected',
+        label: 'Collected',
+        value: '$3,712.00',
+        accent: true,
+    },
+    {
+        id: 'kms-demo-pm-summary-pending',
+        label: 'Pending',
+        value: '$240.00',
+        accent: false,
+    },
+    {
+        id: 'kms-demo-pm-summary-refunded',
+        label: 'Refunded',
+        value: '$90.00',
+        accent: false,
+    },
 ];
 
 const PAYMENT_BADGES: Record<string, { label: string; classes: string }> = {
@@ -80,6 +100,7 @@ export default function PaymentsSimulation() {
                     {SUMMARY.map((item) => (
                         <Card
                             key={item.label}
+                            id={item.id}
                             className={
                                 item.accent
                                     ? 'bg-primary text-primary-foreground'

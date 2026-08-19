@@ -79,7 +79,7 @@ export default function BookingsListSimulation() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">
+                        <CardTitle className="text-base" id="kms-demo-bk-count">
                             Showing 1&ndash;3 of 3 bookings
                         </CardTitle>
                     </CardHeader>
@@ -160,7 +160,10 @@ export default function BookingsListSimulation() {
                             </Table>
                         </div>
                         <div className="mt-4 flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-2">
+                            <div
+                                className="flex items-center gap-2"
+                                id="kms-demo-bk-per-page"
+                            >
                                 <Label className="text-xs">Per page</Label>
                                 <Select defaultValue="15">
                                     <SelectTrigger size="sm" className="w-20">

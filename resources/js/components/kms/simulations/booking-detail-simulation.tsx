@@ -94,7 +94,12 @@ export default function BookingDetailSimulation() {
                                 Cancel booking
                             </Button>
                         )}
-                        <Button type="button" variant="outline" size="sm">
+                        <Button
+                            id="kms-demo-bd-export"
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                        >
                             Export CSV
                         </Button>
                     </div>
