@@ -1,11 +1,41 @@
 import { Play, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { EVENTS, Joyride, STATUS } from 'react-joyride';
-import type { Step } from 'react-joyride';
+import type { Step, StepTarget } from 'react-joyride';
 import { SIMULATIONS } from '@/components/kms/simulations';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { SimulationKey } from '@/data/kms-tours';
+
+function resolveStepElement(
+    target: StepTarget | undefined | null,
+): Element | null {
+    if (target == null) {
+        return null;
+    }
+
+    if (typeof target === 'string') {
+        return document.querySelector(target);
+    }
+
+    if (target instanceof HTMLElement) {
+        return target;
+    }
+
+    if (typeof target === 'function') {
+        return target();
+    }
+
+    if ('current' in target) {
+        return target.current;
+    }
+
+    return null;
+}
+
+function scrollToElement(element: Element | null) {
+    element?.scrollIntoView({ behavior: 'instant', block: 'center' });
+}
 
 export default function GuidedTour({
     simulation,
@@ -45,10 +75,10 @@ export default function GuidedTour({
                     run={run}
                     steps={steps}
                     continuous
-                    scrollToFirstStep
                     options={{
                         showProgress: true,
                         skipBeacon: true,
+                        skipScroll: true,
                         buttons: ['back', 'skip', 'close', 'primary'],
                         closeButtonAction: 'skip',
                         overlayClickAction: false,
@@ -70,6 +100,20 @@ export default function GuidedTour({
                         skip: 'Skip tour',
                     }}
                     onEvent={(data) => {
+                        if (data.type === EVENTS.TOUR_START) {
+                            scrollToElement(
+                                resolveStepElement(steps[0]?.target),
+                            );
+                        }
+
+                        if (data.type === EVENTS.STEP_AFTER) {
+                            scrollToElement(
+                                resolveStepElement(
+                                    steps[data.index + 1]?.target,
+                                ),
+                            );
+                        }
+
                         if (
                             data.type === EVENTS.TOUR_END ||
                             data.status === STATUS.SKIPPED ||
