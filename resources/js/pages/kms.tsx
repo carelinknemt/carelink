@@ -1,21 +1,14 @@
 import { Head } from '@inertiajs/react';
 import {
     BookOpen,
-    Briefcase,
-    CalendarCheck,
     ChevronRight,
-    CreditCard,
-    Handshake,
     Info,
-    LayoutGrid,
     Lightbulb,
-    Rocket,
     Search,
     TriangleAlert,
-    Users,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import GuidedTour from '@/components/kms/guided-tour';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,23 +35,14 @@ import type {
     KmsCategory,
 } from '@/data/kms-docs';
 import { kmsCategories } from '@/data/kms-docs';
+import { KMS_CATEGORY_ICONS } from '@/data/kms-icons';
+import { kmsTours } from '@/data/kms-tours';
 import { cn } from '@/lib/utils';
 import { dashboard, kms } from '@/routes';
 
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-    'getting-started': Rocket,
-    'trips-bookings': CalendarCheck,
-    payments: CreditCard,
-    recruitment: Briefcase,
-    'business-partners': Handshake,
-    users: Users,
-    'website-content': LayoutGrid,
-    'knowledge-base': BookOpen,
-};
-
 const CALLOUT_STYLES: Record<
     KmsCalloutVariant,
-    { box: string; icon: LucideIcon; iconColor: string }
+    { box: string; icon: typeof Info; iconColor: string }
 > = {
     info: {
         box: 'border-sky-200 bg-sky-50',
@@ -248,6 +232,13 @@ function ArticleView({
                 ? [{ title: block.title, index }]
                 : [],
     );
+    const tour = kmsTours[article.slug];
+
+    function jumpTo(index: number) {
+        document
+            .getElementById(`block-${index}`)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
     return (
         <Card>
@@ -268,21 +259,28 @@ function ArticleView({
                         <p className="mb-2 text-xs font-semibold tracking-wide uppercase">
                             On this page
                         </p>
-                        <ul className="flex flex-col gap-1">
+                        <ul className="flex flex-col items-start gap-1">
                             {toc.map(({ title, index }) => (
                                 <li key={index}>
-                                    <a
-                                        href={`#block-${index}`}
+                                    <button
+                                        type="button"
+                                        onClick={() => jumpTo(index)}
                                         className="text-sm text-primary hover:underline"
                                     >
                                         {title}
-                                    </a>
+                                    </button>
                                 </li>
                             ))}
                         </ul>
                     </nav>
                 )}
                 <KmsBlocks blocks={article.blocks} />
+                {tour && (
+                    <GuidedTour
+                        simulation={tour.simulation}
+                        steps={tour.steps}
+                    />
+                )}
                 <div>
                     <Button
                         type="button"
@@ -357,7 +355,7 @@ function KmsHome({
     return (
         <div className="grid gap-4 sm:grid-cols-2">
             {kmsCategories.map((category) => {
-                const Icon = CATEGORY_ICONS[category.slug] ?? BookOpen;
+                const Icon = KMS_CATEGORY_ICONS[category.slug] ?? BookOpen;
 
                 return (
                     <Card
@@ -499,7 +497,8 @@ export default function KmsPage() {
                         </h1>
                         <p className="text-sm text-muted-foreground">
                             Step-by-step guides for every page and task in the
-                            CareLink dashboard.
+                            CareLink dashboard. Many articles include an
+                            interactive demo with a guided tour.
                         </p>
                     </div>
                 </div>
@@ -515,157 +514,75 @@ export default function KmsPage() {
                     />
                 </div>
 
-                <div className="grid flex-1 gap-4 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
-                    <aside className="hidden lg:block">
-                        <Card className="sticky top-4">
-                            <CardHeader>
-                                <CardTitle className="text-base">
-                                    Topics
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="flex flex-col gap-5">
-                                {kmsCategories.map((navCategory) => {
-                                    const Icon =
-                                        CATEGORY_ICONS[navCategory.slug] ??
-                                        BookOpen;
-                                    const active =
-                                        !searching &&
-                                        navCategory.slug === hashCategorySlug;
-
-                                    return (
-                                        <div key={navCategory.slug}>
-                                            <p
-                                                className={cn(
-                                                    'mb-1.5 flex items-center gap-2 text-xs font-semibold tracking-wide uppercase',
-                                                    active
-                                                        ? 'text-foreground'
-                                                        : 'text-muted-foreground',
-                                                )}
+                <main className="flex min-w-0 flex-col gap-4">
+                    {!searching && (
+                        <div className="grid gap-4 sm:grid-cols-2 lg:hidden">
+                            <div className="grid gap-1.5">
+                                <Select
+                                    value={mobileCategory.slug}
+                                    onValueChange={changeCategory}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {kmsCategories.map((option) => (
+                                            <SelectItem
+                                                key={option.slug}
+                                                value={option.slug}
                                             >
-                                                <Icon className="size-3.5" />
-                                                {navCategory.title}
-                                            </p>
-                                            <ul className="flex flex-col gap-0.5">
-                                                {navCategory.articles.map(
-                                                    (navArticle) => {
-                                                        const isActive =
-                                                            active &&
-                                                            navArticle.slug ===
-                                                                hashArticleSlug;
+                                                {option.title}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Select
+                                    value={mobileArticle.slug}
+                                    onValueChange={(slug) => {
+                                        const next =
+                                            mobileCategory.articles.find(
+                                                (candidate) =>
+                                                    candidate.slug === slug,
+                                            );
 
-                                                        return (
-                                                            <li
-                                                                key={
-                                                                    navArticle.slug
-                                                                }
-                                                            >
-                                                                <button
-                                                                    type="button"
-                                                                    className={cn(
-                                                                        'w-full rounded-md px-3 py-1.5 text-left text-sm transition-colors',
-                                                                        isActive
-                                                                            ? 'bg-primary/10 font-medium text-primary'
-                                                                            : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground',
-                                                                    )}
-                                                                    onClick={() =>
-                                                                        openArticle(
-                                                                            navCategory,
-                                                                            navArticle,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        navArticle.title
-                                                                    }
-                                                                </button>
-                                                            </li>
-                                                        );
-                                                    },
-                                                )}
-                                            </ul>
-                                        </div>
-                                    );
-                                })}
-                            </CardContent>
-                        </Card>
-                    </aside>
-
-                    <main className="flex min-w-0 flex-col gap-4">
-                        {!searching && (
-                            <div className="grid gap-4 sm:grid-cols-2 lg:hidden">
-                                <div className="grid gap-1.5">
-                                    <Select
-                                        value={mobileCategory.slug}
-                                        onValueChange={changeCategory}
-                                    >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {kmsCategories.map((option) => (
+                                        if (next) {
+                                            openArticle(mobileCategory, next);
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {mobileCategory.articles.map(
+                                            (option) => (
                                                 <SelectItem
                                                     key={option.slug}
                                                     value={option.slug}
                                                 >
                                                     {option.title}
                                                 </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid gap-1.5">
-                                    <Select
-                                        value={mobileArticle.slug}
-                                        onValueChange={(slug) => {
-                                            const next =
-                                                mobileCategory.articles.find(
-                                                    (candidate) =>
-                                                        candidate.slug === slug,
-                                                );
-
-                                            if (next) {
-                                                openArticle(
-                                                    mobileCategory,
-                                                    next,
-                                                );
-                                            }
-                                        }}
-                                    >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {mobileCategory.articles.map(
-                                                (option) => (
-                                                    <SelectItem
-                                                        key={option.slug}
-                                                        value={option.slug}
-                                                    >
-                                                        {option.title}
-                                                    </SelectItem>
-                                                ),
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                                            ),
+                                        )}
+                                    </SelectContent>
+                                </Select>
                             </div>
-                        )}
-                        {searching ? (
-                            <SearchResults
-                                results={results}
-                                onOpen={openArticle}
-                            />
-                        ) : article && category ? (
-                            <ArticleView
-                                article={article}
-                                category={category}
-                                onBack={goHome}
-                            />
-                        ) : (
-                            <KmsHome onOpen={openArticle} />
-                        )}
-                    </main>
-                </div>
+                        </div>
+                    )}
+                    {searching ? (
+                        <SearchResults results={results} onOpen={openArticle} />
+                    ) : article && category ? (
+                        <ArticleView
+                            article={article}
+                            category={category}
+                            onBack={goHome}
+                        />
+                    ) : (
+                        <KmsHome onOpen={openArticle} />
+                    )}
+                </main>
             </div>
         </>
     );

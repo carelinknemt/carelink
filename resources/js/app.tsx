@@ -6,6 +6,7 @@ import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import CarelinkLayout from '@/layouts/carelink-layout';
 import CmsLayout from '@/layouts/cms-layout';
+import KmsLayout from '@/layouts/kms-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -43,6 +44,10 @@ createInertiaApp({
                 setIsPublicPage(false);
 
                 return CmsLayout;
+            case name.startsWith('kms'):
+                setIsPublicPage(false);
+
+                return KmsLayout;
             case name.startsWith('settings/'):
                 setIsPublicPage(false);
 
