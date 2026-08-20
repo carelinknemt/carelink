@@ -16,40 +16,18 @@ import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
 import { show as showBooking } from '@/routes/dashboard/bookings';
 import type { PaidBooking } from '@/types';
-import type { DashboardStats, DashboardTrends } from '@/types/dashboard';
-
-function TrendCaption({ delta, suffix }: { delta: number; suffix: string }) {
-    if (delta > 0) {
-        return (
-            <span className="font-semibold text-emerald-600">
-                ▲ +{delta} {suffix}
-            </span>
-        );
-    }
-
-    if (delta < 0) {
-        return (
-            <span className="font-semibold text-red-600">
-                ▼ {delta} {suffix}
-            </span>
-        );
-    }
-
-    return <span className="text-muted-foreground">No change {suffix}</span>;
-}
+import type { DashboardStats } from '@/types/dashboard';
 
 function StatCard({
     title,
     value,
     caption,
-    trend,
     href,
     icon,
 }: {
     title: string;
     value: number;
     caption: string;
-    trend: number;
     href: string;
     icon: React.ReactNode;
 }) {
@@ -64,9 +42,7 @@ function StatCard({
                 </CardHeader>
                 <CardContent>
                     <p className="text-3xl font-bold">{value}</p>
-                    <p className="text-muted-foreground text-xs">
-                        {caption} · <TrendCaption delta={trend} suffix="this week" />
-                    </p>
+                    <p className="text-muted-foreground text-xs">{caption}</p>
                 </CardContent>
             </Card>
         </Link>
@@ -75,12 +51,10 @@ function StatCard({
 
 export default function Dashboard({
     stats,
-    trends,
     today_trips,
     recent_bookings,
 }: {
     stats: DashboardStats;
-    trends: DashboardTrends;
     today_trips: PaidBooking[];
     recent_bookings: PaidBooking[];
 }) {
@@ -102,9 +76,7 @@ export default function Dashboard({
                     <StatCard
                         title="Paid Bookings"
                         value={stats.total_paid}
-                        caption="$30 booking fee collected"
-                        trend={trends.total_paid}
-                        href={dashboardBookings.url()}
+                        caption="$30 booking fee collected"                        href={dashboardBookings.url()}
                         icon={
                             <span className="bg-[#004b87]/10 flex size-8 items-center justify-center rounded-md">
                                 <CalendarCheck className="size-4 text-[#004b87]" />
@@ -115,9 +87,7 @@ export default function Dashboard({
                     <StatCard
                         title="Pending Dispatch"
                         value={stats.pending_dispatch}
-                        caption="Awaiting assignment"
-                        trend={trends.pending_dispatch}
-                        href={dashboardBookings.url({
+                        caption="Awaiting assignment"                        href={dashboardBookings.url({
                             query: { status: 'PENDING_DISPATCH' },
                         })}
                         icon={
@@ -130,9 +100,7 @@ export default function Dashboard({
                     <StatCard
                         title="In Transit"
                         value={stats.in_transit}
-                        caption="Active trips"
-                        trend={trends.in_transit}
-                        href={dashboardBookings.url({
+                        caption="Active trips"                        href={dashboardBookings.url({
                             query: { status: 'IN_TRANSIT' },
                         })}
                         icon={
@@ -145,9 +113,7 @@ export default function Dashboard({
                     <StatCard
                         title="Completed"
                         value={stats.completed}
-                        caption="Finished trips"
-                        trend={trends.completed}
-                        href={dashboardBookings.url({
+                        caption="Finished trips"                        href={dashboardBookings.url({
                             query: { status: 'COMPLETED' },
                         })}
                         icon={

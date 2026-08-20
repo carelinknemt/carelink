@@ -31,6 +31,13 @@ import {
     PaginationPrevious,
 } from '@/components/ui/pagination';
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
     Table,
     TableBody,
     TableCell,
@@ -60,6 +67,7 @@ export default function DashboardUsers({
 }: DashboardUsersProps) {
     const form = useForm({
         search: filters.search ?? '',
+        role: filters.role ?? '',
     });
 
     const inviteForm = useForm({
@@ -109,13 +117,14 @@ export default function DashboardUsers({
         navigate();
     }
 
-    function clearSearch() {
+    function changeRole(value: string) {
+        form.setData('role', value);
+
         if (searchTimer.current !== null) {
             window.clearTimeout(searchTimer.current);
             searchTimer.current = null;
         }
 
-        form.setData('search', '');
         navigate();
     }
 
@@ -154,8 +163,6 @@ export default function DashboardUsers({
         );
     }
 
-    const searchActive = Boolean(filters.search);
-
     return (
         <>
             <Head title="Users">
@@ -186,9 +193,34 @@ export default function DashboardUsers({
                     <CardContent>
                         <form
                             onSubmit={submitSearch}
-                            className="flex flex-col gap-4"
+                            className="grid gap-4 sm:grid-cols-2"
                         >
-                            <div className="grid gap-1.5 sm:max-w-xl">
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="user-role">Role</Label>
+                                <Select
+                                    value={form.data.role}
+                                    onValueChange={changeRole}
+                                >
+                                    <SelectTrigger
+                                        id="user-role"
+                                        className="w-full"
+                                    >
+                                        <SelectValue placeholder="All roles" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="">
+                                            All roles
+                                        </SelectItem>
+                                        <SelectItem value="admin">
+                                            Admin
+                                        </SelectItem>
+                                        <SelectItem value="member">
+                                            Standard
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid gap-1.5">
                                 <Label htmlFor="user-search">
                                     Name or email
                                 </Label>
@@ -206,22 +238,6 @@ export default function DashboardUsers({
                                     />
                                 </div>
                             </div>
-                            {searchActive && (
-                                <div className="flex items-center gap-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={clearSearch}
-                                    >
-                                        Clear search
-                                    </Button>
-                                    <span className="text-xs text-muted-foreground">
-                                        {users.total} match
-                                        {users.total === 1 ? '' : 'es'}
-                                    </span>
-                                </div>
-                            )}
                         </form>
                     </CardContent>
                 </Card>
@@ -233,9 +249,7 @@ export default function DashboardUsers({
                                 <UsersIcon className="size-10 text-muted-foreground" />
                                 <p className="font-medium">No users found</p>
                                 <p className="text-sm text-muted-foreground">
-                                    {searchActive
-                                        ? 'Try a different name or email.'
-                                        : 'Add the first user with the Add user button.'}
+                                    Try a different name or email.
                                 </p>
                             </div>
                         ) : (

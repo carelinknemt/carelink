@@ -59,6 +59,33 @@ test('admins see the user list with an add action', function () {
             ->has('current_user_id'));
 });
 
+test('users can be filtered by role', function () {
+    actingAsAdmin();
+
+    User::factory()->admin()->create(['name' => 'Jane Admin', 'email' => 'jane@example.com']);
+    User::factory()->create(['name' => 'John Member', 'email' => 'john@example.com']);
+
+    $this->get(route('dashboard.users', ['role' => 'admin']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/users')
+            ->where('filters.role', 'admin')
+            ->has('users.data', 2)
+            ->where('users.data', fn ($users) => collect($users)
+                ->pluck('name')
+                ->contains('Jane Admin')));
+
+    $this->get(route('dashboard.users', ['role' => 'member']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/users')
+            ->where('filters.role', 'member')
+            ->has('users.data', 1)
+            ->where('users.data', fn ($users) => collect($users)
+                ->pluck('name')
+                ->contains('John Member')));
+});
+
 test('users can be searched by name or email', function () {
     actingAsAdmin();
 

@@ -7,13 +7,6 @@ export type DashboardStats = {
     completed: number;
 };
 
-export type DashboardTrends = {
-    total_paid: number;
-    pending_dispatch: number;
-    in_transit: number;
-    completed: number;
-};
-
 export type BookingFilters = {
     search?: string | null;
     status?: string | null;
@@ -163,6 +156,7 @@ export type UserRecord = {
 
 export type UsersFilters = {
     search?: string | null;
+    role?: 'admin' | 'member' | null;
 };
 
 type PaginatedRecords<T> = {

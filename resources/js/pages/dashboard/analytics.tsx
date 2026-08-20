@@ -124,10 +124,16 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-2xl font-semibold tracking-tight">Analytics</h1>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <h1 className="text-2xl font-semibold tracking-tight">
+                                Analytics
+                            </h1>
+                            <span className="rounded-full border bg-muted/50 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                                Last {days} days
+                            </span>
+                        </div>
                         <p className="text-muted-foreground text-sm">
-                            {formatDate(range.from)} – {formatDate(range.to)} ·{' '}
-                            {days}-day window
+                            {formatDate(range.from)} – {formatDate(range.to)}
                         </p>
                     </div>
                     <div className="flex items-center gap-1">

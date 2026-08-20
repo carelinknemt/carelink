@@ -3,7 +3,7 @@
 use App\Models\TripRequest;
 use App\Models\User;
 
-test('the dashboard shows stats, trends, and today trips', function () {
+test('the dashboard shows stats and today trips', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
@@ -34,7 +34,6 @@ test('the dashboard shows stats, trends, and today trips', function () {
             ->where('stats.total_paid', 3)
             ->where('stats.pending_dispatch', 2)
             ->where('stats.completed', 1)
-            ->has('trends.total_paid')
             ->where('today_trips.0.booking_number', $todayPending->booking_number)
             ->where('today_trips.1.booking_number', $todayCompleted->booking_number)
             ->has('recent_bookings', 3));

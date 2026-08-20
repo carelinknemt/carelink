@@ -34,6 +34,13 @@ class DashboardUserController extends Controller
                         ->orWhere('email', 'like', "%{$search}%");
                 });
             })
+            ->when($request->filled('role'), function (Builder $query) use ($request): void {
+                match ($request->string('role')->trim()->toString()) {
+                    'admin' => $query->where('is_admin', true),
+                    'member' => $query->where('is_admin', false),
+                    default => null,
+                };
+            })
             ->latest()
             ->paginate(self::PER_PAGE)
             ->withQueryString()
@@ -43,6 +50,7 @@ class DashboardUserController extends Controller
             'users' => $users,
             'filters' => [
                 'search' => $request->string('search')->trim()->toString() ?: null,
+                'role' => $request->string('role')->trim()->toString() ?: null,
             ],
             'current_user_id' => $request->user()->id,
         ]);
