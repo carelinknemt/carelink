@@ -52,6 +52,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { formatDateTime, statusBadgeClass } from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { contactMessages } from '@/routes/dashboard';
@@ -217,20 +222,10 @@ export default function DashboardContactMessages({
                                 </Select>
                             </div>
                         </div>
-                        <p className="text-muted-foreground text-xs">
-                            Results update as you type.
-                        </p>
                     </CardContent>
                 </Card>
 
                 <Card className="flex-1">
-                    <div className="flex flex-col items-start justify-between gap-3 px-6 pt-6 sm:flex-row sm:items-center">
-                        <p className="text-muted-foreground text-sm">
-                            Showing {messages.from ?? 0}–{messages.to ?? 0} of{' '}
-                            {messages.total} messages
-                        </p>
-                    </div>
-
                     <CardContent className="pt-6">
                         {messages.data.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-16 text-center">
@@ -560,33 +555,38 @@ function DropdownAction({
     onDelete: (message: ContactMessageItem) => void;
 }) {
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" aria-label="Actions">
-                    <MoreHorizontal className="size-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onDetails(message)}>
-                    <Eye />
-                    Details
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => onRead(message)}
-                    disabled={message.status === 'READ'}
-                >
-                    <MailCheck />
-                    Mark as read
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => onDelete(message)}
-                    className="text-destructive focus:text-destructive"
-                >
-                    <Trash2 />
-                    Delete
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Tooltip>
+            <DropdownMenu>
+                <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon" aria-label="Actions">
+                            <MoreHorizontal className="size-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onDetails(message)}>
+                        <Eye />
+                        Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => onRead(message)}
+                        disabled={message.status === 'READ'}
+                    >
+                        <MailCheck />
+                        Mark as read
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => onDelete(message)}
+                        className="text-destructive focus:text-destructive"
+                    >
+                        <Trash2 />
+                        Delete
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <TooltipContent>Actions</TooltipContent>
+        </Tooltip>
     );
 }
 

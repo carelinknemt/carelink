@@ -13,6 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { IconAction } from '@/components/ui/icon-action';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -231,47 +232,63 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                                 </TableCell>
                                                 <TableCell className="w-32">
                                                     <div className="flex items-center justify-end gap-1">
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                openEdit(
-                                                                    opening,
-                                                                )
-                                                            }
-                                                        >
-                                                            <Pencil className="size-4" />
-                                                        </Button>
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                toggleDirect(
-                                                                    opening,
-                                                                )
-                                                            }
-                                                        >
-                                                            {opening.active ? (
-                                                                <CircleCheck className="size-4" />
-                                                            ) : (
-                                                                <CircleDot className="size-4" />
-                                                            )}
-                                                        </Button>
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                setDeleteTarget(
-                                                                    opening,
-                                                                )
-                                                            }
-                                                        >
-                                                            <Trash2 className="size-4" />
-                                                        </Button>
-                                                    </div>
+                                                            <IconAction
+                                                                label="Edit opening"
+                                                            >
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        openEdit(
+                                                                            opening,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Pencil className="size-4" />
+                                                                </Button>
+                                                            </IconAction>
+                                                            <IconAction
+                                                                label={
+                                                                    opening.active
+                                                                        ? 'Close opening'
+                                                                        : 'Reopen opening'
+                                                                }
+                                                            >
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        toggleDirect(
+                                                                            opening,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {opening.active ? (
+                                                                        <CircleCheck className="size-4" />
+                                                                    ) : (
+                                                                        <CircleDot className="size-4" />
+                                                                    )}
+                                                                </Button>
+                                                            </IconAction>
+                                                            <IconAction
+                                                                label="Delete opening"
+                                                            >
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        setDeleteTarget(
+                                                                            opening,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Trash2 className="size-4" />
+                                                                </Button>
+                                                            </IconAction>
+                                                        </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))
@@ -365,7 +382,10 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                         form.setData('employment_type', value)
                                     }
                                 >
-                                    <SelectTrigger id="opening-type">
+                                    <SelectTrigger
+                                        id="opening-type"
+                                        className="w-full"
+                                    >
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -573,7 +593,10 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                         form.setData('employment_type', value)
                                     }
                                 >
-                                    <SelectTrigger id="edit-opening-type">
+                                    <SelectTrigger
+                                        id="edit-opening-type"
+                                        className="w-full"
+                                    >
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                     <SelectContent>

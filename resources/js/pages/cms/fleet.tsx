@@ -23,6 +23,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { IconAction } from '@/components/ui/icon-action';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -245,30 +246,38 @@ export default function CmsFleet({
                                                 </TableCell>
                                                 <TableCell className="w-32">
                                                     <div className="flex items-center justify-end gap-1">
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                openEdit(
-                                                                    vehicle,
-                                                                )
-                                                            }
+                                                        <IconAction
+                                                            label="Edit vehicle"
                                                         >
-                                                            <Pencil className="size-4" />
-                                                        </Button>
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                setDeleteTarget(
-                                                                    vehicle,
-                                                                )
-                                                            }
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    openEdit(
+                                                                        vehicle,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Pencil className="size-4" />
+                                                            </Button>
+                                                        </IconAction>
+                                                        <IconAction
+                                                            label="Delete vehicle"
                                                         >
-                                                            <Trash2 className="size-4" />
-                                                        </Button>
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    setDeleteTarget(
+                                                                        vehicle,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Trash2 className="size-4" />
+                                                            </Button>
+                                                        </IconAction>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>

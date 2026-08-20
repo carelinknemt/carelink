@@ -431,20 +431,13 @@ export default function DashboardBookings({
                                         }
                                     />
                                 </div>
-                                <p className="text-muted-foreground text-xs">
-                                    Results update as you type.
-                                </p>
                             </div>
                         </form>
                     </CardContent>
                 </Card>
 
                 <Card className="flex-1">
-                    <div className="flex flex-col items-start justify-between gap-3 px-6 pt-6 sm:flex-row sm:items-center">
-                        <p className="text-muted-foreground text-sm">
-                            Showing {bookings.from ?? 0}–{bookings.to ?? 0} of {bookings.total}{' '}
-                            bookings
-                        </p>
+                    <div className="flex flex-col items-end justify-between gap-3 px-6 pt-6 sm:flex-row sm:items-center sm:justify-end">
                         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
                             <div className="flex items-center gap-2">
                                 <span className="text-muted-foreground text-xs">Per page</span>

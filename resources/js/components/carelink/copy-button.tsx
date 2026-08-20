@@ -1,6 +1,11 @@
 import { Check, Copy } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface CopyButtonProps {
     value: string;
@@ -23,17 +28,22 @@ export function CopyButton({ value, label, className }: CopyButtonProps) {
     }
 
     return (
-        <button
-            type="button"
-            onClick={() => void copy()}
-            aria-label={`Copy ${label ?? value}`}
-            className={`inline-flex size-5 shrink-0 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 ${className ?? ''}`}
-        >
-            {copied ? (
-                <Check className="size-3.5 text-emerald-600" />
-            ) : (
-                <Copy className="size-3.5" />
-            )}
-        </button>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <button
+                    type="button"
+                    onClick={() => void copy()}
+                    aria-label={`Copy ${label ?? value}`}
+                    className={`inline-flex size-5 shrink-0 items-center justify-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 ${className ?? ''}`}
+                >
+                    {copied ? (
+                        <Check className="size-3.5 text-emerald-600" />
+                    ) : (
+                        <Copy className="size-3.5" />
+                    )}
+                </button>
+            </TooltipTrigger>
+            <TooltipContent>Copy {label ?? value}</TooltipContent>
+        </Tooltip>
     );
 }

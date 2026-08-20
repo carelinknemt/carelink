@@ -12,7 +12,7 @@ import {
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -28,6 +28,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { IconAction } from '@/components/ui/icon-action';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -53,6 +54,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { formatDate } from '@/lib/bookings';
 import { applications as dashboardApplications } from '@/routes/dashboard';
 import {
@@ -202,61 +208,65 @@ export default function DashboardApplications({
                 </div>
 
                 <Card>
-                    <CardContent className="flex flex-col gap-4 pt-6">
+                    <CardHeader>
+                        <CardTitle className="text-base">Filters</CardTitle>
+                    </CardHeader>
+                    <CardContent>
                         <form
                             onSubmit={submitSearch}
-                            className="flex flex-col gap-4"
+                            className="grid gap-4 sm:grid-cols-2"
                         >
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div className="grid gap-1.5">
-                                    <Label htmlFor="application-role">
-                                        Role
-                                    </Label>
-                                    <Select
-                                        value={form.data.role}
-                                        onValueChange={changeRole}
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="application-role">
+                                    Role
+                                </Label>
+                                <Select
+                                    value={form.data.role}
+                                    onValueChange={changeRole}
+                                >
+                                    <SelectTrigger
+                                        id="application-role"
+                                        className="w-full"
                                     >
-                                        <SelectTrigger id="application-role">
-                                            <SelectValue placeholder="All roles" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="">
-                                                All roles
+                                        <SelectValue placeholder="All roles" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="">
+                                            All roles
+                                        </SelectItem>
+                                        {roles.map((r) => (
+                                            <SelectItem
+                                                key={r.id}
+                                                value={String(r.id)}
+                                            >
+                                                {r.title}
                                             </SelectItem>
-                                            {roles.map((r) => (
-                                                <SelectItem
-                                                    key={r.id}
-                                                    value={String(r.id)}
-                                                >
-                                                    {r.title}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid gap-1.5">
-                                    <Label htmlFor="application-search">
-                                        Name or email
-                                    </Label>
-                                    <div className="relative">
-                                        <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                                        <Input
-                                            id="application-search"
-                                            type="search"
-                                            placeholder="Search applicants..."
-                                            className="pl-9"
-                                            value={form.data.search}
-                                            onChange={(event) =>
-                                                changeSearch(
-                                                    event.target.value,
-                                                )
-                                            }
-                                        />
-                                    </div>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="application-search">
+                                    Name or email
+                                </Label>
+                                <div className="relative">
+                                    <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                                    <Input
+                                        id="application-search"
+                                        type="search"
+                                        placeholder="Search applicants..."
+                                        className="pl-9"
+                                        value={form.data.search}
+                                        onChange={(event) =>
+                                            changeSearch(
+                                                event.target.value,
+                                            )
+                                        }
+                                    />
                                 </div>
                             </div>
                             {searchActive && (
-                                <div>
+                                <div className="sm:col-span-2">
                                     <Button
                                         type="button"
                                         variant="outline"
@@ -268,7 +278,11 @@ export default function DashboardApplications({
                                 </div>
                             )}
                         </form>
+                    </CardContent>
+                </Card>
 
+                <Card className="flex-1">
+                    <CardContent className="pt-6">
                         <div className="overflow-hidden rounded-md border">
                             <Table>
                                 <TableHeader>
@@ -347,19 +361,23 @@ export default function DashboardApplications({
                                                                 )
                                                             }
                                                         />
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            aria-label="Delete application"
-                                                            onClick={() =>
-                                                                setDeleteTarget(
-                                                                    application,
-                                                                )
-                                                            }
+                                                        <IconAction
+                                                            label="Delete application"
                                                         >
-                                                            <Trash2 className="size-4" />
-                                                        </Button>
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                aria-label="Delete application"
+                                                                onClick={() =>
+                                                                    setDeleteTarget(
+                                                                        application,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Trash2 className="size-4" />
+                                                            </Button>
+                                                        </IconAction>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -635,31 +653,36 @@ function DropdownAction({
     onReject: (application: ApplicationRecord) => void;
 }) {
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    aria-label="Actions"
-                >
-                    <MoreHorizontal className="size-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onDetails(application)}>
-                    <Eye />
-                    View Details
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onAccept(application)}>
-                    <ThumbsUp />
-                    Accept
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onReject(application)}>
-                    <ThumbsDown />
-                    Reject
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Tooltip>
+            <DropdownMenu>
+                <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            aria-label="Actions"
+                        >
+                            <MoreHorizontal className="size-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onDetails(application)}>
+                        <Eye />
+                        View Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onAccept(application)}>
+                        <ThumbsUp />
+                        Accept
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onReject(application)}>
+                        <ThumbsDown />
+                        Reject
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <TooltipContent>Actions</TooltipContent>
+        </Tooltip>
     );
 }

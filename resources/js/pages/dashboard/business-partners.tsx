@@ -53,6 +53,11 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { formatDateTime, statusBadgeClass } from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { businessPartners } from '@/routes/dashboard';
@@ -237,20 +242,10 @@ export default function DashboardBusinessPartners({
                                 </Select>
                             </div>
                         </div>
-                        <p className="text-muted-foreground text-xs">
-                            Results update as you type.
-                        </p>
                     </CardContent>
                 </Card>
 
                 <Card className="flex-1">
-                    <div className="flex flex-col items-start justify-between gap-3 px-6 pt-6 sm:flex-row sm:items-center">
-                        <p className="text-muted-foreground text-sm">
-                            Showing {requests.from ?? 0}–{requests.to ?? 0} of{' '}
-                            {requests.total} inquiries
-                        </p>
-                    </div>
-
                     <CardContent className="pt-6">
                         {requests.data.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-16 text-center">
@@ -694,33 +689,38 @@ function DropdownAction({
     onReject: (request: BusinessRequestItem) => void;
 }) {
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" aria-label="Actions">
-                    <MoreHorizontal className="size-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onDetails(request)}>
-                    <Eye />
-                    Details
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => onApprove(request)}
-                    disabled={request.status !== 'PENDING'}
-                >
-                    <ThumbsUp />
-                    Approve
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => onReject(request)}
-                    disabled={request.status !== 'PENDING'}
-                >
-                    <ThumbsDown />
-                    Reject
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Tooltip>
+            <DropdownMenu>
+                <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon" aria-label="Actions">
+                            <MoreHorizontal className="size-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onDetails(request)}>
+                        <Eye />
+                        Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => onApprove(request)}
+                        disabled={request.status !== 'PENDING'}
+                    >
+                        <ThumbsUp />
+                        Approve
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => onReject(request)}
+                        disabled={request.status !== 'PENDING'}
+                    >
+                        <ThumbsDown />
+                        Reject
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <TooltipContent>Actions</TooltipContent>
+        </Tooltip>
     );
 }
 

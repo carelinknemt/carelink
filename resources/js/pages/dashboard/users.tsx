@@ -181,7 +181,7 @@ export default function DashboardUsers({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Search</CardTitle>
+                        <CardTitle className="text-base">Filters</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form
@@ -205,9 +205,6 @@ export default function DashboardUsers({
                                         }
                                     />
                                 </div>
-                                <p className="text-xs text-muted-foreground">
-                                    Results update as you type.
-                                </p>
                             </div>
                             {searchActive && (
                                 <div className="flex items-center gap-2">
@@ -230,13 +227,6 @@ export default function DashboardUsers({
                 </Card>
 
                 <Card className="flex-1">
-                    <div className="px-6 pt-6">
-                        <p className="text-sm text-muted-foreground">
-                            Showing {users.from ?? 0}–{users.to ?? 0} of{' '}
-                            {users.total} users
-                        </p>
-                    </div>
-
                     <CardContent className="pt-6">
                         {users.data.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-16 text-center">

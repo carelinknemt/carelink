@@ -3,7 +3,7 @@ import { BadgeDollarSign, Search } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -159,7 +159,9 @@ export default function DashboardPayments({
         navigate();
     }
 
-    const hasFilters = Boolean(filters.search);
+    const hasFilters = Boolean(
+        filters.search || (filters.status ?? 'PAID') !== 'PAID',
+    );
 
     return (
         <>
@@ -199,59 +201,68 @@ export default function DashboardPayments({
                     />
                 </div>
 
-                <Card className="flex-1">
-                    <div className="flex flex-col items-start justify-between gap-3 px-6 pt-6 sm:flex-row sm:items-center">
-                        <p className="text-muted-foreground text-sm">
-                            Showing {payments.from ?? 0}–{payments.to ?? 0} of {payments.total}{' '}
-                            payments
-                        </p>
-                        <div className="flex w-full items-center gap-2 sm:w-auto">
-                            <Select
-                                value={form.data.status}
-                                onValueChange={changeStatus}
-                            >
-                                <SelectTrigger size="sm" className="w-full sm:w-48">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="__all">All payments</SelectItem>
-                                    <SelectItem value="PAID">Paid</SelectItem>
-                                    <SelectItem value="PENDING">Pending</SelectItem>
-                                    <SelectItem value="refunded">Refunded</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={clearFilters}
-                                disabled={!hasFilters}
-                            >
-                                <Search className="size-4" />
-                                Clear
-                            </Button>
-                        </div>
-                    </div>
-
-                    <CardContent className="pt-6">
-                        <form onSubmit={submitSearch} className="mb-5 flex flex-col gap-1.5 sm:max-w-xl">
-                            <Label htmlFor="payment-search">Search</Label>
-                            <div className="relative">
-                                <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                                <Input
-                                    id="payment-search"
-                                    type="search"
-                                    placeholder="Booking number, passenger, or email…"
-                                    className="pl-9"
-                                    value={form.data.search}
-                                    onChange={(event) => changeSearch(event.target.value)}
-                                />
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Filters</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <form
+                            onSubmit={submitSearch}
+                            className="grid gap-4 sm:grid-cols-2"
+                        >
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="payment-search">Search</Label>
+                                <div className="relative">
+                                    <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                                    <Input
+                                        id="payment-search"
+                                        type="search"
+                                        placeholder="Booking number, passenger, or email…"
+                                        className="pl-9"
+                                        value={form.data.search}
+                                        onChange={(event) => changeSearch(event.target.value)}
+                                    />
+                                </div>
                             </div>
-                            <p className="text-muted-foreground text-xs">
-                                Results update as you type.
-                            </p>
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="payment-status">Status</Label>
+                                <Select
+                                    value={form.data.status}
+                                    onValueChange={changeStatus}
+                                >
+                                    <SelectTrigger
+                                        id="payment-status"
+                                        className="w-full"
+                                    >
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all">All payments</SelectItem>
+                                        <SelectItem value="PAID">Paid</SelectItem>
+                                        <SelectItem value="PENDING">Pending</SelectItem>
+                                        <SelectItem value="refunded">Refunded</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            {hasFilters && (
+                                <div className="sm:col-span-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={clearFilters}
+                                    >
+                                        <Search className="size-4" />
+                                        Clear filters
+                                    </Button>
+                                </div>
+                            )}
                         </form>
+                    </CardContent>
+                </Card>
 
+                <Card className="flex-1">
+                    <CardContent className="pt-6">
                         {payments.data.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-16 text-center">
                                 <BadgeDollarSign className="text-muted-foreground size-10" />
