@@ -165,30 +165,6 @@ export default function DashboardPayments({
                     </p>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <SummaryCard
-                        label="Total payments"
-                        value={String(summary.total_payments)}
-                        hint="Bookings that reached checkout"
-                    />
-                    <SummaryCard
-                        label="Collected"
-                        value={formatMoney(summary.collected)}
-                        hint="Paid booking fees"
-                        accent
-                    />
-                    <SummaryCard
-                        label="Pending"
-                        value={formatMoney(summary.pending)}
-                        hint="Unpaid checkout sessions"
-                    />
-                    <SummaryCard
-                        label="Refunded"
-                        value={formatMoney(summary.refunded)}
-                        hint="Fees refunded to passengers"
-                    />
-                </div>
-
                 <Card>
                     <CardContent>
                         <form
@@ -232,6 +208,30 @@ export default function DashboardPayments({
                         </form>
                     </CardContent>
                 </Card>
+
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <SummaryCard
+                        label="Total payments"
+                        value={String(summary.total_payments)}
+                        hint="Bookings that reached checkout"
+                    />
+                    <SummaryCard
+                        label="Collected"
+                        value={formatMoney(summary.collected)}
+                        hint="Paid booking fees"
+                        accent
+                    />
+                    <SummaryCard
+                        label="Pending"
+                        value={formatMoney(summary.pending)}
+                        hint="Unpaid checkout sessions"
+                    />
+                    <SummaryCard
+                        label="Refunded"
+                        value={formatMoney(summary.refunded)}
+                        hint="Fees refunded to passengers"
+                    />
+                </div>
 
                 <Card className="flex-1">
                     <CardContent className="pt-6">
