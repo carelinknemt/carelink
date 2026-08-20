@@ -27,6 +27,7 @@ createInertiaApp({
                 'book',
                 'bookings/track',
                 'terms',
+                'privacy',
                 'error',
             ].includes(name):
                 setIsPublicPage(true);
