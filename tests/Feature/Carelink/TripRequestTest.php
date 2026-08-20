@@ -1,6 +1,9 @@
 <?php
 
+use App\Cms\SectionDefinitions;
+use App\Models\ContentSection;
 use App\Models\TripRequest;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Stripe\StripeClient;
 use Tests\Support\FakeStripeClient;
@@ -199,4 +202,84 @@ test('a trip request requires a passenger email', function () use ($validPayload
     ])->assertSessionHasErrors('passenger_email');
 
     $this->assertDatabaseCount('trip_requests', 0);
+});
+
+test('a trip request accepts a pickup time inside dispatch hours', function () use ($validPayload) {
+    Storage::fake('local');
+    app()->bind(StripeClient::class, fn () => new FakeStripeClient);
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'trip_date' => Carbon::parse('next saturday')->toDateString(),
+        'pickup_time' => '01:00 PM',
+    ])->assertOk();
+});
+
+test('a trip request rejects a pickup time after dispatch hours close', function () use ($validPayload) {
+    Storage::fake('local');
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'trip_date' => Carbon::parse('next monday')->toDateString(),
+        'pickup_time' => '07:15 PM',
+    ])->assertSessionHasErrors('pickup_time');
+
+    $this->assertDatabaseCount('trip_requests', 0);
+});
+
+test('a trip request rejects a pickup time before dispatch hours open', function () use ($validPayload) {
+    Storage::fake('local');
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'trip_date' => Carbon::parse('next sunday')->toDateString(),
+        'pickup_time' => '06:00 AM',
+    ])->assertSessionHasErrors('pickup_time');
+
+    $this->assertDatabaseCount('trip_requests', 0);
+});
+
+test('a trip request rejects a pickup time on a day with no dispatch service', function () use ($validPayload) {
+    Storage::fake('local');
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'trip_date' => Carbon::parse('next thursday')->toDateString(),
+        'pickup_time' => 'not-a-time',
+    ])->assertSessionHasErrors('pickup_time');
+
+    $this->assertDatabaseCount('trip_requests', 0);
+});
+
+test('dispatch hours come from the cms dispatch_hours section', function () use ($validPayload) {
+    Storage::fake('local');
+    app()->bind(StripeClient::class, fn () => new FakeStripeClient);
+
+    ContentSection::create([
+        'slug' => 'dispatch_hours',
+        'title' => 'Dispatch Hours',
+        'schema' => SectionDefinitions::all()['dispatch_hours']['fields'],
+        'content' => [
+            'days' => [
+                ['day' => 'Monday', 'hours' => '7:00 a.m.-5:00 p.m.'],
+                ['day' => 'Tuesday', 'hours' => '7:00 a.m.-5:00 p.m.'],
+            ],
+        ],
+    ]);
+
+    $monday = Carbon::parse('next monday');
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'trip_date' => $monday->toDateString(),
+        'pickup_time' => '05:30 PM',
+    ])->assertSessionHasErrors('pickup_time');
+
+    $this->assertDatabaseCount('trip_requests', 0);
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'trip_date' => Carbon::parse('next tuesday')->toDateString(),
+        'pickup_time' => '04:30 PM',
+    ])->assertOk();
 });

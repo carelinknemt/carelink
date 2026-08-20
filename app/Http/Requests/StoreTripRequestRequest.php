@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Cms\DispatchHours;
 use App\Models\TripRequest;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,7 +30,19 @@ class StoreTripRequestRequest extends FormRequest
             'trip_date' => ['required', 'date', 'after_or_equal:today'],
             'input_price' => ['nullable', 'numeric', 'min:0', 'max:100000'],
             'pickup_address' => ['required', 'string', 'max:255'],
-            'pickup_time' => ['required', 'string', 'max:32'],
+            'pickup_time' => ['required', 'string', 'max:32', function (string $attribute, mixed $value, Closure $fail): void {
+                $tripDate = $this->input('trip_date');
+
+                if (! $tripDate || DispatchHours::isSupported($tripDate, (string) $value)) {
+                    return;
+                }
+
+                $window = DispatchHours::forDate($tripDate);
+
+                $fail($window !== null
+                    ? "The pickup time must fall within our dispatch hours ({$window['label']}) on that day."
+                    : 'The pickup time must fall within our dispatch hours on that day.');
+            }],
             'dropoff_address' => ['required', 'string', 'max:255'],
             'passenger_phone_number' => ['required', 'string', 'regex:/^(?:\+1|1)?\s*(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/'],
             'passenger_email' => ['required', 'email', 'max:255'],
