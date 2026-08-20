@@ -22,6 +22,7 @@ export interface CmsSectionRecord {
     slug: string;
     title: string;
     description: string;
+    readonly?: boolean;
     schema: CmsField[];
     content: Record<string, unknown>;
     updated_at: string | null;

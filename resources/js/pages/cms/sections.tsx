@@ -314,6 +314,114 @@ function FieldEditor({
     );
 }
 
+function ReadOnlyField({
+    field,
+    value,
+}: {
+    field: CmsField;
+    value: string | boolean | Record<string, string>[] | undefined;
+}) {
+    const id = `cms-field-${field.key}`;
+
+    if (field.type === 'image') {
+        const src = String(value ?? '');
+
+        return (
+            <div className="grid gap-1.5">
+                <Label htmlFor={id}>{field.label}</Label>
+                {src ? (
+                    <img
+                        src={src}
+                        alt={field.label}
+                        className="max-h-40 w-auto rounded-lg border border-slate-200 object-contain"
+                    />
+                ) : (
+                    <p className="text-sm text-slate-500">No image set</p>
+                )}
+            </div>
+        );
+    }
+
+    if (field.type === 'list') {
+        const lines = Array.isArray(value)
+            ? (value as unknown as string[])
+            : [];
+
+        return (
+            <div className="grid gap-1.5">
+                <Label htmlFor={id}>{field.label}</Label>
+                <p className="text-sm text-slate-700">
+                    {lines.length > 0 ? lines.join(' · ') : 'Nothing set'}
+                </p>
+            </div>
+        );
+    }
+
+    if (field.type === 'table') {
+        const rows = (value as Record<string, string>[]) ?? [];
+
+        return (
+            <div className="grid gap-1.5">
+                <Label htmlFor={id}>{field.label}</Label>
+                {rows.length > 0 ? (
+                    <div className="grid gap-3">
+                        {rows.map((row, index) => (
+                            <div
+                                key={index}
+                                className="grid gap-1 rounded-lg border border-slate-200 bg-slate-50 p-3"
+                            >
+                                {field.cols.map((col) => (
+                                    <div key={col.key}>
+                                        <span className="text-xs font-medium text-slate-500">
+                                            {col.label}:
+                                        </span>{' '}
+                                        <span className="text-sm text-slate-700">
+                                            {(() => {
+                                                const cell: unknown =
+                                                    row[col.key];
+
+                                                return Array.isArray(cell)
+                                                    ? (cell as string[]).join(
+                                                          ' · ',
+                                                      )
+                                                    : String(cell ?? '');
+                                            })()}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-sm text-slate-500">No rows set</p>
+                )}
+            </div>
+        );
+    }
+
+    if (field.type === 'switch') {
+        return (
+            <div className="flex items-center gap-2">
+                <Label htmlFor={id}>{field.label}</Label>
+                <Badge variant="secondary" className="text-xs">
+                    {value ? 'Enabled' : 'Disabled'}
+                </Badge>
+            </div>
+        );
+    }
+
+    const text = String(value ?? '');
+
+    return (
+        <div className="grid gap-1.5">
+            <Label htmlFor={id}>{field.label}</Label>
+            <p className="text-sm text-slate-700">
+                {text !== '' ? text : 'Nothing set'}
+            </p>
+        </div>
+    );
+}
+
 function SectionEditorDialog({
     section,
     open,
@@ -375,28 +483,53 @@ function SectionEditorDialog({
                     }}
                     className="grid gap-4"
                 >
-                    {section.schema.map((field) => (
-                        <FieldEditor
-                            key={field.key}
-                            field={field}
-                            value={draftReady[field.key]}
-                            onChange={(value) => setField(field.key, value)}
-                        />
-                    ))}
+                    {section.schema.map((field) =>
+                        section.readonly ? (
+                            <ReadOnlyField
+                                key={field.key}
+                                field={field}
+                                value={draftReady[field.key]}
+                            />
+                        ) : (
+                            <FieldEditor
+                                key={field.key}
+                                field={field}
+                                value={draftReady[field.key]}
+                                onChange={(value) => setField(field.key, value)}
+                            />
+                        ),
+                    )}
                     {form.errors.content && (
                         <p className="text-xs text-destructive">
                             {form.errors.content}
                         </p>
                     )}
                     <DialogFooter>
-                        <DialogClose asChild>
-                            <Button type="button" variant="outline">
-                                Cancel
-                            </Button>
-                        </DialogClose>
-                        <Button type="submit" disabled={form.processing}>
-                            Save changes
-                        </Button>
+                        {section.readonly ? (
+                            <>
+                                <p className="mr-auto text-xs text-muted-foreground">
+                                    This section is managed by the development
+                                    team and cannot be edited here.
+                                </p>
+                                <DialogClose asChild>
+                                    <Button type="button">Close</Button>
+                                </DialogClose>
+                            </>
+                        ) : (
+                            <>
+                                <DialogClose asChild>
+                                    <Button type="button" variant="outline">
+                                        Cancel
+                                    </Button>
+                                </DialogClose>
+                                <Button
+                                    type="submit"
+                                    disabled={form.processing}
+                                >
+                                    Save changes
+                                </Button>
+                            </>
+                        )}
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -508,7 +641,7 @@ export default function CmsSections({ sections }: CmsSectionsProps) {
                                         onClick={() => setEditing(section)}
                                     >
                                         <Pencil className="size-3.5" />
-                                        Edit
+                                        {section.readonly ? 'View' : 'Edit'}
                                     </Button>
                                 </div>
                             </CardHeader>

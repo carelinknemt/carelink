@@ -1,7 +1,25 @@
 import { Link } from '@inertiajs/react';
-import { Phone, Mail, Globe, ArrowUp } from 'lucide-react';
+import {
+    ArrowUp,
+    Facebook,
+    Globe,
+    Instagram,
+    Linkedin,
+    Mail,
+    Phone,
+    Twitter,
+    Youtube,
+} from 'lucide-react';
 import { useCms, useCompanyInfo } from '@/lib/cms';
 import type { PaymentMethod } from '@/lib/cms';
+
+const socialLinks = [
+    { name: 'Facebook', href: '#', icon: Facebook },
+    { name: 'Instagram', href: '#', icon: Instagram },
+    { name: 'LinkedIn', href: '#', icon: Linkedin },
+    { name: 'Twitter', href: '#', icon: Twitter },
+    { name: 'YouTube', href: '#', icon: Youtube },
+];
 
 export default function Footer() {
     const cms = useCms();
@@ -58,6 +76,22 @@ export default function Footer() {
                                 <Globe className="h-4 w-4 text-[#E64A19]" />
                                 <span>{company.address}</span>
                             </div>
+                        </div>
+
+                        <div className="mt-5 flex items-center gap-2.5">
+                            {socialLinks.map(({ name, href, icon: Icon }) => (
+                                <a
+                                    key={name}
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label={name}
+                                    title={name}
+                                    className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-300 transition-colors hover:border-[#E64A19] hover:bg-[#E64A19] hover:text-white"
+                                >
+                                    <Icon className="h-4 w-4" />
+                                </a>
+                            ))}
                         </div>
                     </div>
 

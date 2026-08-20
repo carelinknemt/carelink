@@ -49,7 +49,7 @@ export default function StripePartnershipSpotlight() {
     return (
         <section
             id="stripe-partnership-spotlight"
-            className="relative overflow-hidden bg-slate-100 bg-cover bg-center bg-no-repeat py-20"
+            className="relative overflow-hidden bg-slate-100 bg-cover bg-center bg-no-repeat py-20 lg:py-32"
             style={{
                 backgroundImage: bgImage,
                 backgroundSize: '100vw 100%',

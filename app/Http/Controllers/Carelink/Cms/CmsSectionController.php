@@ -28,6 +28,7 @@ class CmsSectionController extends Controller
                     'slug' => $slug,
                     'title' => $definition['title'],
                     'description' => $definition['description'],
+                    'readonly' => $definition['readonly'] ?? false,
                     'schema' => $definition['fields'],
                     'content' => ContentSection::contentFor($slug),
                     'updated_at' => $row?->updated_at?->toDateTimeString(),
@@ -51,6 +52,8 @@ class CmsSectionController extends Controller
         $definitions = SectionDefinitions::all();
 
         abort_unless(isset($definitions[$section]), 404);
+
+        abort_if(($definitions[$section]['readonly'] ?? false), 403, 'This section is locked and cannot be edited.');
 
         $fields = $definitions[$section]['fields'];
         $defaults = $definitions[$section]['defaults'];

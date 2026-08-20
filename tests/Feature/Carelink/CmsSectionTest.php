@@ -40,25 +40,39 @@ test('admins can update a text section', function () {
     ]);
 });
 
-test('admins can change the booking fees and BookingFee reflects them', function () {
+test('booking fee settings are locked and cannot be updated', function () {
     expect(BookingFee::amountInCents())->toBe(3000);
     expect(BookingFee::amountInCentsFor('ambulatory'))->toBe(2000);
     expect(BookingFee::amountInCentsFor('wheelchair'))->toBe(3000);
 
     $admin = User::factory()->admin()->create();
 
-    $this->actingAs($admin)->put(route('cms.sections.update', 'booking_fee_settings'), [
-        'fee_amount_cents' => '4500',
-        'ambulatory_fee_amount_cents' => '2500',
-        'label' => 'CareLink Booking Fee',
-    ])->assertRedirect();
+    $this->actingAs($admin)
+        ->put(route('cms.sections.update', 'booking_fee_settings'), [
+            'fee_amount_cents' => '4500',
+            'ambulatory_fee_amount_cents' => '2500',
+            'label' => 'CareLink Booking Fee',
+        ])
+        ->assertForbidden();
 
-    expect(BookingFee::amountInCents())->toBe(4500);
-    expect(BookingFee::amountInDollars())->toBe('45.00');
-    expect(BookingFee::amountInCentsFor('ambulatory'))->toBe(2500);
-    expect(BookingFee::amountInCentsFor('wheelchair'))->toBe(4500);
-    expect(BookingFee::dollarsFor('ambulatory'))->toBe('$25.00');
-    expect(BookingFee::dollarsFor('wheelchair'))->toBe('$45.00');
+    expect(BookingFee::amountInCents())->toBe(3000);
+    expect(BookingFee::amountInDollars())->toBe('30.00');
+    expect(BookingFee::amountInCentsFor('ambulatory'))->toBe(2000);
+    expect(BookingFee::amountInCentsFor('wheelchair'))->toBe(3000);
+    expect(BookingFee::dollarsFor('ambulatory'))->toBe('$20.00');
+    expect(BookingFee::dollarsFor('wheelchair'))->toBe('$30.00');
+});
+
+test('the sections index marks booking fee settings as readonly', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('cms.index'))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('cms/sections')
+            ->has('sections', 10)
+            ->where('sections.7.slug', 'booking_fee_settings')
+            ->where('sections.7.readonly', true)
+            ->where('sections.0.readonly', false));
 });
 
 test('list fields are trimmed and empty lines dropped', function () {
@@ -85,13 +99,10 @@ test('invalid values are rejected with validation errors', function () {
     $admin = User::factory()->admin()->create();
 
     $this->actingAs($admin)
-        ->put(route('cms.sections.update', 'booking_fee_settings'), [
-            'fee_amount_cents' => 'not-a-number',
-            'label' => 'CareLink Booking Fee',
+        ->put(route('cms.sections.update', 'google_rating_stats'), [
+            'rating' => 'not-a-number',
         ])
-        ->assertSessionHasErrors('fee_amount_cents');
-
-    expect(BookingFee::amountInCents())->toBe(3000);
+        ->assertSessionHasErrors('rating');
 });
 
 test('unknown sections return 404', function () {

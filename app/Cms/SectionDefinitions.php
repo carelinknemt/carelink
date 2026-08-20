@@ -19,6 +19,7 @@ class SectionDefinitions
      * @return array<string, array{
      *     title: string,
      *     description: string,
+     *     readonly?: bool,
      *     fields: array<int, array{
      *         key: string,
      *         label: string,
@@ -311,6 +312,7 @@ class SectionDefinitions
             ],
             'booking_fee_settings' => [
                 'title' => 'Booking Fee Settings',
+                'readonly' => true,
                 'description' => 'The non-refundable booking fee charged at Stripe checkout. Ambulatory trips use the ambulatory fee; every other transport type uses the standard fee. Changing these updates checkout, the book form, and the booking summaries.',
                 'fields' => [
                     ['key' => 'fee_amount_cents', 'label' => 'Standard fee amount (cents)', 'type' => 'number'],
