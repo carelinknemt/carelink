@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -390,30 +390,29 @@ export default function DashboardBookings({
             </Head>
 
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-semibold tracking-tight">Bookings</h1>
-                    <p className="text-muted-foreground text-sm">
-                        Paid trip bookings. Sorted by trip date by default.
-                    </p>
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                    <div className="flex flex-col gap-1">
+                        <h1 className="text-2xl font-semibold tracking-tight">Bookings</h1>
+                        <p className="text-muted-foreground text-sm">
+                            Paid trip bookings. Sorted by trip date by default.
+                        </p>
+                    </div>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={openFilters}
+                    >
+                        <SlidersHorizontal />
+                        Filters
+                        {activeFilterCount > 0 && (
+                            <span className="bg-primary text-primary-foreground ml-1 inline-flex size-5 items-center justify-center rounded-full text-xs font-medium">
+                                {activeFilterCount}
+                            </span>
+                        )}
+                    </Button>
                 </div>
 
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-                        <CardTitle className="text-base">Filters</CardTitle>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={openFilters}
-                        >
-                            <SlidersHorizontal />
-                            Filters
-                            {activeFilterCount > 0 && (
-                                <span className="bg-primary text-primary-foreground ml-1 inline-flex size-5 items-center justify-center rounded-full text-xs font-medium">
-                                    {activeFilterCount}
-                                </span>
-                            )}
-                        </Button>
-                    </CardHeader>
                     <CardContent>
                         <form onSubmit={applySearch} className="flex flex-col gap-4">
                             <div className="grid gap-1.5 sm:max-w-xl">

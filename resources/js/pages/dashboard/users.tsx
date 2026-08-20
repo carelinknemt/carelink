@@ -10,7 +10,7 @@ import {
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -187,9 +187,6 @@ export default function DashboardUsers({
                 </div>
 
                 <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Filters</CardTitle>
-                    </CardHeader>
                     <CardContent>
                         <form
                             onSubmit={submitSearch}

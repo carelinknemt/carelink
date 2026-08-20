@@ -10,7 +10,7 @@ import {
 import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -196,9 +196,6 @@ export default function DashboardBusinessPartners({
                 </div>
 
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-                        <CardTitle className="text-base">Filters</CardTitle>
-                    </CardHeader>
                     <CardContent>
                         <div className="grid gap-4 sm:grid-cols-2">
                             <form onSubmit={applySearch} className="grid gap-1.5">
