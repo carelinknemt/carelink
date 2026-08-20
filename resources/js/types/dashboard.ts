@@ -58,6 +58,37 @@ export type PaginatedBusinessPartnerRequests = {
     }[];
 };
 
+export type ContactMessage = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    message: string;
+    status: string;
+    read_at: string | null;
+    submitted_at: string;
+};
+
+export type PaginatedContactMessages = {
+    data: ContactMessage[];
+    current_page: number;
+    first_page_url: string;
+    from: number | null;
+    last_page: number;
+    last_page_url: string;
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number | null;
+    total: number;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+};
+
 export type PaginatedBookingsWithFilters = PaginatedBookings & {
     filters: BookingFilters;
 };
@@ -183,6 +214,7 @@ export type JobOpeningRecord = {
     employment_type: string;
     summary: string | null;
     requirements: string[];
+    benefits?: string[] | null;
     sort_order: number;
     active: boolean;
     applications_count: number;

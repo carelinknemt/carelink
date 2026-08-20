@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Career;
 use App\Models\Service;
 
 test('the home page renders with seeded services', function () {
@@ -24,6 +25,25 @@ test('the terms page renders with the public layout', function () {
     $this->get(route('terms'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('terms'));
+});
+
+test('the privacy policy page renders with the public layout', function () {
+    $this->get(route('privacy'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('privacy'));
+});
+
+test('the careers page exposes job benefits', function () {
+    $career = Career::factory()->create([
+        'benefits' => ['Health insurance stipend', 'Paid drive time'],
+    ]);
+
+    $this->get(route('careers'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('careers')
+            ->where('careers.0.id', $career->id)
+            ->where('careers.0.benefits', ['Health insurance stipend', 'Paid drive time']));
 });
 
 test('the admin route redirects to the login page', function () {

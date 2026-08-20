@@ -65,6 +65,7 @@ export interface Career {
     employment_type: string;
     summary: string | null;
     requirements: string[];
+    benefits?: string[] | null;
 }
 
 export interface RideBooking {

@@ -13,10 +13,12 @@ use App\Http\Controllers\Carelink\Cms\CmsImageController;
 use App\Http\Controllers\Carelink\Cms\CmsSectionController;
 use App\Http\Controllers\Carelink\Cms\CmsServiceController;
 use App\Http\Controllers\Carelink\Cms\CmsTeamMemberController;
+use App\Http\Controllers\Carelink\ContactController;
 use App\Http\Controllers\Carelink\DashboardAnalyticsController;
 use App\Http\Controllers\Carelink\DashboardBookingController;
 use App\Http\Controllers\Carelink\DashboardBusinessPartnerController;
 use App\Http\Controllers\Carelink\DashboardCareerApplicationController;
+use App\Http\Controllers\Carelink\DashboardContactMessageController;
 use App\Http\Controllers\Carelink\DashboardController;
 use App\Http\Controllers\Carelink\DashboardJobOpeningController;
 use App\Http\Controllers\Carelink\DashboardPaymentController;
@@ -25,17 +27,20 @@ use App\Http\Controllers\Carelink\FaqController;
 use App\Http\Controllers\Carelink\FleetController;
 use App\Http\Controllers\Carelink\HomeController;
 use App\Http\Controllers\Carelink\KmsController;
+use App\Http\Controllers\Carelink\PrivacyController;
 use App\Http\Controllers\Carelink\ServicesController;
 use App\Http\Controllers\Carelink\TermsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/terms', TermsController::class)->name('terms');
+Route::get('/privacy', PrivacyController::class)->name('privacy');
 Route::get('/services', [ServicesController::class, 'index'])->name('services');
 Route::get('/fleet', [FleetController::class, 'index'])->name('fleet');
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/faq', [FaqController::class, 'index'])->name('faq');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
+Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/careers', [CareersController::class, 'index'])->name('careers');
 Route::get('/book', [BookController::class, 'index'])->name('book');
 Route::post('/bookings', [BookController::class, 'store'])->name('bookings.store');
@@ -46,6 +51,8 @@ Route::get('/for-businesses', [BusinessPartnerController::class, 'index'])->name
 Route::post('/business-partners', [BusinessPartnerController::class, 'store'])->name('business.store');
 
 Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
 Route::redirect('/admin', '/login');
 
@@ -62,6 +69,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/business-partners', [DashboardBusinessPartnerController::class, 'index'])->name('dashboard.business-partners');
     Route::post('/dashboard/business-partners/{businessRequest}/approve', [DashboardBusinessPartnerController::class, 'approve'])->name('dashboard.business-partners.approve');
     Route::post('/dashboard/business-partners/{businessRequest}/reject', [DashboardBusinessPartnerController::class, 'reject'])->name('dashboard.business-partners.reject');
+    Route::get('/dashboard/contact-messages', [DashboardContactMessageController::class, 'index'])->name('dashboard.contact-messages');
+    Route::post('/dashboard/contact-messages/{contactMessage}/read', [DashboardContactMessageController::class, 'markRead'])->name('dashboard.contact-messages.read');
+    Route::delete('/dashboard/contact-messages/{contactMessage}', [DashboardContactMessageController::class, 'destroy'])->name('dashboard.contact-messages.destroy');
     Route::get('/dashboard/payments', [DashboardPaymentController::class, 'index'])->name('dashboard.payments');
     Route::get('/dashboard/applications', [DashboardCareerApplicationController::class, 'index'])->name('dashboard.applications');
     Route::get('/dashboard/applications/{application}/resume', [DashboardCareerApplicationController::class, 'resume'])->name('dashboard.applications.resume');

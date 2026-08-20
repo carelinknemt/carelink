@@ -69,7 +69,7 @@ test('the sections index marks booking fee settings as readonly', function () {
         ->assertOk()
         ->assertInertia(fn (AssertableInertia $page) => $page
             ->component('cms/sections')
-            ->has('sections', 10)
+            ->has('sections', 11)
             ->where('sections.7.slug', 'booking_fee_settings')
             ->where('sections.7.readonly', true)
             ->where('sections.0.readonly', false));

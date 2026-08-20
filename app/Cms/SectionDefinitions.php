@@ -389,9 +389,76 @@ class SectionDefinitions
                     ],
                 ],
             ],
+            'privacy_sections' => [
+                'title' => 'Privacy Policy',
+                'description' => 'The /privacy page: description, intro, and the sections of privacy rules.',
+                'fields' => [
+                    ['key' => 'description', 'label' => 'Meta description', 'type' => 'textarea'],
+                    ['key' => 'last_updated', 'label' => 'Last updated label', 'type' => 'text'],
+                    ['key' => 'intro', 'label' => 'Intro paragraph', 'type' => 'textarea'],
+                    [
+                        'key' => 'sections',
+                        'label' => 'Privacy sections',
+                        'type' => 'table',
+                        'cols' => [
+                            ['key' => 'icon', 'label' => 'Icon (calendar, card, phone, or shield)', 'type' => 'text'],
+                            ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
+                            ['key' => 'body', 'label' => 'Paragraphs (one per line)', 'type' => 'textarea'],
+                        ],
+                    ],
+                ],
+                'defaults' => [
+                    'description' => 'Privacy policy for Carelink Medical Transportation: what information we collect, how it is used and protected, and your rights for private pay trips across Humboldt, Del Norte, Trinity, and Shasta counties.',
+                    'last_updated' => 'August 2026',
+                    'intro' => 'Carelink Medical Transportation LLC ("{company}") respects your privacy. This policy explains what information we collect when you use our website or book a trip, how we use and protect it, and the choices you have. By submitting a trip request or contacting us, you agree to the practices described here.',
+                    'sections' => [
+                        [
+                            'icon' => 'shield',
+                            'title' => 'Information We Collect',
+                            'body' => [
+                                'When you book a trip or contact us, we collect the details you provide: your name, phone number, email address, pickup and dropoff locations, trip dates and times, and any medical or mobility needs you share so we can provide the right vehicle and assistance.',
+                                'When you pay the booking fee online, payment card details are processed by our payment provider and are not stored on our servers.',
+                                'We may automatically collect basic technical information such as your browser type and pages visited to keep the website secure and improve our services.',
+                            ],
+                        ],
+                        [
+                            'icon' => 'shield',
+                            'title' => 'How We Use Your Information',
+                            'body' => [
+                                'We use your information to schedule and dispatch your trips, communicate with you about bookings and payments, and confirm that requested pickup and dropoff locations fall within our service area.',
+                                'We do not sell your personal information to third parties. We only share information that is strictly required for booking logistics, for example with our dispatch tools and the payment provider processing your booking fee.',
+                            ],
+                        ],
+                        [
+                            'icon' => 'shield',
+                            'title' => 'Protected Health Information',
+                            'body' => [
+                                'Because we provide medical transportation, we may ask for mobility or health-related details (such as wheelchair use or oxygen needs) solely to arrange safe transport. We collect only what is necessary for your trip.',
+                                'We do not store or transmit protected health information beyond what is strictly required for booking logistics, and we work with you to support your compliance needs where applicable.',
+                            ],
+                        ],
+                        [
+                            'icon' => 'card',
+                            'title' => 'Payment Security',
+                            'body' => [
+                                'Online booking fee payments are processed through a PCI-compliant payment provider. We never see or store your full card number.',
+                                'We only keep a record that the booking fee was paid, together with the payment reference, for billing and reconciliation purposes.',
+                            ],
+                        ],
+                        [
+                            'icon' => 'phone',
+                            'title' => 'Your Choices and Contact',
+                            'body' => [
+                                'You may request access to, correction of, or deletion of the personal information we hold about you by contacting our dispatch team at {phone} or by email at {email}.',
+                                'We keep booking information only as long as needed for operations, legal, and billing purposes.',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
             'page_heroes' => [
                 'title' => 'Page Headers',
-                'description' => 'Title and subtitle for the hero banner of each public page. Use the page slug: about, services, fleet, faq, blog, careers, business, terms, book.',
+                'description' => 'Title and subtitle for the hero banner of each public page. Use the page slug: about, services, fleet, faq, blog, careers, business, terms, privacy, book.',
                 'fields' => [
                     [
                         'key' => 'heroes',
@@ -414,6 +481,7 @@ class SectionDefinitions
                         ['page' => 'careers', 'title' => 'Careers at Carelink', 'subtitle' => 'Join our team of compassionate NEMT professionals across Northern California.'],
                         ['page' => 'business', 'title' => 'Partnerships & B2B Solutions', 'subtitle' => 'For hospitals, clinics, and community organizations.'],
                         ['page' => 'terms', 'title' => 'Terms & Conditions', 'subtitle' => 'Please review the rules that apply to booking and riding with Carelink Medical Transportation.'],
+                        ['page' => 'privacy', 'title' => 'Privacy Policy', 'subtitle' => 'How Carelink Medical Transportation collects, uses, and protects your information.'],
                         ['page' => 'book', 'title' => 'Book a Ride', 'subtitle' => 'Tell us where and when, and we will match you with the right vehicle.'],
                     ],
                 ],

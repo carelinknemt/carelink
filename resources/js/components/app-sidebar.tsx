@@ -7,6 +7,7 @@ import {
     CalendarCheck,
     CreditCard,
     LayoutGrid,
+    MessageSquareText,
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -28,6 +29,7 @@ import {
     applications,
     bookings as dashboardBookings,
     businessPartners,
+    contactMessages,
     jobOpenings,
     payments,
     users,
@@ -104,6 +106,12 @@ const navGroups: NavGroup[] = [
                 title: 'Business Partners',
                 href: businessPartners(),
                 icon: Building2,
+            },
+            {
+                title: 'Contact Messages',
+                href: contactMessages(),
+                icon: MessageSquareText,
+                adminOnly: true,
             },
             {
                 title: 'Website Content',

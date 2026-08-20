@@ -15,4 +15,20 @@ class BlogController extends Controller
             'posts' => BlogPost::published()->ordered()->get(),
         ]);
     }
+
+    public function show(string $post): Response
+    {
+        $blogPost = BlogPost::published()
+            ->where('slug', $post)
+            ->firstOrFail();
+
+        return Inertia::render('blog/show', [
+            'post' => $blogPost,
+            'recent_posts' => BlogPost::published()
+                ->ordered()
+                ->whereKeyNot($blogPost->getKey())
+                ->limit(3)
+                ->get(),
+        ]);
+    }
 }

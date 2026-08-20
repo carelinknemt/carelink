@@ -35,7 +35,8 @@ class DashboardJobOpeningController extends Controller
 
         Career::create([
             ...$validated,
-            'requirements' => $this->requirementsList($validated['requirements']),
+            'requirements' => $this->listFromText($validated['requirements']),
+            'benefits' => $this->listFromText($validated['benefits'] ?? ''),
             'active' => true,
         ]);
 
@@ -54,7 +55,8 @@ class DashboardJobOpeningController extends Controller
 
         $career->update([
             ...$validated,
-            'requirements' => $this->requirementsList($validated['requirements']),
+            'requirements' => $this->listFromText($validated['requirements']),
+            'benefits' => $this->listFromText($validated['benefits'] ?? ''),
         ]);
 
         Inertia::flash('toast', [
@@ -107,6 +109,7 @@ class DashboardJobOpeningController extends Controller
             'employment_type' => ['required', 'string', 'max:255'],
             'summary' => ['nullable', 'string', 'max:5000'],
             'requirements' => ['required', 'string', 'max:5000'],
+            'benefits' => ['nullable', 'string', 'max:5000'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ];
     }
@@ -120,11 +123,13 @@ class DashboardJobOpeningController extends Controller
     }
 
     /**
+     * Split a newline-separated textarea value into a trimmed list.
+     *
      * @return array<int, string>
      */
-    private function requirementsList(string $requirements): array
+    private function listFromText(string $text): array
     {
-        return collect(explode("\n", $requirements))
+        return collect(explode("\n", $text))
             ->map(fn (string $line): string => trim($line))
             ->filter()
             ->values()
@@ -143,6 +148,7 @@ class DashboardJobOpeningController extends Controller
             'employment_type' => $career->employment_type,
             'summary' => $career->summary,
             'requirements' => $career->requirements,
+            'benefits' => $career->benefits,
             'sort_order' => $career->sort_order,
             'active' => $career->active,
             'applications_count' => $career->applications_count,

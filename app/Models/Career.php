@@ -17,6 +17,7 @@ class Career extends Model
         'employment_type',
         'summary',
         'requirements',
+        'benefits',
         'sort_order',
         'active',
     ];
@@ -29,6 +30,7 @@ class Career extends Model
     {
         return [
             'requirements' => 'array',
+            'benefits' => 'array',
             'active' => 'boolean',
         ];
     }

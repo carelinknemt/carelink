@@ -42,6 +42,7 @@ test('admins can post a job opening', function () {
         'employment_type' => 'Full-Time',
         'summary' => 'Drive patients to appointments.',
         'requirements' => "PASS certification\nValid CA driver license",
+        'benefits' => "Health insurance stipend\nPaid drive time",
         'sort_order' => '2',
     ])->assertRedirect();
 
@@ -53,7 +54,8 @@ test('admins can post a job opening', function () {
         ->employment_type->toBe('Full-Time')
         ->active->toBeTrue()
         ->sort_order->toBe(2)
-        ->requirements->toBe(['PASS certification', 'Valid CA driver license']);
+        ->requirements->toBe(['PASS certification', 'Valid CA driver license'])
+        ->benefits->toBe(['Health insurance stipend', 'Paid drive time']);
 
     $this->assertDatabaseCount('careers', 1);
 });
@@ -68,6 +70,7 @@ test('admins can update a job opening', function () {
         'employment_type' => 'Part-Time',
         'summary' => 'Updated summary.',
         'requirements' => "New requirement\nAnother one",
+        'benefits' => "Flexible schedule\nPaid training",
         'sort_order' => '1',
     ])->assertRedirect();
 
@@ -75,7 +78,27 @@ test('admins can update a job opening', function () {
         ->title->toBe('New Title')
         ->location->toBe('Arcata, CA')
         ->employment_type->toBe('Part-Time')
-        ->requirements->toBe(['New requirement', 'Another one']);
+        ->requirements->toBe(['New requirement', 'Another one'])
+        ->benefits->toBe(['Flexible schedule', 'Paid training']);
+});
+
+test('a job opening may be created without benefits', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->post(route('dashboard.job-openings.store'), [
+        'title' => 'Dispatcher',
+        'location' => 'Eureka, CA',
+        'employment_type' => 'Full-Time',
+        'summary' => 'Coordinate the dispatch desk.',
+        'requirements' => 'Multi-line phone experience',
+        'sort_order' => '3',
+    ])->assertRedirect();
+
+    $opening = Career::first();
+
+    expect($opening)
+        ->benefits->toBe([])
+        ->requirements->toBe(['Multi-line phone experience']);
 });
 
 test('admins can close and reopen a job opening', function () {

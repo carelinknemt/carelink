@@ -130,6 +130,27 @@ export default function Careers({ careers }: CareersProps) {
                                                 ),
                                             )}
                                         </ul>
+
+                                        {career.benefits && career.benefits.length > 0 && (
+                                            <>
+                                                <p className="mt-4 text-xs font-black tracking-wide text-[#004B87] uppercase">
+                                                    Benefits
+                                                </p>
+                                                <ul className="mt-2 space-y-1.5 text-sm text-slate-600">
+                                                    {career.benefits.map(
+                                                        (benefit, idx) => (
+                                                            <li
+                                                                key={idx}
+                                                                className="flex items-center gap-2"
+                                                            >
+                                                                <CheckCircle className="h-4 w-4 text-emerald-500" />
+                                                                {benefit}
+                                                            </li>
+                                                        ),
+                                                    )}
+                                                </ul>
+                                            </>
+                                        )}
                                     </div>
                                     <button
                                         type="button"

@@ -43,6 +43,7 @@ type OpeningForm = {
     employment_type: string;
     summary: string;
     requirements: string;
+    benefits: string;
     sort_order: string;
 };
 
@@ -52,11 +53,16 @@ const EMPTY_FORM: OpeningForm = {
     employment_type: '',
     summary: '',
     requirements: '',
+    benefits: '',
     sort_order: '0',
 };
 
 function toRequirementsText(requirements: string[]): string {
     return requirements.join('\n');
+}
+
+function toBenefitsText(benefits: string[] | null | undefined): string {
+    return (benefits ?? []).join('\n');
 }
 
 export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsProps) {
@@ -80,6 +86,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
             employment_type: opening.employment_type,
             summary: opening.summary ?? '',
             requirements: toRequirementsText(opening.requirements),
+            benefits: toBenefitsText(opening.benefits),
             sort_order: String(opening.sort_order),
         });
         form.clearErrors();
@@ -444,6 +451,29 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                 </p>
                             )}
                         </div>
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="opening-benefits">
+                                Benefits (one per line, optional)
+                            </Label>
+                            <textarea
+                                id="opening-benefits"
+                                rows={4}
+                                value={form.data.benefits}
+                                onChange={(event) =>
+                                    form.setData(
+                                        'benefits',
+                                        event.target.value,
+                                    )
+                                }
+                                placeholder={'Health insurance stipend\nPaid drive time\nFlexible scheduling'}
+                                className="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                            {form.errors.benefits && (
+                                <p className="text-destructive text-xs">
+                                    {form.errors.benefits}
+                                </p>
+                            )}
+                        </div>
                         <DialogFooter>
                             <DialogClose asChild>
                                 <Button type="button" variant="outline">
@@ -626,6 +656,29 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                             {form.errors.requirements && (
                                 <p className="text-destructive text-xs">
                                     {form.errors.requirements}
+                                </p>
+                            )}
+                        </div>
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="edit-opening-benefits">
+                                Benefits (one per line, optional)
+                            </Label>
+                            <textarea
+                                id="edit-opening-benefits"
+                                rows={4}
+                                value={form.data.benefits}
+                                onChange={(event) =>
+                                    form.setData(
+                                        'benefits',
+                                        event.target.value,
+                                    )
+                                }
+                                placeholder={'Health insurance stipend\nPaid drive time\nFlexible scheduling'}
+                                className="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                            {form.errors.benefits && (
+                                <p className="text-destructive text-xs">
+                                    {form.errors.benefits}
                                 </p>
                             )}
                         </div>

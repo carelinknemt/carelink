@@ -1,3 +1,4 @@
+import { useForm } from '@inertiajs/react';
 import {
     ChevronDown,
     Search,
@@ -10,6 +11,7 @@ import { useState } from 'react';
 import AppHead from '@/components/app-head';
 import PageHero from '@/components/carelink/page-hero';
 import { useCompanyInfo, usePageHero } from '@/lib/cms';
+import contact from '@/routes/contact';
 import type { FaqItem } from '@/types/carelink';
 
 interface FaqsProps {
@@ -26,9 +28,12 @@ export default function Faqs({ faqs }: FaqsProps) {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
 
-    const [userQuestion, setUserQuestion] = useState('');
-    const [userEmail, setUserEmail] = useState('');
-    const [submittedMessage, setSubmittedMessage] = useState(false);
+    const form = useForm({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+    });
 
     const categories = [
         'ALL',
@@ -52,17 +57,16 @@ export default function Faqs({ faqs }: FaqsProps) {
     const handleAskSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!userQuestion.trim()) {
-            return;
-        }
-
-        setSubmittedMessage(true);
-        setTimeout(() => {
-            setUserQuestion('');
-            setUserEmail('');
-            setSubmittedMessage(false);
-        }, 4000);
+        form.post(contact.store.url(), {
+            onSuccess: () => {
+                form.reset();
+                setSearchQuery('');
+            },
+        });
     };
+
+    const inputClass =
+        'w-full rounded-xl border border-slate-300 bg-white p-3 text-xs outline-none transition-all focus:border-[#E64A19] focus:ring-2 focus:ring-orange-100';
 
     return (
         <div className="min-h-screen bg-slate-50 pb-16">
@@ -199,7 +203,7 @@ export default function Faqs({ faqs }: FaqsProps) {
                         </h3>
                     </div>
 
-                    {submittedMessage ? (
+                    {form.wasSuccessful ? (
                         <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-emerald-900">
                             <CheckCircle2 className="h-6 w-6 shrink-0 text-emerald-600" />
                             <div className="text-xs">
@@ -217,60 +221,94 @@ export default function Faqs({ faqs }: FaqsProps) {
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div>
                                     <label className="mb-1 block text-xs font-bold text-slate-700">
-                                        Your Email or Phone *
+                                        Your Name *
                                     </label>
                                     <input
                                         type="text"
                                         required
-                                        value={userEmail}
+                                        value={form.data.name}
                                         onChange={(e) =>
-                                            setUserEmail(e.target.value)
+                                            form.setData('name', e.target.value)
                                         }
-                                        placeholder="contact@example.com or phone"
-                                        className="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none focus:border-[#E64A19]"
+                                        placeholder="Jane Smith"
+                                        className={inputClass}
                                     />
+                                    {form.errors.name && (
+                                        <p className="mt-1 text-xs font-medium text-red-600">
+                                            {form.errors.name}
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="mb-1 block text-xs font-bold text-slate-700">
-                                        Topic
+                                        Your Email *
                                     </label>
-                                    <select className="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none focus:border-[#E64A19]">
-                                        <option>
-                                            Medi-Cal Transportation Voucher
-                                        </option>
-                                        <option>
-                                            Hospital Discharge Emergency
-                                        </option>
-                                        <option>
-                                            Out-of-County Long Distance Trip
-                                        </option>
-                                    </select>
+                                    <input
+                                        type="email"
+                                        required
+                                        value={form.data.email}
+                                        onChange={(e) =>
+                                            form.setData('email', e.target.value)
+                                        }
+                                        placeholder="contact@example.com"
+                                        className={inputClass}
+                                    />
+                                    {form.errors.email && (
+                                        <p className="mt-1 text-xs font-medium text-red-600">
+                                            {form.errors.email}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
                             <div>
                                 <label className="mb-1 block text-xs font-bold text-slate-700">
-                                    Your Question / Trip Detail
+                                    Phone (optional)
+                                </label>
+                                <input
+                                    type="tel"
+                                    value={form.data.phone}
+                                    onChange={(e) =>
+                                        form.setData('phone', e.target.value)
+                                    }
+                                    placeholder="(707) 555-0123"
+                                    className={inputClass}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-xs font-bold text-slate-700">
+                                    Your Question / Trip Detail *
                                 </label>
                                 <textarea
                                     required
                                     rows={3}
-                                    value={userQuestion}
+                                    value={form.data.message}
                                     onChange={(e) =>
-                                        setUserQuestion(e.target.value)
+                                        form.setData('message', e.target.value)
                                     }
                                     placeholder="Describe passenger needs, wheel chair requirements, origin, destination..."
-                                    className="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none focus:border-[#E64A19]"
+                                    className={inputClass}
                                 />
+                                {form.errors.message && (
+                                    <p className="mt-1 text-xs font-medium text-red-600">
+                                        {form.errors.message}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="flex justify-end">
                                 <button
                                     type="submit"
-                                    className="inline-flex items-center gap-2 rounded-xl bg-[#E64A19] px-6 py-3 text-xs font-black text-white shadow-md shadow-orange-900/20 transition-all hover:bg-[#d83f0e]"
+                                    disabled={form.processing}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-[#E64A19] px-6 py-3 text-xs font-black text-white shadow-md shadow-orange-900/20 transition-all hover:bg-[#d83f0e] disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     <Send className="h-4 w-4 text-orange-200" />
-                                    <span>Send Advisory Question</span>
+                                    <span>
+                                        {form.processing
+                                            ? 'Sending…'
+                                            : 'Send Advisory Question'}
+                                    </span>
                                 </button>
                             </div>
                         </form>
