@@ -191,9 +191,6 @@ export default function DashboardContactMessages({
                                         }
                                     />
                                 </div>
-                                <p className="text-muted-foreground text-xs">
-                                    Results update as you type.
-                                </p>
                             </form>
                             <div className="grid gap-1.5">
                                 <Label htmlFor="filter-status">Status</Label>
@@ -220,6 +217,9 @@ export default function DashboardContactMessages({
                                 </Select>
                             </div>
                         </div>
+                        <p className="text-muted-foreground text-xs">
+                            Results update as you type.
+                        </p>
                     </CardContent>
                 </Card>
 

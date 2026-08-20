@@ -445,7 +445,7 @@ export default function DashboardBookings({
                             Showing {bookings.from ?? 0}–{bookings.to ?? 0} of {bookings.total}{' '}
                             bookings
                         </p>
-                        <div className="flex w-full items-center gap-2 sm:w-auto">
+                        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
                             <div className="flex items-center gap-2">
                                 <span className="text-muted-foreground text-xs">Per page</span>
                                 <Select value={form.data.per_page} onValueChange={changePerPage}>

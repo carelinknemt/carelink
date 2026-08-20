@@ -211,9 +211,6 @@ export default function DashboardBusinessPartners({
                                         }
                                     />
                                 </div>
-                                <p className="text-muted-foreground text-xs">
-                                    Results update as you type.
-                                </p>
                             </form>
                             <div className="grid gap-1.5">
                                 <Label htmlFor="filter-status">Status</Label>
@@ -240,6 +237,9 @@ export default function DashboardBusinessPartners({
                                 </Select>
                             </div>
                         </div>
+                        <p className="text-muted-foreground text-xs">
+                            Results update as you type.
+                        </p>
                     </CardContent>
                 </Card>
 
