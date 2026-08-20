@@ -2,8 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { BadgeDollarSign, Search } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -148,17 +147,6 @@ export default function DashboardPayments({
         navigate();
     }
 
-    function clearFilters() {
-        if (searchTimer.current !== null) {
-            window.clearTimeout(searchTimer.current);
-            searchTimer.current = null;
-        }
-
-        form.setData('search', '');
-        form.setData('status', 'PAID');
-        navigate();
-    }
-
     const hasFilters = Boolean(
         filters.search || (filters.status ?? 'PAID') !== 'PAID',
     );
@@ -202,9 +190,6 @@ export default function DashboardPayments({
                 </div>
 
                 <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Filters</CardTitle>
-                    </CardHeader>
                     <CardContent>
                         <form
                             onSubmit={submitSearch}
@@ -244,19 +229,6 @@ export default function DashboardPayments({
                                     </SelectContent>
                                 </Select>
                             </div>
-                            {hasFilters && (
-                                <div className="sm:col-span-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={clearFilters}
-                                    >
-                                        <Search className="size-4" />
-                                        Clear filters
-                                    </Button>
-                                </div>
-                            )}
                         </form>
                     </CardContent>
                 </Card>
