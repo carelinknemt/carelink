@@ -53,3 +53,6 @@ Payments dashboard defaults to PAID only; status '__all' shows all checkout sess
 
 ## Application accept/reject emails applicants via dropdown actions
 Applications table is compact (applicant, role title, submitted, actions dropdown: View Details / Accept / Reject + trash). Accept/reject POST dashboard.applications.accept/.reject (admin-only) send ApplicationAccepted / ApplicationRejected mailables to the applicant's email and flash a success toast; no status field is persisted on the application. Details dialog exposes contact, resume download, and cover letter.
+
+## input_price mirrors the charged booking fee, computed server-side
+trip_requests.input_price is not taken from client input. BookController::store always sets it to BookingFee::amountInCentsFor(transport_type) / 100 so the stored price mirrors the fee actually charged ($20 ambulatory, $30 standard by default). Display surfaces (dashboard cards, bookings lists) render this stored value; never hardcode "$30" in copy since ambulatory differs.

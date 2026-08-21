@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Clock, User } from 'lucide-react';
+import { Calendar, Clock, User } from 'lucide-react';
 import AppHead from '@/components/app-head';
 import type { BlogPost } from '@/types/carelink';
 
@@ -33,14 +33,6 @@ export default function BlogShow({ post, recent_posts }: BlogShowProps) {
             />
 
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-12">
-                <Link
-                    href="/blog"
-                    className="inline-flex items-center gap-2 text-xs font-bold text-[#E64A19] transition-colors hover:text-[#d83f0e]"
-                >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to all articles
-                </Link>
-
                 <article className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md">
                     <div className="relative h-72 w-full overflow-hidden sm:h-96">
                         <img
