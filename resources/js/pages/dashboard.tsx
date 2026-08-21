@@ -124,8 +124,8 @@ export default function Dashboard({
                     />
                 </div>
 
-                <div className="grid items-start gap-4 xl:grid-cols-2">
-                    <Card>
+                <div className="flex flex-col gap-4 sm:flex-row xl:grid-cols-2 items-stretch">
+                    <Card className="flex-1">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle className="flex items-center gap-2 text-base">
                                 <Sunrise className="text-[#E64A19] size-4" />
@@ -192,7 +192,7 @@ export default function Dashboard({
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="flex-1">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle className="text-base">Recent Bookings</CardTitle>
                             <Button variant="ghost" size="sm" asChild>
