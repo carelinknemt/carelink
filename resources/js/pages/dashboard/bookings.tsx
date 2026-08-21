@@ -64,7 +64,6 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate, formatMoney, statusLabel } from '@/lib/bookings';
-import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
 import {
@@ -414,8 +413,11 @@ export default function DashboardBookings({
 
                 <Card>
                     <CardContent>
-                        <form onSubmit={applySearch} className="flex flex-col gap-4">
-                            <div className="grid gap-1.5 sm:max-w-xl">
+                        <form
+                            onSubmit={applySearch}
+                            className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end"
+                        >
+                            <div className="grid gap-1.5">
                                 <Label htmlFor="filter-search">Search</Label>
                                 <div className="relative">
                                     <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -431,17 +433,16 @@ export default function DashboardBookings({
                                     />
                                 </div>
                             </div>
-                        </form>
-                    </CardContent>
-                </Card>
-
-                <Card className="flex-1">
-                    <div className="flex flex-col items-end justify-between gap-3 px-6 pt-6 sm:flex-row sm:items-center sm:justify-end">
-                        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-                            <div className="flex items-center gap-2">
-                                <span className="text-muted-foreground text-xs">Per page</span>
-                                <Select value={form.data.per_page} onValueChange={changePerPage}>
-                                    <SelectTrigger size="sm" className="w-20">
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="per-page">Per page</Label>
+                                <Select
+                                    value={form.data.per_page}
+                                    onValueChange={changePerPage}
+                                >
+                                    <SelectTrigger
+                                        id="per-page"
+                                        className="w-full sm:w-20"
+                                    >
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -459,13 +460,9 @@ export default function DashboardBookings({
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
+                                        type="button"
                                         variant="outline"
-                                        size={isDesktop ? 'sm' : 'lg'}
-                                        className={cn(
-                                            'w-full sm:w-auto',
-                                            !isDesktop &&
-                                                'h-11 border-transparent bg-[#E64A19] text-white hover:bg-[#E64A19]/90 hover:text-white',
-                                        )}
+                                        className="w-full sm:w-auto"
                                     >
                                         <Download />
                                         Export
@@ -487,9 +484,11 @@ export default function DashboardBookings({
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                        </div>
-                    </div>
+                        </form>
+                    </CardContent>
+                </Card>
 
+                <Card className="flex-1">
                     <CardContent className="pt-6">
                         {bookings.data.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-16 text-center">
@@ -498,7 +497,7 @@ export default function DashboardBookings({
                                 <p className="text-muted-foreground text-sm">
                                     {hasFilters
                                         ? 'Try adjusting your search, date, or status filter.'
-                                        : 'Bookings appear here once the $30 booking fee has been paid.'}
+                                        : 'Bookings appear here once the booking fee has been paid.'}
                                 </p>
                             </div>
                         ) : (

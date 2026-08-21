@@ -53,11 +53,13 @@ class BookController extends Controller
 
     public function store(StoreTripRequestRequest $request): Response|RedirectResponse
     {
+        $validated = $request->validated();
+
         $tripRequest = TripRequest::create([
-            ...$request->validated(),
+            ...$validated,
             'booking_number' => $this->generateBookingNumber(),
             'status' => TripRequest::STATUS_PENDING_DISPATCH,
-            'input_price' => $request->validated()['input_price'] ?? BookingFee::DEFAULT_AMOUNT_CENTS / 100,
+            'input_price' => BookingFee::amountInCentsFor($validated['transport_type']) / 100,
         ]);
 
         $tripRequest->trip_request_csv_path = $this->exportToCsv($tripRequest);

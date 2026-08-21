@@ -127,6 +127,26 @@ test('a trip request cannot be scheduled in the past', function () use ($validPa
     $this->assertDatabaseCount('trip_requests', 0);
 });
 
+test('the stored trip price mirrors the booking fee for the transport type', function () use ($validPayload) {
+    Storage::fake('local');
+    app()->bind(StripeClient::class, fn () => new FakeStripeClient);
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'transport_type' => 'ambulatory',
+    ])->assertOk();
+
+    expect(TripRequest::first()->input_price)->toBe('20.00');
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'passenger_email' => 'other@example.com',
+        'transport_type' => 'wheelchair',
+    ])->assertOk();
+
+    expect(TripRequest::latest('id')->first()->input_price)->toBe('30.00');
+});
+
 test('a trip request cannot include an invalid trip price', function () use ($validPayload) {
     $this->post(route('bookings.store'), [
         ...$validPayload,

@@ -124,8 +124,8 @@ export default function Dashboard({
                     />
                 </div>
 
-                <div className="flex flex-col gap-4 sm:flex-row xl:grid-cols-2 items-stretch">
-                    <Card className="flex-1">
+                <div className="grid gap-4 xl:grid-cols-2">
+                    <Card className="h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle className="flex items-center gap-2 text-base">
                                 <Sunrise className="text-[#E64A19] size-4" />
@@ -192,7 +192,7 @@ export default function Dashboard({
                         </CardContent>
                     </Card>
 
-                    <Card className="flex-1">
+                    <Card className="h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle className="text-base">Recent Bookings</CardTitle>
                             <Button variant="ghost" size="sm" asChild>
@@ -208,42 +208,46 @@ export default function Dashboard({
                                     <DollarSign className="text-muted-foreground size-8" />
                                     <p className="font-medium">No paid bookings yet</p>
                                     <p className="text-muted-foreground text-sm">
-                                        Bookings appear here once the $30 booking fee has been paid.
+                                        Bookings appear here once the booking fee has been paid.
                                     </p>
                                 </div>
                             ) : (
-                                <ul className="flex flex-col gap-3">
-                                    {recent_bookings.map((booking) => (
+                                <ul className="flex flex-col">
+                                    {recent_bookings.map((booking, index) => (
                                         <li
                                             key={booking.id}
-                                            className="border-border rounded-lg border p-3"
+                                            className={
+                                                index > 0
+                                                    ? 'border-t py-3 first:pt-0 last:pb-0'
+                                                    : 'pb-3'
+                                            }
                                         >
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div className="min-w-0">
-                                                    <Link
-                                                        href={showBooking.url({
-                                                            booking: booking.id,
-                                                        })}
-                                                        className="text-sm font-medium hover:underline"
-                                                        prefetch
-                                                    >
-                                                        {booking.booking_number}
-                                                    </Link>
-                                                    <p className="text-muted-foreground truncate text-xs">
-                                                        {booking.passenger_name}
-                                                    </p>
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div className="flex min-w-0 items-center gap-3">
+                                                    <span className="text-muted-foreground w-24 shrink-0 text-xs font-bold whitespace-nowrap tabular-nums">
+                                                        {formatDate(booking.trip_date)}
+                                                    </span>
+                                                    <div className="flex min-w-0 flex-col">
+                                                        <Link
+                                                            href={showBooking.url({
+                                                                booking: booking.id,
+                                                            })}
+                                                            className="text-sm font-medium hover:underline"
+                                                            prefetch
+                                                        >
+                                                            {booking.booking_number}
+                                                        </Link>
+                                                        <span className="text-muted-foreground truncate text-xs">
+                                                            {booking.passenger_name}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                                <span className="shrink-0 text-sm font-medium whitespace-nowrap">
-                                                    {formatMoney(booking.input_price)}
-                                                </span>
-                                            </div>
-                                            <div className="mt-2 flex items-center justify-between gap-3">
-                                                <span className="text-muted-foreground truncate text-xs">
-                                                    {formatDate(booking.trip_date)}
-                                                </span>
-                                                <BookingStatusBadge
-                                                    status={booking.status}
-                                                />
+                                                <div className="flex items-center gap-3">
+                                                    <BookingStatusBadge status={booking.status} />
+                                                    <span className="text-sm font-medium whitespace-nowrap">
+                                                        {formatMoney(booking.input_price)}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </li>
                                     ))}
