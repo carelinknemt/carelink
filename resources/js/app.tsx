@@ -22,6 +22,7 @@ createInertiaApp({
                 'about',
                 'faqs',
                 'blog',
+                'blog/show',
                 'careers',
                 'business',
                 'book',
