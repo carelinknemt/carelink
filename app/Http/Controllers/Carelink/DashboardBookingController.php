@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Carelink;
 
+use App\Cms\BookingFee;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateTripRequestRequest;
 use App\Http\Requests\UpdateTripRequestStatusRequest;
@@ -57,6 +58,7 @@ class DashboardBookingController extends Controller
         return Inertia::render('dashboard/bookings/show', [
             'booking' => $booking,
             'statuses' => TripRequest::ASSIGNABLE_STATUSES,
+            'booking_fee' => BookingFee::amountInDollarsFor($booking->transport_type),
         ]);
     }
 

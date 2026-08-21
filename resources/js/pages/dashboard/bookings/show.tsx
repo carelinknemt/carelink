@@ -431,15 +431,25 @@ function SectionEditDialog({
 export default function BookingDetail({
     booking,
     statuses,
+    booking_fee,
 }: {
     booking: BookingDetail;
     statuses: string[];
+    booking_fee: string;
 }) {
     const [statusTarget, setStatusTarget] = useState<string | null>(null);
     const [editSection, setEditSection] = useState<DetailSection | null>(null);
     const [cancelOpen, setCancelOpen] = useState(false);
     const [route, setRoute] = useState<RouteInfo | null>(null);
-    const [routeLoading, setRouteLoading] = useState(false);
+    const [routeFailed, setRouteFailed] = useState(false);
+
+    const hasRouteCoords = Boolean(
+        booking.pickup_latitude &&
+            booking.pickup_longitude &&
+            booking.dropoff_latitude &&
+            booking.dropoff_longitude,
+    );
+    const routeLoading = hasRouteCoords && !routeFailed && route === null;
 
     const statusForm = useForm({ status: '' });
     const cancelForm = useForm({});
@@ -508,8 +518,6 @@ export default function BookingDetail({
         const controller = new AbortController();
         let cancelled = false;
 
-        setRouteLoading(true);
-
         const url =
             `${OSRM_ENDPOINT}/${pickupLongitude},${pickupLatitude};` +
             `${dropoffLongitude},${dropoffLatitude}?overview=full&geometries=geojson`;
@@ -542,7 +550,6 @@ export default function BookingDetail({
                     coordinates,
                     distanceMiles: result.distance * MILES_PER_METER,
                 });
-                setRouteLoading(false);
             })
             .catch((error: unknown) => {
                 if (cancelled || (error as Error).name === 'AbortError') {
@@ -550,7 +557,7 @@ export default function BookingDetail({
                 }
 
                 setRoute(null);
-                setRouteLoading(false);
+                setRouteFailed(true);
             });
 
         return () => {
@@ -571,47 +578,23 @@ export default function BookingDetail({
             </Head>
 
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <div className="flex flex-col gap-1.5">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex flex-wrap items-center gap-2">
+                <div className="flex min-w-0 flex-col gap-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="flex min-w-0 flex-col gap-1">
                             <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-                                {booking.booking_number}
+                                <span className="break-all">
+                                    {booking.booking_number}
+                                </span>
                                 <CopyButton
                                     value={String(booking.booking_number)}
                                     label={String(booking.booking_number)}
                                 />
                             </h1>
-                            <Select
-                                value={String(booking.status)}
-                                onValueChange={setStatusTarget}
-                            >
-                                <SelectTrigger
-                                    size="sm"
-                                    className="w-44"
-                                    style={{ borderColor: 'transparent' }}
-                                >
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {statuses.map((status) => (
-                                        <SelectItem key={status} value={status}>
-                                            {statusLabel(status)}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Badge
-                                variant="outline"
-                                className={
-                                    isCancelled
-                                        ? 'border-rose-200 bg-rose-50 text-rose-700'
-                                        : 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                                }
-                            >
-                                {isCancelled
-                                    ? 'CANCELLED · $30 fee refunded'
-                                    : `${booking.payment_status} · $30 fee paid`}
-                            </Badge>
+                            <p className="text-sm text-muted-foreground">
+                                {String(booking.passenger_first_name)}{' '}
+                                {String(booking.passenger_last_name)} · booked{' '}
+                                {formatDateTime(String(booking.created_at))}
+                            </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                             {canCancel && (
@@ -624,28 +607,67 @@ export default function BookingDetail({
                                     Cancel booking
                                 </Button>
                             )}
-                            <Button variant="outline" size="sm" asChild>
-                                <a
-                                    href={showBookingExport.url({
-                                        booking: Number(booking.id),
-                                    })}
+                            {isCancelled ? (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled
                                 >
                                     <Download />
                                     Export CSV
-                                </a>
-                            </Button>
+                                </Button>
+                            ) : (
+                                <Button variant="outline" size="sm" asChild>
+                                    <a
+                                        href={showBookingExport.url({
+                                            booking: Number(booking.id),
+                                        })}
+                                    >
+                                        <Download />
+                                        Export CSV
+                                    </a>
+                                </Button>
+                            )}
                         </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                        {String(booking.passenger_first_name)}{' '}
-                        {String(booking.passenger_last_name)} · booked{' '}
-                        {formatDateTime(String(booking.created_at))}
-                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Select
+                            value={String(booking.status)}
+                            onValueChange={setStatusTarget}
+                        >
+                            <SelectTrigger
+                                size="sm"
+                                className="w-full sm:w-44"
+                                style={{ borderColor: 'transparent' }}
+                            >
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {statuses.map((status) => (
+                                    <SelectItem key={status} value={status}>
+                                        {statusLabel(status)}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Badge
+                            variant="outline"
+                            className={
+                                isCancelled
+                                    ? 'border-rose-200 bg-rose-50 text-rose-700'
+                                    : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                            }
+                        >
+                            {isCancelled
+                                ? `$${booking_fee} refunded`
+                                : `$${booking_fee} fee paid`}
+                        </Badge>
+                    </div>
                 </div>
 
                 <div className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {detailSections.map((section) => (
-                        <Card key={section.title}>
+                        <Card key={section.title} className="min-w-0">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0">
                                 <CardTitle className="text-base">
                                     {section.title}
@@ -766,7 +788,7 @@ export default function BookingDetail({
                             </span>
                             . The paid booking fee of{' '}
                             <span className="font-medium text-foreground">
-                                $30.00
+                                ${booking_fee}
                             </span>{' '}
                             will be refunded to the customer. This cannot be
                             undone.

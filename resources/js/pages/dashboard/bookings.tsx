@@ -525,7 +525,7 @@ export default function DashboardBookings({
                                                     {formatMoney(booking.input_price)}
                                                 </span>
                                             </div>
-                                            <div className="mt-3 flex items-center justify-between gap-3">
+                                            <div className="mt-3 flex flex-col gap-2">
                                                 <span className="text-muted-foreground text-sm">
                                                     {formatDate(booking.trip_date)}
                                                 </span>
@@ -538,7 +538,7 @@ export default function DashboardBookings({
                                                         })
                                                     }
                                                 >
-                                                    <SelectTrigger size="sm" className="w-44">
+                                                    <SelectTrigger size="sm" className="w-full sm:w-44">
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
