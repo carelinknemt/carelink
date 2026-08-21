@@ -57,6 +57,7 @@ class BookController extends Controller
             ...$request->validated(),
             'booking_number' => $this->generateBookingNumber(),
             'status' => TripRequest::STATUS_PENDING_DISPATCH,
+            'input_price' => $request->validated()['input_price'] ?? BookingFee::DEFAULT_AMOUNT_CENTS / 100,
         ]);
 
         $tripRequest->trip_request_csv_path = $this->exportToCsv($tripRequest);
