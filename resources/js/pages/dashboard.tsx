@@ -158,9 +158,9 @@ export default function Dashboard({
                                                     : 'pb-3'
                                             }
                                         >
-                                            <div className="flex items-center justify-between gap-4">
+                                            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
                                                 <div className="flex min-w-0 items-center gap-3">
-                                                    <span className="text-muted-foreground w-14 shrink-0 text-xs font-bold whitespace-nowrap tabular-nums">
+                                                    <span className="w-14 sm:w-12 shrink-0 text-xs font-bold whitespace-nowrap tabular-nums">
                                                         {booking.pickup_time || '—'}
                                                     </span>
                                                     <div className="flex min-w-0 flex-col">
@@ -168,17 +168,17 @@ export default function Dashboard({
                                                             href={showBooking.url({
                                                                 booking: booking.id,
                                                             })}
-                                                            className="text-sm font-medium hover:underline"
+                                                            className="truncate text-sm font-medium hover:underline"
                                                             prefetch
                                                         >
                                                             {booking.booking_number}
                                                         </Link>
-                                                        <span className="text-muted-foreground truncate text-xs">
+                                                        <span className="truncate text-xs text-muted-foreground">
                                                             {booking.passenger_name}
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex flex-col items-start gap-1.5">
                                                     <BookingStatusBadge status={booking.status} />
                                                     <span className="text-sm font-medium whitespace-nowrap">
                                                         {formatMoney(booking.input_price)}
@@ -222,9 +222,9 @@ export default function Dashboard({
                                                     : 'pb-3'
                                             }
                                         >
-                                            <div className="flex items-center justify-between gap-4">
+                                            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
                                                 <div className="flex min-w-0 items-center gap-3">
-                                                    <span className="text-muted-foreground w-24 shrink-0 text-xs font-bold whitespace-nowrap tabular-nums">
+                                                    <span className="text-muted-foreground text-xs font-bold whitespace-nowrap tabular-nums">
                                                         {formatDate(booking.trip_date)}
                                                     </span>
                                                     <div className="flex min-w-0 flex-col">
@@ -232,17 +232,17 @@ export default function Dashboard({
                                                             href={showBooking.url({
                                                                 booking: booking.id,
                                                             })}
-                                                            className="text-sm font-medium hover:underline"
+                                                            className="truncate text-sm font-medium hover:underline"
                                                             prefetch
                                                         >
                                                             {booking.booking_number}
                                                         </Link>
-                                                        <span className="text-muted-foreground truncate text-xs">
+                                                        <span className="truncate text-xs text-muted-foreground">
                                                             {booking.passenger_name}
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex flex-col items-start gap-1.5">
                                                     <BookingStatusBadge status={booking.status} />
                                                     <span className="text-sm font-medium whitespace-nowrap">
                                                         {formatMoney(booking.input_price)}

@@ -285,7 +285,7 @@ export default function CmsBlog({ posts }: { posts: CmsBlogPostRecord[] }) {
                     }
                 }}
             >
-                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+                <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Write a post</DialogTitle>
                         <DialogDescription>
@@ -324,7 +324,7 @@ export default function CmsBlog({ posts }: { posts: CmsBlogPostRecord[] }) {
                     }
                 }}
             >
-                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+                <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Edit {editTarget?.title}</DialogTitle>
                         <DialogDescription>

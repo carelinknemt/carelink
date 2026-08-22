@@ -310,7 +310,7 @@ export default function CmsServices({
                     }
                 }}
             >
-                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+                <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Add a service</DialogTitle>
                         <DialogDescription>
@@ -350,7 +350,7 @@ export default function CmsServices({
                     }
                 }}
             >
-                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+                <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Edit {editTarget?.title}</DialogTitle>
                         <DialogDescription>

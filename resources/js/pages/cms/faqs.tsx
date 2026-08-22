@@ -260,7 +260,7 @@ export default function CmsFaqs({ faqs }: { faqs: CmsFaqRecord[] }) {
                     }
                 }}
             >
-                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+                <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Add an FAQ</DialogTitle>
                         <DialogDescription>
@@ -299,7 +299,7 @@ export default function CmsFaqs({ faqs }: { faqs: CmsFaqRecord[] }) {
                     }
                 }}
             >
-                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+                <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Edit FAQ</DialogTitle>
                         <DialogDescription>

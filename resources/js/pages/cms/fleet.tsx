@@ -298,7 +298,7 @@ export default function CmsFleet({
                     }
                 }}
             >
-                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+                <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Add a vehicle</DialogTitle>
                         <DialogDescription>
@@ -337,7 +337,7 @@ export default function CmsFleet({
                     }
                 }}
             >
-                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+                <DialogContent className="sm:max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Edit {editTarget?.name}</DialogTitle>
                         <DialogDescription>
