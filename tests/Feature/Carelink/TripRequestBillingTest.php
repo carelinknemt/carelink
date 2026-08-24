@@ -288,3 +288,33 @@ test('the tracking page redirects to the book page for an unknown booking', func
     $this->get(route('bookings.show', ['booking' => 'CL-NEMT-000000']))
         ->assertRedirect(route('book'));
 });
+
+test('the tracking page renders a cancelled booking without a checkout url', function () {
+    $tripRequest = TripRequest::factory()->create([
+        'status' => TripRequest::STATUS_CANCELLED,
+    ]);
+
+    $this->get(route('bookings.show', ['booking' => $tripRequest->booking_number]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('bookings/track')
+            ->where('booking.status', TripRequest::STATUS_CANCELLED)
+            ->where('booking.payment_status', TripRequest::PAYMENT_STATUS_PENDING)
+            ->where('checkout_url', null));
+});
+
+test('the tracking page renders a completed booking as paid', function () {
+    $tripRequest = TripRequest::factory()->create([
+        'status' => TripRequest::STATUS_COMPLETED,
+        'payment_status' => TripRequest::PAYMENT_STATUS_PAID,
+        'paid_at' => now(),
+    ]);
+
+    $this->get(route('bookings.show', ['booking' => $tripRequest->booking_number]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('bookings/track')
+            ->where('booking.status', TripRequest::STATUS_COMPLETED)
+            ->where('booking.payment_status', TripRequest::PAYMENT_STATUS_PAID)
+            ->where('checkout_url', null));
+});

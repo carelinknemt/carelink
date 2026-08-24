@@ -142,4 +142,142 @@ test('collection endpoints reject invalid input', function () {
             'type' => 'SPACESHIP',
         ])
         ->assertSessionHasErrors('type');
+
+    $this->actingAs($admin)
+        ->put(route('cms.fleet.update', FleetVehicle::factory()->create()), [
+            'name' => 'Still Bad',
+            'type' => 'SPACESHIP',
+        ])
+        ->assertSessionHasErrors('type');
+});
+
+test('admins can browse every collection management page', function (string $model, string $route, string $component, string $prop) {
+    $admin = User::factory()->admin()->create();
+    $row = $model::factory()->create();
+
+    $this->actingAs($admin)
+        ->get(route($route))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component($component)
+            ->has($prop, 1)
+            ->where("{$prop}.0.id", $row->id));
+})->with([
+    'services' => [Service::class, 'cms.services.index', 'cms/services', 'services'],
+    'fleet' => [FleetVehicle::class, 'cms.fleet.index', 'cms/fleet', 'vehicles'],
+    'faqs' => [Faq::class, 'cms.faqs.index', 'cms/faqs', 'faqs'],
+    'team' => [TeamMember::class, 'cms.team.index', 'cms/team', 'members'],
+    'blog' => [BlogPost::class, 'cms.blog.index', 'cms/blog', 'posts'],
+]);
+
+test('admins can update and delete a fleet vehicle', function () {
+    $admin = User::factory()->admin()->create();
+    $vehicle = FleetVehicle::factory()->create();
+
+    $this->actingAs($admin)
+        ->put(route('cms.fleet.update', $vehicle), [
+            'name' => 'Renamed Vehicle',
+            'type' => 'GURNEY',
+            'capacity' => '2 passengers',
+            'features' => "Oxygen support\nStretcher securement",
+            'active' => '0',
+        ])
+        ->assertRedirect();
+
+    expect($vehicle->fresh())
+        ->name->toBe('Renamed Vehicle')
+        ->type->toBe('GURNEY')
+        ->capacity->toBe('2 passengers')
+        ->features->toBe(['Oxygen support', 'Stretcher securement'])
+        ->active->toBeFalse();
+
+    $this->actingAs($admin)
+        ->delete(route('cms.fleet.destroy', $vehicle))
+        ->assertRedirect();
+
+    $this->assertDatabaseMissing('fleet_vehicles', ['id' => $vehicle->id]);
+});
+
+test('admins can update and delete a team member', function () {
+    $admin = User::factory()->admin()->create();
+    $member = TeamMember::factory()->create();
+
+    $this->actingAs($admin)
+        ->put(route('cms.team.update', $member), [
+            'name' => 'Renamed Member',
+            'role' => 'Lead Dispatcher',
+            'certifications' => "CPR\nFirst Aid",
+            'experience_years' => '7',
+            'active' => '1',
+        ])
+        ->assertRedirect();
+
+    expect($member->fresh())
+        ->name->toBe('Renamed Member')
+        ->role->toBe('Lead Dispatcher')
+        ->certifications->toBe(['CPR', 'First Aid'])
+        ->experience_years->toBe(7)
+        ->active->toBeTrue();
+
+    $this->actingAs($admin)
+        ->delete(route('cms.team.destroy', $member))
+        ->assertRedirect();
+
+    $this->assertDatabaseMissing('team_members', ['id' => $member->id]);
+});
+
+test('admins can update and delete a faq', function () {
+    $admin = User::factory()->admin()->create();
+    $faq = Faq::factory()->create();
+
+    $this->actingAs($admin)
+        ->put(route('cms.faqs.update', $faq), [
+            'question' => 'Updated question?',
+            'answer' => 'Updated answer.',
+            'category' => 'BOOKING & SERVICE',
+            'sort_order' => '3',
+            'active' => '1',
+        ])
+        ->assertRedirect();
+
+    expect($faq->fresh())
+        ->question->toBe('Updated question?')
+        ->answer->toBe('Updated answer.')
+        ->category->toBe('BOOKING & SERVICE');
+
+    $this->actingAs($admin)
+        ->delete(route('cms.faqs.destroy', $faq))
+        ->assertRedirect();
+
+    $this->assertDatabaseMissing('faqs', ['id' => $faq->id]);
+});
+
+test('admins can update and delete a blog post', function () {
+    $admin = User::factory()->admin()->create();
+    $post = BlogPost::factory()->create();
+
+    $this->actingAs($admin)
+        ->put(route('cms.blog.update', $post), [
+            'title' => 'Renamed Post',
+            'slug' => 'renamed-post',
+            'category' => 'SAFETY & COMPLIANCE',
+            'published_at' => '2026-08-20',
+            'active' => '0',
+        ])
+        ->assertRedirect();
+
+    expect($post->fresh())
+        ->title->toBe('Renamed Post')
+        ->slug->toBe('renamed-post')
+        ->category->toBe('SAFETY & COMPLIANCE')
+        ->and($post->fresh()->getRawOriginal('published_at'))
+        ->toStartWith('2026-08-20')
+        ->and($post->fresh()->active)
+        ->toBeFalse();
+
+    $this->actingAs($admin)
+        ->delete(route('cms.blog.destroy', $post))
+        ->assertRedirect();
+
+    $this->assertDatabaseMissing('blog_posts', ['id' => $post->id]);
 });
