@@ -38,6 +38,22 @@ export default function Fleet({ fleet }: FleetProps) {
                 ]}
                 canonical="/fleet"
                 type="article"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'Our Fleet', path: '/fleet' },
+                ]}
+                jsonLd={{
+                    '@context': 'https://schema.org',
+                    '@type': 'ItemList',
+                    name: 'CareLink NEMT Fleet',
+                    description: FLEET_DESCRIPTION,
+                    itemListElement: fleet.map((vehicle, index) => ({
+                        '@type': 'ListItem',
+                        position: index + 1,
+                        name: vehicle.name,
+                        description: vehicle.description,
+                    })),
+                }}
             />
 
             <PageHero

@@ -61,7 +61,7 @@ export default function Home({ services }: HomeProps) {
     return (
         <div>
             <AppHead
-                title="Non-Emergency Medical Transportation (NEMT) in Northern California"
+                title="CareLink | Non-Emergency Medical Transportation in Northern California"
                 description={homeDescription}
                 keywords={[
                     'NEMT',

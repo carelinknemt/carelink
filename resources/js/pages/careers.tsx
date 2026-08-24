@@ -81,6 +81,35 @@ export default function Careers({ careers }: CareersProps) {
                 ]}
                 canonical="/careers"
                 type="article"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'Careers', path: '/careers' },
+                ]}
+                jsonLd={careers.map((career) => ({
+                    '@context': 'https://schema.org',
+                    '@type': 'JobPosting',
+                    title: career.title,
+                    description:
+                        career.summary ||
+                        `CareLink Medical Transportation is hiring a ${career.title} in ${career.location}.`,
+                    datePosted: career.created_at,
+                    employmentType: career.employment_type
+                        .toUpperCase()
+                        .replace(/[^A-Z]+/g, '_'),
+                    hiringOrganization: {
+                        '@type': 'Organization',
+                        name: 'CareLink Medical Transportation',
+                    },
+                    jobLocation: {
+                        '@type': 'Place',
+                        address: {
+                            '@type': 'PostalAddress',
+                            addressLocality: career.location,
+                            addressRegion: 'CA',
+                            addressCountry: 'US',
+                        },
+                    },
+                }))}
             />
 
             {/* Hero Header */}

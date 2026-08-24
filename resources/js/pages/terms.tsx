@@ -63,6 +63,10 @@ export default function Terms() {
                 ]}
                 canonical="/terms"
                 type="website"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'Terms & Conditions', path: '/terms' },
+                ]}
             />
 
             <PageHero

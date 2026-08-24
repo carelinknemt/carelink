@@ -50,6 +50,10 @@ export default function Business({ business_types }: BusinessProps) {
                 ]}
                 canonical="/for-businesses"
                 type="article"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'For Businesses', path: '/for-businesses' },
+                ]}
             />
 
             {/* Hero Header */}

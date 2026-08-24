@@ -84,6 +84,10 @@ export default function Faqs({ faqs }: FaqsProps) {
                 ]}
                 canonical="/faq"
                 type="website"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'FAQs', path: '/faq' },
+                ]}
                 jsonLd={{
                     '@context': 'https://schema.org',
                     '@type': 'FAQPage',

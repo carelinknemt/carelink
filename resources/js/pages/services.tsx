@@ -30,6 +30,11 @@ export default function Services({ services }: ServicesProps) {
                     'medical transportation Humboldt County',
                 ]}
                 canonical="/services"
+                type="article"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'Services', path: '/services' },
+                ]}
                 jsonLd={{
                     '@context': 'https://schema.org',
                     '@type': 'ItemList',

@@ -52,6 +52,10 @@ export default function Blog({ posts }: BlogProps) {
                 ]}
                 canonical="/blog"
                 type="article"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'Blog', path: '/blog' },
+                ]}
                 jsonLd={{
                     '@context': 'https://schema.org',
                     '@type': 'Blog',
@@ -60,7 +64,7 @@ export default function Blog({ posts }: BlogProps) {
                     blogPost: posts.map((post) => ({
                         '@type': 'BlogPosting',
                         headline: post.title,
-                        url: `${window.location.origin}/blog`,
+                        url: `${window.location.origin}/blog/${post.slug}`,
                         datePublished: post.published_at,
                         author: {
                             '@type': 'Person',

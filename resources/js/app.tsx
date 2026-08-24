@@ -12,7 +12,13 @@ import SettingsLayout from '@/layouts/settings/layout';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
-    title: (title) => (title ? `${title} - ${appName}` : appName),
+    title: (title) => {
+        if (!title) {
+            return appName;
+        }
+
+        return title.includes(appName) ? title : `${title} - ${appName}`;
+    },
     layout: (name) => {
         switch (true) {
             case [

@@ -30,6 +30,31 @@ export default function BlogShow({ post, recent_posts }: BlogShowProps) {
                 ]}
                 canonical={`/blog/${post.slug}`}
                 type="article"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'Blog', path: '/blog' },
+                    { name: post.title, path: `/blog/${post.slug}` },
+                ]}
+                jsonLd={{
+                    '@context': 'https://schema.org',
+                    '@type': 'Article',
+                    headline: post.title,
+                    description: post.summary || post.excerpt,
+                    image: post.image.startsWith('http')
+                        ? post.image
+                        : `${window.location.origin}${post.image}`,
+                    datePublished: post.published_at
+                        ? new Date(post.published_at).toISOString()
+                        : undefined,
+                    author: {
+                        '@type': 'Person',
+                        name: post.author,
+                    },
+                    publisher: {
+                        '@type': 'Organization',
+                        name: 'CareLink Medical Transportation',
+                    },
+                }}
             />
 
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-12">

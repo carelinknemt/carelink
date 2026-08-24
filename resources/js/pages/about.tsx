@@ -34,6 +34,10 @@ export default function About({ team }: AboutProps) {
                 ]}
                 canonical="/about"
                 type="article"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'About Us', path: '/about' },
+                ]}
                 jsonLd={{
                     '@context': 'https://schema.org',
                     '@type': 'Organization',

@@ -811,6 +811,10 @@ export default function Book() {
                 ]}
                 canonical="/book"
                 type="website"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'Book a Ride', path: '/book' },
+                ]}
             />
 
             {/* Page Header */}

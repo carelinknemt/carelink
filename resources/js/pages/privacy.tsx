@@ -62,6 +62,10 @@ export default function Privacy() {
                 ]}
                 canonical="/privacy"
                 type="website"
+                breadcrumbs={[
+                    { name: 'Home', path: '/' },
+                    { name: 'Privacy Policy', path: '/privacy' },
+                ]}
             />
 
             <PageHero

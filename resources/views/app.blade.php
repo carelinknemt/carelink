@@ -96,6 +96,26 @@
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         <x-inertia::head>
             <title>{{ config('app.name', 'Laravel') }}</title>
+            @if (request()->routeIs(['home', 'about', 'services', 'fleet', 'faq', 'blog', 'blog.show', 'careers', 'book', 'business', 'terms', 'privacy']))
+                {{-- First-paint SEO/social defaults for public pages. The data-inertia keys
+                     match the head-key attributes in resources/js/components/app-head.tsx so
+                     Inertia adopts and replaces these tags per page on navigation. --}}
+                <meta data-inertia="description" name="description" content="CareLink provides dependable non-emergency medical transportation across Northern California with wheelchair vans, dialysis rides, hospital discharge transport, and group shuttles.">
+                <meta data-inertia="robots" name="robots" content="index, follow">
+                <link data-inertia="canonical" rel="canonical" href="{{ url()->current() }}">
+                <meta data-inertia="og:site_name" property="og:site_name" content="{{ config('app.name', 'Laravel') }}">
+                <meta data-inertia="og:type" property="og:type" content="website">
+                <meta data-inertia="og:title" property="og:title" content="{{ config('app.name', 'Laravel') }}">
+                <meta data-inertia="og:description" property="og:description" content="CareLink provides dependable non-emergency medical transportation across Northern California with wheelchair vans, dialysis rides, hospital discharge transport, and group shuttles.">
+                <meta data-inertia="og:url" property="og:url" content="{{ url()->current() }}">
+                <meta data-inertia="og:image" property="og:image" content="{{ asset('images/non-emergency-medical-transportation.png') }}">
+                <meta data-inertia="og:image:alt" property="og:image:alt" content="{{ config('app.name', 'Laravel') }}">
+                <meta data-inertia="og:locale" property="og:locale" content="en_US">
+                <meta data-inertia="twitter:card" name="twitter:card" content="summary_large_image">
+                <meta data-inertia="twitter:title" name="twitter:title" content="{{ config('app.name', 'Laravel') }}">
+                <meta data-inertia="twitter:description" name="twitter:description" content="CareLink provides dependable non-emergency medical transportation across Northern California with wheelchair vans, dialysis rides, hospital discharge transport, and group shuttles.">
+                <meta data-inertia="twitter:image" name="twitter:image" content="{{ asset('images/non-emergency-medical-transportation.png') }}">
+            @endif
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

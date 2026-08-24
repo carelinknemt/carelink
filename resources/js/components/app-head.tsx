@@ -7,6 +7,11 @@ interface JsonLdNode {
     [key: string]: unknown;
 }
 
+export interface BreadcrumbEntry {
+    name: string;
+    path: string;
+}
+
 interface AppHeadProps {
     title?: string;
     description?: string;
@@ -15,12 +20,15 @@ interface AppHeadProps {
     robots?: string;
     image?: string;
     type?: string;
+    breadcrumbs?: BreadcrumbEntry[];
     jsonLd?: JsonLdNode | JsonLdNode[];
     children?: ReactNode;
 }
 
 const SITE_NAME = 'CareLink';
-const DEFAULT_OG_IMAGE = '/images/clogo.png';
+const DEFAULT_OG_IMAGE = '/images/non-emergency-medical-transportation.png';
+const DEFAULT_DESCRIPTION =
+    'CareLink provides dependable non-emergency medical transportation across Northern California with wheelchair vans, dialysis rides, hospital discharge transport, and group shuttles.';
 
 function toAbsolute(url: string): string {
     if (/^https?:\/\//.test(url)) {
@@ -32,6 +40,44 @@ function toAbsolute(url: string): string {
     return `${origin}${url.startsWith('/') ? url : `/${url}`}`;
 }
 
+function composeTitle(title?: string): string {
+    if (!title) {
+        return SITE_NAME;
+    }
+
+    return title.includes(SITE_NAME) ? title : `${title} - ${SITE_NAME}`;
+}
+
+function websiteJsonLd(origin: string): JsonLdNode {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        '@id': `${origin}/#website`,
+        name: SITE_NAME,
+        url: origin,
+    };
+}
+
+function breadcrumbJsonLd(
+    origin: string,
+    breadcrumbs: BreadcrumbEntry[],
+): JsonLdNode {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbs.map((crumb, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: crumb.name,
+            item: `${origin}${crumb.path}`,
+        })),
+    };
+}
+
+function flattenJsonLd(nodes: JsonLdNode | JsonLdNode[]): JsonLdNode[] {
+    return Array.isArray(nodes) ? nodes : [nodes];
+}
+
 export default function AppHead({
     title,
     description,
@@ -40,6 +86,7 @@ export default function AppHead({
     robots = 'index, follow',
     image = DEFAULT_OG_IMAGE,
     type = 'website',
+    breadcrumbs,
     jsonLd,
     children,
 }: AppHeadProps) {
@@ -49,42 +96,77 @@ export default function AppHead({
           ? window.location.href
           : undefined;
     const ogImage = toAbsolute(image);
-    const fullTitle = title ? `${title} - ${SITE_NAME}` : SITE_NAME;
+    const fullTitle = composeTitle(title);
+
+    const graph: JsonLdNode[] = [
+        ...(typeof window !== 'undefined'
+            ? [websiteJsonLd(window.location.origin)]
+            : []),
+        ...flattenJsonLd(jsonLd ?? []),
+        ...(breadcrumbs && breadcrumbs.length > 0
+            ? [breadcrumbJsonLd(window.location.origin, breadcrumbs)]
+            : []),
+    ];
 
     return (
-        <Head title={title}>
-            {description && <meta name="description" content={description} />}
+        <Head title={fullTitle}>
+            <meta
+                head-key="description"
+                name="description"
+                content={description || DEFAULT_DESCRIPTION}
+            />
             {keywords && keywords.length > 0 && (
-                <meta name="keywords" content={keywords.join(', ')} />
+                <meta
+                    head-key="keywords"
+                    name="keywords"
+                    content={keywords.join(', ')}
+                />
             )}
-            <meta name="robots" content={robots} />
-            {pageUrl && <link rel="canonical" href={pageUrl} />}
+            <meta head-key="robots" name="robots" content={robots} />
+            {pageUrl && (
+                <link head-key="canonical" rel="canonical" href={pageUrl} />
+            )}
 
             {/* Open Graph */}
-            <meta property="og:site_name" content={SITE_NAME} />
-            <meta property="og:type" content={type} />
-            <meta property="og:title" content={fullTitle} />
-            {description && (
-                <meta property="og:description" content={description} />
+            <meta head-key="og:site_name" property="og:site_name" content={SITE_NAME} />
+            <meta head-key="og:type" property="og:type" content={type} />
+            <meta head-key="og:title" property="og:title" content={fullTitle} />
+            <meta
+                head-key="og:description"
+                property="og:description"
+                content={description || DEFAULT_DESCRIPTION}
+            />
+            {pageUrl && (
+                <meta head-key="og:url" property="og:url" content={pageUrl} />
             )}
-            {pageUrl && <meta property="og:url" content={pageUrl} />}
-            <meta property="og:image" content={ogImage} />
-            <meta property="og:image:alt" content={title || SITE_NAME} />
-            <meta property="og:locale" content="en_US" />
+            <meta head-key="og:image" property="og:image" content={ogImage} />
+            <meta
+                head-key="og:image:alt"
+                property="og:image:alt"
+                content={title || SITE_NAME}
+            />
+            <meta head-key="og:locale" property="og:locale" content="en_US" />
 
             {/* Twitter Card */}
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content={fullTitle} />
-            {description && (
-                <meta name="twitter:description" content={description} />
-            )}
-            <meta name="twitter:image" content={ogImage} />
+            <meta
+                head-key="twitter:card"
+                name="twitter:card"
+                content="summary_large_image"
+            />
+            <meta head-key="twitter:title" name="twitter:title" content={fullTitle} />
+            <meta
+                head-key="twitter:description"
+                name="twitter:description"
+                content={description || DEFAULT_DESCRIPTION}
+            />
+            <meta head-key="twitter:image" name="twitter:image" content={ogImage} />
 
             {/* Structured Data */}
-            {jsonLd && (
+            {graph.length > 0 && (
                 <script
+                    key="ld-json-graph"
                     type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }}
                 />
             )}
 

@@ -11,6 +11,7 @@ use App\Models\TripRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -95,7 +96,7 @@ class BookController extends Controller
     /**
      * Show the public order tracking page for a trip request.
      */
-    public function show(string $booking): Response|RedirectResponse
+    public function show(string $booking): HttpResponse|RedirectResponse
     {
         $tripRequest = TripRequest::where('booking_number', $booking)->first();
 
@@ -112,7 +113,9 @@ class BookController extends Controller
             'booking' => $this->bookingSummary($tripRequest),
             'booking_fee' => $this->bookingFeeProp(),
             'checkout_url' => $this->checkoutUrl($tripRequest),
-        ]);
+        ])
+            ->toResponse(request())
+            ->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
     /**

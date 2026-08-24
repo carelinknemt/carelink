@@ -28,11 +28,15 @@ use App\Http\Controllers\Carelink\FleetController;
 use App\Http\Controllers\Carelink\HomeController;
 use App\Http\Controllers\Carelink\KmsController;
 use App\Http\Controllers\Carelink\PrivacyController;
+use App\Http\Controllers\Carelink\RobotsController;
 use App\Http\Controllers\Carelink\ServicesController;
+use App\Http\Controllers\Carelink\SitemapController;
 use App\Http\Controllers\Carelink\TermsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/robots.txt', RobotsController::class)->name('robots');
 Route::get('/terms', TermsController::class)->name('terms');
 Route::get('/privacy', PrivacyController::class)->name('privacy');
 Route::get('/services', [ServicesController::class, 'index'])->name('services');
