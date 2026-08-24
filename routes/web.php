@@ -32,6 +32,7 @@ use App\Http\Controllers\Carelink\RobotsController;
 use App\Http\Controllers\Carelink\ServicesController;
 use App\Http\Controllers\Carelink\SitemapController;
 use App\Http\Controllers\Carelink\TermsController;
+use App\Http\Middleware\AddNoIndexHeader;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -48,7 +49,9 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/careers', [CareersController::class, 'index'])->name('careers');
 Route::get('/book', [BookController::class, 'index'])->name('book');
 Route::post('/bookings', [BookController::class, 'store'])->name('bookings.store');
-Route::get('/bookings/{booking}', [BookController::class, 'show'])->name('bookings.show');
+Route::get('/bookings/{booking}', [BookController::class, 'show'])
+    ->middleware(AddNoIndexHeader::class)
+    ->name('bookings.show');
 Route::get('/bookings/{booking}/status', [BookController::class, 'status'])->name('bookings.status');
 Route::post('/careers/apply', [CareersController::class, 'store'])->name('careers.apply');
 Route::get('/for-businesses', [BusinessPartnerController::class, 'index'])->name('business');
@@ -60,7 +63,7 @@ Route::post('/contact', [ContactController::class, 'store'])->name('contact.stor
 
 Route::redirect('/admin', '/login');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/analytics', [DashboardAnalyticsController::class, 'index'])->name('dashboard.analytics');
     Route::get('/dashboard/bookings', [DashboardBookingController::class, 'index'])->name('dashboard.bookings');

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\FleetVehicleFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class FleetVehicle extends Model
 {
+    /** @use HasFactory<FleetVehicleFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -37,11 +39,19 @@ class FleetVehicle extends Model
         ];
     }
 
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
     }
 
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('id');

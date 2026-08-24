@@ -57,7 +57,7 @@ class DispatchHours
     {
         $days = ContentSection::contentFor('dispatch_hours')['days'] ?? [];
 
-        return collect($days)
+        return collect(is_array($days) ? $days : [])
             ->filter(fn (mixed $row): bool => is_array($row))
             ->map(function (array $row): ?array {
                 $pair = self::parseWindow((string) ($row['hours'] ?? ''));
@@ -110,7 +110,7 @@ class DispatchHours
 
         if (preg_match('/^(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)$/i', $time, $matches)) {
             $hour = (int) $matches[1];
-            $minute = (int) ($matches[2] ?? 0);
+            $minute = (int) ($matches[2] !== '' ? $matches[2] : 0);
             $isPm = stripos($matches[3], 'p') === 0;
 
             if ($hour < 1 || $hour > 12 || $minute > 59) {

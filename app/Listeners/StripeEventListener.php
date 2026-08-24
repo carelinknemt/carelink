@@ -20,6 +20,8 @@ class StripeEventListener
 
     /**
      * Mark a trip request as paid when its checkout session completes.
+     *
+     * @param  array<string, mixed>  $payload
      */
     private function markBookingPaid(array $payload): void
     {

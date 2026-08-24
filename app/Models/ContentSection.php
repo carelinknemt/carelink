@@ -3,13 +3,10 @@
 namespace App\Models;
 
 use App\Cms\SectionDefinitions;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ContentSection extends Model
 {
-    use HasFactory;
-
     /**
      * A ContentSection is a CMS-editable JSON blob keyed by a stable slug
      * (e.g. company_info, hero_slides). The schema lives in code
@@ -39,7 +36,7 @@ class ContentSection extends Model
      */
     public static function contentForAll(): array
     {
-        $rows = static::query()->get(['slug', 'content'])->pluck('content', 'slug');
+        $rows = static::query()->pluck('content', 'slug');
 
         return collect(SectionDefinitions::all())
             ->map(function (array $definition, string $slug) use ($rows): array {

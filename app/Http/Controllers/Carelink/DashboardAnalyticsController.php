@@ -57,6 +57,7 @@ class DashboardAnalyticsController extends Controller
     }
 
     /**
+     * @param  Collection<int, TripRequest>  $bookings
      * @return array{bookings: int, revenue: float, avg_trip_price: float, completed_rate: float}
      */
     private function summary(Collection $bookings): array
@@ -76,13 +77,14 @@ class DashboardAnalyticsController extends Controller
     /**
      * Zero-filled per-day bookings + booking-fee revenue series.
      *
+     * @param  Collection<int, TripRequest>  $bookings
      * @return array<int, array{date: string, bookings: int, revenue: float}>
      */
     private function dailySeries(Collection $bookings, CarbonInterface $from, CarbonInterface $to): array
     {
-        $daily = $bookings->groupBy(fn (TripRequest $tripRequest): string => $tripRequest->trip_date?->toDateString() ?? '');
+        $daily = $bookings->groupBy(fn (TripRequest $tripRequest): string => $tripRequest->trip_date->toDateString());
 
-        return collect($from->toPeriod($to, 1, 'day'))->map(function (CarbonInterface $day) use ($daily): array {
+        return collect(iterator_to_array($from->toPeriod($to, 1, 'day')))->map(function (CarbonInterface $day) use ($daily): array {
             $key = $day->toDateString();
             $rows = $daily->get($key, new Collection);
 
@@ -98,6 +100,7 @@ class DashboardAnalyticsController extends Controller
      * Group a collection by a field into labeled count rows, keeping the
      * model's status/service ordering.
      *
+     * @param  Collection<int, TripRequest>  $bookings
      * @return array<int, array{label: string, count: int}>
      */
     private function counts(Collection $bookings, string $field): array
@@ -117,6 +120,7 @@ class DashboardAnalyticsController extends Controller
     /**
      * Passengers booked more than once in the period, busiest first.
      *
+     * @param  Collection<int, TripRequest>  $bookings
      * @return array<int, array{name: string, trips: int}>
      */
     private function repeatPassengers(Collection $bookings): array

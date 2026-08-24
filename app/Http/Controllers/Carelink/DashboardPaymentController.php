@@ -62,7 +62,7 @@ class DashboardPaymentController extends Controller
     }
 
     /**
-     * @return array<string, int>
+     * @return array<string, float|int>
      */
     private function summary(): array
     {
@@ -98,7 +98,7 @@ class DashboardPaymentController extends Controller
             'booking_number' => $tripRequest->booking_number,
             'passenger_name' => trim($tripRequest->passenger_first_name.' '.$tripRequest->passenger_last_name),
             'passenger_email' => $tripRequest->passenger_email,
-            'trip_date' => $tripRequest->trip_date?->toDateString(),
+            'trip_date' => $tripRequest->trip_date->toDateString(),
             'input_price' => $tripRequest->input_price,
             'payment_status' => $tripRequest->payment_status,
             'amount' => BookingFee::amountInDollarsFor($tripRequest->transport_type),

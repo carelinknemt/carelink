@@ -54,6 +54,8 @@ class BusinessPartnerRequest extends Model
 
     /**
      * Display summary used by the manager dashboard list.
+     *
+     * @return array<string, mixed>
      */
     public function managerSummary(): array
     {

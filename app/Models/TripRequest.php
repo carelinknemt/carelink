@@ -3,11 +3,19 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Database\Factories\TripRequestFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property Carbon $trip_date
+ * @property Carbon|null $passenger_dob
+ * @property Carbon|null $paid_at
+ * @property Carbon|null $refunded_at
+ */
 class TripRequest extends Model
 {
+    /** @use HasFactory<TripRequestFactory> */
     use HasFactory;
 
     public const STATUS_PENDING_DISPATCH = 'PENDING_DISPATCH';
@@ -154,6 +162,8 @@ class TripRequest extends Model
      * A row for the Bambi import CSV (docs/schema.csv contract): the id
      * column exports empty, booleans export as TRUE/FALSE, dates as
      * YYYY-MM-DD, and null values as an empty string.
+     *
+     * @return list<string>
      */
     public static function exportRow(self $tripRequest): array
     {
@@ -188,6 +198,8 @@ class TripRequest extends Model
 
     /**
      * Display summary used by the manager dashboard lists.
+     *
+     * @return array<string, mixed>
      */
     public function managerSummary(): array
     {
@@ -198,7 +210,7 @@ class TripRequest extends Model
             'phone' => $this->passenger_phone_number,
             'email' => $this->passenger_email,
             'service_type' => $this->service_type,
-            'trip_date' => $this->trip_date?->toDateString(),
+            'trip_date' => $this->trip_date->toDateString(),
             'pickup_time' => $this->pickup_time,
             'pickup_address' => $this->pickup_address,
             'dropoff_address' => $this->dropoff_address,

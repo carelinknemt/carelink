@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\TeamMemberFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class TeamMember extends Model
 {
+    /** @use HasFactory<TeamMemberFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -35,11 +37,19 @@ class TeamMember extends Model
         ];
     }
 
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('active', true);
     }
 
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('id');

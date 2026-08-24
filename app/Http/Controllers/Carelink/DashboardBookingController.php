@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Cashier\Cashier;
+use RuntimeException;
 use Stripe\Exception\ApiErrorException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -194,6 +195,10 @@ class DashboardBookingController extends Controller
         return response()->streamDownload(function () use ($booking): void {
             $handle = fopen('php://output', 'w');
 
+            if ($handle === false) {
+                throw new RuntimeException('Could not open an output stream for the CSV export.');
+            }
+
             fputcsv($handle, TripRequest::CSV_COLUMNS);
             fputcsv($handle, TripRequest::exportRow($booking));
 
@@ -207,6 +212,10 @@ class DashboardBookingController extends Controller
 
         return response()->streamDownload(function () use ($request): void {
             $handle = fopen('php://output', 'w');
+
+            if ($handle === false) {
+                throw new RuntimeException('Could not open an output stream for the CSV export.');
+            }
 
             fputcsv($handle, TripRequest::CSV_COLUMNS);
 
@@ -223,6 +232,8 @@ class DashboardBookingController extends Controller
      * optional search, status, date range, service type filters and a
      * whitelisted sort applied. By default only bookings pending
      * dispatch are shown; the status filter reveals the rest.
+     *
+     * @return Builder<TripRequest>
      */
     private function filteredQuery(Request $request): Builder
     {
@@ -298,6 +309,9 @@ class DashboardBookingController extends Controller
         );
     }
 
+    /**
+     * @return literal-string
+     */
     private function sortClause(Request $request): string
     {
         $column = $request->string('sort')->toString();

@@ -11,13 +11,13 @@ use App\Models\TripRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Checkout;
+use RuntimeException;
 use Stripe\Exception\ApiErrorException;
 
 class BookController extends Controller
@@ -68,15 +68,16 @@ class BookController extends Controller
 
         try {
             $checkout = $this->createBookingCheckout($tripRequest);
+            $session = $checkout->asStripeCheckoutSession();
 
-            $tripRequest->update(['stripe_checkout_session_id' => $checkout->id]);
+            $tripRequest->update(['stripe_checkout_session_id' => $session->id]);
 
             return Inertia::render('book', [
                 'services' => $this->servicesForBookPage(),
                 'booking_fee' => $this->bookingFeeProp(),
                 'booking' => $this->bookingSummary($tripRequest),
                 'checkout' => [
-                    'url' => $checkout->url,
+                    'url' => $session->url,
                     'booking_number' => $tripRequest->booking_number,
                 ],
             ]);
@@ -96,7 +97,7 @@ class BookController extends Controller
     /**
      * Show the public order tracking page for a trip request.
      */
-    public function show(string $booking): HttpResponse|RedirectResponse
+    public function show(string $booking): Response|RedirectResponse
     {
         $tripRequest = TripRequest::where('booking_number', $booking)->first();
 
@@ -113,9 +114,7 @@ class BookController extends Controller
             'booking' => $this->bookingSummary($tripRequest),
             'booking_fee' => $this->bookingFeeProp(),
             'checkout_url' => $this->checkoutUrl($tripRequest),
-        ])
-            ->toResponse(request())
-            ->header('X-Robots-Tag', 'noindex, nofollow');
+        ]);
     }
 
     /**
@@ -135,6 +134,9 @@ class BookController extends Controller
         ]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function servicesForBookPage(): array
     {
         return Service::query()
@@ -252,6 +254,9 @@ class BookController extends Controller
         Mail::to($tripRequest->passenger_email)->send(new TripRequestPaymentConfirmed($tripRequest));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function bookingSummary(TripRequest $tripRequest): array
     {
         return [
@@ -310,12 +315,16 @@ class BookController extends Controller
         $path = 'trip-requests/'.$tripRequest->booking_number.'.csv';
         $handle = fopen('php://temp', 'w');
 
+        if ($handle === false) {
+            throw new RuntimeException('Could not open a temporary stream for the CSV export.');
+        }
+
         fputcsv($handle, TripRequest::CSV_COLUMNS);
 
         fputcsv($handle, TripRequest::exportRow($tripRequest));
 
         rewind($handle);
-        Storage::disk('local')->put($path, stream_get_contents($handle));
+        Storage::disk('local')->put($path, (string) stream_get_contents($handle));
         fclose($handle);
 
         return $path;

@@ -73,9 +73,6 @@ class CmsServiceController extends Controller
     }
 
     /**
-     * @return array<string, array<int, mixed>>
-     */
-    /**
      * Replace every row with the CollectionDefinitions defaults.
      */
     public function restore(Request $request): RedirectResponse
@@ -91,6 +88,9 @@ class CmsServiceController extends Controller
         return back();
     }
 
+    /**
+     * @return array<string, array<int, mixed>>
+     */
     private function rules(): array
     {
         return [

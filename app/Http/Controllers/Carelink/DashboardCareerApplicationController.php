@@ -72,8 +72,11 @@ class DashboardCareerApplicationController extends Controller
      */
     public function accept(Request $request, CareerApplication $application): RedirectResponse
     {
+        $position = $application->career?->title;
 
-        $position = $application->career?->title ?? 'the position';
+        if ($position === null) {
+            $position = 'the position';
+        }
 
         Mail::to($application->email)->send(new ApplicationAccepted(
             name: $application->name,
@@ -93,8 +96,11 @@ class DashboardCareerApplicationController extends Controller
      */
     public function reject(Request $request, CareerApplication $application): RedirectResponse
     {
+        $position = $application->career?->title;
 
-        $position = $application->career?->title ?? 'the position';
+        if ($position === null) {
+            $position = 'the position';
+        }
 
         Mail::to($application->email)->send(new ApplicationRejected(
             name: $application->name,

@@ -3,13 +3,18 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Database\Factories\RideBookingFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property string|null $ride_date
+ */
 class RideBooking extends Model
 {
+    /** @use HasFactory<RideBookingFactory> */
     use HasFactory;
 
     public const STATUS_PENDING_DISPATCH = 'PENDING_DISPATCH';
@@ -64,6 +69,9 @@ class RideBooking extends Model
         ];
     }
 
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     protected function rideDate(): Attribute
     {
         return Attribute::make(
@@ -71,6 +79,10 @@ class RideBooking extends Model
         );
     }
 
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderByDesc('created_at');

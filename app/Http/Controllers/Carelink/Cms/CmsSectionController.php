@@ -178,13 +178,13 @@ class CmsSectionController extends Controller
             if ($field['type'] === 'switch') {
                 $content[$key] = (bool) $value;
             } elseif ($field['type'] === 'list') {
-                $content[$key] = collect($value ?? [])
+                $content[$key] = collect(is_array($value) ? $value : [])
                     ->filter(fn ($line): bool => $line !== null && trim((string) $line) !== '')
                     ->map(fn ($line): string => trim((string) $line))
                     ->values()
                     ->all();
             } elseif ($field['type'] === 'table') {
-                $content[$key] = collect($value ?? [])
+                $content[$key] = collect(is_array($value) ? $value : [])
                     ->map(function (array $row): array {
                         return collect($row)
                             ->map(fn ($cell): mixed => is_array($cell)

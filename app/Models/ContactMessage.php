@@ -5,7 +5,11 @@ namespace App\Models;
 use Database\Factories\ContactMessageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon|null $read_at
+ */
 class ContactMessage extends Model
 {
     /** @use HasFactory<ContactMessageFactory> */
@@ -48,6 +52,8 @@ class ContactMessage extends Model
 
     /**
      * Display summary used by the manager dashboard list.
+     *
+     * @return array<string, mixed>
      */
     public function managerSummary(): array
     {
