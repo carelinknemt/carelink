@@ -235,23 +235,21 @@ export default function CmsBlog({ posts }: { posts: CmsBlogPostRecord[] }) {
                                                 </TableCell>
                                                 <TableCell className="w-32">
                                                     <div className="flex items-center justify-end gap-1">
-                                                        <IconAction
-                                                            label="Edit post"
-                                                        >
+                                                        <IconAction label="Edit post">
                                                             <Button
                                                                 type="button"
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() =>
-                                                                    openEdit(post)
+                                                                    openEdit(
+                                                                        post,
+                                                                    )
                                                                 }
                                                             >
                                                                 <Pencil className="size-4" />
                                                             </Button>
                                                         </IconAction>
-                                                        <IconAction
-                                                            label="Delete post"
-                                                        >
+                                                        <IconAction label="Delete post">
                                                             <Button
                                                                 type="button"
                                                                 variant="ghost"

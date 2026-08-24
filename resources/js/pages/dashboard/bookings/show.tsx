@@ -445,9 +445,9 @@ export default function BookingDetail({
 
     const hasRouteCoords = Boolean(
         booking.pickup_latitude &&
-            booking.pickup_longitude &&
-            booking.dropoff_latitude &&
-            booking.dropoff_longitude,
+        booking.pickup_longitude &&
+        booking.dropoff_latitude &&
+        booking.dropoff_longitude,
     );
     const routeLoading = hasRouteCoords && !routeFailed && route === null;
 
@@ -608,11 +608,7 @@ export default function BookingDetail({
                                 </Button>
                             )}
                             {isCancelled ? (
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    disabled
-                                >
+                                <Button variant="outline" size="sm" disabled>
                                     <Download />
                                     Export CSV
                                 </Button>

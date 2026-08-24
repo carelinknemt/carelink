@@ -252,7 +252,10 @@ export default function Faqs({ faqs }: FaqsProps) {
                                         required
                                         value={form.data.email}
                                         onChange={(e) =>
-                                            form.setData('email', e.target.value)
+                                            form.setData(
+                                                'email',
+                                                e.target.value,
+                                            )
                                         }
                                         placeholder="contact@example.com"
                                         className={inputClass}

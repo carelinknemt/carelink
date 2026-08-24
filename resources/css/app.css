@@ -9,9 +9,8 @@
 
 @theme {
     --font-sans:
-        ui-sans-serif, system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+        ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -201,8 +200,20 @@
 
 /* Mask to fade edges of marquee beautifully */
 .mask-gradient {
-    mask-image: linear-gradient(to right, transparent, white 10%, white 90%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, white 10%, white 90%, transparent);
+    mask-image: linear-gradient(
+        to right,
+        transparent,
+        white 10%,
+        white 90%,
+        transparent
+    );
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent,
+        white 10%,
+        white 90%,
+        transparent
+    );
 }
 
 /* Fast SUV Riding Animation */
@@ -377,7 +388,8 @@
 }
 
 .a11y-dyslexia {
-    font-family: 'OpenDyslexic', 'Comic Sans MS', 'Trebuchet MS', sans-serif !important;
+    font-family:
+        'OpenDyslexic', 'Comic Sans MS', 'Trebuchet MS', sans-serif !important;
     letter-spacing: 0.06em !important;
     word-spacing: 0.12em !important;
     line-height: 1.8 !important;
@@ -385,7 +397,7 @@
 
 .a11y-highlight-links a,
 .a11y-highlight-links button {
-    outline: 3px solid #E64A19 !important;
+    outline: 3px solid #e64a19 !important;
     outline-offset: 3px !important;
     background-color: rgba(254, 240, 138, 0.5) !important;
     color: #000000 !important;
@@ -396,7 +408,7 @@
 .a11y-highlight-headings h2,
 .a11y-highlight-headings h3,
 .a11y-highlight-headings h4 {
-    border-left: 5px solid #E64A19 !important;
+    border-left: 5px solid #e64a19 !important;
     padding-left: 10px !important;
     background-color: rgba(230, 74, 25, 0.08) !important;
     border-radius: 4px !important;
@@ -404,7 +416,8 @@
 
 .a11y-large-cursor,
 .a11y-large-cursor * {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='%23E64A19' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M3 3l7 18 3-7 7-3L3 3z'/%3E%3C/svg%3E"),
+    cursor:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='%23E64A19' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M3 3l7 18 3-7 7-3L3 3z'/%3E%3C/svg%3E"),
         auto !important;
 }
 
@@ -425,11 +438,19 @@
 
 /* Booking Steps Route Rail (animated dashes) */
 .route-rail {
-    background-image: repeating-linear-gradient(90deg, rgba(255, 188, 140, 0.55) 0 8px, transparent 8px 16px);
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(255, 188, 140, 0.55) 0 8px,
+        transparent 8px 16px
+    );
 }
 
 .route-rail-vertical {
-    background-image: repeating-linear-gradient(180deg, rgba(255, 188, 140, 0.55) 0 8px, transparent 8px 16px);
+    background-image: repeating-linear-gradient(
+        180deg,
+        rgba(255, 188, 140, 0.55) 0 8px,
+        transparent 8px 16px
+    );
 }
 
 @keyframes routeRailFlow {

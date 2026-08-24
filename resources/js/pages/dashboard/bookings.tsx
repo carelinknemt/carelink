@@ -112,7 +112,7 @@ function SortHeaderButton({
                     <ArrowUp className="size-3.5" />
                 )
             ) : (
-                <ArrowUpDown className="opacity-50 size-3.5" />
+                <ArrowUpDown className="size-3.5 opacity-50" />
             )}
         </button>
     );
@@ -163,7 +163,9 @@ function FilterFields({
                 <Select
                     value={draft.service_type}
                     onValueChange={(value) =>
-                        onChange({ service_type: value === '__all' ? '' : value })
+                        onChange({
+                            service_type: value === '__all' ? '' : value,
+                        })
                     }
                 >
                     <SelectTrigger id="filter-service-type" className="w-full">
@@ -187,7 +189,9 @@ function FilterFields({
                     type="date"
                     className="w-full"
                     value={draft.date_from}
-                    onChange={(event) => onChange({ date_from: event.target.value })}
+                    onChange={(event) =>
+                        onChange({ date_from: event.target.value })
+                    }
                 />
             </div>
 
@@ -198,7 +202,9 @@ function FilterFields({
                     type="date"
                     className="w-full"
                     value={draft.date_to}
-                    onChange={(event) => onChange({ date_to: event.target.value })}
+                    onChange={(event) =>
+                        onChange({ date_to: event.target.value })
+                    }
                 />
             </div>
         </div>
@@ -341,18 +347,21 @@ export default function DashboardBookings({
         }
 
         statusForm.setData('status', statusTarget.newStatus);
-        statusForm.patch(updateBookingStatus.url({ booking: statusTarget.booking.id }), {
-            preserveScroll: true,
-            onSuccess: () => setStatusTarget(null),
-        });
+        statusForm.patch(
+            updateBookingStatus.url({ booking: statusTarget.booking.id }),
+            {
+                preserveScroll: true,
+                onSuccess: () => setStatusTarget(null),
+            },
+        );
     }
 
     const hasFilters = Boolean(
         filters.search ||
-            filters.status ||
-            filters.date_from ||
-            filters.date_to ||
-            filters.service_type,
+        filters.status ||
+        filters.date_from ||
+        filters.date_to ||
+        filters.service_type,
     );
     const activeFilterCount = [
         filters.status,
@@ -366,7 +375,11 @@ export default function DashboardBookings({
                 <X />
                 Clear filters
             </Button>
-            <Button type="button" onClick={applyFilters} disabled={form.processing}>
+            <Button
+                type="button"
+                onClick={applyFilters}
+                disabled={form.processing}
+            >
                 {form.processing ? 'Applying…' : 'Apply filters'}
             </Button>
         </>
@@ -391,8 +404,10 @@ export default function DashboardBookings({
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-2xl font-semibold tracking-tight">Bookings</h1>
-                        <p className="text-muted-foreground text-sm">
+                        <h1 className="text-2xl font-semibold tracking-tight">
+                            Bookings
+                        </h1>
+                        <p className="text-sm text-muted-foreground">
                             Paid trip bookings. Sorted by trip date by default.
                         </p>
                     </div>
@@ -404,7 +419,7 @@ export default function DashboardBookings({
                         <SlidersHorizontal />
                         Filters
                         {activeFilterCount > 0 && (
-                            <span className="bg-primary text-primary-foreground ml-1 inline-flex size-5 items-center justify-center rounded-full text-xs font-medium">
+                            <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                                 {activeFilterCount}
                             </span>
                         )}
@@ -420,7 +435,7 @@ export default function DashboardBookings({
                             <div className="grid gap-1.5">
                                 <Label htmlFor="filter-search">Search</Label>
                                 <div className="relative">
-                                    <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                     <Input
                                         id="filter-search"
                                         type="search"
@@ -475,7 +490,9 @@ export default function DashboardBookings({
                                                 query: exportQuery,
                                             })}
                                             onClick={() =>
-                                                toast.info('Preparing CSV export…')
+                                                toast.info(
+                                                    'Preparing CSV export…',
+                                                )
                                             }
                                         >
                                             <Download />
@@ -492,9 +509,11 @@ export default function DashboardBookings({
                     <CardContent className="pt-6">
                         {bookings.data.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-16 text-center">
-                                <CalendarDays className="text-muted-foreground size-10" />
-                                <p className="font-medium">No paid bookings found</p>
-                                <p className="text-muted-foreground text-sm">
+                                <CalendarDays className="size-10 text-muted-foreground" />
+                                <p className="font-medium">
+                                    No paid bookings found
+                                </p>
+                                <p className="text-sm text-muted-foreground">
                                     {hasFilters
                                         ? 'Try adjusting your search, date, or status filter.'
                                         : 'Bookings appear here once the booking fee has been paid.'}
@@ -506,28 +525,34 @@ export default function DashboardBookings({
                                     {bookings.data.map((booking) => (
                                         <li
                                             key={booking.id}
-                                            className="border-border rounded-lg border p-4"
+                                            className="rounded-lg border border-border p-4"
                                         >
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="min-w-0">
                                                     <Link
-                                                        href={showBooking.url({ booking: booking.id })}
+                                                        href={showBooking.url({
+                                                            booking: booking.id,
+                                                        })}
                                                         className="font-medium hover:underline"
                                                         prefetch
                                                     >
                                                         {booking.booking_number}
                                                     </Link>
-                                                    <p className="text-muted-foreground text-sm">
+                                                    <p className="text-sm text-muted-foreground">
                                                         {booking.passenger_name}
                                                     </p>
                                                 </div>
                                                 <span className="shrink-0 font-medium">
-                                                    {formatMoney(booking.input_price)}
+                                                    {formatMoney(
+                                                        booking.input_price,
+                                                    )}
                                                 </span>
                                             </div>
                                             <div className="mt-3 flex flex-col gap-2">
-                                                <span className="text-muted-foreground text-sm">
-                                                    {formatDate(booking.trip_date)}
+                                                <span className="text-sm text-muted-foreground">
+                                                    {formatDate(
+                                                        booking.trip_date,
+                                                    )}
                                                 </span>
                                                 <Select
                                                     value={booking.status}
@@ -538,18 +563,27 @@ export default function DashboardBookings({
                                                         })
                                                     }
                                                 >
-                                                    <SelectTrigger size="sm" className="w-full sm:w-44">
+                                                    <SelectTrigger
+                                                        size="sm"
+                                                        className="w-full sm:w-44"
+                                                    >
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {statuses.map((status) => (
-                                                            <SelectItem
-                                                                key={status}
-                                                                value={status}
-                                                            >
-                                                                {statusLabel(status)}
-                                                            </SelectItem>
-                                                        ))}
+                                                        {statuses.map(
+                                                            (status) => (
+                                                                <SelectItem
+                                                                    key={status}
+                                                                    value={
+                                                                        status
+                                                                    }
+                                                                >
+                                                                    {statusLabel(
+                                                                        status,
+                                                                    )}
+                                                                </SelectItem>
+                                                            ),
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </div>
@@ -567,7 +601,9 @@ export default function DashboardBookings({
                                                         label="Passenger"
                                                         column="passenger_name"
                                                         sort={filters.sort}
-                                                        direction={filters.direction}
+                                                        direction={
+                                                            filters.direction
+                                                        }
                                                         onSort={changeSort}
                                                     />
                                                 </TableHead>
@@ -576,7 +612,9 @@ export default function DashboardBookings({
                                                         label="Trip Date"
                                                         column="trip_date"
                                                         sort={filters.sort}
-                                                        direction={filters.direction}
+                                                        direction={
+                                                            filters.direction
+                                                        }
                                                         onSort={changeSort}
                                                     />
                                                 </TableHead>
@@ -586,7 +624,9 @@ export default function DashboardBookings({
                                                         label="Trip Price"
                                                         column="input_price"
                                                         sort={filters.sort}
-                                                        direction={filters.direction}
+                                                        direction={
+                                                            filters.direction
+                                                        }
                                                         onSort={changeSort}
                                                     />
                                                 </TableHead>
@@ -597,27 +637,43 @@ export default function DashboardBookings({
                                                 <TableRow key={booking.id}>
                                                     <TableCell>
                                                         <Link
-                                                            href={showBooking.url({ booking: booking.id })}
+                                                            href={showBooking.url(
+                                                                {
+                                                                    booking:
+                                                                        booking.id,
+                                                                },
+                                                            )}
                                                             className="font-medium hover:underline"
                                                             prefetch
                                                         >
-                                                            {booking.booking_number}
+                                                            {
+                                                                booking.booking_number
+                                                            }
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell className="font-medium">
                                                         {booking.passenger_name}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {formatDate(booking.trip_date)}
+                                                        {formatDate(
+                                                            booking.trip_date,
+                                                        )}
                                                     </TableCell>
                                                     <TableCell>
                                                         <Select
-                                                            value={booking.status}
-                                                            onValueChange={(value) =>
-                                                                setStatusTarget({
-                                                                    booking,
-                                                                    newStatus: value,
-                                                                })
+                                                            value={
+                                                                booking.status
+                                                            }
+                                                            onValueChange={(
+                                                                value,
+                                                            ) =>
+                                                                setStatusTarget(
+                                                                    {
+                                                                        booking,
+                                                                        newStatus:
+                                                                            value,
+                                                                    },
+                                                                )
                                                             }
                                                         >
                                                             <SelectTrigger
@@ -627,19 +683,31 @@ export default function DashboardBookings({
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {statuses.map((status) => (
-                                                                    <SelectItem
-                                                                        key={status}
-                                                                        value={status}
-                                                                    >
-                                                                        {statusLabel(status)}
-                                                                    </SelectItem>
-                                                                ))}
+                                                                {statuses.map(
+                                                                    (
+                                                                        status,
+                                                                    ) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                status
+                                                                            }
+                                                                            value={
+                                                                                status
+                                                                            }
+                                                                        >
+                                                                            {statusLabel(
+                                                                                status,
+                                                                            )}
+                                                                        </SelectItem>
+                                                                    ),
+                                                                )}
                                                             </SelectContent>
                                                         </Select>
                                                     </TableCell>
                                                     <TableCell className="text-right">
-                                                        {formatMoney(booking.input_price)}
+                                                        {formatMoney(
+                                                            booking.input_price,
+                                                        )}
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -656,8 +724,15 @@ export default function DashboardBookings({
                                         <PaginationItem>
                                             {bookings.prev_page_url ? (
                                                 <PaginationPrevious asChild>
-                                                    <Link href={bookings.prev_page_url} prefetch>
-                                                        <span className="hidden sm:block">Previous</span>
+                                                    <Link
+                                                        href={
+                                                            bookings.prev_page_url
+                                                        }
+                                                        prefetch
+                                                    >
+                                                        <span className="hidden sm:block">
+                                                            Previous
+                                                        </span>
                                                     </Link>
                                                 </PaginationPrevious>
                                             ) : (
@@ -688,7 +763,10 @@ export default function DashboardBookings({
                                                         isActive={link.active}
                                                         asChild
                                                     >
-                                                        <Link href={link.url} prefetch>
+                                                        <Link
+                                                            href={link.url}
+                                                            prefetch
+                                                        >
                                                             {label}
                                                         </Link>
                                                     </PaginationLink>
@@ -699,8 +777,15 @@ export default function DashboardBookings({
                                         <PaginationItem>
                                             {bookings.next_page_url ? (
                                                 <PaginationNext asChild>
-                                                    <Link href={bookings.next_page_url} prefetch>
-                                                        <span className="hidden sm:block">Next</span>
+                                                    <Link
+                                                        href={
+                                                            bookings.next_page_url
+                                                        }
+                                                        prefetch
+                                                    >
+                                                        <span className="hidden sm:block">
+                                                            Next
+                                                        </span>
                                                     </Link>
                                                 </PaginationNext>
                                             ) : (
@@ -724,8 +809,8 @@ export default function DashboardBookings({
                         <DialogHeader>
                             <DialogTitle>Filters</DialogTitle>
                             <DialogDescription>
-                                Narrow the list by status, service type, or trip date
-                                range.
+                                Narrow the list by status, service type, or trip
+                                date range.
                             </DialogDescription>
                         </DialogHeader>
                         <FilterFields
@@ -733,7 +818,10 @@ export default function DashboardBookings({
                             statuses={statuses}
                             service_types={service_types}
                             onChange={(patch) =>
-                                setDraft((current) => ({ ...current, ...patch }))
+                                setDraft((current) => ({
+                                    ...current,
+                                    ...patch,
+                                }))
                             }
                         />
                         <DialogFooter>{filterActions}</DialogFooter>
@@ -748,8 +836,8 @@ export default function DashboardBookings({
                         <SheetHeader>
                             <SheetTitle>Filters</SheetTitle>
                             <SheetDescription>
-                                Narrow the list by status, service type, or trip date
-                                range.
+                                Narrow the list by status, service type, or trip
+                                date range.
                             </SheetDescription>
                         </SheetHeader>
                         <div className="px-4">
@@ -758,7 +846,10 @@ export default function DashboardBookings({
                                 statuses={statuses}
                                 service_types={service_types}
                                 onChange={(patch) =>
-                                    setDraft((current) => ({ ...current, ...patch }))
+                                    setDraft((current) => ({
+                                        ...current,
+                                        ...patch,
+                                    }))
                                 }
                             />
                         </div>
@@ -782,15 +873,17 @@ export default function DashboardBookings({
                             {statusTarget && (
                                 <>
                                     You are about to change{' '}
-                                    <span className="text-foreground font-medium">
+                                    <span className="font-medium text-foreground">
                                         {statusTarget.booking.booking_number}
                                     </span>{' '}
                                     from{' '}
-                                    <span className="text-foreground font-medium">
-                                        {statusLabel(statusTarget.booking.status)}
+                                    <span className="font-medium text-foreground">
+                                        {statusLabel(
+                                            statusTarget.booking.status,
+                                        )}
                                     </span>{' '}
                                     to{' '}
-                                    <span className="text-foreground font-medium">
+                                    <span className="font-medium text-foreground">
                                         {statusLabel(statusTarget.newStatus)}
                                     </span>
                                     . This will be visible to the dispatch team.
@@ -800,12 +893,20 @@ export default function DashboardBookings({
                     </DialogHeader>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button variant="outline" disabled={statusForm.processing}>
+                            <Button
+                                variant="outline"
+                                disabled={statusForm.processing}
+                            >
                                 Cancel
                             </Button>
                         </DialogClose>
-                        <Button onClick={confirmStatusChange} disabled={statusForm.processing}>
-                            {statusForm.processing ? 'Updating…' : 'Confirm change'}
+                        <Button
+                            onClick={confirmStatusChange}
+                            disabled={statusForm.processing}
+                        >
+                            {statusForm.processing
+                                ? 'Updating…'
+                                : 'Confirm change'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

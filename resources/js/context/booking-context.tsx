@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useState  } from 'react';
-import type {ReactNode} from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
 
 interface BookingContextType {
     isBookingOpen: boolean;
@@ -9,14 +9,20 @@ interface BookingContextType {
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
-export function BookingProvider({ children }: { children: ReactNode }): ReactNode {
+export function BookingProvider({
+    children,
+}: {
+    children: ReactNode;
+}): ReactNode {
     const [isBookingOpen, setIsBookingOpen] = useState(false);
 
     const openBooking = useCallback(() => setIsBookingOpen(true), []);
     const closeBooking = useCallback(() => setIsBookingOpen(false), []);
 
     return (
-        <BookingContext.Provider value={{ isBookingOpen, openBooking, closeBooking }}>
+        <BookingContext.Provider
+            value={{ isBookingOpen, openBooking, closeBooking }}
+        >
             {children}
         </BookingContext.Provider>
     );

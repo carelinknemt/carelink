@@ -41,9 +41,7 @@ export function splitPhoneNumber(full: string): SplitPhone {
     } catch {
         return {
             countryCode: DEFAULT_COUNTRY_CODE,
-            number: raw
-                .replace(/(^|\s)\+\d{1,3}\s*/g, ' ')
-                .trim(),
+            number: raw.replace(/(^|\s)\+\d{1,3}\s*/g, ' ').trim(),
         };
     }
 }
@@ -86,7 +84,9 @@ export default function PhoneInput({
         <div className="flex gap-2 sm:gap-3">
             <Select
                 value={countryCode}
-                onValueChange={(code) => onChange(joinPhoneNumber(code, number))}
+                onValueChange={(code) =>
+                    onChange(joinPhoneNumber(code, number))
+                }
             >
                 <SelectTrigger
                     id={id}

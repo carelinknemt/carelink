@@ -88,7 +88,8 @@ export interface RideBooking {
     additional_notes: string | null;
     payment_method: string;
     estimated_cost: string | null;
-    status: 'PENDING_DISPATCH' | 'BAMBI_DISPATCHED' | 'IN_TRANSIT' | 'COMPLETED';
+    status:
+        'PENDING_DISPATCH' | 'BAMBI_DISPATCHED' | 'IN_TRANSIT' | 'COMPLETED';
     bambi_dispatch_ref: string | null;
     created_at: string;
 }

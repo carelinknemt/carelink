@@ -289,32 +289,17 @@ export default function Book() {
     );
 
     useEffect(() => {
-        if (step === STEPS.length - 1) {
-            const timer = window.setTimeout(() => setReviewReady(true), 800);
-
-            return () => window.clearTimeout(timer);
+        if (step !== STEPS.length - 1) {
+            return undefined;
         }
 
-        setReviewReady(false);
+        const timer = window.setTimeout(() => setReviewReady(true), 800);
 
-        return undefined;
+        return () => {
+            window.clearTimeout(timer);
+            setReviewReady(false);
+        };
     }, [step]);
-
-    useEffect(() => {
-        if (Object.keys(form.errors).length === 0) {
-            return;
-        }
-
-        const firstErroredStep = STEPS.find((s) =>
-            Object.keys(form.errors).some((field) =>
-                STEP_FIELDS[s.id].includes(field as keyof TripRequestFormData),
-            ),
-        );
-
-        if (firstErroredStep) {
-            setStep(firstErroredStep.id);
-        }
-    }, [form.errors]);
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -338,21 +323,24 @@ export default function Book() {
         const controller = new AbortController();
         let cancelled = false;
 
-        setRouteLoading(true);
-
         const url =
             `${OSRM_ENDPOINT}/${pickupLongitude},${pickupLatitude};` +
             `${dropoffLongitude},${dropoffLatitude}?overview=full&geometries=geojson`;
 
-        fetch(url, { signal: controller.signal })
-            .then((response) => {
+        const loadRoute = async () => {
+            setRouteLoading(true);
+
+            try {
+                const response = await fetch(url, {
+                    signal: controller.signal,
+                });
+
                 if (!response.ok) {
                     throw new Error(`Route request failed: ${response.status}`);
                 }
 
-                return response.json();
-            })
-            .then((data: OsrmRouteResponse) => {
+                const data = (await response.json()) as OsrmRouteResponse;
+
                 if (cancelled) {
                     return;
                 }
@@ -363,25 +351,27 @@ export default function Book() {
                     throw new Error('No route found');
                 }
 
-                const coordinates = result.geometry.coordinates.map(
-                    ([longitude, latitude]) =>
-                        [latitude, longitude] as [number, number],
-                );
-
                 setRoute({
-                    coordinates,
+                    coordinates: result.geometry.coordinates.map(
+                        ([longitude, latitude]) =>
+                            [latitude, longitude] as [number, number],
+                    ),
                     distanceMiles: result.distance * MILES_PER_METER,
                 });
-                setRouteLoading(false);
-            })
-            .catch((error: unknown) => {
+            } catch (error: unknown) {
                 if (cancelled || (error as Error).name === 'AbortError') {
                     return;
                 }
 
                 setRoute(null);
-                setRouteLoading(false);
-            });
+            } finally {
+                if (!cancelled) {
+                    setRouteLoading(false);
+                }
+            }
+        };
+
+        void loadRoute();
 
         return () => {
             cancelled = true;
@@ -593,6 +583,19 @@ export default function Book() {
         }
 
         form.post(store.url(), {
+            onError: (errors) => {
+                const firstErroredStep = STEPS.find((s) =>
+                    Object.keys(errors).some((field) =>
+                        STEP_FIELDS[s.id].includes(
+                            field as keyof TripRequestFormData,
+                        ),
+                    ),
+                );
+
+                if (firstErroredStep) {
+                    setStep(firstErroredStep.id);
+                }
+            },
             onSuccess: (page) => {
                 const pageProps = page.props as BookPageProps;
 

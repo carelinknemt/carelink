@@ -90,15 +90,12 @@ export default function DashboardBusinessPartners({
     });
     const searchTimer = useRef<number | null>(null);
 
-    const [detailsTarget, setDetailsTarget] = useState<
-        BusinessRequestItem | null
-    >(null);
-    const [approveTarget, setApproveTarget] = useState<
-        BusinessRequestItem | null
-    >(null);
-    const [rejectTarget, setRejectTarget] = useState<
-        BusinessRequestItem | null
-    >(null);
+    const [detailsTarget, setDetailsTarget] =
+        useState<BusinessRequestItem | null>(null);
+    const [approveTarget, setApproveTarget] =
+        useState<BusinessRequestItem | null>(null);
+    const [rejectTarget, setRejectTarget] =
+        useState<BusinessRequestItem | null>(null);
 
     const approveForm = useForm({ email: '' });
     const rejectForm = useForm({ reason: '' });
@@ -153,13 +150,16 @@ export default function DashboardBusinessPartners({
             return;
         }
 
-        approveForm.post(approveRequest.url({ businessRequest: approveTarget.id }), {
-            preserveScroll: true,
-            onSuccess: () => {
-                setApproveTarget(null);
-                approveForm.reset();
+        approveForm.post(
+            approveRequest.url({ businessRequest: approveTarget.id }),
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setApproveTarget(null);
+                    approveForm.reset();
+                },
             },
-        });
+        );
     }
 
     function confirmReject() {
@@ -167,13 +167,16 @@ export default function DashboardBusinessPartners({
             return;
         }
 
-        rejectForm.post(rejectRequest.url({ businessRequest: rejectTarget.id }), {
-            preserveScroll: true,
-            onSuccess: () => {
-                setRejectTarget(null);
-                rejectForm.reset();
+        rejectForm.post(
+            rejectRequest.url({ businessRequest: rejectTarget.id }),
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setRejectTarget(null);
+                    rejectForm.reset();
+                },
             },
-        });
+        );
     }
 
     const paginationLinks = requests.links;
@@ -189,7 +192,7 @@ export default function DashboardBusinessPartners({
                     <h1 className="text-2xl font-semibold tracking-tight">
                         Business Partners
                     </h1>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-sm text-muted-foreground">
                         Partnership inquiries. Pending by default; filter by
                         status to review approved and rejected requests.
                     </p>
@@ -198,10 +201,13 @@ export default function DashboardBusinessPartners({
                 <Card>
                     <CardContent>
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <form onSubmit={applySearch} className="grid gap-1.5">
+                            <form
+                                onSubmit={applySearch}
+                                className="grid gap-1.5"
+                            >
                                 <Label htmlFor="filter-search">Search</Label>
                                 <div className="relative">
-                                    <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                     <Input
                                         id="filter-search"
                                         type="search"
@@ -231,7 +237,10 @@ export default function DashboardBusinessPartners({
                                             All statuses
                                         </SelectItem>
                                         {statuses.map((status) => (
-                                            <SelectItem key={status} value={status}>
+                                            <SelectItem
+                                                key={status}
+                                                value={status}
+                                            >
                                                 {statusLabel(status)}
                                             </SelectItem>
                                         ))}
@@ -246,11 +255,11 @@ export default function DashboardBusinessPartners({
                     <CardContent className="pt-6">
                         {requests.data.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-16 text-center">
-                                <Building2 className="text-muted-foreground size-10" />
+                                <Building2 className="size-10 text-muted-foreground" />
                                 <p className="font-medium">
                                     No business inquiries found
                                 </p>
-                                <p className="text-muted-foreground text-sm">
+                                <p className="text-sm text-muted-foreground">
                                     {filters.search
                                         ? 'Try adjusting your search.'
                                         : 'Inquiries appear here once businesses submit the partnership form.'}
@@ -262,29 +271,30 @@ export default function DashboardBusinessPartners({
                                     {requests.data.map((request) => (
                                         <li
                                             key={request.id}
-                                            className="border-border rounded-lg border p-4"
+                                            className="rounded-lg border border-border p-4"
                                         >
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="min-w-0">
                                                     <p className="font-medium">
                                                         {request.company_name}
                                                     </p>
-                                                    <p className="text-muted-foreground text-sm">
+                                                    <p className="text-sm text-muted-foreground">
                                                         {request.contact_name}
                                                     </p>
                                                 </div>
-                                                <span className="text-muted-foreground shrink-0 text-sm">
+                                                <span className="shrink-0 text-sm text-muted-foreground">
                                                     {formatDateTime(
                                                         request.submitted_at,
                                                     )}
                                                 </span>
                                             </div>
-                                            <div className="text-muted-foreground mt-2 space-y-0.5 text-sm">
+                                            <div className="mt-2 space-y-0.5 text-sm text-muted-foreground">
                                                 <p>{request.email}</p>
                                                 <p>{request.phone}</p>
                                                 <p>
                                                     {request.business_type}
-                                                    {request.estimated_monthly_trips !== null &&
+                                                    {request.estimated_monthly_trips !==
+                                                        null &&
                                                         ` · ~${request.estimated_monthly_trips} trips/mo`}
                                                 </p>
                                             </div>
@@ -292,7 +302,9 @@ export default function DashboardBusinessPartners({
                                                 <span
                                                     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass(request.status)}`}
                                                 >
-                                                    {statusLabel(request.status)}
+                                                    {statusLabel(
+                                                        request.status,
+                                                    )}
                                                 </span>
                                                 <DropdownAction
                                                     request={request}
@@ -312,7 +324,9 @@ export default function DashboardBusinessPartners({
                                                 <TableHead>Company</TableHead>
                                                 <TableHead>Contact</TableHead>
                                                 <TableHead>Type</TableHead>
-                                                <TableHead>Est. monthly trips</TableHead>
+                                                <TableHead>
+                                                    Est. monthly trips
+                                                </TableHead>
                                                 <TableHead>Status</TableHead>
                                                 <TableHead>Submitted</TableHead>
                                                 <TableHead className="text-right">
@@ -325,15 +339,21 @@ export default function DashboardBusinessPartners({
                                                 <TableRow key={request.id}>
                                                     <TableCell>
                                                         <p className="font-medium">
-                                                            {request.company_name}
+                                                            {
+                                                                request.company_name
+                                                            }
                                                         </p>
-                                                        <p className="text-muted-foreground text-xs">
+                                                        <p className="text-xs text-muted-foreground">
                                                             {request.email}
                                                         </p>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <p>{request.contact_name}</p>
-                                                        <p className="text-muted-foreground text-xs">
+                                                        <p>
+                                                            {
+                                                                request.contact_name
+                                                            }
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground">
                                                             {request.phone}
                                                         </p>
                                                     </TableCell>
@@ -367,7 +387,9 @@ export default function DashboardBusinessPartners({
                                                             onApprove={
                                                                 openApprove
                                                             }
-                                                            onReject={openReject}
+                                                            onReject={
+                                                                openReject
+                                                            }
                                                         />
                                                     </TableCell>
                                                 </TableRow>
@@ -386,7 +408,9 @@ export default function DashboardBusinessPartners({
                                             {requests.prev_page_url ? (
                                                 <PaginationPrevious asChild>
                                                     <Link
-                                                        href={requests.prev_page_url}
+                                                        href={
+                                                            requests.prev_page_url
+                                                        }
                                                         prefetch
                                                     >
                                                         <span className="hidden sm:block">
@@ -437,7 +461,9 @@ export default function DashboardBusinessPartners({
                                             {requests.next_page_url ? (
                                                 <PaginationNext asChild>
                                                     <Link
-                                                        href={requests.next_page_url}
+                                                        href={
+                                                            requests.next_page_url
+                                                        }
                                                         prefetch
                                                     >
                                                         <span className="hidden sm:block">
@@ -470,9 +496,7 @@ export default function DashboardBusinessPartners({
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>
-                            {detailsTarget?.company_name}
-                        </DialogTitle>
+                        <DialogTitle>{detailsTarget?.company_name}</DialogTitle>
                         <DialogDescription>
                             Partnership inquiry details
                         </DialogDescription>
@@ -480,7 +504,7 @@ export default function DashboardBusinessPartners({
                     {detailsTarget && (
                         <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Contact
                                 </dt>
                                 <dd className="font-medium">
@@ -488,7 +512,7 @@ export default function DashboardBusinessPartners({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Email
                                 </dt>
                                 <dd className="font-medium">
@@ -496,7 +520,7 @@ export default function DashboardBusinessPartners({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Phone
                                 </dt>
                                 <dd className="font-medium">
@@ -504,7 +528,7 @@ export default function DashboardBusinessPartners({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Organization type
                                 </dt>
                                 <dd className="font-medium">
@@ -512,15 +536,16 @@ export default function DashboardBusinessPartners({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Est. monthly trips
                                 </dt>
                                 <dd className="font-medium">
-                                    {detailsTarget.estimated_monthly_trips ?? 'N/A'}
+                                    {detailsTarget.estimated_monthly_trips ??
+                                        'N/A'}
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Submitted
                                 </dt>
                                 <dd className="font-medium">
@@ -528,11 +553,12 @@ export default function DashboardBusinessPartners({
                                 </dd>
                             </div>
                             <div className="sm:col-span-2">
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Message
                                 </dt>
-                                <dd className="border-border mt-1 rounded-lg border p-3 text-sm">
-                                    {detailsTarget.message ?? 'No message provided.'}
+                                <dd className="mt-1 rounded-lg border border-border p-3 text-sm">
+                                    {detailsTarget.message ??
+                                        'No message provided.'}
                                 </dd>
                             </div>
                         </dl>
@@ -560,7 +586,7 @@ export default function DashboardBusinessPartners({
                             {approveTarget && (
                                 <>
                                     Confirm{' '}
-                                    <span className="text-foreground font-medium">
+                                    <span className="font-medium text-foreground">
                                         {approveTarget.company_name}
                                     </span>{' '}
                                     as a transportation partner. Enter the
@@ -582,7 +608,7 @@ export default function DashboardBusinessPartners({
                             placeholder="partnerships@company.com"
                         />
                         {approveForm.errors.email && (
-                            <p className="text-destructive text-xs font-medium">
+                            <p className="text-xs font-medium text-destructive">
                                 {approveForm.errors.email}
                             </p>
                         )}
@@ -623,7 +649,7 @@ export default function DashboardBusinessPartners({
                             {rejectTarget && (
                                 <>
                                     Reject{' '}
-                                    <span className="text-foreground font-medium">
+                                    <span className="font-medium text-foreground">
                                         {rejectTarget.company_name}
                                     </span>{' '}
                                     and explain why. The reason will be emailed
@@ -644,7 +670,7 @@ export default function DashboardBusinessPartners({
                             placeholder="Explain why this partnership cannot be approved…"
                         />
                         {rejectForm.errors.reason && (
-                            <p className="text-destructive text-xs font-medium">
+                            <p className="text-xs font-medium text-destructive">
                                 {rejectForm.errors.reason}
                             </p>
                         )}
@@ -690,7 +716,11 @@ function DropdownAction({
             <DropdownMenu>
                 <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="icon" aria-label="Actions">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            aria-label="Actions"
+                        >
                             <MoreHorizontal className="size-4" />
                         </Button>
                     </DropdownMenuTrigger>

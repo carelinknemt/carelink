@@ -228,19 +228,19 @@ export default function LocationPicker({
             return;
         }
 
-        if (query.length < MIN_QUERY_LENGTH) {
-            setResults([]);
-            setStatus('idle');
-            setOpen(false);
-
-            return;
-        }
-
-        setStatus('searching');
-        setOpen(true);
-
         const controller = new AbortController();
         const timer = window.setTimeout(async () => {
+            if (query.length < MIN_QUERY_LENGTH) {
+                setResults([]);
+                setStatus('idle');
+                setOpen(false);
+
+                return;
+            }
+
+            setStatus('searching');
+            setOpen(true);
+
             try {
                 const photonResults = await searchPhoton(
                     query,

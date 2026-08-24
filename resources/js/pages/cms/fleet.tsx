@@ -246,9 +246,7 @@ export default function CmsFleet({
                                                 </TableCell>
                                                 <TableCell className="w-32">
                                                     <div className="flex items-center justify-end gap-1">
-                                                        <IconAction
-                                                            label="Edit vehicle"
-                                                        >
+                                                        <IconAction label="Edit vehicle">
                                                             <Button
                                                                 type="button"
                                                                 variant="ghost"
@@ -262,9 +260,7 @@ export default function CmsFleet({
                                                                 <Pencil className="size-4" />
                                                             </Button>
                                                         </IconAction>
-                                                        <IconAction
-                                                            label="Delete vehicle"
-                                                        >
+                                                        <IconAction label="Delete vehicle">
                                                             <Button
                                                                 type="button"
                                                                 variant="ghost"

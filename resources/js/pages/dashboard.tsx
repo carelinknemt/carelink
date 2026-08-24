@@ -42,7 +42,7 @@ function StatCard({
                 </CardHeader>
                 <CardContent>
                     <p className="text-3xl font-bold">{value}</p>
-                    <p className="text-muted-foreground text-xs">{caption}</p>
+                    <p className="text-xs text-muted-foreground">{caption}</p>
                 </CardContent>
             </Card>
         </Link>
@@ -66,8 +66,10 @@ export default function Dashboard({
 
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-                    <p className="text-muted-foreground text-sm">
+                    <h1 className="text-2xl font-semibold tracking-tight">
+                        Dashboard
+                    </h1>
+                    <p className="text-sm text-muted-foreground">
                         Overview of paid bookings for the dispatch team.
                     </p>
                 </div>
@@ -76,9 +78,10 @@ export default function Dashboard({
                     <StatCard
                         title="Paid Bookings"
                         value={stats.total_paid}
-                        caption="$30 booking fee collected"                        href={dashboardBookings.url()}
+                        caption="$30 booking fee collected"
+                        href={dashboardBookings.url()}
                         icon={
-                            <span className="bg-[#004b87]/10 flex size-8 items-center justify-center rounded-md">
+                            <span className="flex size-8 items-center justify-center rounded-md bg-[#004b87]/10">
                                 <CalendarCheck className="size-4 text-[#004b87]" />
                             </span>
                         }
@@ -87,11 +90,12 @@ export default function Dashboard({
                     <StatCard
                         title="Pending Dispatch"
                         value={stats.pending_dispatch}
-                        caption="Awaiting assignment"                        href={dashboardBookings.url({
+                        caption="Awaiting assignment"
+                        href={dashboardBookings.url({
                             query: { status: 'PENDING_DISPATCH' },
                         })}
                         icon={
-                            <span className="bg-amber-500/10 flex size-8 items-center justify-center rounded-md">
+                            <span className="flex size-8 items-center justify-center rounded-md bg-amber-500/10">
                                 <Clock className="size-4 text-amber-600" />
                             </span>
                         }
@@ -100,11 +104,12 @@ export default function Dashboard({
                     <StatCard
                         title="In Transit"
                         value={stats.in_transit}
-                        caption="Active trips"                        href={dashboardBookings.url({
+                        caption="Active trips"
+                        href={dashboardBookings.url({
                             query: { status: 'IN_TRANSIT' },
                         })}
                         icon={
-                            <span className="bg-[#06b6d4]/10 flex size-8 items-center justify-center rounded-md">
+                            <span className="flex size-8 items-center justify-center rounded-md bg-[#06b6d4]/10">
                                 <Truck className="size-4 text-[#06b6d4]" />
                             </span>
                         }
@@ -113,11 +118,12 @@ export default function Dashboard({
                     <StatCard
                         title="Completed"
                         value={stats.completed}
-                        caption="Finished trips"                        href={dashboardBookings.url({
+                        caption="Finished trips"
+                        href={dashboardBookings.url({
                             query: { status: 'COMPLETED' },
                         })}
                         icon={
-                            <span className="bg-[#22d3ee]/10 flex size-8 items-center justify-center rounded-md">
+                            <span className="flex size-8 items-center justify-center rounded-md bg-[#22d3ee]/10">
                                 <CheckCircle2 className="size-4 text-[#0e9cb3]" />
                             </span>
                         }
@@ -128,7 +134,7 @@ export default function Dashboard({
                     <Card className="h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
                             <CardTitle className="flex items-center gap-2 text-base">
-                                <Sunrise className="text-[#E64A19] size-4" />
+                                <Sunrise className="size-4 text-[#E64A19]" />
                                 Today's Trips
                             </CardTitle>
                             <Button variant="ghost" size="sm" asChild>
@@ -141,10 +147,13 @@ export default function Dashboard({
                         <CardContent>
                             {today_trips.length === 0 ? (
                                 <div className="flex flex-col items-center gap-2 py-10 text-center">
-                                    <Sunrise className="text-muted-foreground size-8" />
-                                    <p className="font-medium">No trips scheduled today</p>
-                                    <p className="text-muted-foreground text-sm">
-                                        Paid bookings with a trip date of today appear here.
+                                    <Sunrise className="size-8 text-muted-foreground" />
+                                    <p className="font-medium">
+                                        No trips scheduled today
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Paid bookings with a trip date of today
+                                        appear here.
                                     </p>
                                 </div>
                             ) : (
@@ -160,28 +169,40 @@ export default function Dashboard({
                                         >
                                             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
                                                 <div className="flex min-w-0 items-center gap-3">
-                                                    <span className="w-14 sm:w-12 shrink-0 text-xs font-bold whitespace-nowrap tabular-nums">
-                                                        {booking.pickup_time || '—'}
+                                                    <span className="w-14 shrink-0 text-xs font-bold whitespace-nowrap tabular-nums sm:w-12">
+                                                        {booking.pickup_time ||
+                                                            '—'}
                                                     </span>
                                                     <div className="flex min-w-0 flex-col">
                                                         <Link
-                                                            href={showBooking.url({
-                                                                booking: booking.id,
-                                                            })}
+                                                            href={showBooking.url(
+                                                                {
+                                                                    booking:
+                                                                        booking.id,
+                                                                },
+                                                            )}
                                                             className="truncate text-sm font-medium hover:underline"
                                                             prefetch
                                                         >
-                                                            {booking.booking_number}
+                                                            {
+                                                                booking.booking_number
+                                                            }
                                                         </Link>
                                                         <span className="truncate text-xs text-muted-foreground">
-                                                            {booking.passenger_name}
+                                                            {
+                                                                booking.passenger_name
+                                                            }
                                                         </span>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-start gap-1.5">
-                                                    <BookingStatusBadge status={booking.status} />
+                                                    <BookingStatusBadge
+                                                        status={booking.status}
+                                                    />
                                                     <span className="text-sm font-medium whitespace-nowrap">
-                                                        {formatMoney(booking.input_price)}
+                                                        {formatMoney(
+                                                            booking.input_price,
+                                                        )}
                                                     </span>
                                                 </div>
                                             </div>
@@ -194,7 +215,9 @@ export default function Dashboard({
 
                     <Card className="h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                            <CardTitle className="text-base">Recent Bookings</CardTitle>
+                            <CardTitle className="text-base">
+                                Recent Bookings
+                            </CardTitle>
                             <Button variant="ghost" size="sm" asChild>
                                 <Link href={dashboardBookings.url()} prefetch>
                                     View all
@@ -205,10 +228,13 @@ export default function Dashboard({
                         <CardContent>
                             {recent_bookings.length === 0 ? (
                                 <div className="flex flex-col items-center gap-2 py-10 text-center">
-                                    <DollarSign className="text-muted-foreground size-8" />
-                                    <p className="font-medium">No paid bookings yet</p>
-                                    <p className="text-muted-foreground text-sm">
-                                        Bookings appear here once the booking fee has been paid.
+                                    <DollarSign className="size-8 text-muted-foreground" />
+                                    <p className="font-medium">
+                                        No paid bookings yet
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Bookings appear here once the booking
+                                        fee has been paid.
                                     </p>
                                 </div>
                             ) : (
@@ -224,28 +250,41 @@ export default function Dashboard({
                                         >
                                             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
                                                 <div className="flex min-w-0 items-center gap-3">
-                                                    <span className="text-muted-foreground text-xs font-bold whitespace-nowrap tabular-nums">
-                                                        {formatDate(booking.trip_date)}
+                                                    <span className="text-xs font-bold whitespace-nowrap text-muted-foreground tabular-nums">
+                                                        {formatDate(
+                                                            booking.trip_date,
+                                                        )}
                                                     </span>
                                                     <div className="flex min-w-0 flex-col">
                                                         <Link
-                                                            href={showBooking.url({
-                                                                booking: booking.id,
-                                                            })}
+                                                            href={showBooking.url(
+                                                                {
+                                                                    booking:
+                                                                        booking.id,
+                                                                },
+                                                            )}
                                                             className="truncate text-sm font-medium hover:underline"
                                                             prefetch
                                                         >
-                                                            {booking.booking_number}
+                                                            {
+                                                                booking.booking_number
+                                                            }
                                                         </Link>
                                                         <span className="truncate text-xs text-muted-foreground">
-                                                            {booking.passenger_name}
+                                                            {
+                                                                booking.passenger_name
+                                                            }
                                                         </span>
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-start gap-1.5">
-                                                    <BookingStatusBadge status={booking.status} />
+                                                    <BookingStatusBadge
+                                                        status={booking.status}
+                                                    />
                                                     <span className="text-sm font-medium whitespace-nowrap">
-                                                        {formatMoney(booking.input_price)}
+                                                        {formatMoney(
+                                                            booking.input_price,
+                                                        )}
                                                     </span>
                                                 </div>
                                             </div>

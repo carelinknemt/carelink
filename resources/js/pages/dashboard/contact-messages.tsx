@@ -89,11 +89,11 @@ export default function DashboardContactMessages({
     });
     const searchTimer = useRef<number | null>(null);
 
-    const [detailsTarget, setDetailsTarget] = useState<ContactMessageItem | null>(
+    const [detailsTarget, setDetailsTarget] =
+        useState<ContactMessageItem | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<ContactMessageItem | null>(
         null,
     );
-    const [deleteTarget, setDeleteTarget] =
-        useState<ContactMessageItem | null>(null);
     const [deleting, setDeleting] = useState(false);
 
     function navigate() {
@@ -144,16 +144,13 @@ export default function DashboardContactMessages({
 
         setDeleting(true);
 
-        router.delete(
-            destroyMessage.url({ contactMessage: deleteTarget.id }),
-            {
-                preserveScroll: true,
-                onFinish: () => {
-                    setDeleteTarget(null);
-                    setDeleting(false);
-                },
+        router.delete(destroyMessage.url({ contactMessage: deleteTarget.id }), {
+            preserveScroll: true,
+            onFinish: () => {
+                setDeleteTarget(null);
+                setDeleting(false);
             },
-        );
+        });
     }
 
     const paginationLinks = messages.links;
@@ -169,7 +166,7 @@ export default function DashboardContactMessages({
                     <h1 className="text-2xl font-semibold tracking-tight">
                         Contact Messages
                     </h1>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-sm text-muted-foreground">
                         Inquiries sent from the FAQ contact form. Pending by
                         default; mark messages as read as you handle them.
                     </p>
@@ -178,10 +175,13 @@ export default function DashboardContactMessages({
                 <Card>
                     <CardContent>
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <form onSubmit={applySearch} className="grid gap-1.5">
+                            <form
+                                onSubmit={applySearch}
+                                className="grid gap-1.5"
+                            >
                                 <Label htmlFor="filter-search">Search</Label>
                                 <div className="relative">
-                                    <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                     <Input
                                         id="filter-search"
                                         type="search"
@@ -211,7 +211,10 @@ export default function DashboardContactMessages({
                                             All statuses
                                         </SelectItem>
                                         {statuses.map((status) => (
-                                            <SelectItem key={status} value={status}>
+                                            <SelectItem
+                                                key={status}
+                                                value={status}
+                                            >
                                                 {statusLabel(status)}
                                             </SelectItem>
                                         ))}
@@ -226,11 +229,9 @@ export default function DashboardContactMessages({
                     <CardContent className="pt-6">
                         {messages.data.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-16 text-center">
-                                <MessageSquareText className="text-muted-foreground size-10" />
-                                <p className="font-medium">
-                                    No messages found
-                                </p>
-                                <p className="text-muted-foreground text-sm">
+                                <MessageSquareText className="size-10 text-muted-foreground" />
+                                <p className="font-medium">No messages found</p>
+                                <p className="text-sm text-muted-foreground">
                                     {filters.search
                                         ? 'Try adjusting your search.'
                                         : 'Inquiries appear here once visitors submit the contact form.'}
@@ -242,31 +243,33 @@ export default function DashboardContactMessages({
                                     {messages.data.map((message) => (
                                         <li
                                             key={message.id}
-                                            className="border-border rounded-lg border p-4"
+                                            className="rounded-lg border border-border p-4"
                                         >
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="min-w-0">
                                                     <p className="font-medium">
                                                         {message.name}
                                                     </p>
-                                                    <p className="text-muted-foreground text-sm">
+                                                    <p className="text-sm text-muted-foreground">
                                                         {message.email}
                                                     </p>
                                                 </div>
-                                                <span className="text-muted-foreground shrink-0 text-sm">
+                                                <span className="shrink-0 text-sm text-muted-foreground">
                                                     {formatDateTime(
                                                         message.submitted_at,
                                                     )}
                                                 </span>
                                             </div>
-                                            <p className="text-muted-foreground mt-2 line-clamp-2 text-sm">
+                                            <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
                                                 {message.message}
                                             </p>
                                             <div className="mt-3 flex items-center justify-between gap-3">
                                                 <span
                                                     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass(message.status)}`}
                                                 >
-                                                    {statusLabel(message.status)}
+                                                    {statusLabel(
+                                                        message.status,
+                                                    )}
                                                 </span>
                                                 <DropdownAction
                                                     message={message}
@@ -299,7 +302,7 @@ export default function DashboardContactMessages({
                                                         <p className="font-medium">
                                                             {message.name}
                                                         </p>
-                                                        <p className="text-muted-foreground text-xs">
+                                                        <p className="text-xs text-muted-foreground">
                                                             {message.email}
                                                             {message.phone
                                                                 ? ` · ${message.phone}`
@@ -353,7 +356,9 @@ export default function DashboardContactMessages({
                                             {messages.prev_page_url ? (
                                                 <PaginationPrevious asChild>
                                                     <Link
-                                                        href={messages.prev_page_url}
+                                                        href={
+                                                            messages.prev_page_url
+                                                        }
                                                         prefetch
                                                     >
                                                         <span className="hidden sm:block">
@@ -404,7 +409,9 @@ export default function DashboardContactMessages({
                                             {messages.next_page_url ? (
                                                 <PaginationNext asChild>
                                                     <Link
-                                                        href={messages.next_page_url}
+                                                        href={
+                                                            messages.next_page_url
+                                                        }
                                                         prefetch
                                                     >
                                                         <span className="hidden sm:block">
@@ -437,7 +444,9 @@ export default function DashboardContactMessages({
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Message from {detailsTarget?.name}</DialogTitle>
+                        <DialogTitle>
+                            Message from {detailsTarget?.name}
+                        </DialogTitle>
                         <DialogDescription>
                             Contact form inquiry details
                         </DialogDescription>
@@ -445,7 +454,7 @@ export default function DashboardContactMessages({
                     {detailsTarget && (
                         <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Name
                                 </dt>
                                 <dd className="font-medium">
@@ -453,7 +462,7 @@ export default function DashboardContactMessages({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Email
                                 </dt>
                                 <dd className="font-medium break-all">
@@ -461,7 +470,7 @@ export default function DashboardContactMessages({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Phone
                                 </dt>
                                 <dd className="font-medium">
@@ -469,7 +478,7 @@ export default function DashboardContactMessages({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Submitted
                                 </dt>
                                 <dd className="font-medium">
@@ -477,10 +486,10 @@ export default function DashboardContactMessages({
                                 </dd>
                             </div>
                             <div className="sm:col-span-2">
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Message
                                 </dt>
-                                <dd className="border-border mt-1 rounded-lg border p-3 text-sm whitespace-pre-wrap">
+                                <dd className="mt-1 rounded-lg border border-border p-3 text-sm whitespace-pre-wrap">
                                     {detailsTarget.message}
                                 </dd>
                             </div>
@@ -509,7 +518,7 @@ export default function DashboardContactMessages({
                             {deleteTarget && (
                                 <>
                                     Delete the message from{' '}
-                                    <span className="text-foreground font-medium">
+                                    <span className="font-medium text-foreground">
                                         {deleteTarget.name}
                                     </span>
                                     ? This cannot be undone.
@@ -519,10 +528,7 @@ export default function DashboardContactMessages({
                     </DialogHeader>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button
-                                variant="outline"
-                                disabled={deleting}
-                            >
+                            <Button variant="outline" disabled={deleting}>
                                 Cancel
                             </Button>
                         </DialogClose>
@@ -556,7 +562,11 @@ function DropdownAction({
             <DropdownMenu>
                 <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="icon" aria-label="Actions">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            aria-label="Actions"
+                        >
                             <MoreHorizontal className="size-4" />
                         </Button>
                     </DropdownMenuTrigger>

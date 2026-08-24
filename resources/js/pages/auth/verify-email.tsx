@@ -27,9 +27,9 @@ export default function VerifyEmail({ status }: { status?: string }) {
                 />
 
                 <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-relaxed text-amber-800">
-                    We sent a verification email to the address on your
-                    account. Click the link inside it to confirm your email.
-                    Didn't receive it? Check your spam folder or resend below.
+                    We sent a verification email to the address on your account.
+                    Click the link inside it to confirm your email. Didn't
+                    receive it? Check your spam folder or resend below.
                 </div>
 
                 <Form {...send.form()} className="space-y-6 text-center">

@@ -31,7 +31,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { destroy as destroyOpening, store as storeOpening, toggle as toggleOpening, update as updateOpening } from '@/routes/dashboard/job-openings';
+import {
+    destroy as destroyOpening,
+    store as storeOpening,
+    toggle as toggleOpening,
+    update as updateOpening,
+} from '@/routes/dashboard/job-openings';
 import type { JobOpeningRecord } from '@/types/dashboard';
 
 type DashboardJobOpeningsProps = {
@@ -66,7 +71,9 @@ function toBenefitsText(benefits: string[] | null | undefined): string {
     return (benefits ?? []).join('\n');
 }
 
-export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsProps) {
+export default function DashboardJobOpenings({
+    openings,
+}: DashboardJobOpeningsProps) {
     const form = useForm<OpeningForm>(EMPTY_FORM);
     const [postOpen, setPostOpen] = useState(false);
     const [editTarget, setEditTarget] = useState<JobOpeningRecord | null>(null);
@@ -123,13 +130,10 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
             return;
         }
 
-        router.delete(
-            destroyOpening.url({ career: deleteTarget.id }),
-            {
-                preserveScroll: true,
-                onSuccess: () => setDeleteTarget(null),
-            },
-        );
+        router.delete(destroyOpening.url({ career: deleteTarget.id }), {
+            preserveScroll: true,
+            onSuccess: () => setDeleteTarget(null),
+        });
     }
 
     function toggleDirect(opening: JobOpeningRecord) {
@@ -152,7 +156,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                         <h1 className="text-2xl font-semibold tracking-tight">
                             Job Openings
                         </h1>
-                        <p className="text-muted-foreground text-sm">
+                        <p className="text-sm text-muted-foreground">
                             Post, update, close, or delete the roles shown on
                             the public careers page.
                         </p>
@@ -191,7 +195,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                                 colSpan={6}
                                                 className="h-24 text-center"
                                             >
-                                                <p className="text-muted-foreground text-sm">
+                                                <p className="text-sm text-muted-foreground">
                                                     No job openings yet. Post
                                                     your first one.
                                                 </p>
@@ -232,63 +236,59 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                                 </TableCell>
                                                 <TableCell className="w-32">
                                                     <div className="flex items-center justify-end gap-1">
-                                                            <IconAction
-                                                                label="Edit opening"
-                                                            >
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        openEdit(
-                                                                            opening,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Pencil className="size-4" />
-                                                                </Button>
-                                                            </IconAction>
-                                                            <IconAction
-                                                                label={
-                                                                    opening.active
-                                                                        ? 'Close opening'
-                                                                        : 'Reopen opening'
+                                                        <IconAction label="Edit opening">
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    openEdit(
+                                                                        opening,
+                                                                    )
                                                                 }
                                                             >
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        toggleDirect(
-                                                                            opening,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {opening.active ? (
-                                                                        <CircleCheck className="size-4" />
-                                                                    ) : (
-                                                                        <CircleDot className="size-4" />
-                                                                    )}
-                                                                </Button>
-                                                            </IconAction>
-                                                            <IconAction
-                                                                label="Delete opening"
+                                                                <Pencil className="size-4" />
+                                                            </Button>
+                                                        </IconAction>
+                                                        <IconAction
+                                                            label={
+                                                                opening.active
+                                                                    ? 'Close opening'
+                                                                    : 'Reopen opening'
+                                                            }
+                                                        >
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    toggleDirect(
+                                                                        opening,
+                                                                    )
+                                                                }
                                                             >
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        setDeleteTarget(
-                                                                            opening,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Trash2 className="size-4" />
-                                                                </Button>
-                                                            </IconAction>
-                                                        </div>
+                                                                {opening.active ? (
+                                                                    <CircleCheck className="size-4" />
+                                                                ) : (
+                                                                    <CircleDot className="size-4" />
+                                                                )}
+                                                            </Button>
+                                                        </IconAction>
+                                                        <IconAction label="Delete opening">
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    setDeleteTarget(
+                                                                        opening,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Trash2 className="size-4" />
+                                                            </Button>
+                                                        </IconAction>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))
@@ -343,7 +343,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                     required
                                 />
                                 {form.errors.title && (
-                                    <p className="text-destructive text-xs">
+                                    <p className="text-xs text-destructive">
                                         {form.errors.title}
                                     </p>
                                 )}
@@ -365,7 +365,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                     required
                                 />
                                 {form.errors.location && (
-                                    <p className="text-destructive text-xs">
+                                    <p className="text-xs text-destructive">
                                         {form.errors.location}
                                     </p>
                                 )}
@@ -401,7 +401,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                     </SelectContent>
                                 </Select>
                                 {form.errors.employment_type && (
-                                    <p className="text-destructive text-xs">
+                                    <p className="text-xs text-destructive">
                                         {form.errors.employment_type}
                                     </p>
                                 )}
@@ -423,7 +423,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                     }
                                 />
                                 {form.errors.sort_order && (
-                                    <p className="text-destructive text-xs">
+                                    <p className="text-xs text-destructive">
                                         {form.errors.sort_order}
                                     </p>
                                 )}
@@ -442,7 +442,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                 className="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                             />
                             {form.errors.summary && (
-                                <p className="text-destructive text-xs">
+                                <p className="text-xs text-destructive">
                                     {form.errors.summary}
                                 </p>
                             )}
@@ -461,12 +461,14 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                         event.target.value,
                                     )
                                 }
-                                placeholder={'PASS certification\nValid CA driver license'}
+                                placeholder={
+                                    'PASS certification\nValid CA driver license'
+                                }
                                 className="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                                 required
                             />
                             {form.errors.requirements && (
-                                <p className="text-destructive text-xs">
+                                <p className="text-xs text-destructive">
                                     {form.errors.requirements}
                                 </p>
                             )}
@@ -480,16 +482,15 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                 rows={4}
                                 value={form.data.benefits}
                                 onChange={(event) =>
-                                    form.setData(
-                                        'benefits',
-                                        event.target.value,
-                                    )
+                                    form.setData('benefits', event.target.value)
                                 }
-                                placeholder={'Health insurance stipend\nPaid drive time\nFlexible scheduling'}
+                                placeholder={
+                                    'Health insurance stipend\nPaid drive time\nFlexible scheduling'
+                                }
                                 className="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                             />
                             {form.errors.benefits && (
-                                <p className="text-destructive text-xs">
+                                <p className="text-xs text-destructive">
                                     {form.errors.benefits}
                                 </p>
                             )}
@@ -500,10 +501,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                     Cancel
                                 </Button>
                             </DialogClose>
-                            <Button
-                                type="submit"
-                                disabled={form.processing}
-                            >
+                            <Button type="submit" disabled={form.processing}>
                                 <Plus />
                                 Post job
                             </Button>
@@ -523,9 +521,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
             >
                 <DialogContent className="sm:max-w-xl">
                     <DialogHeader>
-                        <DialogTitle>
-                            Edit {editTarget?.title}
-                        </DialogTitle>
+                        <DialogTitle>Edit {editTarget?.title}</DialogTitle>
                         <DialogDescription>
                             Changes apply to the public careers page
                             immediately.
@@ -555,7 +551,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                     required
                                 />
                                 {form.errors.title && (
-                                    <p className="text-destructive text-xs">
+                                    <p className="text-xs text-destructive">
                                         {form.errors.title}
                                     </p>
                                 )}
@@ -576,7 +572,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                     required
                                 />
                                 {form.errors.location && (
-                                    <p className="text-destructive text-xs">
+                                    <p className="text-xs text-destructive">
                                         {form.errors.location}
                                     </p>
                                 )}
@@ -612,7 +608,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                     </SelectContent>
                                 </Select>
                                 {form.errors.employment_type && (
-                                    <p className="text-destructive text-xs">
+                                    <p className="text-xs text-destructive">
                                         {form.errors.employment_type}
                                     </p>
                                 )}
@@ -634,7 +630,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                     }
                                 />
                                 {form.errors.sort_order && (
-                                    <p className="text-destructive text-xs">
+                                    <p className="text-xs text-destructive">
                                         {form.errors.sort_order}
                                     </p>
                                 )}
@@ -654,7 +650,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                 className="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                             />
                             {form.errors.summary && (
-                                <p className="text-destructive text-xs">
+                                <p className="text-xs text-destructive">
                                     {form.errors.summary}
                                 </p>
                             )}
@@ -677,7 +673,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                 required
                             />
                             {form.errors.requirements && (
-                                <p className="text-destructive text-xs">
+                                <p className="text-xs text-destructive">
                                     {form.errors.requirements}
                                 </p>
                             )}
@@ -691,16 +687,15 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                 rows={4}
                                 value={form.data.benefits}
                                 onChange={(event) =>
-                                    form.setData(
-                                        'benefits',
-                                        event.target.value,
-                                    )
+                                    form.setData('benefits', event.target.value)
                                 }
-                                placeholder={'Health insurance stipend\nPaid drive time\nFlexible scheduling'}
+                                placeholder={
+                                    'Health insurance stipend\nPaid drive time\nFlexible scheduling'
+                                }
                                 className="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                             />
                             {form.errors.benefits && (
-                                <p className="text-destructive text-xs">
+                                <p className="text-xs text-destructive">
                                     {form.errors.benefits}
                                 </p>
                             )}
@@ -711,10 +706,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
                                     Cancel
                                 </Button>
                             </DialogClose>
-                            <Button
-                                type="submit"
-                                disabled={form.processing}
-                            >
+                            <Button type="submit" disabled={form.processing}>
                                 Save changes
                             </Button>
                         </DialogFooter>
@@ -732,9 +724,7 @@ export default function DashboardJobOpenings({ openings }: DashboardJobOpeningsP
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>
-                            Delete {deleteTarget?.title}?
-                        </DialogTitle>
+                        <DialogTitle>Delete {deleteTarget?.title}?</DialogTitle>
                         <DialogDescription>
                             This permanently removes the job opening and all
                             applications submitted for it.

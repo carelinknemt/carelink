@@ -258,39 +258,35 @@ export default function CmsServices({
                                                 </TableCell>
                                                 <TableCell className="w-32">
                                                     <div className="flex items-center justify-end gap-1">
-                                                            <IconAction
-                                                                label="Edit service"
+                                                        <IconAction label="Edit service">
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    openEdit(
+                                                                        service,
+                                                                    )
+                                                                }
                                                             >
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        openEdit(
-                                                                            service,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Pencil className="size-4" />
-                                                                </Button>
-                                                            </IconAction>
-                                                            <IconAction
-                                                                label="Delete service"
+                                                                <Pencil className="size-4" />
+                                                            </Button>
+                                                        </IconAction>
+                                                        <IconAction label="Delete service">
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    setDeleteTarget(
+                                                                        service,
+                                                                    )
+                                                                }
                                                             >
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() =>
-                                                                        setDeleteTarget(
-                                                                            service,
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <Trash2 className="size-4" />
-                                                                </Button>
-                                                            </IconAction>
-                                                        </div>
+                                                                <Trash2 className="size-4" />
+                                                            </Button>
+                                                        </IconAction>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))

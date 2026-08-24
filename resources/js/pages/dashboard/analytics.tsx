@@ -88,20 +88,28 @@ function SummaryCard({
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                     {title}
                 </CardTitle>
-                <span className="bg-[#004b87]/10 flex size-8 items-center justify-center rounded-md">
+                <span className="flex size-8 items-center justify-center rounded-md bg-[#004b87]/10">
                     {icon}
                 </span>
             </CardHeader>
             <CardContent>
                 <p className="text-3xl font-bold">{value}</p>
-                <p className="text-muted-foreground text-xs">{caption}</p>
+                <p className="text-xs text-muted-foreground">{caption}</p>
             </CardContent>
         </Card>
     );
 }
 
 export default function DashboardAnalytics(props: AnalyticsPageProps) {
-    const { days, range, summary, daily, statuses, services, repeat_passengers } = props;
+    const {
+        days,
+        range,
+        summary,
+        daily,
+        statuses,
+        services,
+        repeat_passengers,
+    } = props;
 
     function changePeriod(value: number) {
         if (value === days) {
@@ -132,7 +140,7 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                                 Last {days} days
                             </span>
                         </div>
-                        <p className="text-muted-foreground text-sm">
+                        <p className="text-sm text-muted-foreground">
                             {formatDate(range.from)} – {formatDate(range.to)}
                         </p>
                     </div>
@@ -142,7 +150,9 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                                 key={option}
                                 type="button"
                                 size="sm"
-                                variant={days === option ? 'default' : 'outline'}
+                                variant={
+                                    days === option ? 'default' : 'outline'
+                                }
                                 onClick={() => changePeriod(option)}
                             >
                                 {option} days
@@ -156,19 +166,25 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                         title="Bookings"
                         value={String(summary.bookings)}
                         caption="Paid trips in period"
-                        icon={<CalendarDays className="size-4 text-[#004B87]" />}
+                        icon={
+                            <CalendarDays className="size-4 text-[#004B87]" />
+                        }
                     />
                     <SummaryCard
                         title="Booking Fee Revenue"
                         value={`$${summary.revenue.toFixed(2)}`}
                         caption="$30 fee per paid booking"
-                        icon={<DollarSign className="size-4 text-emerald-600" />}
+                        icon={
+                            <DollarSign className="size-4 text-emerald-600" />
+                        }
                     />
                     <SummaryCard
                         title="Avg Trip Price"
                         value={`$${summary.avg_trip_price.toFixed(2)}`}
                         caption="Across booked trips"
-                        icon={<TicketPercent className="size-4 text-[#E64A19]" />}
+                        icon={
+                            <TicketPercent className="size-4 text-[#E64A19]" />
+                        }
                     />
                     <SummaryCard
                         title="Completion Rate"
@@ -181,8 +197,19 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                 <div className="grid items-start gap-4 lg:grid-cols-2">
                     <ChartCard title="Bookings per Day">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={daily} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200" />
+                            <AreaChart
+                                data={daily}
+                                margin={{
+                                    top: 5,
+                                    right: 8,
+                                    left: -20,
+                                    bottom: 0,
+                                }}
+                            >
+                                <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    className="stroke-slate-200"
+                                />
                                 <XAxis
                                     dataKey="date"
                                     tick={{ fontSize: 11 }}
@@ -194,9 +221,14 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                                         }).format(new Date(value))
                                     }
                                 />
-                                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                                <YAxis
+                                    allowDecimals={false}
+                                    tick={{ fontSize: 11 }}
+                                />
                                 <Tooltip
-                                    labelFormatter={(label: string) => formatDate(label)}
+                                    labelFormatter={(label: string) =>
+                                        formatDate(label)
+                                    }
                                     formatter={(value) => [value, 'Bookings']}
                                 />
                                 <Area
@@ -213,8 +245,19 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
 
                     <ChartCard title="Booking Fee Revenue per Day">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={daily} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200" />
+                            <AreaChart
+                                data={daily}
+                                margin={{
+                                    top: 5,
+                                    right: 8,
+                                    left: -20,
+                                    bottom: 0,
+                                }}
+                            >
+                                <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    className="stroke-slate-200"
+                                />
                                 <XAxis
                                     dataKey="date"
                                     tick={{ fontSize: 11 }}
@@ -228,11 +271,18 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                                 />
                                 <YAxis
                                     tick={{ fontSize: 11 }}
-                                    tickFormatter={(value: number) => `$${value}`}
+                                    tickFormatter={(value: number) =>
+                                        `$${value}`
+                                    }
                                 />
                                 <Tooltip
-                                    labelFormatter={(label: string) => formatDate(label)}
-                                    formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
+                                    labelFormatter={(label: string) =>
+                                        formatDate(label)
+                                    }
+                                    formatter={(value) => [
+                                        `$${Number(value).toFixed(2)}`,
+                                        'Revenue',
+                                    ]}
                                 />
                                 <Area
                                     type="monotone"
@@ -261,16 +311,29 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                                         payload,
                                     }: {
                                         payload?: AnalyticsLabelCount;
-                                    }) => formatShortLabel(payload?.label ?? '')}
+                                    }) =>
+                                        formatShortLabel(payload?.label ?? '')
+                                    }
                                 >
                                     {statuses.map((entry, index) => (
-                                        <Cell key={entry.label} fill={SERIES_COLORS[index % SERIES_COLORS.length]} />
+                                        <Cell
+                                            key={entry.label}
+                                            fill={
+                                                SERIES_COLORS[
+                                                    index % SERIES_COLORS.length
+                                                ]
+                                            }
+                                        />
                                     ))}
                                 </Pie>
-                                <Tooltip formatter={(value, name) => [value, name]} />
+                                <Tooltip
+                                    formatter={(value, name) => [value, name]}
+                                />
                                 <Legend
                                     formatter={(value: string) => (
-                                        <span className="text-xs">{shortStatusLabel(value)}</span>
+                                        <span className="text-xs">
+                                            {shortStatusLabel(value)}
+                                        </span>
                                     )}
                                 />
                             </PieChart>
@@ -279,8 +342,19 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
 
                     <ChartCard title="Service Type Breakdown">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={services} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200" />
+                            <BarChart
+                                data={services}
+                                margin={{
+                                    top: 5,
+                                    right: 8,
+                                    left: -20,
+                                    bottom: 0,
+                                }}
+                            >
+                                <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    className="stroke-slate-200"
+                                />
                                 <XAxis
                                     dataKey="label"
                                     tick={{ fontSize: 11 }}
@@ -289,11 +363,23 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                                     textAnchor="end"
                                     height={55}
                                 />
-                                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                                <Tooltip formatter={(value) => [value, 'Bookings']} />
+                                <YAxis
+                                    allowDecimals={false}
+                                    tick={{ fontSize: 11 }}
+                                />
+                                <Tooltip
+                                    formatter={(value) => [value, 'Bookings']}
+                                />
                                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                                     {services.map((entry, index) => (
-                                        <Cell key={entry.label} fill={SERIES_COLORS[index % SERIES_COLORS.length]} />
+                                        <Cell
+                                            key={entry.label}
+                                            fill={
+                                                SERIES_COLORS[
+                                                    index % SERIES_COLORS.length
+                                                ]
+                                            }
+                                        />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -311,11 +397,13 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                     <CardContent>
                         {repeat_passengers.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-10 text-center">
-                                <TrendingUp className="text-muted-foreground size-8" />
-                                <p className="font-medium">No repeat passengers yet</p>
-                                <p className="text-muted-foreground text-sm">
-                                    Passengers with more than one booking in the selected period
-                                    appear here.
+                                <TrendingUp className="size-8 text-muted-foreground" />
+                                <p className="font-medium">
+                                    No repeat passengers yet
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                    Passengers with more than one booking in the
+                                    selected period appear here.
                                 </p>
                             </div>
                         ) : (
@@ -323,7 +411,9 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Passenger</TableHead>
-                                        <TableHead className="text-right">Trips in period</TableHead>
+                                        <TableHead className="text-right">
+                                            Trips in period
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -348,7 +438,9 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
 }
 
 function formatShortLabel(label: string): string {
-    return label.replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+    return label
+        .replaceAll('_', ' ')
+        .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function shortStatusLabel(label: string): string {

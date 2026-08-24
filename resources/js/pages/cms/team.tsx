@@ -241,23 +241,21 @@ export default function CmsTeam({
                                                 </TableCell>
                                                 <TableCell className="w-32">
                                                     <div className="flex items-center justify-end gap-1">
-                                                        <IconAction
-                                                            label="Edit member"
-                                                        >
+                                                        <IconAction label="Edit member">
                                                             <Button
                                                                 type="button"
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() =>
-                                                                    openEdit(member)
+                                                                    openEdit(
+                                                                        member,
+                                                                    )
                                                                 }
                                                             >
                                                                 <Pencil className="size-4" />
                                                             </Button>
                                                         </IconAction>
-                                                        <IconAction
-                                                            label="Delete member"
-                                                        >
+                                                        <IconAction label="Delete member">
                                                             <Button
                                                                 type="button"
                                                                 variant="ghost"

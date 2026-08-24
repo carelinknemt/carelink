@@ -128,7 +128,11 @@ export default function AppHead({
             )}
 
             {/* Open Graph */}
-            <meta head-key="og:site_name" property="og:site_name" content={SITE_NAME} />
+            <meta
+                head-key="og:site_name"
+                property="og:site_name"
+                content={SITE_NAME}
+            />
             <meta head-key="og:type" property="og:type" content={type} />
             <meta head-key="og:title" property="og:title" content={fullTitle} />
             <meta
@@ -153,13 +157,21 @@ export default function AppHead({
                 name="twitter:card"
                 content="summary_large_image"
             />
-            <meta head-key="twitter:title" name="twitter:title" content={fullTitle} />
+            <meta
+                head-key="twitter:title"
+                name="twitter:title"
+                content={fullTitle}
+            />
             <meta
                 head-key="twitter:description"
                 name="twitter:description"
                 content={description || DEFAULT_DESCRIPTION}
             />
-            <meta head-key="twitter:image" name="twitter:image" content={ogImage} />
+            <meta
+                head-key="twitter:image"
+                name="twitter:image"
+                content={ogImage}
+            />
 
             {/* Structured Data */}
             {graph.length > 0 && (

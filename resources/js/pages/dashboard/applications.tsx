@@ -67,7 +67,11 @@ import {
     reject as rejectApplication,
     resume as applicationResume,
 } from '@/routes/dashboard/applications';
-import type { ApplicationRecord, ApplicationsFilters, PaginatedApplications } from '@/types/dashboard';
+import type {
+    ApplicationRecord,
+    ApplicationsFilters,
+    PaginatedApplications,
+} from '@/types/dashboard';
 
 type DashboardApplicationsProps = {
     applications: PaginatedApplications;
@@ -89,9 +93,8 @@ export default function DashboardApplications({
     const [deleteTarget, setDeleteTarget] = useState<ApplicationRecord | null>(
         null,
     );
-    const [detailsTarget, setDetailsTarget] = useState<ApplicationRecord | null>(
-        null,
-    );
+    const [detailsTarget, setDetailsTarget] =
+        useState<ApplicationRecord | null>(null);
     const [decisionTarget, setDecisionTarget] = useState<{
         application: ApplicationRecord;
         decision: 'accept' | 'reject';
@@ -180,10 +183,14 @@ export default function DashboardApplications({
                 ? acceptApplication.url({ application: application.id })
                 : rejectApplication.url({ application: application.id });
 
-        router.post(url, {}, {
-            preserveScroll: true,
-            onSuccess: () => setDecisionTarget(null),
-        });
+        router.post(
+            url,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => setDecisionTarget(null),
+            },
+        );
     }
 
     const searchActive = Boolean(filters.search);
@@ -200,7 +207,7 @@ export default function DashboardApplications({
                         <h1 className="text-2xl font-semibold tracking-tight">
                             Applications
                         </h1>
-                        <p className="text-muted-foreground text-sm">
+                        <p className="text-sm text-muted-foreground">
                             Review employment applications submitted for each
                             posted role.
                         </p>
@@ -214,9 +221,7 @@ export default function DashboardApplications({
                             className="grid gap-4 sm:grid-cols-2"
                         >
                             <div className="grid gap-1.5">
-                                <Label htmlFor="application-role">
-                                    Role
-                                </Label>
+                                <Label htmlFor="application-role">Role</Label>
                                 <Select
                                     value={form.data.role}
                                     onValueChange={changeRole}
@@ -247,7 +252,7 @@ export default function DashboardApplications({
                                     Name or email
                                 </Label>
                                 <div className="relative">
-                                    <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                     <Input
                                         id="application-search"
                                         type="search"
@@ -255,9 +260,7 @@ export default function DashboardApplications({
                                         className="pl-9"
                                         value={form.data.search}
                                         onChange={(event) =>
-                                            changeSearch(
-                                                event.target.value,
-                                            )
+                                            changeSearch(event.target.value)
                                         }
                                     />
                                 </div>
@@ -303,7 +306,7 @@ export default function DashboardApplications({
                                                 colSpan={4}
                                                 className="h-24 text-center"
                                             >
-                                                <p className="text-muted-foreground text-sm">
+                                                <p className="text-sm text-muted-foreground">
                                                     No applications match your
                                                     filters.
                                                 </p>
@@ -318,7 +321,7 @@ export default function DashboardApplications({
                                                     </span>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <span className="text-muted-foreground text-sm">
+                                                    <span className="text-sm text-muted-foreground">
                                                         {application.position ??
                                                             'Position'}
                                                     </span>
@@ -358,9 +361,7 @@ export default function DashboardApplications({
                                                                 )
                                                             }
                                                         />
-                                                        <IconAction
-                                                            label="Delete application"
-                                                        >
+                                                        <IconAction label="Delete application">
                                                             <Button
                                                                 type="button"
                                                                 variant="ghost"
@@ -518,7 +519,7 @@ export default function DashboardApplications({
                     {detailsTarget && (
                         <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Email
                                 </dt>
                                 <dd className="font-medium">
@@ -526,7 +527,7 @@ export default function DashboardApplications({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Phone
                                 </dt>
                                 <dd className="font-medium">
@@ -534,7 +535,7 @@ export default function DashboardApplications({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Submitted
                                 </dt>
                                 <dd className="font-medium">
@@ -542,15 +543,14 @@ export default function DashboardApplications({
                                 </dd>
                             </div>
                             <div>
-                                <dt className="text-muted-foreground text-xs">
+                                <dt className="text-xs text-muted-foreground">
                                     Resume
                                 </dt>
                                 <dd className="font-medium">
                                     {detailsTarget.resume_name ? (
                                         <Link
                                             href={applicationResume.url({
-                                                application:
-                                                    detailsTarget.id,
+                                                application: detailsTarget.id,
                                             })}
                                             className="inline-flex items-center gap-1.5 text-sm font-medium text-[#004B87] hover:underline"
                                         >
@@ -558,18 +558,18 @@ export default function DashboardApplications({
                                             {detailsTarget.resume_name}
                                         </Link>
                                     ) : (
-                                        <span className="text-muted-foreground text-sm">
+                                        <span className="text-sm text-muted-foreground">
                                             None
                                         </span>
                                     )}
                                 </dd>
                             </div>
                             <div className="sm:col-span-2">
-                                <dt className="text-muted-foreground flex items-center gap-1.5 text-xs">
+                                <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                     <FileText className="size-3.5" />
                                     Motivation / Cover letter
                                 </dt>
-                                <dd className="border-border mt-1 rounded-lg border p-3 text-sm whitespace-pre-wrap">
+                                <dd className="mt-1 rounded-lg border border-border p-3 text-sm whitespace-pre-wrap">
                                     {detailsTarget.cover_letter ??
                                         'No cover letter provided.'}
                                 </dd>

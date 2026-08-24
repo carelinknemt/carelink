@@ -3,7 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 export default function SpecializedTeam() {
     const containerRef = useRef<HTMLElement>(null);
     const bgRef = useRef<HTMLDivElement>(null);
-    const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false));
+    const [isMobile, setIsMobile] = useState(() =>
+        typeof window !== 'undefined'
+            ? window.matchMedia('(max-width: 767px)').matches
+            : false,
+    );
 
     useEffect(() => {
         const mediaQuery = window.matchMedia('(max-width: 767px)');
@@ -24,15 +28,16 @@ export default function SpecializedTeam() {
 
         const updateParallax = () => {
             if (!containerRef.current || !bgRef.current) {
-return;
-}
+                return;
+            }
 
             const rect = containerRef.current.getBoundingClientRect();
             const windowHeight = window.innerHeight;
 
             // Only calculate when section is visible in viewport
             if (rect.bottom >= 0 && rect.top <= windowHeight) {
-                const centerOffset = rect.top + rect.height / 2 - windowHeight / 2;
+                const centerOffset =
+                    rect.top + rect.height / 2 - windowHeight / 2;
                 const yOffset = centerOffset * bgParallaxSpeed;
                 bgRef.current.style.transform = `translate3d(0, ${yOffset.toFixed(2)}px, 0)`;
             }
@@ -67,13 +72,17 @@ return;
         <section
             ref={containerRef}
             id="about"
-            className="relative flex flex-col justify-center overflow-hidden bg-slate-100 border-y border-slate-100"
-            style={{ minHeight: '100dvh', paddingTop: currentSectionPy, paddingBottom: currentSectionPy }}
+            className="relative flex flex-col justify-center overflow-hidden border-y border-slate-100 bg-slate-100"
+            style={{
+                minHeight: '100dvh',
+                paddingTop: currentSectionPy,
+                paddingBottom: currentSectionPy,
+            }}
         >
             {/* Hardware-accelerated smooth parallax background container */}
             <div
                 ref={bgRef}
-                className="absolute inset-x-0 -top-[25%] -bottom-[25%] h-[150%] w-full bg-cover bg-center pointer-events-none will-change-transform z-0"
+                className="pointer-events-none absolute inset-x-0 -top-[25%] -bottom-[25%] z-0 h-[150%] w-full bg-cover bg-center will-change-transform"
                 style={{
                     backgroundImage: isMobile
                         ? "url('/images/covers/cover.png')"
@@ -81,9 +90,9 @@ return;
                 }}
             />
 
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 relative z-10 w-full">
+            <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-12">
                 <div
-                    className={`relative flex flex-col items-start justify-end text-left p-4 sm:p-8 rounded-3xl bg-white/95 border border-slate-200/40 shadow-xl backdrop-blur-md max-w-full transition-all duration-150 ${currentCardAlign}`}
+                    className={`relative flex max-w-full flex-col items-start justify-end rounded-3xl border border-slate-200/40 bg-white/95 p-4 text-left shadow-xl backdrop-blur-md transition-all duration-150 sm:p-8 ${currentCardAlign}`}
                     style={{
                         width: currentCardWidth,
                         height: currentCardHeight,
@@ -91,14 +100,17 @@ return;
                     }}
                 >
                     {/* Card background gradient for depth under the transparent image */}
-                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-cyan-50/50 to-[#004B87]/5 pointer-events-none -z-10" />
+                    <div className="pointer-events-none absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-cyan-50/50 to-[#004B87]/5" />
 
                     {/* Out-of-bounds image container: clips on bottom, left, and right, but extends above the top edge */}
-                    <div className="absolute inset-x-0 bottom-0 rounded-b-3xl overflow-hidden pointer-events-none z-10" style={{ top: currentImageTopOverflow }}>
+                    <div
+                        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 overflow-hidden rounded-b-3xl"
+                        style={{ top: currentImageTopOverflow }}
+                    >
                         <img
                             src="/images/A-women-sharing-joy-with-caregiver1.png"
                             alt="A woman sharing joy with caregiver"
-                            className="absolute bottom-0 left-1/2 select-none h-auto object-cover transition-all duration-75"
+                            className="absolute bottom-0 left-1/2 h-auto object-cover transition-all duration-75 select-none"
                             style={{
                                 width: currentImageWidth,
                                 transform: `translateX(-50%) scale(${currentImageScale})`,
@@ -109,8 +121,10 @@ return;
                     </div>
 
                     {/* Minimal overlay with only Transit Support text */}
-                    <div className="relative z-20 mt-auto bg-white/90 backdrop-blur-xs px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-xl border border-orange-200/60 shadow-sm">
-                        <span className="text-[9px] sm:text-[10px] font-black text-[#E64A19] uppercase tracking-widest block">Transit Support</span>
+                    <div className="relative z-20 mt-auto rounded-xl border border-orange-200/60 bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur-xs sm:px-3.5 sm:py-1.5">
+                        <span className="block text-[9px] font-black tracking-widest text-[#E64A19] uppercase sm:text-[10px]">
+                            Transit Support
+                        </span>
                     </div>
                 </div>
             </div>

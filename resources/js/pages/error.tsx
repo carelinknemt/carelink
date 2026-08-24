@@ -35,11 +35,7 @@ export default function ErrorPage({ status }: { status: number }) {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-16">
-            <AppHead
-                title={title}
-                description={description}
-                type="website"
-            />
+            <AppHead title={title} description={description} type="website" />
 
             <div className="mx-auto flex max-w-7xl flex-col items-center px-4 py-20 text-center sm:px-6 lg:px-12 lg:py-28">
                 <p className="text-xs font-black tracking-widest text-[#E64A19] uppercase">

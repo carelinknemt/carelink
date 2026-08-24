@@ -1,5 +1,4 @@
 import { Link } from '@inertiajs/react';
-import { ArrowRight } from 'lucide-react';
 import { business } from '@/routes';
 
 export default function BusinessCta() {
@@ -21,7 +20,8 @@ export default function BusinessCta() {
                 <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
                     <div className="max-w-2xl">
                         <h2 className="text-3xl leading-tight font-black tracking-tight text-white sm:text-4xl">
-                            Partner with CareLink for Your Organizational Transportation Needs
+                            Partner with CareLink for Your Organizational
+                            Transportation Needs
                         </h2>
                         <p className="mt-4 max-w-xl text-sm leading-relaxed font-medium text-cyan-100 sm:text-base">
                             Hospitals, clinics, care facilities, and community

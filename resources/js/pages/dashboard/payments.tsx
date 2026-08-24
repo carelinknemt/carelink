@@ -31,7 +31,12 @@ import {
 import { formatDate, formatMoney } from '@/lib/bookings';
 import { cn } from '@/lib/utils';
 import { payments as dashboardPayments } from '@/routes/dashboard';
-import type { PaginatedPayments, PaymentRecord, PaymentsFilters, PaymentsSummary } from '@/types/dashboard';
+import type {
+    PaginatedPayments,
+    PaymentRecord,
+    PaymentsFilters,
+    PaymentsSummary,
+} from '@/types/dashboard';
 
 type DashboardPaymentsProps = {
     payments: PaginatedPayments;
@@ -55,7 +60,8 @@ const PAYMENT_BADGES: Record<string, { label: string; className: string }> = {
 };
 
 function paymentBadge(payment: PaymentRecord) {
-    const key = payment.refunded_at !== null ? 'REFUNDED' : payment.payment_status;
+    const key =
+        payment.refunded_at !== null ? 'REFUNDED' : payment.payment_status;
 
     return PAYMENT_BADGES[key] ?? PAYMENT_BADGES.PENDING;
 }
@@ -80,13 +86,34 @@ function SummaryCard({
     accent?: boolean;
 }) {
     return (
-        <Card className={cn('relative overflow-hidden', accent && 'bg-primary text-primary-foreground')}>
+        <Card
+            className={cn(
+                'relative overflow-hidden',
+                accent && 'bg-primary text-primary-foreground',
+            )}
+        >
             <CardContent className="p-5">
-                <p className={cn('text-sm font-medium', accent ? 'text-primary-foreground/80' : 'text-muted-foreground')}>
+                <p
+                    className={cn(
+                        'text-sm font-medium',
+                        accent
+                            ? 'text-primary-foreground/80'
+                            : 'text-muted-foreground',
+                    )}
+                >
                     {label}
                 </p>
-                <p className="mt-1 text-2xl font-bold tracking-tight">{value}</p>
-                <p className={cn('mt-1 text-xs', accent ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+                <p className="mt-1 text-2xl font-bold tracking-tight">
+                    {value}
+                </p>
+                <p
+                    className={cn(
+                        'mt-1 text-xs',
+                        accent
+                            ? 'text-primary-foreground/70'
+                            : 'text-muted-foreground',
+                    )}
+                >
                     {hint}
                 </p>
             </CardContent>
@@ -159,9 +186,12 @@ export default function DashboardPayments({
 
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-semibold tracking-tight">Payments</h1>
-                    <p className="text-muted-foreground text-sm">
-                        Booking fees processed through Stripe checkout, with refunds.
+                    <h1 className="text-2xl font-semibold tracking-tight">
+                        Payments
+                    </h1>
+                    <p className="text-sm text-muted-foreground">
+                        Booking fees processed through Stripe checkout, with
+                        refunds.
                     </p>
                 </div>
 
@@ -174,14 +204,16 @@ export default function DashboardPayments({
                             <div className="grid gap-1.5">
                                 <Label htmlFor="payment-search">Search</Label>
                                 <div className="relative">
-                                    <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                                     <Input
                                         id="payment-search"
                                         type="search"
                                         placeholder="Booking number, passenger, or email…"
                                         className="pl-9"
                                         value={form.data.search}
-                                        onChange={(event) => changeSearch(event.target.value)}
+                                        onChange={(event) =>
+                                            changeSearch(event.target.value)
+                                        }
                                     />
                                 </div>
                             </div>
@@ -198,10 +230,18 @@ export default function DashboardPayments({
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="__all">All payments</SelectItem>
-                                        <SelectItem value="PAID">Paid</SelectItem>
-                                        <SelectItem value="PENDING">Pending</SelectItem>
-                                        <SelectItem value="refunded">Refunded</SelectItem>
+                                        <SelectItem value="__all">
+                                            All payments
+                                        </SelectItem>
+                                        <SelectItem value="PAID">
+                                            Paid
+                                        </SelectItem>
+                                        <SelectItem value="PENDING">
+                                            Pending
+                                        </SelectItem>
+                                        <SelectItem value="refunded">
+                                            Refunded
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -237,9 +277,9 @@ export default function DashboardPayments({
                     <CardContent className="pt-6">
                         {payments.data.length === 0 ? (
                             <div className="flex flex-col items-center gap-2 py-16 text-center">
-                                <BadgeDollarSign className="text-muted-foreground size-10" />
+                                <BadgeDollarSign className="size-10 text-muted-foreground" />
                                 <p className="font-medium">No payments found</p>
-                                <p className="text-muted-foreground text-sm">
+                                <p className="text-sm text-muted-foreground">
                                     {hasFilters
                                         ? 'Try adjusting your search or payment status filter.'
                                         : 'Payments appear here once a booking reaches the Stripe checkout.'}
@@ -249,32 +289,43 @@ export default function DashboardPayments({
                             <>
                                 <ul className="flex flex-col gap-3 md:hidden">
                                     {payments.data.map((payment) => (
-                                        <li key={payment.id} className="border-border rounded-lg border p-4">
+                                        <li
+                                            key={payment.id}
+                                            className="rounded-lg border border-border p-4"
+                                        >
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="min-w-0">
                                                     <p className="font-medium">
                                                         {payment.booking_number}
                                                     </p>
-                                                    <p className="text-muted-foreground text-sm">
+                                                    <p className="text-sm text-muted-foreground">
                                                         {payment.passenger_name}
                                                     </p>
                                                 </div>
                                                 <span className="shrink-0 font-medium">
-                                                    {formatMoney(payment.amount)}
+                                                    {formatMoney(
+                                                        payment.amount,
+                                                    )}
                                                 </span>
                                             </div>
                                             <div className="mt-3 flex items-center justify-between gap-3">
-                                                <span className="text-muted-foreground text-sm">
-                                                    {formatDate(payment.trip_date)}
+                                                <span className="text-sm text-muted-foreground">
+                                                    {formatDate(
+                                                        payment.trip_date,
+                                                    )}
                                                 </span>
                                                 <div className="flex items-center gap-2">
                                                     <span
                                                         className={cn(
                                                             'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium',
-                                                            paymentBadgeClasses(payment),
+                                                            paymentBadgeClasses(
+                                                                payment,
+                                                            ),
                                                         )}
                                                     >
-                                                        {paymentBadgeLabel(payment)}
+                                                        {paymentBadgeLabel(
+                                                            payment,
+                                                        )}
                                                     </span>
                                                 </div>
                                             </div>
@@ -290,7 +341,9 @@ export default function DashboardPayments({
                                                 <TableHead>Passenger</TableHead>
                                                 <TableHead>Trip Date</TableHead>
                                                 <TableHead>Status</TableHead>
-                                                <TableHead className="text-right">Fee</TableHead>
+                                                <TableHead className="text-right">
+                                                    Fee
+                                                </TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -301,29 +354,43 @@ export default function DashboardPayments({
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex flex-col">
-                                                            <span>{payment.passenger_name}</span>
+                                                            <span>
+                                                                {
+                                                                    payment.passenger_name
+                                                                }
+                                                            </span>
                                                             {payment.passenger_email && (
-                                                                <span className="text-muted-foreground text-xs">
-                                                                    {payment.passenger_email}
+                                                                <span className="text-xs text-muted-foreground">
+                                                                    {
+                                                                        payment.passenger_email
+                                                                    }
                                                                 </span>
                                                             )}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        {formatDate(payment.trip_date)}
+                                                        {formatDate(
+                                                            payment.trip_date,
+                                                        )}
                                                     </TableCell>
                                                     <TableCell>
                                                         <span
                                                             className={cn(
                                                                 'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium',
-                                                                paymentBadgeClasses(payment),
+                                                                paymentBadgeClasses(
+                                                                    payment,
+                                                                ),
                                                             )}
                                                         >
-                                                            {paymentBadgeLabel(payment)}
+                                                            {paymentBadgeLabel(
+                                                                payment,
+                                                            )}
                                                         </span>
                                                     </TableCell>
                                                     <TableCell className="text-right">
-                                                        {formatMoney(payment.amount)}
+                                                        {formatMoney(
+                                                            payment.amount,
+                                                        )}
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -340,8 +407,15 @@ export default function DashboardPayments({
                                         <PaginationItem>
                                             {payments.prev_page_url ? (
                                                 <PaginationPrevious asChild>
-                                                    <Link href={payments.prev_page_url} prefetch>
-                                                        <span className="hidden sm:block">Previous</span>
+                                                    <Link
+                                                        href={
+                                                            payments.prev_page_url
+                                                        }
+                                                        prefetch
+                                                    >
+                                                        <span className="hidden sm:block">
+                                                            Previous
+                                                        </span>
                                                     </Link>
                                                 </PaginationPrevious>
                                             ) : (
@@ -357,18 +431,22 @@ export default function DashboardPayments({
                                             }
 
                                             const label =
-                                                link.label === '&laquo; Previous'
+                                                link.label ===
+                                                '&laquo; Previous'
                                                     ? '…'
-                                                    : link.label === '&raquo; Next'
+                                                    : link.label ===
+                                                        '&raquo; Next'
                                                       ? '…'
                                                       : link.label;
 
                                             return (
-                                                <PaginationItem key={`${link.label}-${link.url}`}>
+                                                <PaginationItem
+                                                    key={`${link.label}-${link.url}`}
+                                                >
                                                     <PaginationLink
                                                         href={link.url}
                                                         isActive={link.active}
-                                                                                                            >
+                                                    >
                                                         {label}
                                                     </PaginationLink>
                                                 </PaginationItem>
@@ -377,8 +455,15 @@ export default function DashboardPayments({
                                         <PaginationItem>
                                             {payments.next_page_url ? (
                                                 <PaginationNext asChild>
-                                                    <Link href={payments.next_page_url} prefetch>
-                                                        <span className="hidden sm:block">Next</span>
+                                                    <Link
+                                                        href={
+                                                            payments.next_page_url
+                                                        }
+                                                        prefetch
+                                                    >
+                                                        <span className="hidden sm:block">
+                                                            Next
+                                                        </span>
                                                     </Link>
                                                 </PaginationNext>
                                             ) : (
@@ -400,7 +485,12 @@ export default function DashboardPayments({
                                         <PaginationItem>
                                             {payments.prev_page_url ? (
                                                 <PaginationPrevious asChild>
-                                                    <Link href={payments.prev_page_url} prefetch />
+                                                    <Link
+                                                        href={
+                                                            payments.prev_page_url
+                                                        }
+                                                        prefetch
+                                                    />
                                                 </PaginationPrevious>
                                             ) : (
                                                 <PaginationPrevious
@@ -412,7 +502,12 @@ export default function DashboardPayments({
                                         <PaginationItem>
                                             {payments.next_page_url ? (
                                                 <PaginationNext asChild>
-                                                    <Link href={payments.next_page_url} prefetch />
+                                                    <Link
+                                                        href={
+                                                            payments.next_page_url
+                                                        }
+                                                        prefetch
+                                                    />
                                                 </PaginationNext>
                                             ) : (
                                                 <PaginationNext
