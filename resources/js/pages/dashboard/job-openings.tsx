@@ -31,6 +31,8 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { dashboard } from '@/routes';
+import { jobOpenings as dashboardJobOpenings } from '@/routes/dashboard';
 import {
     destroy as destroyOpening,
     store as storeOpening,
@@ -750,3 +752,16 @@ export default function DashboardJobOpenings({
         </>
     );
 }
+
+DashboardJobOpenings.layout = {
+    breadcrumbs: [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+        },
+        {
+            title: 'Job Openings',
+            href: dashboardJobOpenings(),
+        },
+    ],
+};

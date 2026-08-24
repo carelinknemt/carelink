@@ -60,6 +60,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { formatDate } from '@/lib/bookings';
+import { dashboard } from '@/routes';
 import { applications as dashboardApplications } from '@/routes/dashboard';
 import {
     accept as acceptApplication,
@@ -683,3 +684,16 @@ function DropdownAction({
         </Tooltip>
     );
 }
+
+DashboardApplications.layout = {
+    breadcrumbs: [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+        },
+        {
+            title: 'Applications',
+            href: dashboardApplications(),
+        },
+    ],
+};

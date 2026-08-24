@@ -46,6 +46,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/bookings';
+import { dashboard } from '@/routes';
 import { users as dashboardUsers } from '@/routes/dashboard';
 import { banToggle, store as storeUser } from '@/routes/dashboard/users';
 import type {
@@ -699,3 +700,16 @@ export default function DashboardUsers({
         </>
     );
 }
+
+DashboardUsers.layout = {
+    breadcrumbs: [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+        },
+        {
+            title: 'Users',
+            href: dashboardUsers(),
+        },
+    ],
+};

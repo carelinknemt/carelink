@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/table';
 import { formatDate, formatMoney } from '@/lib/bookings';
 import { cn } from '@/lib/utils';
+import { dashboard } from '@/routes';
 import { payments as dashboardPayments } from '@/routes/dashboard';
 import type {
     PaginatedPayments,
@@ -526,3 +527,16 @@ export default function DashboardPayments({
         </>
     );
 }
+
+DashboardPayments.layout = {
+    breadcrumbs: [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+        },
+        {
+            title: 'Payments',
+            href: dashboardPayments(),
+        },
+    ],
+};
