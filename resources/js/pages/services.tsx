@@ -92,7 +92,7 @@ export default function Services({ services }: ServicesProps) {
 
                                 {/* Card Content */}
                                 <div className="space-y-4 p-6">
-                                    <h3 className="text-xl font-black text-slate-900 transition-colors group-hover:text-[#004B87]">
+                                    <h3 className="text-xl font-black text-[#E64A19] transition-colors group-hover:text-[#004B87]">
                                         {service.title}
                                     </h3>
 

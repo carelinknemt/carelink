@@ -148,7 +148,7 @@ export default function Blog({ posts }: BlogProps) {
                                         </span>
                                     </div>
 
-                                    <h3 className="text-lg leading-snug font-black text-slate-900 transition-colors group-hover:text-[#004B87]">
+                                    <h3 className="text-lg leading-snug font-black text-[#E64A19] transition-colors group-hover:text-[#004B87]">
                                         {post.title}
                                     </h3>
 

@@ -129,7 +129,7 @@ export default function BlogShow({ post, recent_posts }: BlogShowProps) {
                                         <span className="text-[10px] font-black tracking-wider text-[#E64A19] uppercase">
                                             {recent.category}
                                         </span>
-                                        <h3 className="line-clamp-2 text-sm leading-snug font-bold text-slate-900 group-hover:text-[#E64A19]">
+                                        <h3 className="line-clamp-2 text-sm leading-snug font-bold text-[#E64A19] transition-colors group-hover:text-[#E64A19]">
                                             {recent.title}
                                         </h3>
                                         <p className="text-xs text-slate-500">

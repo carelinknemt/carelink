@@ -188,7 +188,7 @@ export default function Header() {
                                     activeTab === item.id ||
                                     activeHoverItem === item.id
                                         ? 'bg-slate-100/80 font-extrabold text-[#004B87]'
-                                        : 'text-gray-600 hover:bg-slate-50 hover:text-[#E64A19]'
+                                        : 'text-[#004B87] hover:bg-slate-50 hover:text-[#E64A19]'
                                 }`}
                             >
                                 <span>{item.label}</span>
@@ -271,7 +271,7 @@ export default function Header() {
                             const itemClassName = `flex min-h-[44px] w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-xs font-bold transition-colors sm:text-sm ${
                                 activeTab === item.id
                                     ? 'border border-cyan-200/60 bg-cyan-50 font-extrabold text-[#004B87]'
-                                    : 'text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+                                    : 'text-[#004B87] hover:bg-gray-50 active:bg-gray-100'
                             }`;
 
                             return (

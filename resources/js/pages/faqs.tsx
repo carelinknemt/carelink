@@ -163,7 +163,7 @@ export default function Faqs({ faqs }: FaqsProps) {
                                         onClick={() =>
                                             setOpenIndex(isOpen ? null : index)
                                         }
-                                        className="flex w-full items-center justify-between p-5 text-left font-extrabold text-slate-900 transition-colors hover:text-[#E64A19]"
+                                        className="flex w-full items-center justify-between p-5 text-left font-extrabold text-[#E64A19] transition-colors hover:text-[#E64A19]"
                                     >
                                         <div className="flex items-center gap-3">
                                             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-orange-100 text-xs font-black text-[#E64A19]">
