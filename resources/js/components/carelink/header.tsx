@@ -267,53 +267,71 @@ export default function Header() {
             {mobileMenuOpen && (
                 <div className="max-h-[80vh] animate-in overflow-y-auto border-t border-gray-100 bg-white px-4 py-3 shadow-xl duration-200 slide-in-from-top-2 lg:hidden">
                     <div className="flex flex-col space-y-2">
-                        {navItems.map((item) => (
-                            <div key={item.id} className="flex flex-col">
-                                <button
-                                    onClick={() =>
-                                        handleMobileParentClick(item)
-                                    }
-                                    className={`flex min-h-[44px] w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-xs font-bold transition-colors sm:text-sm ${
-                                        activeTab === item.id
-                                            ? 'border border-cyan-200/60 bg-cyan-50 font-extrabold text-[#004B87]'
-                                            : 'text-gray-700 hover:bg-gray-50 active:bg-gray-100'
-                                    }`}
-                                >
-                                    <span>{item.label}</span>
-                                    {item.subLinks.length > 0 && (
-                                        <ChevronDown
-                                            className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
-                                                expandedMobileItem === item.id
-                                                    ? 'rotate-180 text-[#004B87]'
-                                                    : ''
-                                            }`}
-                                        />
-                                    )}
-                                </button>
+                        {navItems.map((item) => {
+                            const itemClassName = `flex min-h-[44px] w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-xs font-bold transition-colors sm:text-sm ${
+                                activeTab === item.id
+                                    ? 'border border-cyan-200/60 bg-cyan-50 font-extrabold text-[#004B87]'
+                                    : 'text-gray-700 hover:bg-gray-50 active:bg-gray-100'
+                            }`;
 
-                                {/* Collapsible Sublinks for Mobile */}
-                                {item.subLinks.length > 0 &&
-                                    expandedMobileItem === item.id && (
-                                        <div className="mt-1 space-y-0.5 rounded-xl border border-slate-200/80 bg-slate-50 py-1 pr-2 pl-3">
-                                            {item.subLinks.map((sub, idx) => (
-                                                <Link
-                                                    key={idx}
-                                                    href={sub.href}
-                                                    onClick={() => {
-                                                        handleNavClick();
-                                                        setMobileMenuOpen(
-                                                            false,
-                                                        );
-                                                    }}
-                                                    className="flex min-h-[40px] w-full items-center rounded-lg px-3 py-2 text-left text-xs font-semibold text-[#004B87] transition-colors hover:bg-white hover:text-[#E64A19]"
-                                                >
-                                                    {sub.label}
-                                                </Link>
-                                            ))}
-                                        </div>
+                            return (
+                                <div key={item.id} className="flex flex-col">
+                                    {item.subLinks.length === 0 ? (
+                                        <Link
+                                            href={item.href}
+                                            onClick={handleNavClick}
+                                            className={itemClassName}
+                                        >
+                                            <span>{item.label}</span>
+                                        </Link>
+                                    ) : (
+                                        <button
+                                            onClick={() =>
+                                                handleMobileParentClick(item)
+                                            }
+                                            aria-expanded={
+                                                expandedMobileItem === item.id
+                                            }
+                                            className={itemClassName}
+                                        >
+                                            <span>{item.label}</span>
+                                            <ChevronDown
+                                                className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
+                                                    expandedMobileItem ===
+                                                    item.id
+                                                        ? 'rotate-180 text-[#004B87]'
+                                                        : ''
+                                                }`}
+                                            />
+                                        </button>
                                     )}
-                            </div>
-                        ))}
+
+                                    {/* Collapsible Sublinks for Mobile */}
+                                    {item.subLinks.length > 0 &&
+                                        expandedMobileItem === item.id && (
+                                            <div className="mt-1 space-y-0.5 rounded-xl border border-slate-200/80 bg-slate-50 py-1 pr-2 pl-3">
+                                                {item.subLinks.map(
+                                                    (sub, idx) => (
+                                                        <Link
+                                                            key={idx}
+                                                            href={sub.href}
+                                                            onClick={() => {
+                                                                handleNavClick();
+                                                                setMobileMenuOpen(
+                                                                    false,
+                                                                );
+                                                            }}
+                                                            className="flex min-h-[40px] w-full items-center rounded-lg px-3 py-2 text-left text-xs font-semibold text-[#004B87] transition-colors hover:bg-white hover:text-[#E64A19]"
+                                                        >
+                                                            {sub.label}
+                                                        </Link>
+                                                    ),
+                                                )}
+                                            </div>
+                                        )}
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             )}
