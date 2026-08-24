@@ -11,7 +11,7 @@ import {
 import { BookingStatusBadge } from '@/components/carelink/booking-status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatDate, formatMoney } from '@/lib/bookings';
+import { formatMoney } from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
 import { show as showBooking } from '@/routes/dashboard/bookings';
@@ -46,6 +46,151 @@ function StatCard({
                 </CardContent>
             </Card>
         </Link>
+    );
+}
+
+function SectionCount({ count }: { count: number }) {
+    if (count === 0) {
+        return null;
+    }
+
+    return (
+        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+            {count}
+        </span>
+    );
+}
+
+function splitTimeLabel(pickupTime: string | null): {
+    primary: string;
+    secondary?: string;
+} {
+    if (!pickupTime) {
+        return { primary: '—' };
+    }
+
+    const match = pickupTime.match(/^(.+?)\s*([AP]M)$/i);
+
+    return match
+        ? {
+              primary: match[1],
+              secondary: match[2].toUpperCase(),
+          }
+        : { primary: pickupTime };
+}
+
+function splitDateLabel(tripDate: string | null): {
+    primary: string;
+    secondary?: string;
+} {
+    if (!tripDate) {
+        return { primary: '—' };
+    }
+
+    const date = new Date(`${tripDate}T00:00:00Z`);
+
+    if (Number.isNaN(date.getTime())) {
+        return { primary: tripDate };
+    }
+
+    return {
+        primary: String(date.getUTCDate()),
+        secondary: new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            timeZone: 'UTC',
+        })
+            .format(date)
+            .toUpperCase(),
+    };
+}
+
+function BookingMiniCard({
+    booking,
+    chipPrimary,
+    chipSecondary,
+}: {
+    booking: PaidBooking;
+    chipPrimary: string;
+    chipSecondary?: string;
+}) {
+    return (
+        <li>
+            <Link
+                href={showBooking.url({ booking: booking.id })}
+                prefetch
+                className="group flex items-center gap-3 rounded-lg border p-3 transition-colors hover:border-slate-300 hover:bg-muted/40"
+            >
+                <span className="flex w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-md bg-[#004b87]/10 py-2">
+                    <span className="text-sm leading-none font-bold text-[#004b87] tabular-nums">
+                        {chipPrimary}
+                    </span>
+                    {chipSecondary && (
+                        <span className="text-[10px] leading-none font-semibold tracking-wide text-muted-foreground">
+                            {chipSecondary}
+                        </span>
+                    )}
+                </span>
+
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="truncate text-sm font-semibold group-hover:underline">
+                        {booking.booking_number}
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground">
+                        {booking.passenger_name}
+                    </span>
+                </span>
+
+                <span className="flex shrink-0 flex-col items-end gap-1">
+                    <BookingStatusBadge status={booking.status} />
+                    <span className="text-sm font-semibold whitespace-nowrap tabular-nums">
+                        {formatMoney(booking.input_price)}
+                    </span>
+                </span>
+            </Link>
+        </li>
+    );
+}
+
+function BookingList({
+    bookings,
+    emptyIcon,
+    emptyTitle,
+    emptyDescription,
+    chips,
+}: {
+    bookings: PaidBooking[];
+    emptyIcon: React.ReactNode;
+    emptyTitle: string;
+    emptyDescription: string;
+    chips: (booking: PaidBooking) => { primary: string; secondary?: string };
+}) {
+    if (bookings.length === 0) {
+        return (
+            <div className="flex flex-col items-center gap-2 py-10 text-center">
+                {emptyIcon}
+                <p className="font-medium">{emptyTitle}</p>
+                <p className="text-sm text-muted-foreground">
+                    {emptyDescription}
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <ul className="flex flex-col gap-2">
+            {bookings.map((booking) => {
+                const { primary, secondary } = chips(booking);
+
+                return (
+                    <BookingMiniCard
+                        key={booking.id}
+                        booking={booking}
+                        chipPrimary={primary}
+                        chipSecondary={secondary}
+                    />
+                );
+            })}
+        </ul>
     );
 }
 
@@ -136,6 +281,7 @@ export default function Dashboard({
                             <CardTitle className="flex items-center gap-2 text-base">
                                 <Sunrise className="size-4 text-[#E64A19]" />
                                 Today's Trips
+                                <SectionCount count={today_trips.length} />
                             </CardTitle>
                             <Button variant="ghost" size="sm" asChild>
                                 <Link href={dashboardBookings.url()} prefetch>
@@ -145,78 +291,25 @@ export default function Dashboard({
                             </Button>
                         </CardHeader>
                         <CardContent>
-                            {today_trips.length === 0 ? (
-                                <div className="flex flex-col items-center gap-2 py-10 text-center">
+                            <BookingList
+                                bookings={today_trips}
+                                emptyIcon={
                                     <Sunrise className="size-8 text-muted-foreground" />
-                                    <p className="font-medium">
-                                        No trips scheduled today
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        Paid bookings with a trip date of today
-                                        appear here.
-                                    </p>
-                                </div>
-                            ) : (
-                                <ul className="flex flex-col">
-                                    {today_trips.map((booking, index) => (
-                                        <li
-                                            key={booking.id}
-                                            className={
-                                                index > 0
-                                                    ? 'border-t py-3 first:pt-0 last:pb-0'
-                                                    : 'pb-3'
-                                            }
-                                        >
-                                            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-                                                <div className="flex min-w-0 items-center gap-3">
-                                                    <span className="w-14 shrink-0 text-xs font-bold whitespace-nowrap tabular-nums sm:w-12">
-                                                        {booking.pickup_time ||
-                                                            '—'}
-                                                    </span>
-                                                    <div className="flex min-w-0 flex-col">
-                                                        <Link
-                                                            href={showBooking.url(
-                                                                {
-                                                                    booking:
-                                                                        booking.id,
-                                                                },
-                                                            )}
-                                                            className="truncate text-sm font-medium hover:underline"
-                                                            prefetch
-                                                        >
-                                                            {
-                                                                booking.booking_number
-                                                            }
-                                                        </Link>
-                                                        <span className="truncate text-xs text-muted-foreground">
-                                                            {
-                                                                booking.passenger_name
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className="flex flex-col items-start gap-1.5">
-                                                    <BookingStatusBadge
-                                                        status={booking.status}
-                                                    />
-                                                    <span className="text-sm font-medium whitespace-nowrap">
-                                                        {formatMoney(
-                                                            booking.input_price,
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                                }
+                                emptyTitle="No trips scheduled today"
+                                emptyDescription="Paid bookings with a trip date of today appear here."
+                                chips={(booking) =>
+                                    splitTimeLabel(booking.pickup_time)
+                                }
+                            />
                         </CardContent>
                     </Card>
 
                     <Card className="h-full">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                            <CardTitle className="text-base">
+                            <CardTitle className="flex items-center gap-2 text-base">
                                 Recent Bookings
+                                <SectionCount count={recent_bookings.length} />
                             </CardTitle>
                             <Button variant="ghost" size="sm" asChild>
                                 <Link href={dashboardBookings.url()} prefetch>
@@ -226,72 +319,17 @@ export default function Dashboard({
                             </Button>
                         </CardHeader>
                         <CardContent>
-                            {recent_bookings.length === 0 ? (
-                                <div className="flex flex-col items-center gap-2 py-10 text-center">
+                            <BookingList
+                                bookings={recent_bookings}
+                                emptyIcon={
                                     <DollarSign className="size-8 text-muted-foreground" />
-                                    <p className="font-medium">
-                                        No paid bookings yet
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        Bookings appear here once the booking
-                                        fee has been paid.
-                                    </p>
-                                </div>
-                            ) : (
-                                <ul className="flex flex-col">
-                                    {recent_bookings.map((booking, index) => (
-                                        <li
-                                            key={booking.id}
-                                            className={
-                                                index > 0
-                                                    ? 'border-t py-3 first:pt-0 last:pb-0'
-                                                    : 'pb-3'
-                                            }
-                                        >
-                                            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-                                                <div className="flex min-w-0 items-center gap-3">
-                                                    <span className="text-xs font-bold whitespace-nowrap text-muted-foreground tabular-nums">
-                                                        {formatDate(
-                                                            booking.trip_date,
-                                                        )}
-                                                    </span>
-                                                    <div className="flex min-w-0 flex-col">
-                                                        <Link
-                                                            href={showBooking.url(
-                                                                {
-                                                                    booking:
-                                                                        booking.id,
-                                                                },
-                                                            )}
-                                                            className="truncate text-sm font-medium hover:underline"
-                                                            prefetch
-                                                        >
-                                                            {
-                                                                booking.booking_number
-                                                            }
-                                                        </Link>
-                                                        <span className="truncate text-xs text-muted-foreground">
-                                                            {
-                                                                booking.passenger_name
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div className="flex flex-col items-start gap-1.5">
-                                                    <BookingStatusBadge
-                                                        status={booking.status}
-                                                    />
-                                                    <span className="text-sm font-medium whitespace-nowrap">
-                                                        {formatMoney(
-                                                            booking.input_price,
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                                }
+                                emptyTitle="No paid bookings yet"
+                                emptyDescription="Bookings appear here once the booking fee has been paid."
+                                chips={(booking) =>
+                                    splitDateLabel(booking.trip_date)
+                                }
+                            />
                         </CardContent>
                     </Card>
                 </div>
