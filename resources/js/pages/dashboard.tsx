@@ -118,29 +118,31 @@ function BookingMiniCard({
             <Link
                 href={showBooking.url({ booking: booking.id })}
                 prefetch
-                className="group flex items-center gap-3 rounded-lg border p-3 transition-colors hover:border-slate-300 hover:bg-muted/40"
+                className="group flex flex-col gap-2.5 rounded-lg border p-3 transition-colors hover:border-slate-300 hover:bg-muted/40 sm:flex-row sm:items-center sm:gap-3"
             >
-                <span className="flex w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-md bg-[#004b87]/10 py-2">
-                    <span className="text-sm leading-none font-bold text-[#004b87] tabular-nums">
-                        {chipPrimary}
-                    </span>
-                    {chipSecondary && (
-                        <span className="text-[10px] leading-none font-semibold tracking-wide text-muted-foreground">
-                            {chipSecondary}
+                <span className="flex min-w-0 items-center gap-3">
+                    <span className="flex w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-md bg-[#004b87]/10 py-2">
+                        <span className="text-sm leading-none font-bold text-[#004b87] tabular-nums">
+                            {chipPrimary}
                         </span>
-                    )}
+                        {chipSecondary && (
+                            <span className="text-[10px] leading-none font-semibold tracking-wide text-muted-foreground">
+                                {chipSecondary}
+                            </span>
+                        )}
+                    </span>
+
+                    <span className="flex min-w-0 flex-col gap-0.5">
+                        <span className="truncate text-sm font-semibold group-hover:underline">
+                            {booking.booking_number}
+                        </span>
+                        <span className="truncate text-xs text-muted-foreground">
+                            {booking.passenger_name}
+                        </span>
+                    </span>
                 </span>
 
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="truncate text-sm font-semibold group-hover:underline">
-                        {booking.booking_number}
-                    </span>
-                    <span className="truncate text-xs text-muted-foreground">
-                        {booking.passenger_name}
-                    </span>
-                </span>
-
-                <span className="flex shrink-0 flex-col items-end gap-1">
+                <span className="flex items-center justify-between gap-2 border-t pt-2.5 sm:ml-auto sm:flex-col sm:items-end sm:gap-1 sm:border-t-0 sm:pt-0">
                     <BookingStatusBadge status={booking.status} />
                     <span className="text-sm font-semibold whitespace-nowrap tabular-nums">
                         {formatMoney(booking.input_price)}
