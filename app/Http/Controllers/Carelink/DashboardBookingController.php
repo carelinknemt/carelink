@@ -64,12 +64,19 @@ class DashboardBookingController extends Controller
     {
         abort_if($booking->payment_status !== TripRequest::PAYMENT_STATUS_PAID, 404);
 
+        $blacklistEntry = PassengerBlacklist::matchFor($booking)
+            ?->load('blacklister:id,name');
+
         return Inertia::render('dashboard/bookings/show', [
             'booking' => $booking,
             'statuses' => TripRequest::ASSIGNABLE_STATUSES,
             'booking_fee' => BookingFee::amountInDollarsFor($booking->transport_type),
-            'blacklist' => PassengerBlacklist::matchFor($booking)
-                ?->load('blacklister:id,name'),
+            'blacklist' => $blacklistEntry ? [
+                'id' => $blacklistEntry->id,
+                'reason' => $blacklistEntry->reason,
+                'by' => $blacklistEntry->blacklister->name ?? 'Unknown',
+                'at' => $blacklistEntry->created_at->toIso8601String(),
+            ] : null,
         ]);
     }
 
