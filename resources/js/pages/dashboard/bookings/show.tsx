@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -32,6 +33,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { formatDate, formatDateTime, statusLabel } from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
+import { store as blacklistStore } from '@/routes/dashboard/blacklist';
 import {
     cancel as cancelBooking,
     showExport as showBookingExport,
@@ -432,14 +434,22 @@ export default function BookingDetail({
     booking,
     statuses,
     booking_fee,
+    blacklist,
 }: {
     booking: BookingDetail;
     statuses: string[];
     booking_fee: string;
+    blacklist: {
+        id: number;
+        reason: string;
+        by: string;
+        at: string;
+    } | null;
 }) {
     const [statusTarget, setStatusTarget] = useState<string | null>(null);
     const [editSection, setEditSection] = useState<DetailSection | null>(null);
     const [cancelOpen, setCancelOpen] = useState(false);
+    const [banOpen, setBanOpen] = useState(false);
     const [route, setRoute] = useState<RouteInfo | null>(null);
     const [routeFailed, setRouteFailed] = useState(false);
 
@@ -453,6 +463,7 @@ export default function BookingDetail({
 
     const statusForm = useForm({ status: '' });
     const cancelForm = useForm({});
+    const banForm = useForm({ email: '', phone: '', reason: '' });
 
     function confirmStatusChange() {
         if (!statusTarget) {
@@ -473,6 +484,14 @@ export default function BookingDetail({
         cancelForm.post(cancelBooking.url({ booking: Number(booking.id) }), {
             preserveScroll: true,
             onSuccess: () => setCancelOpen(false),
+        });
+    }
+
+    function confirmBan(event: FormEvent) {
+        event.preventDefault();
+        banForm.post(blacklistStore.url(), {
+            preserveScroll: true,
+            onSuccess: () => setBanOpen(false),
         });
     }
 
@@ -597,6 +616,32 @@ export default function BookingDetail({
                             </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
+                            {!blacklist && canCancel && (
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => {
+                                        banForm.setData(
+                                            'email',
+                                            String(
+                                                booking.passenger_email ?? '',
+                                            ),
+                                        );
+                                        banForm.setData(
+                                            'phone',
+                                            String(
+                                                booking.passenger_phone_number ??
+                                                    '',
+                                            ),
+                                        );
+                                        banForm.setData('reason', '');
+                                        setBanOpen(true);
+                                    }}
+                                >
+                                    <Ban />
+                                    Ban passenger
+                                </Button>
+                            )}
                             {canCancel && (
                                 <Button
                                     variant="destructive"
@@ -660,6 +705,25 @@ export default function BookingDetail({
                         </Badge>
                     </div>
                 </div>
+
+                {blacklist && (
+                    <Card className="border-rose-200 bg-rose-50">
+                        <CardContent className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="min-w-0">
+                                <p className="font-semibold text-rose-700">
+                                    Passenger is blacklisted
+                                </p>
+                                <p className="mt-0.5 text-sm text-rose-600">
+                                    {blacklist.reason}
+                                </p>
+                                <p className="mt-0.5 text-xs text-rose-500">
+                                    Added by {blacklist.by} on{' '}
+                                    {formatDateTime(blacklist.at)}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 <div className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {detailSections.map((section) => (
@@ -865,6 +929,68 @@ export default function BookingDetail({
                     onClose={() => setEditSection(null)}
                 />
             )}
+
+            <Dialog
+                open={banOpen}
+                onOpenChange={(open) => {
+                    if (!open && !banForm.processing) {
+                        setBanOpen(false);
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Ban this passenger?</DialogTitle>
+                        <DialogDescription>
+                            All future and past bookings matching this
+                            passenger's email or phone will be flagged
+                            blacklisted across the dashboard.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={confirmBan} className="grid gap-4">
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="ban-reason">Reason</Label>
+                            <Textarea
+                                id="ban-reason"
+                                rows={3}
+                                placeholder="Explain why this passenger is being blacklisted…"
+                                value={banForm.data.reason}
+                                onChange={(event) =>
+                                    banForm.setData(
+                                        'reason',
+                                        event.target.value,
+                                    )
+                                }
+                                required
+                                minLength={20}
+                            />
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={banForm.processing}
+                                >
+                                    Cancel
+                                </Button>
+                            </DialogClose>
+                            <Button
+                                type="submit"
+                                variant="destructive"
+                                disabled={
+                                    banForm.processing ||
+                                    banForm.data.reason.length < 20
+                                }
+                            >
+                                {banForm.processing
+                                    ? 'Blacklisting…'
+                                    : 'Blacklist passenger'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

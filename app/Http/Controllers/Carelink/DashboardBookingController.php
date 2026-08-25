@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateTripRequestRequest;
 use App\Http\Requests\UpdateTripRequestStatusRequest;
 use App\Mail\TripRequestCancelled;
+use App\Models\PassengerBlacklist;
 use App\Models\TripRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -39,10 +40,17 @@ class DashboardBookingController extends Controller
 
     public function index(Request $request): Response
     {
-        $bookings = $this->filteredQuery($request)
+        $paginator = $this->filteredQuery($request)
             ->paginate($this->perPage($request))
-            ->withQueryString()
-            ->through(fn (TripRequest $tripRequest): array => $tripRequest->managerSummary());
+            ->withQueryString();
+
+        $trips = collect($paginator->items())->map(fn ($item) => $item);
+
+        $blacklistMap = PassengerBlacklist::matchCollection($trips);
+
+        $bookings = $paginator->through(function (TripRequest $trip) use ($blacklistMap): array {
+            return $trip->managerSummary($blacklistMap[$trip->id] ?? null);
+        });
 
         return Inertia::render('dashboard/bookings', [
             'bookings' => $bookings,
@@ -60,6 +68,8 @@ class DashboardBookingController extends Controller
             'booking' => $booking,
             'statuses' => TripRequest::ASSIGNABLE_STATUSES,
             'booking_fee' => BookingFee::amountInDollarsFor($booking->transport_type),
+            'blacklist' => PassengerBlacklist::matchFor($booking)
+                ?->load('blacklister:name'),
         ]);
     }
 

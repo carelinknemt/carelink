@@ -20,6 +20,13 @@ export type AuthLayoutProps = {
     description?: string;
 };
 
+export type BlacklistEntry = {
+    id: number;
+    reason: string;
+    by: string;
+    at: string;
+};
+
 export type PaidBooking = {
     id: number;
     booking_number: string;
@@ -35,6 +42,7 @@ export type PaidBooking = {
     status: string;
     paid_at: string | null;
     booked_at: string;
+    blacklist: BlacklistEntry | null;
 };
 
 export type PaginationLink = {

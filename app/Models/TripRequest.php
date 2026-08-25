@@ -201,7 +201,7 @@ class TripRequest extends Model
      *
      * @return array<string, mixed>
      */
-    public function managerSummary(): array
+    public function managerSummary(?PassengerBlacklist $blacklist = null): array
     {
         return [
             'id' => $this->id,
@@ -218,6 +218,14 @@ class TripRequest extends Model
             'status' => $this->status,
             'paid_at' => $this->paid_at?->toIso8601String(),
             'booked_at' => $this->created_at?->toIso8601String(),
+            'blacklist' => $blacklist
+                ? [
+                    'id' => $blacklist->id,
+                    'reason' => $blacklist->reason,
+                    'by' => $blacklist->blacklister->name ?? 'Unknown',
+                    'at' => $blacklist->created_at->toIso8601String(),
+                ]
+                : null,
         ];
     }
 }

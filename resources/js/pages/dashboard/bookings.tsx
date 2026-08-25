@@ -12,6 +12,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -538,6 +539,14 @@ export default function DashboardBookings({
                                                     >
                                                         {booking.booking_number}
                                                     </Link>
+                                                    {booking.blacklist && (
+                                                        <Badge
+                                                            variant="destructive"
+                                                            className="ml-1.5 align-middle"
+                                                        >
+                                                            Blacklisted
+                                                        </Badge>
+                                                    )}
                                                     <p className="text-sm text-muted-foreground">
                                                         {booking.passenger_name}
                                                     </p>
@@ -650,6 +659,14 @@ export default function DashboardBookings({
                                                                 booking.booking_number
                                                             }
                                                         </Link>
+                                                        {booking.blacklist && (
+                                                            <Badge
+                                                                variant="destructive"
+                                                                className="ml-1.5 align-middle"
+                                                            >
+                                                                Blacklisted
+                                                            </Badge>
+                                                        )}
                                                     </TableCell>
                                                     <TableCell className="font-medium">
                                                         {booking.passenger_name}

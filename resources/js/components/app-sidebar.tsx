@@ -8,6 +8,7 @@ import {
     CreditCard,
     LayoutGrid,
     MessageSquareText,
+    ShieldOff,
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -27,6 +28,7 @@ import cmsRoutes from '@/routes/cms';
 import {
     analytics,
     applications,
+    blacklist as dashboardBlacklist,
     bookings as dashboardBookings,
     businessPartners,
     contactMessages,
@@ -59,6 +61,11 @@ const navGroups: NavGroup[] = [
                 title: 'Bookings',
                 href: dashboardBookings(),
                 icon: CalendarCheck,
+            },
+            {
+                title: 'Blacklisted Passengers',
+                href: dashboardBlacklist(),
+                icon: ShieldOff,
             },
             {
                 title: 'Payments',

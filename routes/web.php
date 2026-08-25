@@ -15,6 +15,7 @@ use App\Http\Controllers\Carelink\Cms\CmsServiceController;
 use App\Http\Controllers\Carelink\Cms\CmsTeamMemberController;
 use App\Http\Controllers\Carelink\ContactController;
 use App\Http\Controllers\Carelink\DashboardAnalyticsController;
+use App\Http\Controllers\Carelink\DashboardBlacklistController;
 use App\Http\Controllers\Carelink\DashboardBookingController;
 use App\Http\Controllers\Carelink\DashboardBusinessPartnerController;
 use App\Http\Controllers\Carelink\DashboardCareerApplicationController;
@@ -93,6 +94,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/users', [DashboardUserController::class, 'index'])->name('dashboard.users');
     Route::post('/dashboard/users', [DashboardUserController::class, 'store'])->name('dashboard.users.store');
     Route::post('/dashboard/users/{user}/ban-toggle', [DashboardUserController::class, 'toggleBan'])->name('dashboard.users.ban-toggle');
+    Route::get('/dashboard/blacklist', [DashboardBlacklistController::class, 'index'])->name('dashboard.blacklist');
+    Route::post('/dashboard/blacklist', [DashboardBlacklistController::class, 'store'])->name('dashboard.blacklist.store');
+    Route::delete('/dashboard/blacklist/{blacklist}', [DashboardBlacklistController::class, 'destroy'])->name('dashboard.blacklist.destroy');
 
     Route::get('/kms', [KmsController::class, 'index'])->name('kms');
 
