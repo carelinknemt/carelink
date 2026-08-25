@@ -19,12 +19,10 @@ interface TimePickerProps {
 
 const TIME_OPTIONS: string[] = [];
 
-for (let hour = 5; hour < 24; hour++) {
-    for (const minute of [0, 15, 30, 45]) {
-        if (hour === 24) {
-            break;
-        }
+for (let offset = 0; offset < 24; offset++) {
+    const hour = (5 + offset) % 24;
 
+    for (const minute of [0, 15, 30, 45]) {
         const period = hour < 12 ? 'AM' : 'PM';
         const hour12 = hour % 12 === 0 ? 12 : hour % 12;
 
