@@ -55,6 +55,14 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     use Billable, HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
+     * Ensure every user has a role defaulting to dispatcher.
+     */
+    public function initializeUser(): void
+    {
+        $this->role ??= self::ROLE_DISPATCHER;
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

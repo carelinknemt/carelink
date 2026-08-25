@@ -16,7 +16,7 @@ test('any authenticated user can view, download, delete, accept, or reject appli
     Storage::fake('local');
     Storage::disk('local')->put('resumes/mine.pdf', 'pdf-bytes');
 
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $career = Career::factory()->create();
     $application = CareerApplication::create([
         'career_id' => $career->id,

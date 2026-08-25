@@ -154,7 +154,7 @@ test('admins can restore a section back to its defaults', function () {
 test('any authenticated user can restore a section', function () {
     $this->seed(CmsContentSeeder::class);
 
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)
         ->post(route('cms.sections.restore', 'company_info'))
@@ -187,7 +187,7 @@ test('admins can restore all content at once', function () {
 });
 
 test('any authenticated user can restore all content', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)
         ->post(route('cms.sections.restore-all'))

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureRoleAccess;
 use App\Http\Middleware\EnsureUserNotBanned;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -16,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->alias([
+            'role' => EnsureRoleAccess::class,
+        ]);
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->preventRequestForgery(except: [

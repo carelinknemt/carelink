@@ -23,7 +23,7 @@ test('admins can upload an image and receive its public URL', function () {
 test('any authenticated user can upload images', function () {
     Storage::fake('public');
 
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)
         ->post(route('cms.images.store'), [

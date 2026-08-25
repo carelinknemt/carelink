@@ -5,7 +5,7 @@ use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('payments page lists only paid checkout sessions by default', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     TripRequest::factory()->create([
@@ -44,7 +44,7 @@ test('payments page lists only paid checkout sessions by default', function () {
 });
 
 test('payments page can list all sessions when requested', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     TripRequest::factory()->create([
@@ -66,7 +66,7 @@ test('payments page can list all sessions when requested', function () {
 });
 
 test('payments can be filtered by status and searched', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     TripRequest::factory()->create([

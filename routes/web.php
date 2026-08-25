@@ -66,42 +66,54 @@ Route::redirect('/admin', '/login');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/analytics', [DashboardAnalyticsController::class, 'index'])->name('dashboard.analytics');
-    Route::get('/dashboard/bookings', [DashboardBookingController::class, 'index'])->name('dashboard.bookings');
-    Route::get('/dashboard/bookings/export', [DashboardBookingController::class, 'export'])->name('dashboard.bookings.export');
-    Route::get('/dashboard/bookings/{booking}', [DashboardBookingController::class, 'show'])->name('dashboard.bookings.show');
-    Route::get('/dashboard/bookings/{booking}/export', [DashboardBookingController::class, 'showExport'])->name('dashboard.bookings.show-export');
-    Route::put('/dashboard/bookings/{booking}', [DashboardBookingController::class, 'update'])->name('dashboard.bookings.update');
-    Route::patch('/dashboard/bookings/{booking}/status', [DashboardBookingController::class, 'updateStatus'])->name('dashboard.bookings.update-status');
-    Route::post('/dashboard/bookings/{booking}/cancel', [DashboardBookingController::class, 'cancel'])->name('dashboard.bookings.cancel');
-    Route::get('/dashboard/business-partners', [DashboardBusinessPartnerController::class, 'index'])->name('dashboard.business-partners');
-    Route::post('/dashboard/business-partners/{businessRequest}/approve', [DashboardBusinessPartnerController::class, 'approve'])->name('dashboard.business-partners.approve');
-    Route::post('/dashboard/business-partners/{businessRequest}/reject', [DashboardBusinessPartnerController::class, 'reject'])->name('dashboard.business-partners.reject');
-    Route::get('/dashboard/contact-messages', [DashboardContactMessageController::class, 'index'])->name('dashboard.contact-messages');
-    Route::post('/dashboard/contact-messages/{contactMessage}/read', [DashboardContactMessageController::class, 'markRead'])->name('dashboard.contact-messages.read');
-    Route::delete('/dashboard/contact-messages/{contactMessage}', [DashboardContactMessageController::class, 'destroy'])->name('dashboard.contact-messages.destroy');
-    Route::get('/dashboard/payments', [DashboardPaymentController::class, 'index'])->name('dashboard.payments');
-    Route::get('/dashboard/applications', [DashboardCareerApplicationController::class, 'index'])->name('dashboard.applications');
-    Route::get('/dashboard/applications/{application}/resume', [DashboardCareerApplicationController::class, 'resume'])->name('dashboard.applications.resume');
-    Route::post('/dashboard/applications/{application}/accept', [DashboardCareerApplicationController::class, 'accept'])->name('dashboard.applications.accept');
-    Route::post('/dashboard/applications/{application}/reject', [DashboardCareerApplicationController::class, 'reject'])->name('dashboard.applications.reject');
-    Route::delete('/dashboard/applications/{application}', [DashboardCareerApplicationController::class, 'destroy'])->name('dashboard.applications.destroy');
-    Route::get('/dashboard/job-openings', [DashboardJobOpeningController::class, 'index'])->name('dashboard.job-openings');
-    Route::post('/dashboard/job-openings', [DashboardJobOpeningController::class, 'store'])->name('dashboard.job-openings.store');
-    Route::put('/dashboard/job-openings/{career}', [DashboardJobOpeningController::class, 'update'])->name('dashboard.job-openings.update');
-    Route::post('/dashboard/job-openings/{career}/toggle', [DashboardJobOpeningController::class, 'toggle'])->name('dashboard.job-openings.toggle');
-    Route::delete('/dashboard/job-openings/{career}', [DashboardJobOpeningController::class, 'destroy'])->name('dashboard.job-openings.destroy');
-    Route::get('/dashboard/users', [DashboardUserController::class, 'index'])->name('dashboard.users');
-    Route::post('/dashboard/users', [DashboardUserController::class, 'store'])->name('dashboard.users.store');
-    Route::patch('/dashboard/users/{user}/role', [DashboardUserController::class, 'updateRole'])->name('dashboard.users.update-role');
-    Route::post('/dashboard/users/{user}/ban-toggle', [DashboardUserController::class, 'toggleBan'])->name('dashboard.users.ban-toggle');
-    Route::get('/dashboard/blacklist', [DashboardBlacklistController::class, 'index'])->name('dashboard.blacklist');
-    Route::post('/dashboard/blacklist', [DashboardBlacklistController::class, 'store'])->name('dashboard.blacklist.store');
-    Route::delete('/dashboard/blacklist/{blacklist}', [DashboardBlacklistController::class, 'destroy'])->name('dashboard.blacklist.destroy');
 
     Route::get('/kms', [KmsController::class, 'index'])->name('kms');
 
-    Route::prefix('cms')->name('cms.')->group(function () {
+    Route::middleware('role:manager,admin')->group(function () {
+        Route::get('/dashboard/analytics', [DashboardAnalyticsController::class, 'index'])->name('dashboard.analytics');
+        Route::get('/dashboard/applications', [DashboardCareerApplicationController::class, 'index'])->name('dashboard.applications');
+        Route::get('/dashboard/applications/{application}/resume', [DashboardCareerApplicationController::class, 'resume'])->name('dashboard.applications.resume');
+        Route::post('/dashboard/applications/{application}/accept', [DashboardCareerApplicationController::class, 'accept'])->name('dashboard.applications.accept');
+        Route::post('/dashboard/applications/{application}/reject', [DashboardCareerApplicationController::class, 'reject'])->name('dashboard.applications.reject');
+        Route::delete('/dashboard/applications/{application}', [DashboardCareerApplicationController::class, 'destroy'])->name('dashboard.applications.destroy');
+        Route::get('/dashboard/job-openings', [DashboardJobOpeningController::class, 'index'])->name('dashboard.job-openings');
+        Route::post('/dashboard/job-openings', [DashboardJobOpeningController::class, 'store'])->name('dashboard.job-openings.store');
+        Route::put('/dashboard/job-openings/{career}', [DashboardJobOpeningController::class, 'update'])->name('dashboard.job-openings.update');
+        Route::post('/dashboard/job-openings/{career}/toggle', [DashboardJobOpeningController::class, 'toggle'])->name('dashboard.job-openings.toggle');
+        Route::delete('/dashboard/job-openings/{career}', [DashboardJobOpeningController::class, 'destroy'])->name('dashboard.job-openings.destroy');
+        Route::get('/dashboard/business-partners', [DashboardBusinessPartnerController::class, 'index'])->name('dashboard.business-partners');
+        Route::post('/dashboard/business-partners/{businessRequest}/approve', [DashboardBusinessPartnerController::class, 'approve'])->name('dashboard.business-partners.approve');
+        Route::post('/dashboard/business-partners/{businessRequest}/reject', [DashboardBusinessPartnerController::class, 'reject'])->name('dashboard.business-partners.reject');
+    });
+
+    Route::middleware('role:dispatcher,admin')->group(function () {
+        Route::get('/dashboard/bookings', [DashboardBookingController::class, 'index'])->name('dashboard.bookings');
+        Route::get('/dashboard/bookings/export', [DashboardBookingController::class, 'export'])->name('dashboard.bookings.export');
+        Route::get('/dashboard/bookings/{booking}', [DashboardBookingController::class, 'show'])->name('dashboard.bookings.show');
+        Route::get('/dashboard/bookings/{booking}/export', [DashboardBookingController::class, 'showExport'])->name('dashboard.bookings.show-export');
+        Route::put('/dashboard/bookings/{booking}', [DashboardBookingController::class, 'update'])->name('dashboard.bookings.update');
+        Route::patch('/dashboard/bookings/{booking}/status', [DashboardBookingController::class, 'updateStatus'])->name('dashboard.bookings.update-status');
+        Route::post('/dashboard/bookings/{booking}/cancel', [DashboardBookingController::class, 'cancel'])->name('dashboard.bookings.cancel');
+        Route::get('/dashboard/blacklist', [DashboardBlacklistController::class, 'index'])->name('dashboard.blacklist');
+        Route::post('/dashboard/blacklist', [DashboardBlacklistController::class, 'store'])->name('dashboard.blacklist.store');
+        Route::delete('/dashboard/blacklist/{blacklist}', [DashboardBlacklistController::class, 'destroy'])->name('dashboard.blacklist.destroy');
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/dashboard/payments', [DashboardPaymentController::class, 'index'])->name('dashboard.payments');
+        Route::get('/dashboard/users', [DashboardUserController::class, 'index'])->name('dashboard.users');
+        Route::post('/dashboard/users', [DashboardUserController::class, 'store'])->name('dashboard.users.store');
+        Route::patch('/dashboard/users/{user}/role', [DashboardUserController::class, 'updateRole'])->name('dashboard.users.update-role');
+        Route::post('/dashboard/users/{user}/ban-toggle', [DashboardUserController::class, 'toggleBan'])->name('dashboard.users.ban-toggle');
+    });
+
+    Route::middleware('role:dispatcher,manager,admin')->group(function () {
+        Route::get('/dashboard/contact-messages', [DashboardContactMessageController::class, 'index'])->name('dashboard.contact-messages');
+        Route::post('/dashboard/contact-messages/{contactMessage}/read', [DashboardContactMessageController::class, 'markRead'])->name('dashboard.contact-messages.read');
+        Route::delete('/dashboard/contact-messages/{contactMessage}', [DashboardContactMessageController::class, 'destroy'])->name('dashboard.contact-messages.destroy');
+    });
+
+    Route::middleware('role:admin')->prefix('cms')->name('cms.')->group(function () {
         Route::get('/', [CmsSectionController::class, 'index'])->name('index');
         Route::put('/sections/{section}', [CmsSectionController::class, 'update'])->name('sections.update');
         Route::post('/sections/{section}/restore', [CmsSectionController::class, 'restore'])->name('sections.restore');

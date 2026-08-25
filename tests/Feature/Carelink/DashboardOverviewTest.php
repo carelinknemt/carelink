@@ -4,7 +4,7 @@ use App\Models\TripRequest;
 use App\Models\User;
 
 test('the dashboard shows stats and today trips', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     $today = now()->startOfDay();
@@ -40,7 +40,7 @@ test('the dashboard shows stats and today trips', function () {
 });
 
 test('the analytics page aggregates paid bookings over the selected window', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     $completed = paidBooking([
@@ -84,7 +84,7 @@ test('the analytics page aggregates paid bookings over the selected window', fun
 });
 
 test('the analytics page defaults to a 30 day window and rejects invalid periods', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     paidBooking();

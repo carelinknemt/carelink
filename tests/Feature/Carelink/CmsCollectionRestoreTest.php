@@ -55,7 +55,7 @@ test('collections restore to exactly the default row count', function () {
 });
 
 test('any authenticated user can restore a collection', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)->post(route('cms.faqs.restore'))->assertRedirect();
 

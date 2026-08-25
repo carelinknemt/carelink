@@ -11,7 +11,7 @@ test('guests are redirected to the login page', function () {
 });
 
 test('authenticated users can view the business inquiries page', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     BusinessPartnerRequest::factory()->create([
@@ -27,7 +27,7 @@ test('authenticated users can view the business inquiries page', function () {
 });
 
 test('inquiries are listed newest first', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     $older = BusinessPartnerRequest::factory()->create([
@@ -48,7 +48,7 @@ test('inquiries are listed newest first', function () {
 });
 
 test('inquiries can be searched by company, contact, email, or type', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     BusinessPartnerRequest::factory()->create(['company_name' => 'Acme Medical Center']);
@@ -70,7 +70,7 @@ test('inquiries can be searched by company, contact, email, or type', function (
 });
 
 test('inquiries are paginated', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     BusinessPartnerRequest::factory()->count(3)->create();
@@ -83,7 +83,7 @@ test('inquiries are paginated', function () {
 });
 
 test('the dashboard lists pending inquiries by default', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     $pending = BusinessPartnerRequest::factory()->create();
@@ -99,7 +99,7 @@ test('the dashboard lists pending inquiries by default', function () {
 });
 
 test('inquiries can be filtered by status', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     $approved = BusinessPartnerRequest::factory()->create(['status' => BusinessPartnerRequest::STATUS_APPROVED]);
@@ -116,7 +116,7 @@ test('inquiries can be filtered by status', function () {
 });
 
 test('inquiries can be filtered by rejected status', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     $rejected = BusinessPartnerRequest::factory()->create(['status' => BusinessPartnerRequest::STATUS_REJECTED]);
@@ -132,7 +132,7 @@ test('inquiries can be filtered by rejected status', function () {
 });
 
 test('the all statuses filter reveals every inquiry', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     BusinessPartnerRequest::factory()->create();
@@ -149,7 +149,7 @@ test('the all statuses filter reveals every inquiry', function () {
 });
 
 test('a manager can approve an inquiry and the company is emailed at the entered address', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     Mail::fake();
@@ -174,7 +174,7 @@ test('a manager can approve an inquiry and the company is emailed at the entered
 });
 
 test('approving an inquiry requires a valid email', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     Mail::fake();
@@ -191,7 +191,7 @@ test('approving an inquiry requires a valid email', function () {
 });
 
 test('a manager can reject an inquiry and the reason is emailed to the registered address', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     Mail::fake();
@@ -216,7 +216,7 @@ test('a manager can reject an inquiry and the reason is emailed to the registere
 });
 
 test('rejecting an inquiry requires a reason', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $this->actingAs($user);
 
     Mail::fake();

@@ -9,7 +9,7 @@ test('guests are redirected from the job openings dashboard', function () {
 });
 
 test('any authenticated user can manage job openings', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
     $career = Career::factory()->create();
 
     $this->actingAs($user)

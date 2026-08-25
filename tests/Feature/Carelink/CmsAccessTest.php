@@ -60,7 +60,7 @@ test('guests cannot modify collections', function () {
 });
 
 test('any authenticated user can access the CMS editor', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $this->actingAs($user)
         ->get(route('cms.index'))

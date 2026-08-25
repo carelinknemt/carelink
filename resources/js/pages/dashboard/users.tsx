@@ -1,7 +1,9 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import {
     Ban,
     CheckCircle2,
+    ChevronLeftIcon,
+    ChevronRightIcon,
     Search,
     ShieldCheck,
     UserPlus,
@@ -564,18 +566,14 @@ export default function DashboardUsers({
                                     <PaginationContent>
                                         <PaginationItem>
                                             {users.prev_page_url ? (
-                                                <PaginationPrevious asChild>
-                                                    <Link
-                                                        href={
-                                                            users.prev_page_url
-                                                        }
-                                                        prefetch
-                                                    >
-                                                        <span className="hidden sm:block">
-                                                            Previous
-                                                        </span>
-                                                    </Link>
-                                                </PaginationPrevious>
+                                                <PaginationLink
+                                                    href={users.prev_page_url}
+                                                >
+                                                    <ChevronLeftIcon />
+                                                    <span className="hidden sm:block">
+                                                        Previous
+                                                    </span>
+                                                </PaginationLink>
                                             ) : (
                                                 <PaginationPrevious
                                                     className="pointer-events-none opacity-50"
@@ -612,18 +610,14 @@ export default function DashboardUsers({
                                         })}
                                         <PaginationItem>
                                             {users.next_page_url ? (
-                                                <PaginationNext asChild>
-                                                    <Link
-                                                        href={
-                                                            users.next_page_url
-                                                        }
-                                                        prefetch
-                                                    >
-                                                        <span className="hidden sm:block">
-                                                            Next
-                                                        </span>
-                                                    </Link>
-                                                </PaginationNext>
+                                                <PaginationLink
+                                                    href={users.next_page_url}
+                                                >
+                                                    <span className="hidden sm:block">
+                                                        Next
+                                                    </span>
+                                                    <ChevronRightIcon />
+                                                </PaginationLink>
                                             ) : (
                                                 <PaginationNext
                                                     className="pointer-events-none opacity-50"
@@ -642,14 +636,11 @@ export default function DashboardUsers({
                                     <PaginationContent>
                                         <PaginationItem>
                                             {users.prev_page_url ? (
-                                                <PaginationPrevious asChild>
-                                                    <Link
-                                                        href={
-                                                            users.prev_page_url
-                                                        }
-                                                        prefetch
-                                                    />
-                                                </PaginationPrevious>
+                                                <PaginationLink
+                                                    href={users.prev_page_url}
+                                                >
+                                                    <ChevronLeftIcon />
+                                                </PaginationLink>
                                             ) : (
                                                 <PaginationPrevious
                                                     className="pointer-events-none opacity-50"
@@ -659,14 +650,11 @@ export default function DashboardUsers({
                                         </PaginationItem>
                                         <PaginationItem>
                                             {users.next_page_url ? (
-                                                <PaginationNext asChild>
-                                                    <Link
-                                                        href={
-                                                            users.next_page_url
-                                                        }
-                                                        prefetch
-                                                    />
-                                                </PaginationNext>
+                                                <PaginationLink
+                                                    href={users.next_page_url}
+                                                >
+                                                    <ChevronRightIcon />
+                                                </PaginationLink>
                                             ) : (
                                                 <PaginationNext
                                                     className="pointer-events-none opacity-50"
