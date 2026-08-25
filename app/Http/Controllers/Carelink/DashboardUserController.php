@@ -19,7 +19,7 @@ class DashboardUserController extends Controller
     private const PER_PAGE = 15;
 
     /**
-     * Admin-only user management: list, invite via password reset link,
+     * User management: list, invite via password reset link,
      * and ban/unban accounts.
      */
     public function index(Request $request): Response
@@ -35,11 +35,11 @@ class DashboardUserController extends Controller
                 });
             })
             ->when($request->filled('role'), function (Builder $query) use ($request): void {
-                match ($request->string('role')->trim()->toString()) {
-                    'admin' => $query->where('is_admin', true),
-                    'member' => $query->where('is_admin', false),
-                    default => null,
-                };
+                $role = $request->string('role')->trim()->toString();
+
+                if (in_array($role, User::ROLES, true)) {
+                    $query->where('role', $role);
+                }
             })
             ->latest()
             ->paginate(self::PER_PAGE)
@@ -66,14 +66,14 @@ class DashboardUserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'is_admin' => ['sometimes', 'boolean'],
+            'role' => ['sometimes', 'string', 'in:'.implode(',', User::ROLES)],
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Str::password(32),
-            'is_admin' => ($validated['is_admin'] ?? false) ? true : false,
+            'role' => $validated['role'] ?? User::ROLE_DISPATCHER,
         ]);
 
         $status = Password::broker()->sendResetLink(['email' => $user->email]);
@@ -92,6 +92,34 @@ class DashboardUserController extends Controller
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => "{$user->email} was added and their welcome links were sent.",
+        ]);
+
+        return back();
+    }
+
+    /**
+     * Change a user's role. Cannot change own role.
+     */
+    public function updateRole(Request $request, User $user): RedirectResponse
+    {
+        if ($user->id === $request->user()->id) {
+            Inertia::flash('toast', [
+                'type' => 'warning',
+                'message' => 'You cannot change your own role.',
+            ]);
+
+            return back();
+        }
+
+        $validated = $request->validate([
+            'role' => ['required', 'string', 'in:'.implode(',', User::ROLES)],
+        ]);
+
+        $user->update(['role' => $validated['role']]);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => "{$user->name}'s role was updated to ".ucfirst($validated['role']).'.',
         ]);
 
         return back();
@@ -135,7 +163,7 @@ class DashboardUserController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'is_admin' => $user->is_admin,
+            'role' => $user->role,
             'banned_at' => $user->banned_at?->toIso8601String(),
             'joined_at' => $user->created_at?->toIso8601String(),
         ];

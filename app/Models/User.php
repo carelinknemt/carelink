@@ -25,7 +25,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $email
  * @property Carbon|null $email_verified_at
  * @property string $password
- * @property bool $is_admin
+ * @property string $role
  * @property Carbon|null $banned_at
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
@@ -34,10 +34,23 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'is_admin', 'banned_at'])]
+#[Fillable(['name', 'email', 'password', 'role', 'banned_at'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
+    public const ROLE_ADMIN = 'admin';
+
+    public const ROLE_DISPATCHER = 'dispatcher';
+
+    public const ROLE_MANAGER = 'manager';
+
+    /** @var array<int, string> */
+    public const ROLES = [
+        self::ROLE_ADMIN,
+        self::ROLE_DISPATCHER,
+        self::ROLE_MANAGER,
+    ];
+
     /** @use HasFactory<UserFactory> */
     use Billable, HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
@@ -51,10 +64,24 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_admin' => 'boolean',
             'banned_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isDispatcher(): bool
+    {
+        return $this->role === self::ROLE_DISPATCHER;
+    }
+
+    public function isManager(): bool
+    {
+        return $this->role === self::ROLE_MANAGER;
     }
 
     public function isBanned(): bool

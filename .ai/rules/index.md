@@ -16,7 +16,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | app/Listeners/** | .ai/rules/listeners.md |
 | app/Mail/** | .ai/rules/mail.md |
 | app/Http/Middleware/EnsureUserNotBanned.php | .ai/rules/middleware.md |
-| app/Models/**, app/Models/User.php | .ai/rules/models.md |
+| app/Models/**, app/Models/User.php, app/Models/PassengerBlacklist.php | .ai/rules/models.md |
 | resources/js/pages/dashboard/**, resources/js/pages/cms/** | .ai/rules/pages-cms.md |
 | resources/js/pages/book.tsx, resources/js/pages/**, resources/js/pages/*.tsx | .ai/rules/pages.md |
 | app/Providers/** | .ai/rules/providers.md |

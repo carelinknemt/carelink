@@ -48,12 +48,48 @@ import {
 import { formatDate } from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { users as dashboardUsers } from '@/routes/dashboard';
-import { banToggle, store as storeUser } from '@/routes/dashboard/users';
+import {
+    banToggle,
+    store as storeUser,
+    updateRole,
+} from '@/routes/dashboard/users';
 import type {
     PaginatedUsers,
     UserRecord,
     UsersFilters,
 } from '@/types/dashboard';
+
+const ROLE_OPTIONS = [
+    {
+        value: 'admin',
+        label: 'Admin',
+        icon: ShieldCheck,
+        color: 'border-violet-200 bg-violet-50 text-violet-700',
+    },
+    {
+        value: 'manager',
+        label: 'Manager',
+        icon: ShieldCheck,
+        color: 'border-sky-200 bg-sky-50 text-sky-700',
+    },
+    {
+        value: 'dispatcher',
+        label: 'Dispatcher',
+        icon: null,
+        color: 'border-slate-200 bg-slate-50 text-slate-700',
+    },
+] as const;
+
+function roleBadgeClass(role: string): string {
+    return (
+        ROLE_OPTIONS.find((r) => r.value === role)?.color ??
+        'border-slate-200 bg-slate-50 text-slate-700'
+    );
+}
+
+function roleLabel(role: string): string {
+    return ROLE_OPTIONS.find((r) => r.value === role)?.label ?? role;
+}
 
 type DashboardUsersProps = {
     users: PaginatedUsers;
@@ -74,7 +110,7 @@ export default function DashboardUsers({
     const inviteForm = useForm({
         name: '',
         email: '',
-        is_admin: false,
+        role: 'dispatcher',
     });
 
     const searchTimer = useRef<number | null>(null);
@@ -118,7 +154,7 @@ export default function DashboardUsers({
         navigate();
     }
 
-    function changeRole(value: string) {
+    function changeRoleFilter(value: string) {
         form.setData('role', value);
 
         if (searchTimer.current !== null) {
@@ -131,6 +167,7 @@ export default function DashboardUsers({
 
     function openInvite() {
         inviteForm.reset();
+        inviteForm.setData('role', 'dispatcher');
         setInviteOpen(true);
     }
 
@@ -161,6 +198,17 @@ export default function DashboardUsers({
             banToggle.url({ user: user.id }),
             {},
             { preserveScroll: true },
+        );
+    }
+
+    function changeUserRole(user: UserRecord, newRole: string) {
+        router.patch(
+            updateRole.url({ user: user.id }),
+            { role: newRole },
+            {
+                preserveScroll: true,
+                preserveState: true,
+            },
         );
     }
 
@@ -197,7 +245,7 @@ export default function DashboardUsers({
                                 <Label htmlFor="user-role">Role</Label>
                                 <Select
                                     value={form.data.role}
-                                    onValueChange={changeRole}
+                                    onValueChange={changeRoleFilter}
                                 >
                                     <SelectTrigger
                                         id="user-role"
@@ -206,15 +254,17 @@ export default function DashboardUsers({
                                         <SelectValue placeholder="All roles" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">
+                                        <SelectItem value="__all">
                                             All roles
                                         </SelectItem>
-                                        <SelectItem value="admin">
-                                            Admin
-                                        </SelectItem>
-                                        <SelectItem value="member">
-                                            Standard
-                                        </SelectItem>
+                                        {ROLE_OPTIONS.map((role) => (
+                                            <SelectItem
+                                                key={role.value}
+                                                value={role.value}
+                                            >
+                                                {role.label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -274,12 +324,6 @@ export default function DashboardUsers({
                                                     </p>
                                                 </div>
                                                 <div className="flex flex-col items-end gap-1.5">
-                                                    {user.is_admin && (
-                                                        <span className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-700">
-                                                            <ShieldCheck className="size-3" />
-                                                            Admin
-                                                        </span>
-                                                    )}
                                                     {user.banned_at !==
                                                         null && (
                                                         <span className="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700">
@@ -289,6 +333,42 @@ export default function DashboardUsers({
                                                 </div>
                                             </div>
                                             <div className="mt-3 flex items-center justify-between gap-3">
+                                                <Select
+                                                    value={user.role}
+                                                    onValueChange={(value) =>
+                                                        changeUserRole(
+                                                            user,
+                                                            value,
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        user.id ===
+                                                        current_user_id
+                                                    }
+                                                >
+                                                    <SelectTrigger
+                                                        size="sm"
+                                                        className="w-32"
+                                                    >
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {ROLE_OPTIONS.map(
+                                                            (role) => (
+                                                                <SelectItem
+                                                                    key={
+                                                                        role.value
+                                                                    }
+                                                                    value={
+                                                                        role.value
+                                                                    }
+                                                                >
+                                                                    {role.label}
+                                                                </SelectItem>
+                                                            ),
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
                                                 <span className="text-sm text-muted-foreground">
                                                     Joined{' '}
                                                     {formatDate(user.joined_at)}
@@ -360,15 +440,60 @@ export default function DashboardUsers({
                                                         {user.email}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {user.is_admin ? (
-                                                            <span className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-700">
-                                                                <ShieldCheck className="size-3" />
-                                                                Admin
+                                                        {user.id ===
+                                                        current_user_id ? (
+                                                            <span
+                                                                className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${roleBadgeClass(user.role)}`}
+                                                            >
+                                                                {user.role ===
+                                                                    'admin' && (
+                                                                    <ShieldCheck className="size-3" />
+                                                                )}
+                                                                {roleLabel(
+                                                                    user.role,
+                                                                )}
                                                             </span>
                                                         ) : (
-                                                            <span className="text-sm text-muted-foreground">
-                                                                Manager
-                                                            </span>
+                                                            <Select
+                                                                value={
+                                                                    user.role
+                                                                }
+                                                                onValueChange={(
+                                                                    value,
+                                                                ) =>
+                                                                    changeUserRole(
+                                                                        user,
+                                                                        value,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <SelectTrigger
+                                                                    size="sm"
+                                                                    className="w-32"
+                                                                >
+                                                                    <SelectValue />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {ROLE_OPTIONS.map(
+                                                                        (
+                                                                            role,
+                                                                        ) => (
+                                                                            <SelectItem
+                                                                                key={
+                                                                                    role.value
+                                                                                }
+                                                                                value={
+                                                                                    role.value
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    role.label
+                                                                                }
+                                                                            </SelectItem>
+                                                                        ),
+                                                                    )}
+                                                                </SelectContent>
+                                                            </Select>
                                                         )}
                                                     </TableCell>
                                                     <TableCell>
@@ -620,20 +745,32 @@ export default function DashboardUsers({
                                 </p>
                             )}
                         </div>
-                        <label className="flex items-center gap-2 text-sm font-medium">
-                            <input
-                                type="checkbox"
-                                checked={inviteForm.data.is_admin}
-                                onChange={(event) =>
-                                    inviteForm.setData(
-                                        'is_admin',
-                                        event.target.checked,
-                                    )
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="invite-role">Role</Label>
+                            <Select
+                                value={inviteForm.data.role}
+                                onValueChange={(value) =>
+                                    inviteForm.setData('role', value)
                                 }
-                                className="rounded border-slate-300"
-                            />
-                            Admin user (can manage users and payments)
-                        </label>
+                            >
+                                <SelectTrigger
+                                    id="invite-role"
+                                    className="w-full"
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {ROLE_OPTIONS.map((role) => (
+                                        <SelectItem
+                                            key={role.value}
+                                            value={role.value}
+                                        >
+                                            {role.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                         {inviteForm.recentlySuccessful && (
                             <p className="text-xs text-muted-foreground">
                                 User added and reset link sent.

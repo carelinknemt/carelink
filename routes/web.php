@@ -93,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/dashboard/job-openings/{career}', [DashboardJobOpeningController::class, 'destroy'])->name('dashboard.job-openings.destroy');
     Route::get('/dashboard/users', [DashboardUserController::class, 'index'])->name('dashboard.users');
     Route::post('/dashboard/users', [DashboardUserController::class, 'store'])->name('dashboard.users.store');
+    Route::patch('/dashboard/users/{user}/role', [DashboardUserController::class, 'updateRole'])->name('dashboard.users.update-role');
     Route::post('/dashboard/users/{user}/ban-toggle', [DashboardUserController::class, 'toggleBan'])->name('dashboard.users.ban-toggle');
     Route::get('/dashboard/blacklist', [DashboardBlacklistController::class, 'index'])->name('dashboard.blacklist');
     Route::post('/dashboard/blacklist', [DashboardBlacklistController::class, 'store'])->name('dashboard.blacklist.store');

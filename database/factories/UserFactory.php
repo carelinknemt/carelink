@@ -30,6 +30,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role' => User::ROLE_DISPATCHER,
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
@@ -59,12 +60,32 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the user has dashboard admin privileges.
+     * Indicate that the user has admin privileges.
      */
     public function admin(): static
     {
         return $this->state(fn (array $attributes) => [
-            'is_admin' => true,
+            'role' => User::ROLE_ADMIN,
+        ]);
+    }
+
+    /**
+     * Indicate that the user has manager privileges.
+     */
+    public function manager(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => User::ROLE_MANAGER,
+        ]);
+    }
+
+    /**
+     * Indicate that the user has dispatcher privileges.
+     */
+    public function dispatcher(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => User::ROLE_DISPATCHER,
         ]);
     }
 

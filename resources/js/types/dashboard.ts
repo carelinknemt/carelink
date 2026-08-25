@@ -149,14 +149,14 @@ export type UserRecord = {
     id: number;
     name: string;
     email: string;
-    is_admin: boolean;
+    role: string;
     banned_at: string | null;
     joined_at: string;
 };
 
 export type UsersFilters = {
     search?: string | null;
-    role?: 'admin' | 'member' | null;
+    role?: 'admin' | 'dispatcher' | 'manager' | null;
 };
 
 type PaginatedRecords<T> = {
