@@ -2,7 +2,9 @@
 
 @section('title', 'CareLink Trip Request Confirmed')
 
-@section('subline', "Trip request {{ $tripRequest->booking_number }} - payment confirmed")
+@section('subline')
+    Trip request {{ $tripRequest->booking_number }} - payment confirmed
+@endsection
 
 @section('content')
     <p>Hello {{ $tripRequest->passenger_first_name }} {{ $tripRequest->passenger_last_name }},</p>

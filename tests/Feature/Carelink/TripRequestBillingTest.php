@@ -134,7 +134,9 @@ test('the booking fee is marked paid when stripe completes the checkout session'
     Mail::assertSent(
         TripRequestPaymentConfirmed::class,
         fn ($mail) => $mail->hasTo($tripRequest->passenger_email)
-            && $mail->assertSeeInHtml(route('bookings.show', ['booking' => $tripRequest->booking_number])),
+            && $mail->assertSeeInHtml(route('bookings.show', ['booking' => $tripRequest->booking_number]))
+            && $mail->assertSeeInHtml("Trip request {$tripRequest->booking_number} - payment confirmed")
+            && $mail->assertDontSeeInHtml('<?php', false),
     );
 });
 

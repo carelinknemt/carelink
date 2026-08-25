@@ -2,7 +2,9 @@
 
 @section('title', 'CareLink Trip Request Cancelled')
 
-@section('subline', "Trip request {{ $tripRequest->booking_number }} - cancelled & refunded")
+@section('subline')
+    Trip request {{ $tripRequest->booking_number }} - cancelled & refunded
+@endsection
 
 @push('styles')
     .header p { color: #fecdd3; }

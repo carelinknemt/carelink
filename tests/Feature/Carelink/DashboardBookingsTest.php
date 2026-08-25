@@ -542,7 +542,12 @@ test('a manager can cancel a paid booking and the booking fee is refunded', func
     Mail::assertSent(
         TripRequestCancelled::class,
         fn (TripRequestCancelled $mail): bool => $mail->hasTo($booking->passenger_email)
-            && $mail->tripRequest->is($booking),
+            && $mail->tripRequest->is($booking)
+            && $mail->assertSeeInHtml(
+                "Trip request {$booking->booking_number} - cancelled & refunded",
+                false,
+            )
+            && $mail->assertDontSeeInHtml('<?php', false),
     );
 });
 
