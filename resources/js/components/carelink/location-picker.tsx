@@ -12,37 +12,30 @@ import {
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-interface GeocodingFeature {
-    geometry: { coordinates: [number, number] };
-    properties: {
-        name?: string;
-        street?: string;
-        postcode?: string;
-        city?: string;
-        state?: string;
-        country?: string;
-    };
+interface LocationResult {
+    address: string;
+    latitude: number;
+    longitude: number;
 }
 
-interface PhotonResponse {
-    features: GeocodingFeature[];
+interface GooglePlacesLocation {
+    latitude: number;
+    longitude: number;
 }
 
-interface MapboxFeature {
-    geometry: { coordinates: [number, number] };
-    place_type: string[];
-    address?: string;
-    text?: string;
-    context?: Array<{ id?: string; text?: string }>;
-    properties?: {
-        name?: string;
-        address?: string;
-        context?: Record<string, { text?: string }>;
-    };
+interface GooglePlacesPlace {
+    formattedAddress?: string;
+    location?: GooglePlacesLocation;
 }
 
-interface MapboxResponse {
-    features: MapboxFeature[];
+interface GoogleTextSearchResponse {
+    places?: GooglePlacesPlace[];
+}
+
+interface SelectedLocation {
+    address: string;
+    latitude: number;
+    longitude: number;
 }
 
 interface LocationPickerProps {
@@ -52,159 +45,85 @@ interface LocationPickerProps {
     onSelect: (address: string, latitude: number, longitude: number) => void;
 }
 
-const PHOTON_ENDPOINT = 'https://photon.komoot.io/api/';
+const GOOGLE_TEXT_SEARCH_ENDPOINT =
+    'https://places.googleapis.com/v1/places:searchText';
 
-const MAPBOX_ENDPOINT = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
-
-const CALIFORNIA_BBOX = '-124.482,32.528,-114.131,42.010';
+const MAX_RESULTS = 5;
 
 const MIN_QUERY_LENGTH = 3;
 
-function isInCalifornia(feature: Pick<GeocodingFeature, 'geometry'>): boolean {
-    const [longitude, latitude] = feature.geometry.coordinates;
+const SEARCH_DEBOUNCE_MS = 350;
 
-    return (
-        latitude >= 32.528 &&
-        latitude <= 42.01 &&
-        longitude >= -124.482 &&
-        longitude <= -114.131
-    );
-}
+const CALIFORNIA_RECTANGLE = {
+    low: { latitude: 32.528, longitude: -124.482 },
+    high: { latitude: 42.01, longitude: -114.131 },
+};
 
-function formatAddress(feature: GeocodingFeature): string {
-    const { name, street, postcode, city, state, country } = feature.properties;
-    const streetLine = [name, street]
-        .filter((part) => part !== undefined && part.trim() !== '')
-        .join(' ');
-    const cityPart = city?.trim();
-    const stateZip = [state, postcode]
-        .filter((part) => part !== undefined && part.trim() !== '')
-        .join(' ');
-    const countryPart =
-        country?.trim() === 'United States' ? 'USA' : country?.trim();
+async function searchGooglePlaces(
+    query: string,
+    signal: AbortSignal,
+): Promise<LocationResult[] | null> {
+    if (!GOOGLE_MAPS_API_KEY) {
+        return null;
+    }
 
-    return (
-        [streetLine, cityPart, stateZip, countryPart]
-            .filter((part) => part !== undefined && part !== '')
-            .join(', ') || 'Selected location'
-    );
-}
+    const response = await fetch(GOOGLE_TEXT_SEARCH_ENDPOINT, {
+        method: 'POST',
+        signal,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
+            'X-Goog-FieldMask': 'places.formattedAddress,places.location',
+        },
+        body: JSON.stringify({
+            textQuery: query,
+            languageCode: 'en',
+            maxResultCount: MAX_RESULTS,
+            locationRestriction: { rectangle: CALIFORNIA_RECTANGLE },
+        }),
+    });
 
-function dedupeFeatures(features: GeocodingFeature[]): GeocodingFeature[] {
-    const seenAddresses = new Set<string>();
-    const seenCoordinates = new Set<string>();
-    const unique: GeocodingFeature[] = [];
+    if (!response.ok) {
+        throw new Error(`Google Places request failed: ${response.status}`);
+    }
 
-    for (const feature of features) {
-        const addressKey = formatAddress(feature)
-            .trim()
-            .toLowerCase()
-            .replace(/\s+/g, ' ');
-        const [longitude, latitude] = feature.geometry.coordinates;
-        const coordinateKey = `${latitude.toFixed(5)},${longitude.toFixed(5)}`;
+    const data: GoogleTextSearchResponse = await response.json();
 
-        if (
-            seenAddresses.has(addressKey) ||
-            seenCoordinates.has(coordinateKey)
-        ) {
+    const seenKeys = new Set<string>();
+    const results: LocationResult[] = [];
+
+    for (const place of data.places ?? []) {
+        const address = place.formattedAddress?.trim();
+        const location = place.location;
+
+        if (!address || !location) {
             continue;
         }
 
-        seenAddresses.add(addressKey);
-        seenCoordinates.add(coordinateKey);
-        unique.push(feature);
+        const dedupeKey = `${address.toLowerCase()}|${location.latitude.toFixed(5)},${location.longitude.toFixed(5)}`;
+
+        if (seenKeys.has(dedupeKey)) {
+            continue;
+        }
+
+        seenKeys.add(dedupeKey);
+        results.push({
+            address,
+            latitude: location.latitude,
+            longitude: location.longitude,
+        });
+
+        if (results.length >= MAX_RESULTS) {
+            break;
+        }
     }
 
-    return unique;
-}
-
-function mapboxFeatureToGeocodingFeature(
-    feature: MapboxFeature,
-): GeocodingFeature {
-    const isAddress = feature.place_type.includes('address');
-    const contextEntries = Array.isArray(feature.context)
-        ? feature.context
-        : Object.entries(feature.properties?.context ?? {}).map(
-              ([id, value]) => ({ id, text: value.text }),
-          );
-
-    const contextText = (idPrefix: string): string | undefined =>
-        contextEntries.find((entry) => entry.id?.startsWith(idPrefix))?.text;
-
-    const name = feature.properties?.name ?? feature.text;
-    const addressNumber = feature.address ?? feature.properties?.address;
-
-    return {
-        geometry: { coordinates: feature.geometry.coordinates },
-        properties: {
-            name:
-                isAddress && addressNumber && name
-                    ? `${addressNumber} ${name}`.trim()
-                    : name,
-            postcode: contextText('postcode.'),
-            city: contextText('place.') ?? contextText('locality.'),
-            state: contextText('region.'),
-            country: contextText('country.'),
-        },
-    };
-}
-
-async function searchPhoton(
-    query: string,
-    signal: AbortSignal,
-): Promise<GeocodingFeature[]> {
-    const response = await fetch(
-        `${PHOTON_ENDPOINT}?q=${encodeURIComponent(query)}&bbox=${CALIFORNIA_BBOX}&limit=6&lang=en`,
-        { signal },
-    );
-
-    if (!response.ok) {
-        throw new Error(`Geocoding request failed: ${response.status}`);
-    }
-
-    const data: PhotonResponse = await response.json();
-
-    return dedupeFeatures((data.features ?? []).filter(isInCalifornia)).slice(
-        0,
-        5,
-    );
-}
-
-async function searchMapbox(
-    query: string,
-    signal: AbortSignal,
-): Promise<GeocodingFeature[]> {
-    if (!MAPBOX_TOKEN) {
-        return [];
-    }
-
-    const response = await fetch(
-        `${MAPBOX_ENDPOINT}/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&bbox=${CALIFORNIA_BBOX}&limit=5&language=en`,
-        { signal },
-    );
-
-    if (!response.ok) {
-        throw new Error(`Mapbox request failed: ${response.status}`);
-    }
-
-    const data: MapboxResponse = await response.json();
-
-    return dedupeFeatures(
-        (data.features ?? [])
-            .filter(isInCalifornia)
-            .map(mapboxFeatureToGeocodingFeature),
-    ).slice(0, 5);
+    return results;
 }
 
 type SearchStatus = 'idle' | 'searching' | 'ok' | 'empty' | 'error';
-
-interface SelectedLocation {
-    address: string;
-    latitude: number;
-    longitude: number;
-}
 
 export default function LocationPicker({
     id,
@@ -212,7 +131,7 @@ export default function LocationPicker({
     onValueChange,
     onSelect,
 }: LocationPickerProps) {
-    const [results, setResults] = useState<GeocodingFeature[]>([]);
+    const [results, setResults] = useState<LocationResult[]>([]);
     const [status, setStatus] = useState<SearchStatus>('idle');
     const [open, setOpen] = useState(false);
     const [selectedLocation, setSelectedLocation] =
@@ -242,31 +161,20 @@ export default function LocationPicker({
             setOpen(true);
 
             try {
-                const photonResults = await searchPhoton(
+                const googleResults = await searchGooglePlaces(
                     query,
                     controller.signal,
                 );
 
-                if (photonResults.length > 0) {
-                    setResults(photonResults);
-                    setStatus('ok');
+                if (googleResults === null) {
+                    setResults([]);
+                    setStatus('error');
 
                     return;
                 }
-            } catch (error: unknown) {
-                if ((error as Error).name === 'AbortError') {
-                    return;
-                }
-            }
 
-            try {
-                const mapboxResults = await searchMapbox(
-                    query,
-                    controller.signal,
-                );
-
-                if (mapboxResults.length > 0) {
-                    setResults(mapboxResults);
+                if (googleResults.length > 0) {
+                    setResults(googleResults);
                     setStatus('ok');
 
                     return;
@@ -279,9 +187,10 @@ export default function LocationPicker({
                     return;
                 }
 
+                setResults([]);
                 setStatus('error');
             }
-        }, 350);
+        }, SEARCH_DEBOUNCE_MS);
 
         return () => {
             window.clearTimeout(timer);
@@ -309,13 +218,14 @@ export default function LocationPicker({
             document.removeEventListener('mousedown', handlePointerDown);
     }, [open]);
 
-    const handleSelect = (feature: GeocodingFeature) => {
-        const address = formatAddress(feature);
-        const [longitude, latitude] = feature.geometry.coordinates;
-
+    const handleSelect = (result: LocationResult) => {
         suppressSearchRef.current = true;
-        onSelect(address, latitude, longitude);
-        setSelectedLocation({ address, latitude, longitude });
+        onSelect(result.address, result.latitude, result.longitude);
+        setSelectedLocation({
+            address: result.address,
+            latitude: result.latitude,
+            longitude: result.longitude,
+        });
         setResults([]);
         setStatus('idle');
         setOpen(false);
@@ -371,26 +281,22 @@ export default function LocationPicker({
                         )}
 
                         {status === 'ok' &&
-                            results.map((feature) => {
-                                const address = formatAddress(feature);
-
-                                return (
-                                    <button
-                                        key={`${feature.geometry.coordinates[0]}-${feature.geometry.coordinates[1]}-${address}`}
-                                        type="button"
-                                        className={cn(
-                                            'flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition',
-                                            'hover:bg-slate-50 focus:bg-slate-50 focus:outline-none',
-                                        )}
-                                        onClick={() => handleSelect(feature)}
-                                    >
-                                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E64A19]" />
-                                        <span className="min-w-0 truncate text-sm font-semibold text-slate-800">
-                                            {address}
-                                        </span>
-                                    </button>
-                                );
-                            })}
+                            results.map((result) => (
+                                <button
+                                    key={`${result.latitude}-${result.longitude}-${result.address}`}
+                                    type="button"
+                                    className={cn(
+                                        'flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition',
+                                        'hover:bg-slate-50 focus:bg-slate-50 focus:outline-none',
+                                    )}
+                                    onClick={() => handleSelect(result)}
+                                >
+                                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E64A19]" />
+                                    <span className="min-w-0 truncate text-sm font-semibold text-slate-800">
+                                        {result.address}
+                                    </span>
+                                </button>
+                            ))}
                     </div>
                 )}
             </div>
