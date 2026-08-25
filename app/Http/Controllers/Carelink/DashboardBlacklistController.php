@@ -17,7 +17,7 @@ class DashboardBlacklistController extends Controller
         $search = $request->string('search')->trim()->toString();
 
         $entries = PassengerBlacklist::query()
-            ->with('blacklister:name')
+            ->with('blacklister:id,name')
             ->when($search, function ($query, $search): void {
                 $query->where(function ($q) use ($search): void {
                     $q->where('email', 'like', "%{$search}%")

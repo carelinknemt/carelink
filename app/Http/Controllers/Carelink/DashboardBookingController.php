@@ -69,7 +69,7 @@ class DashboardBookingController extends Controller
             'statuses' => TripRequest::ASSIGNABLE_STATUSES,
             'booking_fee' => BookingFee::amountInDollarsFor($booking->transport_type),
             'blacklist' => PassengerBlacklist::matchFor($booking)
-                ?->load('blacklister:name'),
+                ?->load('blacklister:id,name'),
         ]);
     }
 

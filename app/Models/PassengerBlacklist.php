@@ -69,7 +69,7 @@ class PassengerBlacklist extends Model
                     $query->where('phone_digits', $phoneDigits);
                 }
             })
-            ->with('blacklister:name')
+            ->with('blacklister:id,name')
             ->first();
     }
 
@@ -104,7 +104,7 @@ class PassengerBlacklist extends Model
                     }
                 }
             })
-            ->with('blacklister:name')
+            ->with('blacklister:id,name')
             ->get();
 
         $byEmail = $entries->where('email', '!=', null)
