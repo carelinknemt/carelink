@@ -1,5 +1,5 @@
 import { Check, Clock } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Popover,
@@ -14,12 +14,17 @@ interface TimePickerProps {
     onChange: (time: string) => void;
     placeholder?: string;
     error?: boolean;
+    selectedDate?: string;
 }
 
 const TIME_OPTIONS: string[] = [];
 
-for (let hour = 0; hour < 24; hour++) {
+for (let hour = 5; hour < 24; hour++) {
     for (const minute of [0, 15, 30, 45]) {
+        if (hour === 24) {
+            break;
+        }
+
         const period = hour < 12 ? 'AM' : 'PM';
         const hour12 = hour % 12 === 0 ? 12 : hour % 12;
 
@@ -29,14 +34,54 @@ for (let hour = 0; hour < 24; hour++) {
     }
 }
 
+function isTimePast(time: string, today: Date): boolean {
+    const match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+
+    if (!match) {
+        return false;
+    }
+
+    let hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+    const period = match[3].toUpperCase();
+
+    if (period === 'PM' && hours !== 12) {
+        hours += 12;
+    } else if (period === 'AM' && hours === 12) {
+        hours = 0;
+    }
+
+    const now = new Date();
+    const currentHours = today.getHours();
+    const currentMinutes = today.getMinutes();
+
+    return (
+        hours < currentHours ||
+        (hours === currentHours && minutes <= currentMinutes)
+    );
+}
+
 export default function TimePicker({
     id,
     value,
     onChange,
     placeholder = 'Select a time',
     error,
+    selectedDate,
 }: TimePickerProps) {
     const [open, setOpen] = useState(false);
+
+    const today = useMemo(() => new Date(), []);
+
+    const isToday = useMemo(() => {
+        if (!selectedDate) {
+            return false;
+        }
+
+        const todayStr = today.toISOString().slice(0, 10);
+
+        return selectedDate === todayStr;
+    }, [selectedDate, today]);
 
     const handleSelect = (time: string) => {
         onChange(time);
@@ -67,24 +112,31 @@ export default function TimePicker({
                 align="start"
             >
                 <div className="max-h-64 overflow-y-auto">
-                    {TIME_OPTIONS.map((time) => (
-                        <button
-                            key={time}
-                            type="button"
-                            onClick={() => handleSelect(time)}
-                            className={cn(
-                                'flex w-full items-center justify-between rounded-md px-3 py-1.5 text-left text-sm transition',
-                                time === value
-                                    ? 'bg-[#004B87] font-semibold text-white'
-                                    : 'text-slate-700 hover:bg-slate-100 dark:text-slate-700',
-                            )}
-                        >
-                            {time}
-                            {time === value && (
-                                <Check className="h-3.5 w-3.5" />
-                            )}
-                        </button>
-                    ))}
+                    {TIME_OPTIONS.map((time) => {
+                        const disabled = isToday && isTimePast(time, today);
+
+                        return (
+                            <button
+                                key={time}
+                                type="button"
+                                disabled={disabled}
+                                onClick={() => handleSelect(time)}
+                                className={cn(
+                                    'flex w-full items-center justify-between rounded-md px-3 py-1.5 text-left text-sm transition',
+                                    time === value
+                                        ? 'bg-[#004B87] font-semibold text-white'
+                                        : disabled
+                                          ? 'cursor-not-allowed text-slate-300'
+                                          : 'text-slate-700 hover:bg-slate-100 dark:text-slate-700',
+                                )}
+                            >
+                                {time}
+                                {time === value && (
+                                    <Check className="h-3.5 w-3.5" />
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             </PopoverContent>
         </Popover>

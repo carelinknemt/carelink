@@ -1156,6 +1156,7 @@ export default function Book() {
                                                 set('pickup_time', value)
                                             }
                                             placeholder=""
+                                            selectedDate={form.data.trip_date}
                                             error={Boolean(
                                                 fieldError('pickup_time'),
                                             )}
@@ -1175,6 +1176,7 @@ export default function Book() {
                                                 set('appointment_time', value)
                                             }
                                             placeholder=""
+                                            selectedDate={form.data.trip_date}
                                         />
                                     </div>
                                 </div>
