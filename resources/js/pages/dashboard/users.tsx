@@ -24,14 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from '@/components/ui/pagination';
+import { PaginationLink } from '@/components/ui/pagination';
 import {
     Select,
     SelectContent,
@@ -561,109 +554,33 @@ export default function DashboardUsers({
                         )}
 
                         {users.last_page > 1 && (
-                            <div className="mt-6 hidden md:block">
-                                <Pagination>
-                                    <PaginationContent>
-                                        <PaginationItem>
-                                            {users.prev_page_url ? (
-                                                <PaginationLink
-                                                    href={users.prev_page_url}
-                                                >
-                                                    <ChevronLeftIcon />
-                                                    <span className="hidden sm:block">
-                                                        Previous
-                                                    </span>
-                                                </PaginationLink>
-                                            ) : (
-                                                <PaginationPrevious
-                                                    className="pointer-events-none opacity-50"
-                                                    aria-disabled="true"
-                                                />
-                                            )}
-                                        </PaginationItem>
-                                        {users.links.map((link) => {
-                                            if (link.url === null) {
-                                                return null;
-                                            }
-
-                                            const label =
-                                                link.label ===
-                                                '&laquo; Previous'
-                                                    ? '…'
-                                                    : link.label ===
-                                                        '&raquo; Next'
-                                                      ? '…'
-                                                      : link.label;
-
-                                            return (
-                                                <PaginationItem
-                                                    key={`${link.label}-${link.url}`}
-                                                >
-                                                    <PaginationLink
-                                                        href={link.url}
-                                                        isActive={link.active}
-                                                    >
-                                                        {label}
-                                                    </PaginationLink>
-                                                </PaginationItem>
-                                            );
-                                        })}
-                                        <PaginationItem>
-                                            {users.next_page_url ? (
-                                                <PaginationLink
-                                                    href={users.next_page_url}
-                                                >
-                                                    <span className="hidden sm:block">
-                                                        Next
-                                                    </span>
-                                                    <ChevronRightIcon />
-                                                </PaginationLink>
-                                            ) : (
-                                                <PaginationNext
-                                                    className="pointer-events-none opacity-50"
-                                                    aria-disabled="true"
-                                                />
-                                            )}
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
-                            </div>
-                        )}
-
-                        {users.last_page > 1 && (
-                            <div className="mt-6 flex justify-center md:hidden">
-                                <Pagination>
-                                    <PaginationContent>
-                                        <PaginationItem>
-                                            {users.prev_page_url ? (
-                                                <PaginationLink
-                                                    href={users.prev_page_url}
-                                                >
-                                                    <ChevronLeftIcon />
-                                                </PaginationLink>
-                                            ) : (
-                                                <PaginationPrevious
-                                                    className="pointer-events-none opacity-50"
-                                                    aria-disabled="true"
-                                                />
-                                            )}
-                                        </PaginationItem>
-                                        <PaginationItem>
-                                            {users.next_page_url ? (
-                                                <PaginationLink
-                                                    href={users.next_page_url}
-                                                >
-                                                    <ChevronRightIcon />
-                                                </PaginationLink>
-                                            ) : (
-                                                <PaginationNext
-                                                    className="pointer-events-none opacity-50"
-                                                    aria-disabled="true"
-                                                />
-                                            )}
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
+                            <div className="mt-6 flex items-center justify-center gap-4">
+                                {users.prev_page_url ? (
+                                    <PaginationLink href={users.prev_page_url}>
+                                        <ChevronLeftIcon />
+                                        <span>Previous</span>
+                                    </PaginationLink>
+                                ) : (
+                                    <span className="inline-flex h-9 items-center gap-1 rounded-md px-2.5 text-sm opacity-50">
+                                        <ChevronLeftIcon />
+                                        Previous
+                                    </span>
+                                )}
+                                <span className="text-sm text-muted-foreground">
+                                    Page {users.current_page} of{' '}
+                                    {users.last_page}
+                                </span>
+                                {users.next_page_url ? (
+                                    <PaginationLink href={users.next_page_url}>
+                                        <span>Next</span>
+                                        <ChevronRightIcon />
+                                    </PaginationLink>
+                                ) : (
+                                    <span className="inline-flex h-9 items-center gap-1 rounded-md px-2.5 text-sm opacity-50">
+                                        Next
+                                        <ChevronRightIcon />
+                                    </span>
+                                )}
                             </div>
                         )}
                     </CardContent>
