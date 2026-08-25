@@ -16,15 +16,15 @@ function actingAsAdmin(): User
     return $admin;
 }
 
-test('any authenticated user can view the user management page', function () {
-    $manager = User::factory()->create();
+test('admins can view the user management page', function () {
+    $manager = User::factory()->admin()->create();
     $this->actingAs($manager);
 
     $this->get(route('dashboard.users'))->assertOk();
 });
 
-test('any authenticated user can add users', function () {
-    $manager = User::factory()->create();
+test('admins can add users', function () {
+    $manager = User::factory()->admin()->create();
     $this->actingAs($manager);
 
     $this->post(route('dashboard.users.store'), [
@@ -35,8 +35,8 @@ test('any authenticated user can add users', function () {
     expect(User::where('email', 'jane@example.com')->exists())->toBeTrue();
 });
 
-test('any authenticated user can ban or unban users', function () {
-    $manager = User::factory()->create();
+test('admins can ban or unban users', function () {
+    $manager = User::factory()->admin()->create();
     $target = User::factory()->create();
     $this->actingAs($manager);
 
