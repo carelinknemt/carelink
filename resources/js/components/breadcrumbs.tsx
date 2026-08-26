@@ -8,6 +8,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { useIsMobile } from '@/hooks/use-mobile';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
 
 export function Breadcrumbs({
@@ -15,13 +16,16 @@ export function Breadcrumbs({
 }: {
     breadcrumbs: BreadcrumbItemType[];
 }) {
+    const isMobile = useIsMobile();
+    const visible = isMobile ? breadcrumbs.slice(-1) : breadcrumbs;
+
     return (
         <>
-            {breadcrumbs.length > 0 && (
+            {visible.length > 0 && (
                 <Breadcrumb>
                     <BreadcrumbList>
-                        {breadcrumbs.map((item, index) => {
-                            const isLast = index === breadcrumbs.length - 1;
+                        {visible.map((item, index) => {
+                            const isLast = index === visible.length - 1;
 
                             return (
                                 <Fragment key={index}>
