@@ -2,6 +2,7 @@ import {
     Eye,
     FileText,
     MoreHorizontal,
+    Search,
     ThumbsDown,
     ThumbsUp,
     Trash2,
@@ -25,6 +26,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -88,7 +90,7 @@ export default function ApplicationsSimulation() {
         >
             <div className="flex flex-col gap-4">
                 <Card>
-                    <CardContent className="flex flex-col gap-4 pt-6">
+                    <CardContent>
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div
                                 className="grid gap-1.5"
@@ -114,6 +116,20 @@ export default function ApplicationsSimulation() {
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="demo-apps-search">
+                                    Name or email
+                                </Label>
+                                <div className="relative">
+                                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="demo-apps-search"
+                                        type="search"
+                                        placeholder="Search applicants..."
+                                        className="pl-9"
+                                    />
+                                </div>
                             </div>
                         </div>
 

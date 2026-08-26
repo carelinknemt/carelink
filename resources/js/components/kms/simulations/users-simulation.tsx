@@ -1,8 +1,8 @@
-import { Ban, CheckCircle2, ShieldCheck, UserPlus } from 'lucide-react';
+import { Ban, CheckCircle2, Search, ShieldCheck, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import SimulationShell from '@/components/kms/simulation-shell';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -14,6 +14,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -28,17 +35,35 @@ type DemoUser = {
     id: number;
     name: string;
     email: string;
-    admin: boolean;
+    role: 'admin' | 'manager' | 'dispatcher';
     banned: boolean;
     joined: string;
 };
+
+const ROLE_OPTIONS = [
+    {
+        value: 'admin' as const,
+        label: 'Admin',
+        color: 'border-violet-200 bg-violet-50 text-violet-700',
+    },
+    {
+        value: 'manager' as const,
+        label: 'Manager',
+        color: 'border-sky-200 bg-sky-50 text-sky-700',
+    },
+    {
+        value: 'dispatcher' as const,
+        label: 'Dispatcher',
+        color: 'border-slate-200 bg-slate-50 text-slate-700',
+    },
+];
 
 const INITIAL: DemoUser[] = [
     {
         id: 1,
         name: 'Jane Doe',
         email: 'jane@example.com',
-        admin: true,
+        role: 'admin',
         banned: false,
         joined: '2026-07-01',
     },
@@ -46,7 +71,7 @@ const INITIAL: DemoUser[] = [
         id: 2,
         name: 'John Smith',
         email: 'john@example.com',
-        admin: false,
+        role: 'dispatcher',
         banned: false,
         joined: '2026-07-15',
     },
@@ -54,16 +79,38 @@ const INITIAL: DemoUser[] = [
         id: 3,
         name: 'Maria Lopez',
         email: 'maria@example.com',
-        admin: false,
+        role: 'manager',
         banned: true,
         joined: '2026-06-10',
     },
 ];
 
+function roleBadgeClass(role: string): string {
+    return (
+        ROLE_OPTIONS.find((r) => r.value === role)?.color ??
+        'border-slate-200 bg-slate-50 text-slate-700'
+    );
+}
+
+function roleLabel(role: string): string {
+    return ROLE_OPTIONS.find((r) => r.value === role)?.label ?? role;
+}
+
 export default function UsersSimulation() {
     const [users, setUsers] = useState(INITIAL);
     const [inviteOpen, setInviteOpen] = useState(false);
     const [banTarget, setBanTarget] = useState<DemoUser | null>(null);
+    const [search, setSearch] = useState('');
+    const [roleFilter, setRoleFilter] = useState('');
+
+    const filtered = users.filter((user) => {
+        const matchesSearch =
+            !search ||
+            user.name.toLowerCase().includes(search.toLowerCase()) ||
+            user.email.toLowerCase().includes(search.toLowerCase());
+        const matchesRole = !roleFilter || user.role === roleFilter;
+        return matchesSearch && matchesRole;
+    });
 
     return (
         <SimulationShell
@@ -89,13 +136,62 @@ export default function UsersSimulation() {
                     </Button>
                 </div>
 
-                <Card id="kms-demo-us-table">
-                    <CardHeader>
-                        <CardTitle className="text-base">
-                            Showing 1&ndash;3 of 3 users
-                        </CardTitle>
-                    </CardHeader>
+                <Card>
                     <CardContent>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="kms-demo-us-role-filter">
+                                    Role
+                                </Label>
+                                <Select
+                                    value={roleFilter}
+                                    onValueChange={setRoleFilter}
+                                >
+                                    <SelectTrigger
+                                        id="kms-demo-us-role-filter"
+                                        className="w-full"
+                                    >
+                                        <SelectValue placeholder="All roles" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__all">
+                                            All roles
+                                        </SelectItem>
+                                        {ROLE_OPTIONS.map((role) => (
+                                            <SelectItem
+                                                key={role.value}
+                                                value={role.value}
+                                            >
+                                                {role.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="kms-demo-us-search">
+                                    Name or email
+                                </Label>
+                                <div className="relative">
+                                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="kms-demo-us-search"
+                                        type="search"
+                                        placeholder="Search users…"
+                                        className="pl-9"
+                                        value={search}
+                                        onChange={(event) =>
+                                            setSearch(event.target.value)
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card id="kms-demo-us-table">
+                    <CardContent className="pt-6">
                         <div className="overflow-x-auto">
                             <Table>
                                 <TableHeader>
@@ -111,23 +207,63 @@ export default function UsersSimulation() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {users.map((user) => (
+                                    {filtered.map((user) => (
                                         <TableRow key={user.id}>
                                             <TableCell className="font-medium">
                                                 {user.name}
                                             </TableCell>
                                             <TableCell>{user.email}</TableCell>
                                             <TableCell id="kms-demo-us-role">
-                                                {user.admin ? (
-                                                    <span className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-700">
-                                                        <ShieldCheck className="size-3" />
-                                                        Admin
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-sm text-muted-foreground">
-                                                        Manager
-                                                    </span>
-                                                )}
+                                                <Select
+                                                    value={user.role}
+                                                    onValueChange={(
+                                                        value,
+                                                    ) => {
+                                                        if (
+                                                            value !==
+                                                            user.role
+                                                        ) {
+                                                            setUsers(
+                                                                (current) =>
+                                                                    current.map(
+                                                                        (
+                                                                            row,
+                                                                        ) =>
+                                                                            row.id ===
+                                                                            user.id
+                                                                                ? {
+                                                                                      ...row,
+                                                                                      role: value as DemoUser['role'],
+                                                                                  }
+                                                                                : row,
+                                                                    ),
+                                                            );
+                                                        }
+                                                    }}
+                                                >
+                                                    <SelectTrigger
+                                                        size="sm"
+                                                        className="w-32"
+                                                    >
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {ROLE_OPTIONS.map(
+                                                            (role) => (
+                                                                <SelectItem
+                                                                    key={
+                                                                        role.value
+                                                                    }
+                                                                    value={
+                                                                        role.value
+                                                                    }
+                                                                >
+                                                                    {role.label}
+                                                                </SelectItem>
+                                                            ),
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
                                             </TableCell>
                                             <TableCell>
                                                 {user.banned ? (
@@ -220,13 +356,27 @@ export default function UsersSimulation() {
                                 placeholder="jane@example.com"
                             />
                         </div>
-                        <label className="flex items-center gap-2 text-sm font-medium">
-                            <input
-                                type="checkbox"
-                                className="rounded border-slate-300"
-                            />
-                            Admin user (can manage users and payments)
-                        </label>
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="demo-invite-role">Role</Label>
+                            <Select defaultValue="dispatcher">
+                                <SelectTrigger
+                                    id="demo-invite-role"
+                                    className="w-full"
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {ROLE_OPTIONS.map((role) => (
+                                        <SelectItem
+                                            key={role.value}
+                                            value={role.value}
+                                        >
+                                            {role.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                     <DialogFooter className="mt-4">
                         <DialogClose asChild>

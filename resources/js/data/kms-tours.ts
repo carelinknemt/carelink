@@ -34,29 +34,36 @@ export const kmsTours: Record<string, KmsTour> = {
                 placement: 'bottom',
             },
             {
+                target: '#kms-demo-bk-filters',
+                title: 'Step 3 · Filter trips',
+                content:
+                    'Click the Filters button to open the filter panel. You can filter by status, service type, and date range. Active filters show a count badge on the button and filter pills above the table.',
+                placement: 'bottom',
+            },
+            {
                 target: '#kms-demo-bk-row-status-0',
-                title: 'Step 3 · Trip status',
+                title: 'Step 4 · Trip status',
                 content:
                     'Each row has a status picker. This one is Pending Dispatch, meaning the trip is paid and waiting for a vehicle to be assigned. Try opening it to see the other options.',
                 placement: 'bottom',
             },
             {
                 target: '#kms-demo-bk-row-status-1',
-                title: 'Step 4 · Move a trip forward',
+                title: 'Step 5 · Move a trip forward',
                 content:
                     'When you assign a vehicle, the status becomes Dispatched. Use this picker to change a trip\u2019s status at any point: Pending Dispatch, Dispatched, In Transit, Completed, or Cancelled. The dispatch team sees your change immediately.',
                 placement: 'bottom',
             },
             {
                 target: '#kms-demo-bk-count',
-                title: 'Step 5 · Know what you are looking at',
+                title: 'Step 6 · Know what you are looking at',
                 content:
                     'The heading above the table always tells you how many trips are in the current view. Watch this number as you search and filter: it confirms whether you are looking at all trips or a small subset.',
                 placement: 'top',
             },
             {
                 target: '#kms-demo-bk-export',
-                title: 'Step 6 · Export',
+                title: 'Step 7 · Export',
                 content:
                     'The Export button downloads the whole filtered list as a CSV file, ready for Excel or Google Sheets. The export always follows your current search and filters, so set the view you want first.',
                 placement: 'top',
@@ -81,29 +88,36 @@ export const kmsTours: Record<string, KmsTour> = {
                 placement: 'bottom',
             },
             {
+                target: '#kms-demo-bk-filters',
+                title: 'Step 3 · Open the filter panel',
+                content:
+                    'Click the Filters button to open the filter panel. Here you can filter by status, service type, and date range. Combine multiple filters to isolate any group of trips for dispatch or reporting.',
+                placement: 'bottom',
+            },
+            {
                 target: '#kms-demo-bk-row-status-0',
-                title: 'Step 3 · Filter by status',
+                title: 'Step 4 · Filter by status',
                 content:
                     'On the real page, the status filter shows one status at a time, such as only In Transit trips. Combine it with the search box and the date range to isolate any group of trips for dispatch or reporting.',
                 placement: 'bottom',
             },
             {
                 target: '#kms-demo-bk-count',
-                title: 'Step 4 · Confirm your results',
+                title: 'Step 5 · Confirm your results',
                 content:
                     'After applying filters, check the count above the table. It updates with every search and filter change, so you always know how many trips made it into the current view.',
                 placement: 'top',
             },
             {
                 target: '#kms-demo-bk-per-page',
-                title: 'Step 5 · Choose rows per page',
+                title: 'Step 6 · Choose rows per page',
                 content:
                     'Use this selector to show 15, 25, 50, or 100 trips per page. Pick a larger number when you are scanning many trips, and use the pager to move through the results.',
                 placement: 'top',
             },
             {
                 target: '#kms-demo-bk-export',
-                title: 'Step 6 · Export your results',
+                title: 'Step 7 · Export your results',
                 content:
                     'The export always follows your current filters. Clear the filters first if you want every booking in the file, or keep them to hand a focused list to a colleague.',
                 placement: 'top',
@@ -258,7 +272,7 @@ export const kmsTours: Record<string, KmsTour> = {
                 target: '#kms-demo-us-invite-dialog',
                 title: 'Step 2 · The invite form',
                 content:
-                    'Enter the full name and work email, then choose whether the account is an Admin or a Manager. Click Add user and send links and the new user immediately receives two emails: a password reset link and a link to this Knowledge Base.',
+                    'Enter the full name and work email, then select one of three roles: Admin, Manager, or Dispatcher. Click Add user and send links and the new user immediately receives two emails: a password reset link and a link to this Knowledge Base.',
                 placement: 'top',
             },
             {
@@ -270,9 +284,9 @@ export const kmsTours: Record<string, KmsTour> = {
             },
             {
                 target: '#kms-demo-us-role',
-                title: 'Step 4 · Roles',
+                title: 'Step 3 · Roles',
                 content:
-                    'Accounts are either Admin or Manager. Admins see the full dashboard including users and business partners; Managers get the daily tools such as bookings and payments. The role is chosen when the account is created, and the Admin badge makes elevated access visible at a glance.',
+                    'Every account has one of three roles. Admins see the full dashboard including users and payments. Managers access analytics, applications, and business partners. Dispatchers handle bookings and contact messages. The role badge in each row makes access levels visible at a glance.',
                 placement: 'top',
             },
             {

@@ -1,5 +1,8 @@
+import { Search } from 'lucide-react';
 import SimulationShell from '@/components/kms/simulation-shell';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -15,6 +18,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import { formatDate, formatMoney } from '@/lib/bookings';
 
 const SUMMARY = [
@@ -22,24 +26,28 @@ const SUMMARY = [
         id: 'kms-demo-pm-summary-total',
         label: 'Total payments',
         value: '128',
+        hint: 'Bookings that reached checkout',
         accent: false,
     },
     {
         id: 'kms-demo-pm-summary-collected',
         label: 'Collected',
         value: '$3,712.00',
+        hint: 'Paid booking fees',
         accent: true,
     },
     {
         id: 'kms-demo-pm-summary-pending',
         label: 'Pending',
         value: '$240.00',
+        hint: 'Unpaid checkout sessions',
         accent: false,
     },
     {
         id: 'kms-demo-pm-summary-refunded',
         label: 'Refunded',
         value: '$90.00',
+        hint: 'Fees refunded to passengers',
         accent: false,
     },
 ];
@@ -93,49 +101,31 @@ export default function PaymentsSimulation() {
             description="The payments record: what was collected, what is pending, and what was refunded."
         >
             <div className="flex flex-col gap-4">
-                <div
-                    className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-                    id="kms-demo-pm-summary"
-                >
-                    {SUMMARY.map((item) => (
-                        <Card
-                            key={item.label}
-                            id={item.id}
-                            className={
-                                item.accent
-                                    ? 'bg-primary text-primary-foreground'
-                                    : ''
-                            }
-                        >
-                            <CardContent className="p-5">
-                                <p
-                                    className={
-                                        item.accent
-                                            ? 'text-sm font-medium text-primary-foreground/80'
-                                            : 'text-sm font-medium text-muted-foreground'
-                                    }
-                                >
-                                    {item.label}
-                                </p>
-                                <p className="mt-1 text-2xl font-bold tracking-tight">
-                                    {item.value}
-                                </p>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-
                 <Card>
-                    <CardContent className="flex flex-col gap-4 pt-6">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <p className="text-sm text-muted-foreground">
-                                Showing 1&ndash;3 of 3 payments
-                            </p>
-                            <div id="kms-demo-pm-status-filter">
-                                <Select defaultValue="__all">
+                    <CardContent>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="kms-demo-pm-search">
+                                    Search
+                                </Label>
+                                <div className="relative">
+                                    <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="kms-demo-pm-search"
+                                        type="search"
+                                        placeholder="Booking number, passenger, or email…"
+                                        className="pl-9"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="kms-demo-pm-status-filter">
+                                    Status
+                                </Label>
+                                <Select defaultValue="PAID">
                                     <SelectTrigger
-                                        size="sm"
-                                        className="w-full sm:w-48"
+                                        id="kms-demo-pm-status-filter"
+                                        className="w-full"
                                     >
                                         <SelectValue />
                                     </SelectTrigger>
@@ -149,14 +139,64 @@ export default function PaymentsSimulation() {
                                         <SelectItem value="PENDING">
                                             Pending
                                         </SelectItem>
-                                        <SelectItem value="refunded">
+                                        <SelectItem value="REFUNDED">
                                             Refunded
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                         </div>
+                    </CardContent>
+                </Card>
 
+                <div
+                    className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+                    id="kms-demo-pm-summary"
+                >
+                    {SUMMARY.map((item) => (
+                        <Card
+                            key={item.label}
+                            id={item.id}
+                            className={cn(
+                                'relative overflow-hidden',
+                                item.accent &&
+                                    'bg-primary text-primary-foreground',
+                            )}
+                        >
+                            <CardContent className="p-5">
+                                <p
+                                    className={cn(
+                                        'text-sm font-medium',
+                                        item.accent
+                                            ? 'text-primary-foreground/80'
+                                            : 'text-muted-foreground',
+                                    )}
+                                >
+                                    {item.label}
+                                </p>
+                                <p className="mt-1 text-2xl font-bold tracking-tight">
+                                    {item.value}
+                                </p>
+                                <p
+                                    className={cn(
+                                        'mt-1 text-xs',
+                                        item.accent
+                                            ? 'text-primary-foreground/70'
+                                            : 'text-muted-foreground',
+                                    )}
+                                >
+                                    {item.hint}
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+
+                <Card>
+                    <CardContent className="pt-6">
+                        <p className="mb-4 text-sm text-muted-foreground">
+                            Showing 1&ndash;3 of 3 payments
+                        </p>
                         <div className="overflow-x-auto" id="kms-demo-pm-table">
                             <Table>
                                 <TableHeader>

@@ -625,7 +625,7 @@ export const kmsCategories: KmsCategory[] = [
                         items: [
                             'Go to Administration > Users.',
                             'Click Add User.',
-                            'Enter the full name and email address, and choose whether the person is an admin.',
+                            'Enter the full name and email address, then select a role from the dropdown.',
                             'Submit. The account is created without a password.',
                         ],
                     },
@@ -649,12 +649,12 @@ export const kmsCategories: KmsCategory[] = [
             },
             {
                 slug: 'admin-roles',
-                title: 'Admin roles',
-                summary: 'What the admin flag means and when to grant it.',
+                title: 'User roles',
+                summary: 'What each role can do and when to grant it.',
                 blocks: [
                     {
                         type: 'paragraph',
-                        text: 'Every account is either a manager or an admin. The role controls what the person can do inside the dashboard.',
+                        text: 'Every account has one of three roles: Admin, Manager, or Dispatcher. The role controls what the person can do inside the dashboard.',
                     },
                     {
                         type: 'table',
@@ -662,24 +662,28 @@ export const kmsCategories: KmsCategory[] = [
                         headers: ['Role', 'What they can do'],
                         rows: [
                             [
+                                'Dispatcher',
+                                'Handle bookings, contact messages, and day-to-day dispatch tasks.',
+                            ],
+                            [
                                 'Manager',
-                                'Use the dashboard: bookings, payments, recruitment, partners, and this Knowledge Base.',
+                                'Everything a dispatcher can do, plus analytics, applications, job openings, and business partners.',
                             ],
                             [
                                 'Admin',
-                                'Everything a manager can do, plus setting the admin flag on accounts created through the Users page.',
+                                'Everything a manager can do, plus user management, payments, and website content.',
                             ],
                         ],
                     },
                     {
                         type: 'paragraph',
-                        text: 'The role is chosen when the account is created and can be changed when adding new users. Grant admin only to team members who need it.',
+                        text: 'The role is chosen when the account is created and can be changed at any time from the Users page. Grant admin only to team members who need full access.',
                     },
                     {
                         type: 'callout',
                         variant: 'info',
-                        title: 'Which accounts are admins?',
-                        text: 'The Users list shows an Admin badge next to admin accounts, so you always know who has elevated access.',
+                        title: 'Role badges',
+                        text: 'Each role has a color-coded badge in the Users list: violet for Admin, sky for Manager, and slate for Dispatcher, so you always know who has what access.',
                     },
                 ],
             },
