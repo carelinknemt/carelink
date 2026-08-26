@@ -174,130 +174,225 @@ export default function DashboardJobOpenings({
                         <CardTitle className="text-base">Openings</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="overflow-hidden rounded-md border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Title</TableHead>
-                                        <TableHead className="hidden md:table-cell">
-                                            Location
-                                        </TableHead>
-                                        <TableHead className="hidden lg:table-cell">
-                                            Type
-                                        </TableHead>
-                                        <TableHead>Applications</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="w-32" />
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {openings.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell
-                                                colSpan={6}
-                                                className="h-24 text-center"
-                                            >
-                                                <p className="text-sm text-muted-foreground">
-                                                    No job openings yet. Post
-                                                    your first one.
-                                                </p>
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        openings.map((opening) => (
-                                            <TableRow key={opening.id}>
-                                                <TableCell>
-                                                    <span className="font-medium">
-                                                        {opening.title}
-                                                    </span>
-                                                </TableCell>
-                                                <TableCell className="hidden md:table-cell">
-                                                    {opening.location}
-                                                </TableCell>
-                                                <TableCell className="hidden lg:table-cell">
-                                                    {opening.employment_type}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {opening.applications_count}
-                                                </TableCell>
-                                                <TableCell>
+                        {openings.length === 0 ? (
+                            <p className="py-10 text-center text-sm text-muted-foreground">
+                                No job openings yet. Post your first one.
+                            </p>
+                        ) : (
+                            <>
+                                <div className="hidden overflow-hidden rounded-md border md:block">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Title</TableHead>
+                                                <TableHead className="hidden md:table-cell">
+                                                    Location
+                                                </TableHead>
+                                                <TableHead className="hidden lg:table-cell">
+                                                    Type
+                                                </TableHead>
+                                                <TableHead>
+                                                    Applications
+                                                </TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead className="w-32" />
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {openings.map((opening) => (
+                                                <TableRow key={opening.id}>
+                                                    <TableCell>
+                                                        <span className="font-medium">
+                                                            {opening.title}
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell">
+                                                        {opening.location}
+                                                    </TableCell>
+                                                    <TableCell className="hidden lg:table-cell">
+                                                        {
+                                                            opening.employment_type
+                                                        }
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {
+                                                            opening.applications_count
+                                                        }
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {opening.active ? (
+                                                            <Badge className="gap-1 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+                                                                <CircleDot className="size-3" />
+                                                                Open
+                                                            </Badge>
+                                                        ) : (
+                                                            <Badge
+                                                                variant="secondary"
+                                                                className="gap-1"
+                                                            >
+                                                                <CircleCheck className="size-3" />
+                                                                Closed
+                                                            </Badge>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="w-32">
+                                                        <div className="flex items-center justify-end gap-1">
+                                                            <IconAction label="Edit opening">
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        openEdit(
+                                                                            opening,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Pencil className="size-4" />
+                                                                </Button>
+                                                            </IconAction>
+                                                            <IconAction
+                                                                label={
+                                                                    opening.active
+                                                                        ? 'Close opening'
+                                                                        : 'Reopen opening'
+                                                                }
+                                                            >
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        toggleDirect(
+                                                                            opening,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {opening.active ? (
+                                                                        <CircleCheck className="size-4" />
+                                                                    ) : (
+                                                                        <CircleDot className="size-4" />
+                                                                    )}
+                                                                </Button>
+                                                            </IconAction>
+                                                            <IconAction label="Delete opening">
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        setDeleteTarget(
+                                                                            opening,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Trash2 className="size-4" />
+                                                                </Button>
+                                                            </IconAction>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+
+                                <div className="flex flex-col gap-3 md:hidden">
+                                    {openings.map((opening) => (
+                                        <Card key={opening.id}>
+                                            <CardContent className="flex flex-col gap-3 p-4">
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="truncate font-medium">
+                                                            {opening.title}
+                                                        </p>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            {opening.location}
+                                                            {' · '}
+                                                            {
+                                                                opening.employment_type
+                                                            }
+                                                        </p>
+                                                    </div>
                                                     {opening.active ? (
-                                                        <Badge className="gap-1 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+                                                        <Badge className="shrink-0 gap-1 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
                                                             <CircleDot className="size-3" />
                                                             Open
                                                         </Badge>
                                                     ) : (
                                                         <Badge
                                                             variant="secondary"
-                                                            className="gap-1"
+                                                            className="shrink-0 gap-1"
                                                         >
                                                             <CircleCheck className="size-3" />
                                                             Closed
                                                         </Badge>
                                                     )}
-                                                </TableCell>
-                                                <TableCell className="w-32">
-                                                    <div className="flex items-center justify-end gap-1">
-                                                        <IconAction label="Edit opening">
-                                                            <Button
-                                                                type="button"
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    openEdit(
-                                                                        opening,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <Pencil className="size-4" />
-                                                            </Button>
-                                                        </IconAction>
-                                                        <IconAction
-                                                            label={
-                                                                opening.active
-                                                                    ? 'Close opening'
-                                                                    : 'Reopen opening'
-                                                            }
-                                                        >
-                                                            <Button
-                                                                type="button"
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    toggleDirect(
-                                                                        opening,
-                                                                    )
-                                                                }
-                                                            >
-                                                                {opening.active ? (
-                                                                    <CircleCheck className="size-4" />
-                                                                ) : (
-                                                                    <CircleDot className="size-4" />
-                                                                )}
-                                                            </Button>
-                                                        </IconAction>
-                                                        <IconAction label="Delete opening">
-                                                            <Button
-                                                                type="button"
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    setDeleteTarget(
-                                                                        opening,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <Trash2 className="size-4" />
-                                                            </Button>
-                                                        </IconAction>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
+                                                </div>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {opening.applications_count}{' '}
+                                                    application
+                                                    {opening.applications_count !==
+                                                    1
+                                                        ? 's'
+                                                        : ''}
+                                                </p>
+                                                <div className="flex items-center gap-1">
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="gap-1.5"
+                                                        onClick={() =>
+                                                            openEdit(opening)
+                                                        }
+                                                    >
+                                                        <Pencil className="size-3.5" />
+                                                        Edit
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="gap-1.5"
+                                                        onClick={() =>
+                                                            toggleDirect(
+                                                                opening,
+                                                            )
+                                                        }
+                                                    >
+                                                        {opening.active ? (
+                                                            <>
+                                                                <CircleCheck className="size-3.5" />
+                                                                Close
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <CircleDot className="size-3.5" />
+                                                                Reopen
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="gap-1.5 text-destructive hover:text-destructive"
+                                                        onClick={() =>
+                                                            setDeleteTarget(
+                                                                opening,
+                                                            )
+                                                        }
+                                                    >
+                                                        <Trash2 className="size-3.5" />
+                                                    </Button>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </CardContent>
                 </Card>
             </div>

@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { useState } from 'react';
-import { SquareArrowUpRight } from 'lucide-react';
+import { ExternalLink, SquareArrowUpRight } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
 
 const QUICK_LINKS = [
-    { label: 'HiBamBam', url: 'https://app.hibambi.com' },
+    { label: 'Bambi NEMt', url: 'https://app.hibambi.com' },
     { label: 'Google Maps', url: 'https://maps.google.com' },
     { label: 'TripSpark', url: 'https://www.tripspark.com' },
     { label: 'RouteGenie', url: 'https://www.routegenie.com' },
@@ -39,19 +39,19 @@ export function AppSidebarHeader({
                 <div className="ml-auto">
                     <Button
                         type="button"
-                        variant="ghost"
+                        variant="default"
                         size="sm"
-                        className="gap-1.5 text-muted-foreground"
+                        className="gap-1.5"
                         onClick={() => setQuickLinksOpen(true)}
                     >
-                        <SquareArrowUpRight className="size-4" />
                         <span className="hidden sm:inline">Quicklinks</span>
+                        <ExternalLink className="size-4" />
                     </Button>
                 </div>
             </header>
 
             <Dialog open={quickLinksOpen} onOpenChange={setQuickLinksOpen}>
-                <DialogContent className="bg-sidebar text-sidebar-foreground">
+                <DialogContent className="bg-white text-foreground">
                     <DialogHeader>
                         <DialogTitle>Quicklinks</DialogTitle>
                         <DialogDescription>
@@ -62,16 +62,16 @@ export function AppSidebarHeader({
                         {QUICK_LINKS.map((link, index) => (
                             <div key={link.url}>
                                 {index > 0 && (
-                                    <Separator className="bg-sidebar-border" />
+                                    <Separator className="bg-border" />
                                 )}
                                 <a
                                     href={link.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-sidebar-accent"
+                                    className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-foreground/5"
                                 >
                                     <span>{link.label}</span>
-                                    <SquareArrowUpRight className="size-4 text-sidebar-foreground/50" />
+                                    <SquareArrowUpRight className="size-4 text-foreground/50" />
                                 </a>
                             </div>
                         ))}
