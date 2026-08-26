@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Carelink;
 use App\Cms\BookingFee;
 use App\Http\Controllers\Controller;
 use App\Models\TripRequest;
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -13,16 +14,25 @@ use Inertia\Response;
 
 class DashboardAnalyticsController extends Controller
 {
-    private const DAY_OPTIONS = [7, 30, 90];
+    private const DAY_OPTIONS = [7, 30, 90, 365];
 
     public function index(Request $request): Response
     {
-        $days = in_array($request->integer('days'), self::DAY_OPTIONS, true)
-            ? $request->integer('days')
-            : 30;
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
 
-        $from = today()->subDays($days - 1);
-        $to = today();
+        if ($dateFrom && $dateTo) {
+            $from = Carbon::parse($dateFrom)->startOfDay();
+            $to = Carbon::parse($dateTo)->startOfDay();
+            $days = null;
+        } else {
+            $days = in_array($request->integer('days'), self::DAY_OPTIONS, true)
+                ? $request->integer('days')
+                : 30;
+
+            $from = today()->subDays($days - 1);
+            $to = today();
+        }
 
         $bookings = TripRequest::query()
             ->where('payment_status', TripRequest::PAYMENT_STATUS_PAID)
@@ -44,6 +54,8 @@ class DashboardAnalyticsController extends Controller
 
         return Inertia::render('dashboard/analytics', [
             'days' => $days,
+            'date_from' => $dateFrom && $dateTo ? $from->toDateString() : null,
+            'date_to' => $dateFrom && $dateTo ? $to->toDateString() : null,
             'range' => [
                 'from' => $from->toDateString(),
                 'to' => $to->toDateString(),

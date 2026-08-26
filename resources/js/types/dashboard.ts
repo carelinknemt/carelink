@@ -110,7 +110,9 @@ export type RepeatPassenger = {
 };
 
 export type AnalyticsPageProps = {
-    days: number;
+    days: number | null;
+    date_from: string | null;
+    date_to: string | null;
     range: { from: string; to: string };
     summary: AnalyticsSummary;
     daily: AnalyticsDaily[];

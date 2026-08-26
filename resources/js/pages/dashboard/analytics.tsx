@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
 import {
     Activity,
     CalendarDays,
@@ -25,6 +26,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
     Table,
     TableBody,
     TableCell,
@@ -39,7 +49,7 @@ import type {
     AnalyticsPageProps,
 } from '@/types/dashboard';
 
-const DAY_OPTIONS = [7, 30, 90];
+const DAY_OPTIONS = [7, 30, 90, 365];
 
 const SERIES_COLORS = [
     '#004B87',
@@ -103,6 +113,8 @@ function SummaryCard({
 export default function DashboardAnalytics(props: AnalyticsPageProps) {
     const {
         days,
+        date_from,
+        date_to,
         range,
         summary,
         daily,
@@ -110,6 +122,12 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
         services,
         repeat_passengers,
     } = props;
+
+    const [customOpen, setCustomOpen] = useState(false);
+    const [fromValue, setFromValue] = useState(date_from ?? '');
+    const [toValue, setToValue] = useState(date_to ?? '');
+
+    const isCustomRange = date_from !== null && date_to !== null;
 
     function changePeriod(value: number) {
         if (value === days) {
@@ -121,6 +139,28 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
             {},
             { preserveState: true, preserveScroll: true },
         );
+    }
+
+    function applyCustomRange() {
+        if (!fromValue || !toValue) {
+            return;
+        }
+
+        router.get(
+            analytics.url({
+                query: { date_from: fromValue, date_to: toValue },
+            }),
+            {},
+            { preserveState: true, preserveScroll: true },
+        );
+
+        setCustomOpen(false);
+    }
+
+    function openCustomDialog() {
+        setFromValue(date_from ?? '');
+        setToValue(date_to ?? '');
+        setCustomOpen(true);
     }
 
     return (
@@ -137,7 +177,9 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                                 Analytics
                             </h1>
                             <span className="rounded-full border bg-muted/50 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                                Last {days} days
+                                {isCustomRange
+                                    ? `${formatDate(range.from)} – ${formatDate(range.to)}`
+                                    : `Last ${days} days`}
                             </span>
                         </div>
                         <p className="text-sm text-muted-foreground">
@@ -151,13 +193,23 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                                 type="button"
                                 size="sm"
                                 variant={
-                                    days === option ? 'default' : 'outline'
+                                    !isCustomRange && days === option
+                                        ? 'default'
+                                        : 'outline'
                                 }
                                 onClick={() => changePeriod(option)}
                             >
-                                {option} days
+                                {option >= 365 ? '1 year' : `${option} days`}
                             </Button>
                         ))}
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant={isCustomRange ? 'default' : 'outline'}
+                            onClick={openCustomDialog}
+                        >
+                            Custom range
+                        </Button>
                     </div>
                 </div>
 
@@ -433,6 +485,65 @@ export default function DashboardAnalytics(props: AnalyticsPageProps) {
                     </CardContent>
                 </Card>
             </div>
+
+            <Dialog open={customOpen} onOpenChange={setCustomOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Custom Date Range</DialogTitle>
+                        <DialogDescription>
+                            Select a start and end date to filter analytics.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-4 sm:flex-row">
+                        <div className="flex flex-col gap-1.5">
+                            <label
+                                htmlFor="date_from"
+                                className="text-sm font-medium"
+                            >
+                                From
+                            </label>
+                            <Input
+                                id="date_from"
+                                type="date"
+                                value={fromValue}
+                                onChange={(e) => setFromValue(e.target.value)}
+                                max={toValue || undefined}
+                            />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label
+                                htmlFor="date_to"
+                                className="text-sm font-medium"
+                            >
+                                To
+                            </label>
+                            <Input
+                                id="date_to"
+                                type="date"
+                                value={toValue}
+                                onChange={(e) => setToValue(e.target.value)}
+                                min={fromValue || undefined}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setCustomOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={applyCustomRange}
+                            disabled={!fromValue || !toValue}
+                        >
+                            Apply
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
