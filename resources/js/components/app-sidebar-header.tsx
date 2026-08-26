@@ -1,6 +1,4 @@
-import { Link } from '@inertiajs/react';
-import { useState } from 'react';
-import { ExternalLink, SquareArrowUpRight } from 'lucide-react';
+import { SquareArrowUpRight } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,6 +7,7 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -27,8 +26,6 @@ export function AppSidebarHeader({
 }: {
     breadcrumbs?: BreadcrumbItemType[];
 }) {
-    const [quickLinksOpen, setQuickLinksOpen] = useState(false);
-
     return (
         <>
             <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border px-6 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4">
@@ -36,48 +33,47 @@ export function AppSidebarHeader({
                     <SidebarTrigger className="-ml-1" />
                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                 </div>
-                <div className="ml-auto">
-                    <Button
-                        type="button"
-                        variant="default"
-                        size="sm"
-                        className="gap-1.5"
-                        onClick={() => setQuickLinksOpen(true)}
-                    >
-                        <span className="hidden sm:inline">Quicklinks</span>
-                        <ExternalLink className="size-4" />
-                    </Button>
-                </div>
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button
+                            type="button"
+                            variant="default"
+                            size="sm"
+                            className="ml-auto gap-1.5"
+                        >
+                            <span className="hidden sm:inline">Quicklinks</span>
+                            <SquareArrowUpRight className="size-4" />
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-white text-foreground">
+                        <DialogHeader>
+                            <DialogTitle>Quicklinks</DialogTitle>
+                            <DialogDescription>
+                                External tools and resources for daily
+                                operations.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex flex-col">
+                            {QUICK_LINKS.map((link, index) => (
+                                <div key={link.url}>
+                                    {index > 0 && (
+                                        <Separator className="bg-border" />
+                                    )}
+                                    <a
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-foreground/5"
+                                    >
+                                        <span>{link.label}</span>
+                                        <SquareArrowUpRight className="size-4 text-foreground/50" />
+                                    </a>
+                                </div>
+                            ))}
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </header>
-
-            <Dialog open={quickLinksOpen} onOpenChange={setQuickLinksOpen}>
-                <DialogContent className="bg-white text-foreground">
-                    <DialogHeader>
-                        <DialogTitle>Quicklinks</DialogTitle>
-                        <DialogDescription>
-                            External tools and resources for daily operations.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex flex-col">
-                        {QUICK_LINKS.map((link, index) => (
-                            <div key={link.url}>
-                                {index > 0 && (
-                                    <Separator className="bg-border" />
-                                )}
-                                <a
-                                    href={link.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-foreground/5"
-                                >
-                                    <span>{link.label}</span>
-                                    <SquareArrowUpRight className="size-4 text-foreground/50" />
-                                </a>
-                            </div>
-                        ))}
-                    </div>
-                </DialogContent>
-            </Dialog>
         </>
     );
 }
