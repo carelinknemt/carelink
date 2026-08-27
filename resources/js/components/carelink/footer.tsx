@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { useCms, useCompanyInfo } from '@/lib/cms';
 import type { PaymentMethod } from '@/lib/cms';
-import { login } from '@/routes';
+import { login, smsTerms } from '@/routes';
 
 const socialLinks = [
     { name: 'Facebook', href: '#', icon: Facebook },
@@ -173,6 +173,14 @@ export default function Footer() {
                                     className="transition-colors hover:text-orange-400"
                                 >
                                     Staff Login
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href={smsTerms()}
+                                    className="transition-colors hover:text-orange-400"
+                                >
+                                    SMS Terms &amp; Conditions
                                 </Link>
                             </li>
                         </ul>

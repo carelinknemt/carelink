@@ -5,6 +5,7 @@ import {
     ArrowRight,
     CheckCircle2,
     Loader2,
+    MessageSquareText,
     Send,
 } from 'lucide-react';
 import { useEffect, useCallback, useState } from 'react';
@@ -38,7 +39,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { usePageHero } from '@/lib/cms';
-import { book, terms } from '@/routes';
+import { book, smsTerms, terms } from '@/routes';
 import { show, status, store } from '@/routes/bookings';
 
 interface TripRequestFormData {
@@ -962,6 +963,15 @@ export default function Book() {
                                                 'passenger_phone_number',
                                             )}
                                         />
+                                        <p className="flex items-center gap-1.5 px-0.5 text-xs text-slate-500">
+                                            <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-[#004B87]" />
+                                            <Link
+                                                href={smsTerms()}
+                                                className="font-semibold text-[#004B87] underline decoration-dotted underline-offset-4 transition-colors hover:text-[#E64A19]"
+                                            >
+                                                SMS Terms &amp; Conditions
+                                            </Link>
+                                        </p>
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="passenger_email">

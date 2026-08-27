@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import {
     CalendarCheck,
     CreditCard,
@@ -12,6 +13,7 @@ import {
     useCompanyInfo,
     usePageHero,
 } from '@/lib/cms';
+import { smsTerms } from '@/routes';
 
 interface TermsSection {
     icon: 'calendar' | 'card' | 'phone' | 'shield';
@@ -86,6 +88,17 @@ export default function Terms() {
                     <p className="mt-4 max-w-3xl text-sm leading-relaxed text-slate-600 sm:text-base">
                         {interpolateCmsText(intro, values)}
                     </p>
+
+                    <p className="mt-4 max-w-3xl text-sm leading-relaxed text-slate-600 sm:text-base">
+                        Carelink also sends text message notifications for ride
+                        confirmations, pickup reminders, and trip updates.{' '}
+                        <Link
+                            href={smsTerms()}
+                            className="font-bold text-[#004B87] underline decoration-dotted underline-offset-4 transition-colors hover:text-[#E64A19]"
+                        >
+                            SMS Terms &amp; Conditions
+                        </Link>
+                    </p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -122,11 +135,20 @@ export default function Terms() {
                     })}
                 </div>
 
-                <div className="rounded-3xl border border-amber-200 bg-amber-50 px-6 py-5 text-sm leading-relaxed text-amber-800 sm:px-8">
-                    {interpolateCmsText(
-                        'Questions about these terms or a trip in progress? Our dispatch team is available at {phone} to help.',
-                        values,
-                    )}
+                <div className="flex flex-col gap-4 rounded-3xl border border-amber-200 bg-amber-50 px-6 py-5 text-sm leading-relaxed text-amber-800 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+                    <p>
+                        {interpolateCmsText(
+                            'Questions about these terms or a trip in progress? Our dispatch team is available at {phone} to help.',
+                            values,
+                        )}
+                    </p>
+                    <a
+                        href={`tel:${values.phone.replace(/[^\d+]/g, '')}`}
+                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#E64A19] px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-900/20 transition-all hover:bg-[#d83f0e] active:scale-95"
+                    >
+                        <PhoneCall className="h-4 w-4 shrink-0 text-orange-100" />
+                        Call Dispatch
+                    </a>
                 </div>
             </div>
         </div>

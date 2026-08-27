@@ -43,7 +43,7 @@ interface AccessibilitySettings {
 }
 
 const DEFAULT_SETTINGS: AccessibilitySettings = {
-    fontSize: '120%',
+    fontSize: '100%',
     lineHeight: 'normal',
     letterSpacing: 'normal',
     highContrast: false,

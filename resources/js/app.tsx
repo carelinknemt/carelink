@@ -34,6 +34,7 @@ createInertiaApp({
                 'book',
                 'bookings/track',
                 'terms',
+                'sms-terms',
                 'privacy',
                 'error',
             ].includes(name):

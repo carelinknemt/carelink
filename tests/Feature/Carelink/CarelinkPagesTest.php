@@ -33,6 +33,12 @@ test('the privacy policy page renders with the public layout', function () {
         ->assertInertia(fn ($page) => $page->component('privacy'));
 });
 
+test('the sms terms page renders with the public layout', function () {
+    $this->get(route('sms-terms'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('sms-terms'));
+});
+
 test('the careers page exposes job benefits', function () {
     $career = Career::factory()->create([
         'benefits' => ['Health insurance stipend', 'Paid drive time'],

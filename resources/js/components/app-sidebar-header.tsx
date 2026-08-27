@@ -48,9 +48,9 @@ const QUICK_LINK_GROUPS: QuickLinkGroup[] = [
         id: 'dispatch',
         label: 'Dispatch Links',
         icon: RadioTower,
-        headerClass: 'bg-gradient-to-r from-teal-600 to-cyan-600',
-        chipClass: 'bg-white/15 text-white',
-        iconClass: 'text-teal-500',
+        headerClass: 'bg-[#004b87] text-white',
+        chipClass: 'bg-[#06b6d4]/30 text-white',
+        iconClass: 'text-[#06b6d4]',
         links: [
             {
                 label: 'Kinetic Scheduler',
@@ -83,9 +83,9 @@ const QUICK_LINK_GROUPS: QuickLinkGroup[] = [
         id: 'manager',
         label: 'Manager Links',
         icon: BriefcaseBusiness,
-        headerClass: 'bg-gradient-to-r from-violet-600 to-indigo-600',
+        headerClass: 'bg-[#0b5f9e] text-white',
         chipClass: 'bg-white/15 text-white',
-        iconClass: 'text-violet-500',
+        iconClass: 'text-[#0b5f9e]',
         links: [
             {
                 label: 'Run ADP',
