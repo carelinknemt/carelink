@@ -9,16 +9,33 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
 
-const QUICK_LINKS = [
-    { label: 'Bambi NEMt', url: 'https://app.hibambi.com' },
-    { label: 'Google Maps', url: 'https://maps.google.com' },
-    { label: 'TripSpark', url: 'https://www.tripspark.com' },
-    { label: 'RouteGenie', url: 'https://www.routegenie.com' },
-    { label: 'Kaizen Health', url: 'https://www.kaizenhealth.com' },
+const QUICK_LINK_GROUPS = [
+    {
+        label: 'Dispatch Links',
+        links: [
+            {
+                label: 'Kinetic Scheduler',
+                url: 'https://scheduler.kinetik.care/login',
+            },
+            { label: 'Bambi Dispatch Login', url: 'https://www.hibambi.com' },
+            { label: 'GPS Tracking', url: 'https://login.us.vzconnect.com' },
+            { label: 'Fuel Card', url: 'https://go.wexonline.com/login' },
+            { label: 'Dialpad Calls', url: 'https://dialpad.com/start' },
+        ],
+    },
+    {
+        label: 'Manager Links',
+        links: [
+            {
+                label: 'Run ADP',
+                url: 'https://online.adp.com/signin/v1/?APPID=RUN&productId=80e309c3-70c3-bae1-e053-3505430b5495&Action=Login&Stc=False&ssru=branded',
+            },
+            { label: 'Kinetic RCM', url: 'https://rcm.kinetik.care/login' },
+        ],
+    },
 ];
 
 export function AppSidebarHeader({
@@ -54,20 +71,26 @@ export function AppSidebarHeader({
                             </DialogDescription>
                         </DialogHeader>
                         <div className="flex flex-col">
-                            {QUICK_LINKS.map((link, index) => (
-                                <div key={link.url}>
-                                    {index > 0 && (
-                                        <Separator className="bg-border" />
-                                    )}
-                                    <a
-                                        href={link.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-foreground/5"
-                                    >
-                                        <span>{link.label}</span>
-                                        <SquareArrowUpRight className="size-4 text-foreground/50" />
-                                    </a>
+                            {QUICK_LINK_GROUPS.map((group) => (
+                                <div
+                                    key={group.label}
+                                    className="flex flex-col"
+                                >
+                                    <p className="px-3 pt-3 pb-1 text-xs font-semibold tracking-wide text-foreground/50 uppercase">
+                                        {group.label}
+                                    </p>
+                                    {group.links.map((link) => (
+                                        <a
+                                            key={link.url}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-between rounded-md px-3 py-2.5 text-sm transition-colors hover:bg-foreground/5"
+                                        >
+                                            <span>{link.label}</span>
+                                            <SquareArrowUpRight className="size-4 text-foreground/50" />
+                                        </a>
+                                    ))}
                                 </div>
                             ))}
                         </div>
