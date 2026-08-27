@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useCms, useCompanyInfo } from '@/lib/cms';
 import type { PaymentMethod } from '@/lib/cms';
+import { login } from '@/routes';
 
 const socialLinks = [
     { name: 'Facebook', href: '#', icon: Facebook },
@@ -164,6 +165,14 @@ export default function Footer() {
                                     className="transition-colors hover:text-orange-400"
                                 >
                                     FAQs & Contact
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href={login()}
+                                    className="transition-colors hover:text-orange-400"
+                                >
+                                    Staff Login
                                 </Link>
                             </li>
                         </ul>

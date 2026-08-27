@@ -1,8 +1,8 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Phone, Menu, X, Ambulance, ChevronDown } from 'lucide-react';
+import { Phone, Menu, X, Ambulance, ChevronDown, LogIn } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useCompanyInfo } from '@/lib/cms';
-import { book } from '@/routes';
+import { book, login } from '@/routes';
 
 const navItems = [
     {
@@ -212,6 +212,17 @@ export default function Header() {
                 {/* Action Controls */}
                 <div className="flex items-center gap-1.5 sm:gap-3">
                     <Link
+                        href={login()}
+                        onClick={handleNavClick}
+                        className="hidden min-h-[40px] items-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-bold whitespace-nowrap text-[#004B87] transition-colors hover:bg-slate-50 hover:text-[#E64A19] sm:flex sm:gap-2 sm:px-3"
+                    >
+                        <LogIn className="h-4 w-4 shrink-0 text-slate-500 transition-colors group-hover:text-[#E64A19]" />
+                        <span className="text-[11px] sm:text-xs">
+                            Staff Login
+                        </span>
+                    </Link>
+
+                    <Link
                         href={book.url()}
                         onClick={handleNavClick}
                         className="flex min-h-[40px] items-center gap-1.5 rounded-xl bg-[#E64A19] px-3 py-2 text-xs font-bold text-white shadow-md shadow-orange-900/20 transition-all hover:bg-[#d83f0e] active:scale-95 sm:gap-2 sm:px-4 sm:py-2.5"
@@ -236,7 +247,6 @@ export default function Header() {
                     </button>
                 </div>
             </div>
-
             {/* Extended Navbar Sub-Links Bar - Integrated directly into header */}
             {activeHoverData && activeHoverData.subLinks.length > 0 && (
                 <div
@@ -332,6 +342,20 @@ export default function Header() {
                                 </div>
                             );
                         })}
+
+                        <div className="mt-2 border-t border-gray-100 pt-3">
+                            <Link
+                                href={login()}
+                                onClick={() => {
+                                    handleNavClick();
+                                    setMobileMenuOpen(false);
+                                }}
+                                className="flex min-h-[44px] w-full items-center gap-2 rounded-xl px-3.5 py-3 text-left text-xs font-bold text-[#004B87] transition-colors hover:bg-gray-50 active:bg-gray-100 sm:text-sm"
+                            >
+                                <LogIn className="h-4 w-4 shrink-0 text-slate-500" />
+                                Staff Login
+                            </Link>
+                        </div>
                     </div>
                 </div>
             )}
