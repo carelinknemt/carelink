@@ -73,6 +73,17 @@ export default function SmsTerms() {
                         </p>
                     </div>
                 </div>
+
+                <div className="rounded-3xl border border-amber-200 bg-amber-50 px-6 py-5 text-sm leading-relaxed text-amber-800 sm:px-8">
+                    <p className="font-bold">Mobile Information Sharing</p>
+                    <p className="mt-2">
+                        No mobile information will be shared with third
+                        parties/affiliates for marketing/promotional purposes.
+                        All the above categories exclude text messaging
+                        originator opt-in data and consent; this information
+                        will not be shared with any third parties.
+                    </p>
+                </div>
             </div>
         </div>
     );
