@@ -121,6 +121,20 @@ export default function Privacy() {
                     })}
                 </div>
 
+                <div className="max-w-3xl">
+                    <h2 className="text-xs font-bold tracking-wide text-slate-400 uppercase">
+                        SMS &amp; Text Message Assistance
+                    </h2>
+
+                    <p className="mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">
+                        Carelink Medical Transportation LLC: For assistance with
+                        transportation-related text messages, call{' '}
+                        {values.phone} or email {values.email}. Reply STOP to
+                        unsubscribe. Message frequency varies. Message and data
+                        rates may apply.
+                    </p>
+                </div>
+
                 <div className="rounded-3xl border border-amber-200 bg-amber-50 px-6 py-5 text-sm leading-relaxed text-amber-800 sm:px-8">
                     {interpolateCmsText(
                         'Questions about this policy or the information we hold about you? Our dispatch team is available at {phone} or by email at {email}.',

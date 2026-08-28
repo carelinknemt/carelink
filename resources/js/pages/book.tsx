@@ -5,7 +5,8 @@ import {
     ArrowRight,
     CheckCircle2,
     Loader2,
-    MessageSquareText,
+    Mail,
+    PhoneCall,
     Send,
 } from 'lucide-react';
 import { useEffect, useCallback, useState } from 'react';
@@ -39,7 +40,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { usePageHero } from '@/lib/cms';
-import { book, smsTerms, terms } from '@/routes';
+import { book, privacy, smsTerms, terms } from '@/routes';
 import { show, status, store } from '@/routes/bookings';
 
 interface TripRequestFormData {
@@ -269,6 +270,8 @@ export default function Book() {
     const [routeLoading, setRouteLoading] = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [agreedToFee, setAgreedToFee] = useState(false);
+    const [smsConsent, setSmsConsent] = useState(false);
+    const [helpOpen, setHelpOpen] = useState(false);
     const { booking, booking_fee } = usePage<BookPageProps>().props;
     const pageHero = usePageHero('book');
     const form = useForm<TripRequestFormData>(initialForm);
@@ -963,15 +966,62 @@ export default function Book() {
                                                 'passenger_phone_number',
                                             )}
                                         />
-                                        <p className="flex items-center gap-1.5 px-0.5 text-xs text-slate-500">
-                                            <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-[#004B87]" />
-                                            <Link
-                                                href={smsTerms()}
-                                                className="font-semibold text-[#004B87] underline decoration-dotted underline-offset-4 transition-colors hover:text-[#E64A19]"
+                                        <div className="mt-1 flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white/60 p-3.5">
+                                            <Checkbox
+                                                id="sms_consent"
+                                                checked={smsConsent}
+                                                onCheckedChange={(checked) =>
+                                                    setSmsConsent(
+                                                        Boolean(checked),
+                                                    )
+                                                }
+                                                className="mt-0.5"
+                                            />
+                                            <Label
+                                                htmlFor="sms_consent"
+                                                className="text-xs leading-relaxed font-normal text-slate-600"
                                             >
-                                                SMS Terms &amp; Conditions
-                                            </Link>
-                                        </p>
+                                                I agree to receive text messages
+                                                from Carelink Medical
+                                                Transportation LLC regarding
+                                                transportation booking
+                                                confirmations, appointment and
+                                                pickup reminders, driver
+                                                updates, schedule changes,
+                                                cancellation notices, and
+                                                customer-support communications.
+                                                Message frequency varies.
+                                                Message and data rates may
+                                                apply. Reply STOP to opt out or{' '}
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setHelpOpen(true)
+                                                    }
+                                                    className="font-semibold text-[#004B87] underline decoration-dotted underline-offset-4 transition-colors hover:text-[#E64A19]"
+                                                >
+                                                    HELP
+                                                </button>{' '}
+                                                for assistance. Consent is not a
+                                                condition of purchasing or
+                                                receiving services. Please
+                                                review our{' '}
+                                                <Link
+                                                    href={smsTerms()}
+                                                    className="font-semibold text-[#004B87] underline decoration-dotted underline-offset-4 transition-colors hover:text-[#E64A19]"
+                                                >
+                                                    SMS Terms &amp; Conditions
+                                                </Link>{' '}
+                                                and{' '}
+                                                <Link
+                                                    href={privacy()}
+                                                    className="font-semibold text-[#004B87] underline decoration-dotted underline-offset-4 transition-colors hover:text-[#E64A19]"
+                                                >
+                                                    Privacy Policy
+                                                </Link>
+                                                .
+                                            </Label>
+                                        </div>
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="passenger_email">
@@ -1696,6 +1746,52 @@ export default function Book() {
                                 {form.processing
                                     ? 'Submitting...'
                                     : 'Agree & Submit'}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={helpOpen} onOpenChange={setHelpOpen}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>HELP</DialogTitle>
+                            <DialogDescription>
+                                Carelink Medical Transportation LLC
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 text-sm leading-relaxed text-slate-600">
+                            <p>
+                                For assistance with transportation-related text
+                                messages, call (707) 854-9350 or email
+                                help@carelinknemt.com. Reply STOP to
+                                unsubscribe. Message frequency varies. Message
+                                and data rates may apply.
+                            </p>
+                            <div className="flex flex-col gap-3 sm:flex-row">
+                                <a
+                                    href="tel:7078549350"
+                                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#E64A19] px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-900/20 transition-all hover:bg-[#d83f0e] active:scale-95"
+                                >
+                                    <PhoneCall className="h-4 w-4 shrink-0 text-orange-100" />
+                                    Call (707) 854-9350
+                                </a>
+                                <a
+                                    href="mailto:help@carelinknemt.com"
+                                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-[#004B87] transition-colors hover:bg-slate-50"
+                                >
+                                    <Mail className="h-4 w-4 shrink-0" />
+                                    Email Us
+                                </a>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                                onClick={() => setHelpOpen(false)}
+                            >
+                                Close
                             </Button>
                         </DialogFooter>
                     </DialogContent>
