@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useCms } from '@/lib/cms';
+import { useCms, cmsText } from '@/lib/cms';
 import type { HeroSlide } from '@/lib/cms';
 
 export default function Hero() {
@@ -61,7 +61,7 @@ export default function Hero() {
                     </div>
 
                     <p className="mt-2 max-w-2xl text-xs leading-relaxed font-medium text-slate-300 min-[400px]:text-sm sm:mt-3 sm:text-base">
-                        {slide.subtitle}
+                        {cmsText(slide.subtitle)}
                     </p>
                 </div>
             </div>

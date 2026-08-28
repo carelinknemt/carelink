@@ -6,8 +6,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { useIsMobile } from '@/hooks/use-mobile';
 import type { NavGroup } from '@/types';
 import type { SharedData } from '@/types';
 

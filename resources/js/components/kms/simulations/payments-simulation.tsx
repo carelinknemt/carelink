@@ -18,8 +18,8 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { cn } from '@/lib/utils';
 import { formatDate, formatMoney } from '@/lib/bookings';
+import { cn } from '@/lib/utils';
 
 const SUMMARY = [
     {

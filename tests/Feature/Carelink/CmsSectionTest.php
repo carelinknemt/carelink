@@ -15,18 +15,20 @@ test('admins can update a text section', function () {
     $admin = User::factory()->admin()->create();
 
     $this->actingAs($admin)->put(route('cms.sections.update', 'company_info'), [
-        'name' => 'CareLink Medical Transportation LLC',
-        'logo_url' => '/images/cllogo.png',
-        'tagline' => 'New tagline',
-        'headquarters' => 'Eureka, California',
-        'phone' => '(707) 854-9350',
-        'email' => 'dispatch@carelinknemt.com',
-        'dispatch_phone' => '(707) 854-9350',
-        'address' => '3857 Walnut Drive, Suite B, Eureka, CA 95503',
-        'service_region' => 'Northern California Region',
-        'counties' => ['Humboldt', 'Del Norte', 'Trinity', 'Shasta'],
-        'home_description' => 'Home description',
-        'about_description' => 'About description',
+        'content' => [
+            'name' => 'CareLink Medical Transportation LLC',
+            'logo_url' => '/images/cllogo.png',
+            'tagline' => 'New tagline',
+            'headquarters' => 'Eureka, California',
+            'phone' => '(707) 854-9350',
+            'email' => 'dispatch@carelinknemt.com',
+            'dispatch_phone' => '(707) 854-9350',
+            'address' => '3857 Walnut Drive, Suite B, Eureka, CA 95503',
+            'service_region' => 'Northern California Region',
+            'counties' => ['Humboldt', 'Del Norte', 'Trinity', 'Shasta'],
+            'home_description' => 'Home description',
+            'about_description' => 'About description',
+        ],
     ])->assertRedirect();
 
     $section = ContentSection::where('slug', 'company_info')->first();
@@ -38,6 +40,73 @@ test('admins can update a text section', function () {
     $this->assertDatabaseHas('content_sections', [
         'slug' => 'company_info',
     ]);
+});
+
+test('updating one field preserves every other stored value', function () {
+    $admin = User::factory()->admin()->create();
+
+    $payload = [
+        'name' => 'CareLink Medical Transportation LLC',
+        'logo_url' => '/images/cllogo.png',
+        'tagline' => 'First tagline',
+        'headquarters' => 'Eureka, California',
+        'phone' => '(707) 555-0100',
+        'email' => 'custom@example.com',
+        'dispatch_phone' => '(707) 555-0100',
+        'address' => '3857 Walnut Drive, Suite B, Eureka, CA 95503',
+        'service_region' => 'Northern California Region',
+        'counties' => ['Humboldt', 'Del Norte', 'Trinity', 'Shasta'],
+        'home_description' => 'Home description',
+        'about_description' => 'About description',
+    ];
+
+    $this->actingAs($admin)->put(route('cms.sections.update', 'company_info'), [
+        'content' => $payload,
+    ])->assertRedirect();
+
+    $payload['tagline'] = 'Second tagline';
+
+    $this->actingAs($admin)->put(route('cms.sections.update', 'company_info'), [
+        'content' => $payload,
+    ])->assertRedirect();
+
+    $content = ContentSection::where('slug', 'company_info')->first()->content;
+
+    expect($content['tagline'])->toBe('Second tagline')
+        ->and($content['phone'])->toBe('(707) 555-0100')
+        ->and($content['email'])->toBe('custom@example.com')
+        ->and($content['counties'])->toBe(['Humboldt', 'Del Norte', 'Trinity', 'Shasta'])
+        ->and($content['home_description'])->toBe('Home description');
+});
+
+test('updated content is served to public pages through the shared cms prop', function () {
+    $admin = User::factory()->admin()->create();
+    $this->seed(CmsContentSeeder::class);
+
+    $this->actingAs($admin)->put(route('cms.sections.update', 'company_info'), [
+        'content' => [
+            'name' => 'CareLink Medical Transportation LLC',
+            'logo_url' => '/images/cllogo.png',
+            'tagline' => 'Tagline reflecting on the site',
+            'headquarters' => 'Eureka, California',
+            'phone' => '(707) 854-9350',
+            'email' => 'dispatch@carelinknemt.com',
+            'dispatch_phone' => '(707) 854-9350',
+            'address' => '3857 Walnut Drive, Suite B, Eureka, CA 95503',
+            'service_region' => 'Northern California Region',
+            'counties' => ['Humboldt', 'Del Norte', 'Trinity', 'Shasta'],
+            'home_description' => 'Home description',
+            'about_description' => 'About description',
+        ],
+    ])->assertRedirect();
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where(
+                'cms.company_info.tagline',
+                'Tagline reflecting on the site',
+            ));
 });
 
 test('booking fee settings are locked and cannot be updated', function () {
@@ -79,16 +148,18 @@ test('list fields are trimmed and empty lines dropped', function () {
     $admin = User::factory()->admin()->create();
 
     $this->actingAs($admin)->put(route('cms.sections.update', 'company_info'), [
-        'name' => 'CareLink Medical Transportation LLC',
-        'logo_url' => '/images/cllogo.png',
-        'tagline' => 'Tagline',
-        'headquarters' => 'Eureka, California',
-        'phone' => '(707) 854-9350',
-        'email' => 'dispatch@carelinknemt.com',
-        'dispatch_phone' => '(707) 854-9350',
-        'address' => '3857 Walnut Drive, Suite B, Eureka, CA 95503',
-        'service_region' => 'Northern California Region',
-        'counties' => ['Humboldt', '  ', 'Trinity', 'Shasta'],
+        'content' => [
+            'name' => 'CareLink Medical Transportation LLC',
+            'logo_url' => '/images/cllogo.png',
+            'tagline' => 'Tagline',
+            'headquarters' => 'Eureka, California',
+            'phone' => '(707) 854-9350',
+            'email' => 'dispatch@carelinknemt.com',
+            'dispatch_phone' => '(707) 854-9350',
+            'address' => '3857 Walnut Drive, Suite B, Eureka, CA 95503',
+            'service_region' => 'Northern California Region',
+            'counties' => ['Humboldt', '  ', 'Trinity', 'Shasta'],
+        ],
     ])->assertRedirect();
 
     expect(ContentSection::where('slug', 'company_info')->first())
@@ -100,9 +171,11 @@ test('invalid values are rejected with validation errors', function () {
 
     $this->actingAs($admin)
         ->put(route('cms.sections.update', 'google_rating_stats'), [
-            'rating' => 'not-a-number',
+            'content' => [
+                'rating' => 'not-a-number',
+            ],
         ])
-        ->assertSessionHasErrors('rating');
+        ->assertSessionHasErrors('content.rating');
 });
 
 test('unknown sections return 404', function () {
@@ -119,16 +192,18 @@ test('admins can restore a section back to its defaults', function () {
     $admin = User::factory()->admin()->create();
 
     $this->actingAs($admin)->put(route('cms.sections.update', 'company_info'), [
-        'name' => 'CareLink Medical Transportation LLC',
-        'logo_url' => '/images/cllogo.png',
-        'tagline' => 'Custom tagline',
-        'headquarters' => 'Eureka, California',
-        'phone' => '(707) 854-9350',
-        'email' => 'dispatch@carelinknemt.com',
-        'dispatch_phone' => '(707) 854-9350',
-        'address' => '3857 Walnut Drive, Suite B, Eureka, CA 95503',
-        'service_region' => 'Northern California Region',
-        'counties' => ['Humboldt'],
+        'content' => [
+            'name' => 'CareLink Medical Transportation LLC',
+            'logo_url' => '/images/cllogo.png',
+            'tagline' => 'Custom tagline',
+            'headquarters' => 'Eureka, California',
+            'phone' => '(707) 854-9350',
+            'email' => 'dispatch@carelinknemt.com',
+            'dispatch_phone' => '(707) 854-9350',
+            'address' => '3857 Walnut Drive, Suite B, Eureka, CA 95503',
+            'service_region' => 'Northern California Region',
+            'counties' => ['Humboldt'],
+        ],
     ]);
 
     expect(ContentSection::where('slug', 'company_info')->first())

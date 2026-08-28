@@ -49,7 +49,6 @@ function isTimePast(time: string, today: Date): boolean {
         hours = 0;
     }
 
-    const now = new Date();
     const currentHours = today.getHours();
     const currentMinutes = today.getMinutes();
 

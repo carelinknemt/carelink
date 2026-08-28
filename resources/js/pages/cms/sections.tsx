@@ -433,28 +433,27 @@ function SectionEditorDialog({
 }) {
     const form = useForm<SectionForm>({ content: {} });
 
-    const [draft, setDraft] = useState<SectionDraft | null>(null);
-
-    const draftReady =
-        draft ??
-        Object.fromEntries(
-            section.schema.map((field) => [
-                field.key,
-                fieldToDraft(section, field),
-            ]),
-        );
+    const [draft, setDraft] = useState<SectionDraft>(
+        () =>
+            Object.fromEntries(
+                section.schema.map((field) => [
+                    field.key,
+                    fieldToDraft(section, field),
+                ]),
+            ) as SectionDraft,
+    );
 
     const setField = (
         key: string,
         value: string | boolean | Record<string, string>[],
     ) => {
-        setDraft((prev) => ({ ...(prev ?? {}), [key]: value }));
+        setDraft((prev) => ({ ...prev, [key]: value }));
     };
 
     const submit = () => {
         form.setData(
             'content',
-            draftToPayload(section, draftReady) as SectionForm['content'],
+            draftToPayload(section, draft) as SectionForm['content'],
         );
         form.put(updateSection.url({ section: section.slug }), {
             preserveScroll: true,
@@ -483,22 +482,29 @@ function SectionEditorDialog({
                     }}
                     className="grid gap-4"
                 >
-                    {section.schema.map((field) =>
-                        section.readonly ? (
-                            <ReadOnlyField
-                                key={field.key}
-                                field={field}
-                                value={draftReady[field.key]}
-                            />
-                        ) : (
-                            <FieldEditor
-                                key={field.key}
-                                field={field}
-                                value={draftReady[field.key]}
-                                onChange={(value) => setField(field.key, value)}
-                            />
-                        ),
-                    )}
+                    {section.schema.map((field) => (
+                        <div key={field.key} className="grid gap-1.5">
+                            {section.readonly ? (
+                                <ReadOnlyField
+                                    field={field}
+                                    value={draft[field.key]}
+                                />
+                            ) : (
+                                <FieldEditor
+                                    field={field}
+                                    value={draft[field.key]}
+                                    onChange={(value) =>
+                                        setField(field.key, value)
+                                    }
+                                />
+                            )}
+                            {form.errors[`content.${field.key}`] && (
+                                <p className="text-xs text-destructive">
+                                    {form.errors[`content.${field.key}`]}
+                                </p>
+                            )}
+                        </div>
+                    ))}
                     {form.errors.content && (
                         <p className="text-xs text-destructive">
                             {form.errors.content}

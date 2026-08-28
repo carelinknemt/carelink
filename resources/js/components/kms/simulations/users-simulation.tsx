@@ -1,4 +1,4 @@
-import { Ban, CheckCircle2, Search, ShieldCheck, UserPlus } from 'lucide-react';
+import { Ban, CheckCircle2, Search, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import SimulationShell from '@/components/kms/simulation-shell';
 import { Button } from '@/components/ui/button';
@@ -85,17 +85,6 @@ const INITIAL: DemoUser[] = [
     },
 ];
 
-function roleBadgeClass(role: string): string {
-    return (
-        ROLE_OPTIONS.find((r) => r.value === role)?.color ??
-        'border-slate-200 bg-slate-50 text-slate-700'
-    );
-}
-
-function roleLabel(role: string): string {
-    return ROLE_OPTIONS.find((r) => r.value === role)?.label ?? role;
-}
-
 export default function UsersSimulation() {
     const [users, setUsers] = useState(INITIAL);
     const [inviteOpen, setInviteOpen] = useState(false);
@@ -109,6 +98,7 @@ export default function UsersSimulation() {
             user.name.toLowerCase().includes(search.toLowerCase()) ||
             user.email.toLowerCase().includes(search.toLowerCase());
         const matchesRole = !roleFilter || user.role === roleFilter;
+
         return matchesSearch && matchesRole;
     });
 

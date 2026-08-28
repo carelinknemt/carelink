@@ -1,9 +1,13 @@
+import { cmsText } from '@/lib/cms';
+
 interface PageHeroProps {
     title: string;
-    subtitle: string;
+    subtitle: string | string[];
 }
 
 export default function PageHero({ title, subtitle }: PageHeroProps) {
+    const subtitleText = cmsText(subtitle);
+
     return (
         <div className="relative overflow-hidden border-b-8 border-[#E64A19] bg-[#004B87] py-16 sm:py-24">
             <div className="absolute inset-0 opacity-20">
@@ -20,7 +24,7 @@ export default function PageHero({ title, subtitle }: PageHeroProps) {
                     {title}
                 </h1>
                 <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed font-medium text-cyan-100 sm:text-base">
-                    {subtitle}
+                    {subtitleText}
                 </p>
             </div>
         </div>

@@ -103,7 +103,10 @@ export default function Privacy() {
                                     {section.title}
                                 </h2>
                                 <ul className="mt-4 space-y-3">
-                                    {section.body.map((paragraph) => (
+                                    {(Array.isArray(section.body)
+                                        ? section.body
+                                        : []
+                                    ).map((paragraph) => (
                                         <li
                                             key={paragraph}
                                             className="flex items-start gap-2.5 text-sm leading-relaxed text-slate-600"

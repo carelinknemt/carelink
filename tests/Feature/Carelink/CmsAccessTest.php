@@ -11,7 +11,7 @@ test('guests are redirected from the CMS editor', function () {
     $this->get(route('cms.index'))->assertRedirect(route('login'));
 
     $this->put(route('cms.sections.update', 'company_info'), [
-        'name' => 'Hacked',
+        'content' => ['name' => 'Hacked'],
     ])->assertRedirect(route('login'));
 });
 
@@ -67,7 +67,9 @@ test('any authenticated user can access the CMS editor', function () {
         ->assertOk();
 
     $this->actingAs($user)
-        ->put(route('cms.sections.update', 'company_info'), ['name' => 'Hacked'])
+        ->put(route('cms.sections.update', 'company_info'), [
+            'content' => ['name' => 'Hacked'],
+        ])
         ->assertRedirect();
 
     $this->actingAs($user)

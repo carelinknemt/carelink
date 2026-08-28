@@ -116,6 +116,15 @@ export function usePageHero(page: string): Partial<PageHero> {
     return heroes.find((hero) => hero.page === page) ?? {};
 }
 
+/**
+ * CMS textarea cells are stored (and wired) as either a single string or an
+ * array of lines depending on the section's defaults. Consumers that render
+ * a plain text node must normalize through this helper.
+ */
+export function cmsText(value: string | string[] | undefined): string {
+    return Array.isArray(value) ? value.join(' ') : (value ?? '');
+}
+
 export function useBookingFee(): {
     amount_cents: number;
     dollars: string;

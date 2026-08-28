@@ -58,9 +58,14 @@ class CmsSectionController extends Controller
         $fields = $definitions[$section]['fields'];
         $defaults = $definitions[$section]['defaults'];
 
-        $validated = $request->validate($this->rulesFor($fields));
+        $validated = $request->validate([
+            'content' => ['required', 'array'],
+            ...collect($this->rulesFor($fields))
+                ->mapWithKeys(fn (array $fieldRules, string $key): array => ["content.$key" => $fieldRules])
+                ->all(),
+        ]);
 
-        $content = $this->buildContent($defaults, $fields, $validated);
+        $content = $this->buildContent($defaults, $fields, $validated['content'] ?? []);
 
         ContentSection::updateOrCreate(
             ['slug' => $section],
@@ -140,8 +145,14 @@ class CmsSectionController extends Controller
                 case 'table':
                     $rules[$field['key']] = ['nullable', 'array'];
                     foreach ($field['cols'] ?? [] as $col) {
-                        $rule = $col['type'] === 'number' ? ['nullable', 'numeric'] : ['nullable', 'string'];
-                        $rules[$field['key'].'.*.'.$col['key']] = $rule;
+                        if ($col['type'] === 'textarea') {
+                            $cellKey = $field['key'].'.*.'.$col['key'];
+                            $rules[$cellKey] = ['nullable', 'array'];
+                            $rules[$cellKey.'.*'] = ['nullable', 'string'];
+                        } else {
+                            $rule = $col['type'] === 'number' ? ['nullable', 'numeric'] : ['nullable', 'string'];
+                            $rules[$field['key'].'.*.'.$col['key']] = $rule;
+                        }
                     }
                     break;
                 default:

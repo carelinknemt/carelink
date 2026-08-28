@@ -1,5 +1,4 @@
 import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
 import {
     Activity,
     CalendarDays,
@@ -8,6 +7,7 @@ import {
     TicketPercent,
     TrendingUp,
 } from 'lucide-react';
+import { useState } from 'react';
 import {
     Area,
     AreaChart,

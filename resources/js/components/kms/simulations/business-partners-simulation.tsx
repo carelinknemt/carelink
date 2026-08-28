@@ -100,6 +100,7 @@ export default function BusinessPartnersSimulation() {
             request.email.toLowerCase().includes(search.toLowerCase());
         const matchesStatus =
             statusFilter === '__all' || request.status === statusFilter;
+
         return matchesSearch && matchesStatus;
     });
 

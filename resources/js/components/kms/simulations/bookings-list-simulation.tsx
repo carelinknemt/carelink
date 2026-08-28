@@ -2,7 +2,6 @@ import {
     ArrowDown,
     ArrowUp,
     ArrowUpDown,
-    CalendarDays,
     Download,
     Search,
     SlidersHorizontal,

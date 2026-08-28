@@ -9,7 +9,7 @@ import {
     CarouselItem,
 } from '@/components/ui/carousel';
 import type { CarouselApi } from '@/components/ui/carousel';
-import { useCms } from '@/lib/cms';
+import { useCms, cmsText } from '@/lib/cms';
 import type { PatientReview } from '@/lib/cms';
 import { cn } from '@/lib/utils';
 
@@ -172,7 +172,7 @@ export default function SmileThatShine() {
                                     <div className="relative mt-5 flex-1">
                                         <Quote className="absolute -top-2 -left-2 h-9 w-9 text-[#E64A19]/10" />
                                         <p className="relative text-sm leading-relaxed text-slate-700 sm:text-[15px]">
-                                            “{review.text}”
+                                            “{cmsText(review.text)}”
                                         </p>
                                     </div>
 
