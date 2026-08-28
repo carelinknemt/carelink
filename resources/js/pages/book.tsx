@@ -934,7 +934,7 @@ export default function Book() {
                                 </div>
 
                                 <div className="grid gap-5 sm:grid-cols-2">
-                                    <div className="grid gap-2">
+                                    <div className="grid gap-2 sm:col-span-2">
                                         <Label htmlFor="passenger_phone_number">
                                             Phone Number{' '}
                                             <span className="text-red-500">
@@ -1053,7 +1053,7 @@ export default function Book() {
                                             )}
                                         />
                                     </div>
-                                    <div className="grid gap-2 sm:col-span-2">
+                                    <div className="grid gap-2">
                                         <Label htmlFor="passenger_dob">
                                             Date of Birth
                                         </Label>
