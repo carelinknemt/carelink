@@ -7,6 +7,8 @@ import {
     Linkedin,
     Mail,
     Phone,
+    Twitter,
+    Youtube,
 } from 'lucide-react';
 import { useCms, useCompanyInfo } from '@/lib/cms';
 import type { PaymentMethod } from '@/lib/cms';
@@ -42,6 +44,8 @@ const socialLinks = [
         icon: Linkedin,
     },
     { name: 'TikTok', href: 'https://www.tiktok.com/@carelinknemt', icon: TiktokIcon },
+    { name: 'Twitter', href: 'https://x.com/carelinknemt', icon: Twitter },
+    { name: 'YouTube', href: 'https://www.youtube.com/@carelinknemt', icon: Youtube },
 ];
 
 export default function Footer() {
