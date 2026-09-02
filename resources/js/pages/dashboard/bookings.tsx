@@ -594,43 +594,59 @@ export default function DashboardBookings({
                                                     )}
                                                 </span>
                                                 <div className="flex items-center gap-2">
-                                                    <Select
-                                                        value={booking.status}
-                                                        onValueChange={(
-                                                            value,
-                                                        ) =>
-                                                            setStatusTarget({
-                                                                booking,
-                                                                newStatus:
-                                                                    value,
-                                                            })
-                                                        }
-                                                    >
-                                                        <SelectTrigger
-                                                            size="sm"
-                                                            className="w-full sm:w-44"
+                                                    {booking.status ===
+                                                    'CANCELLED' ? (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="border-rose-200 bg-rose-50 text-rose-700"
                                                         >
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {cancelableStatuses.map(
-                                                                (status) => (
-                                                                    <SelectItem
-                                                                        key={
-                                                                            status
-                                                                        }
-                                                                        value={
-                                                                            status
-                                                                        }
-                                                                    >
-                                                                        {statusLabel(
-                                                                            status,
-                                                                        )}
-                                                                    </SelectItem>
-                                                                ),
+                                                            {statusLabel(
+                                                                booking.status,
                                                             )}
-                                                        </SelectContent>
-                                                    </Select>
+                                                        </Badge>
+                                                    ) : (
+                                                        <Select
+                                                            value={
+                                                                booking.status
+                                                            }
+                                                            onValueChange={(
+                                                                value,
+                                                            ) =>
+                                                                setStatusTarget(
+                                                                    {
+                                                                        booking,
+                                                                        newStatus:
+                                                                            value,
+                                                                    },
+                                                                )
+                                                            }
+                                                        >
+                                                            <SelectTrigger
+                                                                size="sm"
+                                                                className="w-full sm:w-44"
+                                                            >
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {cancelableStatuses.map(
+                                                                    (status) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                status
+                                                                            }
+                                                                            value={
+                                                                                status
+                                                                            }
+                                                                        >
+                                                                            {statusLabel(
+                                                                                status,
+                                                                            )}
+                                                                        </SelectItem>
+                                                                    ),
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    )}
                                                     {canCancel(booking) && (
                                                         <Button
                                                             type="button"
@@ -732,49 +748,61 @@ export default function DashboardBookings({
                                                         )}
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Select
-                                                            value={
-                                                                booking.status
-                                                            }
-                                                            onValueChange={(
-                                                                value,
-                                                            ) =>
-                                                                setStatusTarget(
-                                                                    {
-                                                                        booking,
-                                                                        newStatus:
-                                                                            value,
-                                                                    },
-                                                                )
-                                                            }
-                                                        >
-                                                            <SelectTrigger
-                                                                size="sm"
-                                                                className="w-44"
+                                                        {booking.status ===
+                                                        'CANCELLED' ? (
+                                                            <Badge
+                                                                variant="outline"
+                                                                className="border-rose-200 bg-rose-50 text-rose-700"
                                                             >
-                                                                <SelectValue />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {cancelableStatuses.map(
-                                                                    (
-                                                                        status,
-                                                                    ) => (
-                                                                        <SelectItem
-                                                                            key={
-                                                                                status
-                                                                            }
-                                                                            value={
-                                                                                status
-                                                                            }
-                                                                        >
-                                                                            {statusLabel(
-                                                                                status,
-                                                                            )}
-                                                                        </SelectItem>
-                                                                    ),
+                                                                {statusLabel(
+                                                                    booking.status,
                                                                 )}
-                                                            </SelectContent>
-                                                        </Select>
+                                                            </Badge>
+                                                        ) : (
+                                                            <Select
+                                                                value={
+                                                                    booking.status
+                                                                }
+                                                                onValueChange={(
+                                                                    value,
+                                                                ) =>
+                                                                    setStatusTarget(
+                                                                        {
+                                                                            booking,
+                                                                            newStatus:
+                                                                                value,
+                                                                        },
+                                                                    )
+                                                                }
+                                                            >
+                                                                <SelectTrigger
+                                                                    size="sm"
+                                                                    className="w-44"
+                                                                >
+                                                                    <SelectValue />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {cancelableStatuses.map(
+                                                                        (
+                                                                            status,
+                                                                        ) => (
+                                                                            <SelectItem
+                                                                                key={
+                                                                                    status
+                                                                                }
+                                                                                value={
+                                                                                    status
+                                                                                }
+                                                                            >
+                                                                                {statusLabel(
+                                                                                    status,
+                                                                                )}
+                                                                            </SelectItem>
+                                                                        ),
+                                                                    )}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        )}
                                                     </TableCell>
                                                     <TableCell className="text-right">
                                                         {formatMoney(
