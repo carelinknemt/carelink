@@ -696,25 +696,34 @@ export default function BookingDetail({
                         </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                        <Select
-                            value={String(booking.status)}
-                            onValueChange={setStatusTarget}
-                        >
-                            <SelectTrigger
-                                size="sm"
-                                className="w-full sm:w-44"
-                                style={{ borderColor: 'transparent' }}
+                        {isCancelled ? (
+                            <Badge
+                                variant="outline"
+                                className="border-rose-200 bg-rose-50 text-rose-700"
                             >
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {selectableStatuses.map((status) => (
-                                    <SelectItem key={status} value={status}>
-                                        {statusLabel(status)}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                                {statusLabel(String(booking.status))}
+                            </Badge>
+                        ) : (
+                            <Select
+                                value={String(booking.status)}
+                                onValueChange={setStatusTarget}
+                            >
+                                <SelectTrigger
+                                    size="sm"
+                                    className="w-full sm:w-44"
+                                    style={{ borderColor: 'transparent' }}
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {selectableStatuses.map((status) => (
+                                        <SelectItem key={status} value={status}>
+                                            {statusLabel(status)}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
                         <Badge
                             variant="outline"
                             className={
