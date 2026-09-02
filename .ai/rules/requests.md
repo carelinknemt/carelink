@@ -2,6 +2,8 @@
 paths:
   - app/Http/Requests/StoreCareerApplicationRequest.php
   - app/Http/Requests/StoreTripRequestRequest.php
+  - app/Http/Requests/CancelTripRequestRequest.php
+  - app/Http/Requests/UpdateTripRequestStatusRequest.php
 ---
 
 # Requests
@@ -11,3 +13,9 @@ Career applications require ONE specific role: career_id is required + exists:ca
 
 ## Bookings reject last-minute pickup times within 12 hours
 pickup_time on the public booking form no longer enforces dispatch hours CMS windows — any pickup time is accepted. Instead, a hard-block rejects any pickup time that falls within 12 hours of "now" (the booking time), with the message "Please call dispatch (707) 854-9350 for last minute ride request." Parsing is via Carbon::parse(trip_date.' '.pickup_time). Do not reintroduce the dispatch-hours restriction on the public form.
+
+## Booking cancellation requires a reason
+CancelTripRequestRequest (POST dashboard.bookings.cancel) requires a 'reason' field: string|min:10|max:2000. The reason is stored in trip_requests.cancellation_reason and in the audit log. No other fields are accepted.
+
+## Status dropdown excludes CANCELLED
+UpdateTripRequestStatusRequest validates status against TripRequest::DROPDOWN_STATUSES (PENDING_DISPATCH, BAMBI_DISPATCHED, IN_TRANSIT, COMPLETED) — CANCELLED is rejected with 422. Cancel is only via the dedicated cancel action, not the dropdown.

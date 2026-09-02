@@ -42,7 +42,21 @@ export type PaidBooking = {
     status: string;
     paid_at: string | null;
     booked_at: string;
+    cancellation_reason: string | null;
+    cancelled_by_name: string | null;
+    cancelled_at: string | null;
     blacklist: BlacklistEntry | null;
+};
+
+export type TripRequestAudit = {
+    id: number;
+    user_name: string;
+    role: string;
+    action: string;
+    from_value: string | null;
+    to_value: string | null;
+    reason: string | null;
+    created_at: string;
 };
 
 export type PaginationLink = {

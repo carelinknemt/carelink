@@ -14,7 +14,7 @@ class TripRequestCancelled extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public TripRequest $tripRequest) {}
+    public function __construct(public TripRequest $tripRequest, public ?string $reason = null) {}
 
     public function envelope(): Envelope
     {

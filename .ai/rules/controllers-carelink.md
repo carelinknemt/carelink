@@ -27,8 +27,11 @@ DashboardBookingController filters now use date_from/date_to (not the old single
 ## Analytics aggregates in PHP, not SQL
 Keep DashboardAnalyticsController aggregation portable: fetch the paid rows once for the range and aggregate in PHP (tree of Carbon remains SQLite/MySQL agnostic). today() returns CarbonImmutable, so use CarbonInterface type hints throughout. dailySeries is zero-filled per calendar day; revenue = paid bookings x $30 fee (BOOKING_FEE).
 
-## Cancel booking refunds first via Stripe
-The dedicated cancel action (POST dashboard.bookings.cancel) refunds the checkout session's payment_intent and only sets status=CANCELLED + refunded_at when the refund succeeds. On success with a Stripe payment it also emails the passenger App\Mail\TripRequestCancelled (view mail.trip-request-cancelled, sent when passenger_email exists). Since CANCELLED was added to ASSIGNABLE_STATUSES (user decision), managers may also set CANCELLED directly via the status dropdown — that path does NOT refund the fee and does NOT email; use the cancel route when a refund is owed.
+## Cancel booking refunds first via Stripe, with mandatory reason
+The dedicated cancel action (POST dashboard.bookings.cancel) refunds the checkout session's payment_intent and only sets status=CANCELLED + refunded_at when the refund succeeds. On success with a Stripe payment it also emails the passenger App\Mail\TripRequestCancelled (view mail.trip-request-cancelled, sent when passenger_email exists). Cancel stores cancellation_reason (from the form), cancelled_by_name (authenticated user), cancelled_at, and records a TripRequestAudit (ACTION_CANCELLED). A reason (min 10 chars) is required via CancelTripRequestRequest — no cancel is allowed without one. CANCELLED is no longer in DROPDOWN_STATUSES and cannot be assigned via the status dropdown; UpdateTripRequestStatusRequest rejects it with 422.
+
+## Every status change or detail edit records an audit trail
+DashboardBookingController::recordAudit snapshots user_name, role, action, from/to values and an optional reason into trip_request_audits. Actions: status_changed, cancelled, updated. Both updateStatus() and update() call recordAudit after persisting. show() passes the latest 20 audits (newest first) to the detail page, where an Activity card renders them. No backfill of pre-existing history was done.
 
 ## Bookings list defaults to pending dispatch
 DashboardBookingController::filteredQuery() constrains status to PENDING_DISPATCH when no status filter is sent; the '__all' sentinel (TripRequest::STATUS_FILTER_ALL) shows every status. filters() returns PENDING_DISPATCH as the default status so the UI reflects it. The frontend status Select maps "All statuses" to '__all' (not '').

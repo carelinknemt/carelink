@@ -21,6 +21,10 @@
         Your <strong>$30.00 booking fee has been refunded</strong> to
         your original payment method. Refunds typically appear within
         5–10 business days, depending on your bank or card issuer.
+        @if ($reason)
+            <br><br>
+            Reason for cancellation: <strong>{{ $reason }}</strong>
+        @endif
     </div>
     <table class="details">
         <tr>

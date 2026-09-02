@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\TripRequest;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -81,7 +80,6 @@ class UpdateTripRequestRequest extends FormRequest
             'must_provide_wheelchair' => ['sometimes', 'boolean'],
             'has_infectious_disease' => ['sometimes', 'boolean'],
             'tag_list' => ['sometimes', 'nullable', 'string', 'max:500'],
-            'status' => ['sometimes', Rule::in(TripRequest::STATUSES)],
         ];
     }
 

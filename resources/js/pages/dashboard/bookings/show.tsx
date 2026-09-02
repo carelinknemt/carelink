@@ -40,6 +40,7 @@ import {
     update as updateBooking,
     updateStatus as updateBookingStatus,
 } from '@/routes/dashboard/bookings';
+import type { TripRequestAudit } from '@/types/ui';
 
 type BookingDetail = Record<string, string | number | boolean | null>;
 
@@ -241,6 +242,20 @@ function formatValue(
     }
 }
 
+function auditActionLabel(audit: TripRequestAudit): string {
+    if (audit.action === 'cancelled') {
+        return 'Cancelled booking';
+    }
+
+    if (audit.action === 'status_changed') {
+        return `Status changed: ${statusLabel(
+            audit.from_value ?? 'Unknown',
+        )} → ${statusLabel(audit.to_value ?? 'Unknown')}`;
+    }
+
+    return 'Details updated';
+}
+
 function toFormValue(
     value: string | number | boolean | null,
     type?: string,
@@ -435,6 +450,7 @@ export default function BookingDetail({
     statuses,
     booking_fee,
     blacklist,
+    audits,
 }: {
     booking: BookingDetail;
     statuses: string[];
@@ -445,6 +461,7 @@ export default function BookingDetail({
         by: string;
         at: string;
     } | null;
+    audits: TripRequestAudit[];
 }) {
     const [statusTarget, setStatusTarget] = useState<string | null>(null);
     const [editSection, setEditSection] = useState<DetailSection | null>(null);
@@ -461,8 +478,12 @@ export default function BookingDetail({
     );
     const routeLoading = hasRouteCoords && !routeFailed && route === null;
 
+    const selectableStatuses = statuses.filter(
+        (status) => status !== 'CANCELLED',
+    );
+
     const statusForm = useForm({ status: '' });
-    const cancelForm = useForm({});
+    const cancelForm = useForm({ reason: '' });
     const banForm = useForm({ email: '', phone: '', reason: '' });
 
     function confirmStatusChange() {
@@ -483,7 +504,10 @@ export default function BookingDetail({
     function confirmCancellation() {
         cancelForm.post(cancelBooking.url({ booking: Number(booking.id) }), {
             preserveScroll: true,
-            onSuccess: () => setCancelOpen(false),
+            onSuccess: () => {
+                setCancelOpen(false);
+                cancelForm.reset('reason');
+            },
         });
     }
 
@@ -684,7 +708,7 @@ export default function BookingDetail({
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                {statuses.map((status) => (
+                                {selectableStatuses.map((status) => (
                                     <SelectItem key={status} value={status}>
                                         {statusLabel(status)}
                                     </SelectItem>
@@ -721,6 +745,30 @@ export default function BookingDetail({
                                     {formatDateTime(blacklist.at)}
                                 </p>
                             </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {isCancelled && booking.cancellation_reason && (
+                    <Card className="border-rose-200 bg-rose-50">
+                        <CardContent className="flex flex-col gap-2 py-4">
+                            <p className="font-semibold text-rose-700">
+                                Booking cancelled
+                            </p>
+                            <p className="text-sm text-rose-600">
+                                {booking.cancellation_reason}
+                            </p>
+                            {(booking.cancelled_by_name ||
+                                booking.cancelled_at) && (
+                                <p className="text-xs text-rose-500">
+                                    Cancelled by {booking.cancelled_by_name}{' '}
+                                    {booking.cancelled_at
+                                        ? `on ${formatDateTime(
+                                              String(booking.cancelled_at),
+                                          )}`
+                                        : ''}
+                                </p>
+                            )}
                         </CardContent>
                     </Card>
                 )}
@@ -828,6 +876,48 @@ export default function BookingDetail({
                         </CardContent>
                     </Card>
                 )}
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                        <CardTitle className="text-base">Activity</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {audits.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">
+                                No changes recorded yet.
+                            </p>
+                        ) : (
+                            <ol className="flex flex-col">
+                                {audits.map((audit, index) => (
+                                    <li key={audit.id}>
+                                        {index > 0 && <Separator />}
+                                        <div className="flex flex-col gap-0.5 py-2.5">
+                                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                                <p className="text-sm font-medium">
+                                                    {auditActionLabel(audit)}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {formatDateTime(
+                                                        audit.created_at,
+                                                    )}
+                                                </p>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">
+                                                {audit.user_name} ·{' '}
+                                                {audit.role}
+                                            </p>
+                                            {audit.reason && (
+                                                <p className="text-xs text-muted-foreground italic">
+                                                    {audit.reason}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ol>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
 
             <Dialog
@@ -854,6 +944,28 @@ export default function BookingDetail({
                             undone.
                         </DialogDescription>
                     </DialogHeader>
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="cancel-reason">
+                            Reason for cancellation
+                        </Label>
+                        <Textarea
+                            id="cancel-reason"
+                            rows={3}
+                            placeholder="Explain why this booking is being cancelled…"
+                            value={cancelForm.data.reason}
+                            onChange={(event) =>
+                                cancelForm.setData(
+                                    'reason',
+                                    event.target.value,
+                                )
+                            }
+                        />
+                        {cancelForm.errors.reason && (
+                            <p className="text-xs text-destructive">
+                                {cancelForm.errors.reason}
+                            </p>
+                        )}
+                    </div>
                     <DialogFooter>
                         <Button
                             variant="outline"

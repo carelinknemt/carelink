@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\TripRequest;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateTripRequestStatusRequest extends FormRequest
+class CancelTripRequestRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -19,7 +17,7 @@ class UpdateTripRequestStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', Rule::in(TripRequest::DROPDOWN_STATUSES)],
+            'reason' => ['required', 'string', 'min:10', 'max:2000'],
         ];
     }
 }

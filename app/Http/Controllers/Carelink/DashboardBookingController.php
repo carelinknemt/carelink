@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Carelink;
 
 use App\Cms\BookingFee;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CancelTripRequestRequest;
 use App\Http\Requests\UpdateTripRequestRequest;
 use App\Http\Requests\UpdateTripRequestStatusRequest;
 use App\Mail\TripRequestCancelled;
 use App\Models\PassengerBlacklist;
 use App\Models\TripRequest;
+use App\Models\TripRequestAudit;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -69,8 +72,18 @@ class DashboardBookingController extends Controller
 
         return Inertia::render('dashboard/bookings/show', [
             'booking' => $booking,
-            'statuses' => TripRequest::ASSIGNABLE_STATUSES,
+            'statuses' => TripRequest::DROPDOWN_STATUSES,
             'booking_fee' => BookingFee::amountInDollarsFor($booking->transport_type),
+            'audits' => $booking->audits()->limit(20)->get()->map(fn (TripRequestAudit $audit): array => [
+                'id' => $audit->id,
+                'user_name' => $audit->user_name,
+                'role' => $audit->role,
+                'action' => $audit->action,
+                'from_value' => $audit->from_value,
+                'to_value' => $audit->to_value,
+                'reason' => $audit->reason,
+                'created_at' => $audit->created_at?->toIso8601String(),
+            ]),
             'blacklist' => $blacklistEntry ? [
                 'id' => $blacklistEntry->id,
                 'reason' => $blacklistEntry->reason,
@@ -84,7 +97,12 @@ class DashboardBookingController extends Controller
     {
         abort_if($booking->payment_status !== TripRequest::PAYMENT_STATUS_PAID, 404);
 
-        $booking->update($request->validated());
+        $data = $request->validated();
+        unset($data['status']);
+
+        $booking->update($data);
+
+        $this->recordAudit($booking, $request->user(), TripRequestAudit::ACTION_UPDATED, null, null, null);
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -98,7 +116,12 @@ class DashboardBookingController extends Controller
     {
         abort_if($booking->payment_status !== TripRequest::PAYMENT_STATUS_PAID, 404);
 
-        $booking->update(['status' => $request->validated()['status']]);
+        $from = $booking->status;
+        $to = $request->validated()['status'];
+
+        $booking->update(['status' => $to]);
+
+        $this->recordAudit($booking, $request->user(), TripRequestAudit::ACTION_STATUS_CHANGED, $from, $to, null);
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -111,9 +134,11 @@ class DashboardBookingController extends Controller
     /**
      * Cancel a booking and refund the collected booking fee through Stripe.
      * The booking is only cancelled when the refund succeeds, so a customer
-     * is never left with a cancelled trip and an un-refunded payment.
+     * is never left with a cancelled trip and an un-refunded payment. The
+     * reason for cancellation is required and recorded alongside who
+     * cancelled it.
      */
-    public function cancel(TripRequest $booking): RedirectResponse
+    public function cancel(CancelTripRequestRequest $request, TripRequest $booking): RedirectResponse
     {
         abort_if($booking->payment_status !== TripRequest::PAYMENT_STATUS_PAID, 404);
 
@@ -135,6 +160,7 @@ class DashboardBookingController extends Controller
             return back();
         }
 
+        $reason = $request->validated()['reason'];
         $hasStripePayment = (bool) $booking->stripe_checkout_session_id;
 
         if ($hasStripePayment && ! $this->refundBookingFee($booking)) {
@@ -146,13 +172,21 @@ class DashboardBookingController extends Controller
             return back();
         }
 
+        $from = $booking->status;
+        $actor = $request->user();
+
         $booking->update([
             'status' => TripRequest::STATUS_CANCELLED,
             'refunded_at' => $hasStripePayment ? now() : null,
+            'cancellation_reason' => $reason,
+            'cancelled_by_name' => $actor?->name,
+            'cancelled_at' => now(),
         ]);
 
+        $this->recordAudit($booking, $request->user(), TripRequestAudit::ACTION_CANCELLED, $from, TripRequest::STATUS_CANCELLED, $reason);
+
         if ($hasStripePayment) {
-            $this->sendCancellationEmail($booking);
+            $this->sendCancellationEmail($booking, $reason);
         }
 
         Inertia::flash('toast', [
@@ -167,13 +201,14 @@ class DashboardBookingController extends Controller
      * Notify the passenger that their booking was cancelled and the
      * booking fee refunded.
      */
-    private function sendCancellationEmail(TripRequest $booking): void
+    private function sendCancellationEmail(TripRequest $booking, ?string $reason): void
     {
         if (! $booking->passenger_email) {
             return;
         }
 
-        Mail::to($booking->passenger_email)->send(new TripRequestCancelled($booking));
+        Mail::to($booking->passenger_email)
+            ->send(new TripRequestCancelled($booking, $reason));
     }
 
     /**
@@ -201,6 +236,24 @@ class DashboardBookingController extends Controller
 
             return false;
         }
+    }
+
+    /**
+     * Record who changed a booking and what changed. The actor's name and
+     * role are snapshotted at write time so the history survives even if
+     * the user is later renamed or deleted.
+     */
+    private function recordAudit(TripRequest $booking, ?User $user, string $action, ?string $from, ?string $to, ?string $reason): void
+    {
+        $booking->audits()->create([
+            'user_id' => $user?->getAuthIdentifier(),
+            'user_name' => $user?->name ?? 'Unknown',
+            'role' => $user?->role ?? 'unknown',
+            'action' => $action,
+            'from_value' => $from,
+            'to_value' => $to,
+            'reason' => $reason,
+        ]);
     }
 
     public function showExport(TripRequest $booking): StreamedResponse

@@ -3,6 +3,7 @@ import {
     ArrowDown,
     ArrowUp,
     ArrowUpDown,
+    Ban,
     CalendarDays,
     Download,
     Search,
@@ -64,10 +65,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
 import { formatDate, formatMoney, statusLabel } from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
 import {
+    cancel as cancelBooking,
     exportMethod as dashboardBookingsExport,
     show as showBooking,
     updateStatus as updateBookingStatus,
@@ -357,6 +360,33 @@ export default function DashboardBookings({
         );
     }
 
+    const [cancelTarget, setCancelTarget] = useState<PaidBooking | null>(null);
+    const cancelForm = useForm({ reason: '' });
+
+    function confirmCancellation() {
+        if (!cancelTarget) {
+            return;
+        }
+
+        cancelForm.post(cancelBooking.url({ booking: cancelTarget.id }), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setCancelTarget(null);
+                cancelForm.reset('reason');
+            },
+        });
+    }
+
+    function canCancel(booking: PaidBooking): boolean {
+        return (
+            booking.status !== 'CANCELLED' && booking.status !== 'COMPLETED'
+        );
+    }
+
+    const cancelableStatuses = statuses.filter(
+        (status) => status !== 'CANCELLED',
+    );
+
     const hasFilters = Boolean(
         filters.search ||
         filters.status ||
@@ -563,38 +593,60 @@ export default function DashboardBookings({
                                                         booking.trip_date,
                                                     )}
                                                 </span>
-                                                <Select
-                                                    value={booking.status}
-                                                    onValueChange={(value) =>
-                                                        setStatusTarget({
-                                                            booking,
-                                                            newStatus: value,
-                                                        })
-                                                    }
-                                                >
-                                                    <SelectTrigger
-                                                        size="sm"
-                                                        className="w-full sm:w-44"
+                                                <div className="flex items-center gap-2">
+                                                    <Select
+                                                        value={booking.status}
+                                                        onValueChange={(
+                                                            value,
+                                                        ) =>
+                                                            setStatusTarget({
+                                                                booking,
+                                                                newStatus:
+                                                                    value,
+                                                            })
+                                                        }
                                                     >
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {statuses.map(
-                                                            (status) => (
-                                                                <SelectItem
-                                                                    key={status}
-                                                                    value={
-                                                                        status
-                                                                    }
-                                                                >
-                                                                    {statusLabel(
-                                                                        status,
-                                                                    )}
-                                                                </SelectItem>
-                                                            ),
-                                                        )}
-                                                    </SelectContent>
-                                                </Select>
+                                                        <SelectTrigger
+                                                            size="sm"
+                                                            className="w-full sm:w-44"
+                                                        >
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {cancelableStatuses.map(
+                                                                (status) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            status
+                                                                        }
+                                                                        value={
+                                                                            status
+                                                                        }
+                                                                    >
+                                                                        {statusLabel(
+                                                                            status,
+                                                                        )}
+                                                                    </SelectItem>
+                                                                ),
+                                                            )}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {canCancel(booking) && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="destructive"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                setCancelTarget(
+                                                                    booking,
+                                                                )
+                                                            }
+                                                        >
+                                                            <Ban />
+                                                            Cancel
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </li>
                                     ))}
@@ -638,6 +690,9 @@ export default function DashboardBookings({
                                                         }
                                                         onSort={changeSort}
                                                     />
+                                                </TableHead>
+                                                <TableHead className="text-right">
+                                                    Actions
                                                 </TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -700,7 +755,7 @@ export default function DashboardBookings({
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {statuses.map(
+                                                                {cancelableStatuses.map(
                                                                     (
                                                                         status,
                                                                     ) => (
@@ -724,6 +779,23 @@ export default function DashboardBookings({
                                                     <TableCell className="text-right">
                                                         {formatMoney(
                                                             booking.input_price,
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        {canCancel(booking) && (
+                                                            <Button
+                                                                type="button"
+                                                                variant="destructive"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    setCancelTarget(
+                                                                        booking,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Ban />
+                                                                Cancel
+                                                            </Button>
                                                         )}
                                                     </TableCell>
                                                 </TableRow>
@@ -924,6 +996,75 @@ export default function DashboardBookings({
                             {statusForm.processing
                                 ? 'Updating…'
                                 : 'Confirm change'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={cancelTarget !== null}
+                onOpenChange={(open) => {
+                    if (!open && !cancelForm.processing) {
+                        setCancelTarget(null);
+                        cancelForm.clearErrors();
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Cancel booking and refund?</DialogTitle>
+                        <DialogDescription>
+                            {cancelTarget && (
+                                <>
+                                    You are about to cancel{' '}
+                                    <span className="font-medium text-foreground">
+                                        {cancelTarget.booking_number}
+                                    </span>
+                                    . The paid booking fee will be refunded to
+                                    the customer. This cannot be undone.
+                                </>
+                            )}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-1.5">
+                        <Label htmlFor="cancel-reason">
+                            Reason for cancellation
+                        </Label>
+                        <Textarea
+                            id="cancel-reason"
+                            rows={3}
+                            placeholder="Explain why this booking is being cancelled…"
+                            value={cancelForm.data.reason}
+                            onChange={(event) =>
+                                cancelForm.setData(
+                                    'reason',
+                                    event.target.value,
+                                )
+                            }
+                        />
+                        {cancelForm.errors.reason && (
+                            <p className="text-xs text-destructive">
+                                {cancelForm.errors.reason}
+                            </p>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button
+                                variant="outline"
+                                disabled={cancelForm.processing}
+                            >
+                                Keep booking
+                            </Button>
+                        </DialogClose>
+                        <Button
+                            variant="destructive"
+                            onClick={confirmCancellation}
+                            disabled={cancelForm.processing}
+                        >
+                            {cancelForm.processing
+                                ? 'Cancelling…'
+                                : 'Cancel booking & refund'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

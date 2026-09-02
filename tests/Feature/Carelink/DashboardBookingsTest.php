@@ -523,13 +523,17 @@ test('a manager can cancel a paid booking and the booking fee is refunded', func
 
     $booking = paidBookingWithStripePayment();
 
-    $this->post(route('dashboard.bookings.cancel', $booking))->assertRedirect();
+    $this->post(route('dashboard.bookings.cancel', $booking), [
+        'reason' => 'Passenger no longer needs transport',
+    ])->assertRedirect();
 
     $booking->refresh();
 
     expect($booking)
         ->status->toBe(TripRequest::STATUS_CANCELLED)
-        ->refunded_at->not->toBeNull();
+        ->refunded_at->not->toBeNull()
+        ->cancellation_reason->toBe('Passenger no longer needs transport')
+        ->cancelled_by_name->toBe($user->name);
 
     expect($stripe->refunds->created)->toHaveCount(1);
 
@@ -539,6 +543,16 @@ test('a manager can cancel a paid booking and the booking fee is refunded', func
         ->payment_intent->toBe('pi_test_fake')
         ->metadata->booking_number->toBe($booking->booking_number);
 
+    expect($booking->audits)->toHaveCount(1);
+
+    $audit = $booking->audits->first();
+
+    expect($audit->action)->toBe('cancelled');
+    expect($audit->reason)->toBe('Passenger no longer needs transport');
+    expect($audit->user_name)->toBe($user->name);
+    expect($audit->from_value)->toBe(TripRequest::STATUS_PENDING_DISPATCH);
+    expect($audit->to_value)->toBe(TripRequest::STATUS_CANCELLED);
+
     Mail::assertSent(
         TripRequestCancelled::class,
         fn (TripRequestCancelled $mail): bool => $mail->hasTo($booking->passenger_email)
@@ -547,6 +561,7 @@ test('a manager can cancel a paid booking and the booking fee is refunded', func
                 "Trip request {$booking->booking_number} - cancelled & refunded",
                 false,
             )
+            && $mail->assertSeeInHtml('Passenger no longer needs transport', false)
             && $mail->assertDontSeeInHtml('<?php', false),
     );
 });
@@ -562,7 +577,9 @@ test('cancelling a payment-backed booking sends a refund confirmation email', fu
 
     $booking = paidBookingWithStripePayment(['passenger_email' => 'rider@example.com']);
 
-    $this->post(route('dashboard.bookings.cancel', $booking))->assertRedirect();
+    $this->post(route('dashboard.bookings.cancel', $booking), [
+        'reason' => 'Passenger no longer needs transport',
+    ])->assertRedirect();
 
     Mail::assertSent(
         TripRequestCancelled::class,
@@ -581,7 +598,9 @@ test('no cancellation email is sent when the passenger has no email address', fu
 
     $booking = paidBookingWithStripePayment(['passenger_email' => null]);
 
-    $this->post(route('dashboard.bookings.cancel', $booking))->assertRedirect();
+    $this->post(route('dashboard.bookings.cancel', $booking), [
+        'reason' => 'Passenger no longer needs transport',
+    ])->assertRedirect();
 
     expect($booking->fresh())->status->toBe(TripRequest::STATUS_CANCELLED);
 
@@ -599,11 +618,14 @@ test('a booking with no stripe payment is cancelled without a refund', function 
 
     $booking = paidBooking();
 
-    $this->post(route('dashboard.bookings.cancel', $booking))->assertRedirect();
+    $this->post(route('dashboard.bookings.cancel', $booking), [
+        'reason' => 'Passenger no longer needs transport',
+    ])->assertRedirect();
 
     expect($booking->fresh())
         ->status->toBe(TripRequest::STATUS_CANCELLED)
-        ->refunded_at->toBeNull();
+        ->refunded_at->toBeNull()
+        ->cancelled_at->not->toBeNull();
 
     expect($stripe->refunds->created)->toBeEmpty();
 
@@ -622,11 +644,15 @@ test('a booking is not cancelled when the refund fails', function () {
 
     $booking = paidBookingWithStripePayment();
 
-    $this->post(route('dashboard.bookings.cancel', $booking))->assertRedirect();
+    $this->post(route('dashboard.bookings.cancel', $booking), [
+        'reason' => 'Passenger no longer needs transport',
+    ])->assertRedirect();
 
     expect($booking->fresh())
         ->status->toBe(TripRequest::STATUS_PENDING_DISPATCH)
         ->refunded_at->toBeNull();
+
+    expect($booking->fresh()->audits)->toBeEmpty();
 
     Mail::assertNotSent(TripRequestCancelled::class);
 });
@@ -637,7 +663,9 @@ test('unpaid bookings cannot be cancelled', function () {
 
     $unpaid = TripRequest::factory()->create(['payment_status' => TripRequest::PAYMENT_STATUS_PENDING]);
 
-    $this->post(route('dashboard.bookings.cancel', $unpaid))->assertNotFound();
+    $this->post(route('dashboard.bookings.cancel', $unpaid), [
+        'reason' => 'Passenger no longer needs transport',
+    ])->assertNotFound();
 });
 
 test('an already cancelled booking cannot be cancelled again', function () {
@@ -649,7 +677,9 @@ test('an already cancelled booking cannot be cancelled again', function () {
 
     $booking = paidBookingWithStripePayment(['status' => TripRequest::STATUS_CANCELLED]);
 
-    $this->post(route('dashboard.bookings.cancel', $booking))->assertRedirect();
+    $this->post(route('dashboard.bookings.cancel', $booking), [
+        'reason' => 'Passenger no longer needs transport',
+    ])->assertRedirect();
 
     expect($booking->fresh())->status->toBe(TripRequest::STATUS_CANCELLED);
     expect($stripe->refunds->created)->toBeEmpty();
@@ -664,26 +694,42 @@ test('completed bookings cannot be cancelled', function () {
 
     $booking = paidBookingWithStripePayment(['status' => TripRequest::STATUS_COMPLETED]);
 
-    $this->post(route('dashboard.bookings.cancel', $booking))->assertRedirect();
+    $this->post(route('dashboard.bookings.cancel', $booking), [
+        'reason' => 'Passenger no longer needs transport',
+    ])->assertRedirect();
 
     expect($booking->fresh())->status->toBe(TripRequest::STATUS_COMPLETED);
     expect($stripe->refunds->created)->toBeEmpty();
 });
 
-test('the cancelled status can be assigned from the status dropdown', function () {
+test('cancelling a booking requires a reason', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBookingWithStripePayment();
+
+    $this->post(route('dashboard.bookings.cancel', $booking), [
+        'reason' => '',
+    ])->assertSessionHasErrors('reason');
+
+    expect($booking->fresh())->status->toBe(TripRequest::STATUS_PENDING_DISPATCH);
+});
+
+test('the cancelled status cannot be assigned from the status dropdown', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
     $booking = paidBooking();
 
-    $this->patch(route('dashboard.bookings.update-status', $booking), [
-        'status' => TripRequest::STATUS_CANCELLED,
-    ])->assertRedirect();
+    $this->from(route('dashboard.bookings.show', $booking))->patch(
+        route('dashboard.bookings.update-status', $booking),
+        ['status' => TripRequest::STATUS_CANCELLED],
+    )->assertRedirect();
 
-    expect($booking->fresh())->status->toBe(TripRequest::STATUS_CANCELLED);
+    expect($booking->fresh())->status->toBe(TripRequest::STATUS_PENDING_DISPATCH);
 });
 
-test('the booking detail page offers cancelled in the status select', function () {
+test('the booking detail page does not offer cancelled in the status select', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
@@ -693,8 +739,11 @@ test('the booking detail page offers cancelled in the status select', function (
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('dashboard/bookings/show')
-            ->where('statuses', TripRequest::ASSIGNABLE_STATUSES)
-            ->where('statuses.4', TripRequest::STATUS_CANCELLED));
+            ->where('statuses', TripRequest::DROPDOWN_STATUSES)
+            ->whereNot('statuses.0', TripRequest::STATUS_CANCELLED)
+            ->whereNot('statuses.1', TripRequest::STATUS_CANCELLED)
+            ->whereNot('statuses.2', TripRequest::STATUS_CANCELLED)
+            ->whereNot('statuses.3', TripRequest::STATUS_CANCELLED));
 });
 
 test('the bookings list shows pending dispatch bookings by default', function () {

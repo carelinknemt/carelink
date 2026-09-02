@@ -6,12 +6,14 @@ use Carbon\Carbon;
 use Database\Factories\TripRequestFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property Carbon $trip_date
  * @property Carbon|null $passenger_dob
  * @property Carbon|null $paid_at
  * @property Carbon|null $refunded_at
+ * @property Carbon|null $cancelled_at
  */
 class TripRequest extends Model
 {
@@ -43,17 +45,15 @@ class TripRequest extends Model
     ];
 
     /**
-     * Statuses a manager may assign directly via the status dropdown.
-     * CANCELLED is assignable too: the dedicated cancel action remains
-     * for the refund-first flow, but managers may also mark a booking
-     * cancelled directly.
+     * Statuses assignable via the status dropdown on the bookings list
+     * and detail pages. CANCELLED is excluded — it is only set through
+     * the dedicated cancel action which also triggers a refund.
      */
-    public const ASSIGNABLE_STATUSES = [
+    public const DROPDOWN_STATUSES = [
         self::STATUS_PENDING_DISPATCH,
         self::STATUS_BAMBI_DISPATCHED,
         self::STATUS_IN_TRANSIT,
         self::STATUS_COMPLETED,
-        self::STATUS_CANCELLED,
     ];
 
     public const PAYMENT_STATUS_PENDING = 'PENDING';
@@ -128,6 +128,9 @@ class TripRequest extends Model
         'payment_status',
         'paid_at',
         'refunded_at',
+        'cancellation_reason',
+        'cancelled_by_name',
+        'cancelled_at',
     ];
 
     protected $attributes = [
@@ -155,7 +158,13 @@ class TripRequest extends Model
             'dropoff_longitude' => 'float',
             'paid_at' => 'datetime',
             'refunded_at' => 'datetime',
+            'cancelled_at' => 'datetime',
         ];
+    }
+
+    public function audits(): HasMany
+    {
+        return $this->hasMany(TripRequestAudit::class)->latest();
     }
 
     /**
@@ -218,6 +227,9 @@ class TripRequest extends Model
             'status' => $this->status,
             'paid_at' => $this->paid_at?->toIso8601String(),
             'booked_at' => $this->created_at?->toIso8601String(),
+            'cancellation_reason' => $this->cancellation_reason,
+            'cancelled_by_name' => $this->cancelled_by_name,
+            'cancelled_at' => $this->cancelled_at?->toIso8601String(),
             'blacklist' => $blacklist
                 ? [
                     'id' => $blacklist->id,
