@@ -1,5 +1,12 @@
 import { Head, useForm } from '@inertiajs/react';
-import { Ban, Download, Loader2, MapPinned, Pencil } from 'lucide-react';
+import {
+    Ban,
+    Download,
+    Loader2,
+    MapPinned,
+    Pencil,
+    Trash2,
+} from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { CopyButton } from '@/components/carelink/copy-button';
@@ -672,7 +679,7 @@ export default function BookingDetail({
                                     size="sm"
                                     onClick={() => setCancelOpen(true)}
                                 >
-                                    <Ban />
+                                    <Trash2 />
                                     Cancel booking
                                 </Button>
                             )}

@@ -3,11 +3,11 @@ import {
     ArrowDown,
     ArrowUp,
     ArrowUpDown,
-    Ban,
     CalendarDays,
     Download,
     Search,
     SlidersHorizontal,
+    Trash2,
     X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -658,7 +658,7 @@ export default function DashboardBookings({
                                                                 )
                                                             }
                                                         >
-                                                            <Ban />
+                                                            <Trash2 />
                                                             Cancel
                                                         </Button>
                                                     )}
@@ -821,7 +821,7 @@ export default function DashboardBookings({
                                                                     )
                                                                 }
                                                             >
-                                                                <Ban />
+                                                                <Trash2 />
                                                                 Cancel
                                                             </Button>
                                                         )}
