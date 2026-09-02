@@ -51,7 +51,7 @@ class StoreTripRequestRequest extends FormRequest
             'requested_by_phone_number' => ['nullable', 'string', 'max:32'],
             'dispatcher_notes' => ['nullable', 'string', 'max:5000'],
             'pickup_address_details' => ['nullable', 'string', 'max:255'],
-            'pickup_stairs' => ['sometimes', 'boolean'],
+            'pickup_stairs' => ['sometimes', 'integer', 'min:0', 'max:999'],
             'pickup_stair_equipment' => ['nullable', 'string', 'max:255'],
             'pickup_driver_notes' => ['nullable', 'string', 'max:5000'],
             'pickup_contact_name' => ['nullable', 'string', 'max:255'],
@@ -82,7 +82,6 @@ class StoreTripRequestRequest extends FormRequest
             'will_call' => $this->boolean('will_call'),
             'passenger_is_bariatric' => $this->boolean('passenger_is_bariatric'),
             'oxygen_required' => $this->boolean('oxygen_required'),
-            'pickup_stairs' => $this->boolean('pickup_stairs'),
             'must_provide_wheelchair' => $this->boolean('must_provide_wheelchair'),
             'has_infectious_disease' => $this->boolean('has_infectious_disease'),
         ]);

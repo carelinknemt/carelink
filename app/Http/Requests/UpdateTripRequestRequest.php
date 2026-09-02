@@ -11,7 +11,6 @@ class UpdateTripRequestRequest extends FormRequest
         'will_call',
         'passenger_is_bariatric',
         'oxygen_required',
-        'pickup_stairs',
         'must_provide_wheelchair',
         'has_infectious_disease',
     ];
@@ -59,7 +58,7 @@ class UpdateTripRequestRequest extends FormRequest
             'requested_by_phone_number' => ['sometimes', 'nullable', 'string', 'regex:/^(?:\+1|1)?\s*(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/'],
             'dispatcher_notes' => ['sometimes', 'nullable', 'string', 'max:5000'],
             'pickup_address_details' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'pickup_stairs' => ['sometimes', 'boolean'],
+            'pickup_stairs' => ['sometimes', 'integer', 'min:0', 'max:999'],
             'pickup_stair_equipment' => ['sometimes', 'nullable', 'string', 'max:255'],
             'pickup_driver_notes' => ['sometimes', 'nullable', 'string', 'max:5000'],
             'pickup_contact_name' => ['sometimes', 'nullable', 'string', 'max:255'],

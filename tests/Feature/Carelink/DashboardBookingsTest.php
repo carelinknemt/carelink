@@ -440,7 +440,7 @@ test('per-card edits only update the fields that were submitted', function () {
     $booking = paidBooking([
         'passenger_first_name' => 'Jane',
         'will_call' => false,
-        'pickup_stairs' => true,
+        'pickup_stairs' => 2,
         'trip_date' => now()->addDays(5)->toDateString(),
         'input_price' => 80,
     ]);
@@ -459,7 +459,7 @@ test('per-card edits only update the fields that were submitted', function () {
         ->passenger_phone_number->toBe('+1 707-555-0199')
         ->passenger_is_bariatric->toBeTrue()
         ->will_call->toBeFalse()
-        ->pickup_stairs->toBeTrue()
+        ->pickup_stairs->toBe(2)
         ->input_price->toBe('80.00')
         ->trip_date->format('Y-m-d')->toBe(now()->addDays(5)->toDateString());
 });
@@ -478,6 +478,22 @@ test('a manager can edit the dropoff stairs as a number', function () {
     expect($booking->fresh())
         ->dropoff_stairs->toBe(3)
         ->dropoff_address_details->toBe('Main entrance, 3rd floor');
+});
+
+test('a manager can edit the pickup stairs as a number', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking(['pickup_stairs' => 0]);
+
+    $this->put(route('dashboard.bookings.update', $booking), [
+        'pickup_address_details' => 'Side entrance, 2nd floor',
+        'pickup_stairs' => 2,
+    ])->assertRedirect();
+
+    expect($booking->fresh())
+        ->pickup_stairs->toBe(2)
+        ->pickup_address_details->toBe('Side entrance, 2nd floor');
 });
 
 test('trip edits are validated', function () {

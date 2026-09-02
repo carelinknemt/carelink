@@ -136,7 +136,7 @@ const detailSections: DetailSection[] = [
                 label: 'Contact phone',
                 type: 'phone',
             },
-            { key: 'pickup_stairs', label: 'Stairs', type: 'bool' },
+            { key: 'pickup_stairs', label: 'Stairs', type: 'number' },
             { key: 'pickup_stair_equipment', label: 'Stair equipment' },
             {
                 key: 'pickup_driver_notes',

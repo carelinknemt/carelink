@@ -14,6 +14,9 @@ Career applications require ONE specific role: career_id is required + exists:ca
 ## Bookings reject last-minute pickup times within 12 hours
 pickup_time on the public booking form no longer enforces dispatch hours CMS windows — any pickup time is accepted. Instead, a hard-block rejects any pickup time that falls within 12 hours of "now" (the booking time), with the message "Please call dispatch (707) 854-9350 for last minute ride request." Parsing is via Carbon::parse(trip_date.' '.pickup_time). Do not reintroduce the dispatch-hours restriction on the public form.
 
+## Stairs are counts, not booleans
+Both pickup_stairs and dropoff_stairs are stored as unsigned integers (count of stairs), valid integer min:0 max:999 in StoreTripRequestRequest and UpdateTripRequestRequest. pickup_stairs must NOT be in either request's BOOLEAN_FIELDS (it was converted via boolean() before). UpdateTripRequestRequest::BOOLEAN_FIELDS contains only will_call/passenger_is_bariatric/oxygen_required/must_provide_wheelchair/has_infectious_disease. Model casts both to 'integer'. On the public booking form and the detail card both render as full-width number inputs.
+
 ## Booking cancellation requires a reason
 CancelTripRequestRequest (POST dashboard.bookings.cancel) requires a 'reason' field: string|min:10|max:2000. The reason is stored in trip_requests.cancellation_reason and in the audit log. No other fields are accepted.
 

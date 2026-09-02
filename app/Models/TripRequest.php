@@ -148,7 +148,7 @@ class TripRequest extends Model
             'passenger_weight' => 'decimal:1',
             'passenger_is_bariatric' => 'boolean',
             'oxygen_required' => 'boolean',
-            'pickup_stairs' => 'boolean',
+            'pickup_stairs' => 'integer',
             'dropoff_stairs' => 'integer',
             'must_provide_wheelchair' => 'boolean',
             'has_infectious_disease' => 'boolean',

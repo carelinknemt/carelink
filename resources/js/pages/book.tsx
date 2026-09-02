@@ -62,7 +62,7 @@ interface TripRequestFormData {
     pickup_address_details: string;
     pickup_latitude: string;
     pickup_longitude: string;
-    pickup_stairs: boolean;
+    pickup_stairs: number;
     dropoff_address: string;
     dropoff_address_details: string;
     dropoff_latitude: string;
@@ -203,7 +203,7 @@ const initialForm: TripRequestFormData = {
     pickup_address_details: '',
     pickup_latitude: '',
     pickup_longitude: '',
-    pickup_stairs: false,
+    pickup_stairs: 0,
     dropoff_address: '',
     dropoff_address_details: '',
     dropoff_latitude: '',
@@ -1293,22 +1293,27 @@ export default function Book() {
                                                 className={FIELD_BG}
                                             />
                                         </div>
-                                        <div className="flex items-center gap-2.5">
-                                            <Checkbox
-                                                id="pickup_stairs"
-                                                checked={
-                                                    form.data.pickup_stairs
-                                                }
-                                                onCheckedChange={(v) =>
-                                                    set(
-                                                        'pickup_stairs',
-                                                        Boolean(v),
-                                                    )
-                                                }
-                                            />
+                                        <div className="grid gap-2">
                                             <Label htmlFor="pickup_stairs">
                                                 Stairs at pickup
                                             </Label>
+                                            <Input
+                                                id="pickup_stairs"
+                                                type="number"
+                                                min={0}
+                                                max={99}
+                                                step={1}
+                                                value={form.data.pickup_stairs}
+                                                onChange={(e) =>
+                                                    set(
+                                                        'pickup_stairs',
+                                                        Number(
+                                                            e.target.value,
+                                                        ) || 0,
+                                                    )
+                                                }
+                                                className={FIELD_BG}
+                                            />
                                         </div>
                                     </div>
 
@@ -1384,7 +1389,7 @@ export default function Book() {
                                                         ) || 0,
                                                     )
                                                 }
-                                                className={`max-w-[120px] ${FIELD_BG}`}
+                                                className={`${FIELD_BG}`}
                                             />
                                         </div>
                                     </div>
