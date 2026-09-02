@@ -32,6 +32,7 @@ import { formatDate, formatMoney } from '@/lib/bookings';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { payments as dashboardPayments } from '@/routes/dashboard';
+import { show as showBooking } from '@/routes/dashboard/bookings';
 import type {
     PaginatedPayments,
     PaymentRecord,
@@ -297,7 +298,20 @@ export default function DashboardPayments({
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="min-w-0">
                                                     <p className="font-medium">
-                                                        {payment.booking_number}
+                                                        <Link
+                                                            href={showBooking.url(
+                                                                {
+                                                                    booking:
+                                                                        payment.id,
+                                                                },
+                                                            )}
+                                                            className="hover:underline"
+                                                            prefetch
+                                                        >
+                                                            {
+                                                                payment.booking_number
+                                                            }
+                                                        </Link>
                                                     </p>
                                                     <p className="text-sm text-muted-foreground">
                                                         {payment.passenger_name}
@@ -351,7 +365,20 @@ export default function DashboardPayments({
                                             {payments.data.map((payment) => (
                                                 <TableRow key={payment.id}>
                                                     <TableCell className="font-medium">
-                                                        {payment.booking_number}
+                                                        <Link
+                                                            href={showBooking.url(
+                                                                {
+                                                                    booking:
+                                                                        payment.id,
+                                                                },
+                                                            )}
+                                                            className="hover:underline"
+                                                            prefetch
+                                                        >
+                                                            {
+                                                                payment.booking_number
+                                                            }
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex flex-col">

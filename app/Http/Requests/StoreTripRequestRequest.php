@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Cms\DispatchHours;
 use App\Models\TripRequest;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
 class StoreTripRequestRequest extends FormRequest
@@ -31,17 +31,9 @@ class StoreTripRequestRequest extends FormRequest
             'input_price' => ['nullable', 'numeric', 'min:0', 'max:100000'],
             'pickup_address' => ['required', 'string', 'max:255'],
             'pickup_time' => ['required', 'string', 'max:32', function (string $attribute, mixed $value, Closure $fail): void {
-                $tripDate = $this->input('trip_date');
-
-                if (! $tripDate || DispatchHours::isSupported($tripDate, (string) $value)) {
-                    return;
+                if ($this->isWithinTwelveHours((string) $value)) {
+                    $fail('Please call dispatch (707) 854-9350 for last minute ride request.');
                 }
-
-                $window = DispatchHours::forDate($tripDate);
-
-                $fail($window !== null
-                    ? "The pickup time must fall within our dispatch hours ({$window['label']}) on that day."
-                    : 'The pickup time must fall within our dispatch hours on that day.');
             }],
             'dropoff_address' => ['required', 'string', 'max:255'],
             'passenger_phone_number' => ['required', 'string', 'regex:/^(?:\+1|1)?\s*(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/'],
@@ -94,5 +86,28 @@ class StoreTripRequestRequest extends FormRequest
             'must_provide_wheelchair' => $this->boolean('must_provide_wheelchair'),
             'has_infectious_disease' => $this->boolean('has_infectious_disease'),
         ]);
+    }
+
+    /**
+     * Whether the requested pickup time falls within 12 hours of the
+     * current time — a "last minute" ride the dispatcher cannot plan for
+     * via the online form. Returns false when either the trip date or
+     * pickup time is unparseable so the required/string rules handle those.
+     */
+    private function isWithinTwelveHours(string $pickupTime): bool
+    {
+        $tripDate = $this->input('trip_date');
+
+        if (! $tripDate) {
+            return false;
+        }
+
+        try {
+            $pickup = Carbon::parse($tripDate.' '.$pickupTime);
+        } catch (\Throwable) {
+            return false;
+        }
+
+        return $pickup->isAfter(now()) && $pickup->lte(now()->addHours(12));
     }
 }
