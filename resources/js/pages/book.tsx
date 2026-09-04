@@ -434,10 +434,12 @@ export default function Book() {
         setPendingPayment(null);
     };
 
-    const fieldError = (field: keyof TripRequestFormData): string | undefined =>
-        stepErrors[field] ?? form.errors[field];
+    const fieldError = (
+        field: keyof TripRequestFormData | string,
+    ): string | undefined =>
+        stepErrors[field] ?? form.errors[field as keyof TripRequestFormData];
 
-    const inputClass = (field: keyof TripRequestFormData): string =>
+    const inputClass = (field: keyof TripRequestFormData | string): string =>
         `${FIELD_BG} ${fieldError(field) ? 'border-red-500/80 focus-visible:border-red-500' : ''}`;
 
     const set = (
@@ -547,6 +549,11 @@ export default function Book() {
         ) {
             errors.passenger_phone_number =
                 'Please enter a valid US phone number.';
+        }
+
+        if (stepId === 0 && !smsConsent) {
+            errors.sms_consent =
+                'Please agree to the text messaging policy and terms before continuing.';
         }
 
         setStepErrors(errors);
@@ -943,6 +950,7 @@ export default function Book() {
                                         </Label>
                                         <PhoneInput
                                             id="passenger_phone_number"
+                                            placeholder=""
                                             value={
                                                 form.data.passenger_phone_number
                                             }
@@ -966,15 +974,34 @@ export default function Book() {
                                                 'passenger_phone_number',
                                             )}
                                         />
-                                        <div className="mt-1 flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white/60 p-3.5">
+                                        <div
+                                            className={`mt-1 flex items-start gap-2.5 rounded-xl border p-3.5 transition-colors ${
+                                                fieldError('sms_consent')
+                                                    ? 'border-red-500/80 bg-red-50/50'
+                                                    : 'border-slate-200 bg-white/60'
+                                            }`}
+                                        >
                                             <Checkbox
                                                 id="sms_consent"
                                                 checked={smsConsent}
-                                                onCheckedChange={(checked) =>
-                                                    setSmsConsent(
-                                                        Boolean(checked),
-                                                    )
-                                                }
+                                                onCheckedChange={(checked) => {
+                                                    const nextConsent =
+                                                        Boolean(checked);
+                                                    setSmsConsent(nextConsent);
+
+                                                    if (nextConsent) {
+                                                        setStepErrors(
+                                                            (prev) => {
+                                                                const next = {
+                                                                    ...prev,
+                                                                };
+                                                                delete next.sms_consent;
+
+                                                                return next;
+                                                            },
+                                                        );
+                                                    }
+                                                }}
                                                 className="mt-0.5"
                                             />
                                             <Label
@@ -1022,6 +1049,9 @@ export default function Book() {
                                                 .
                                             </Label>
                                         </div>
+                                        <InputError
+                                            message={fieldError('sms_consent')}
+                                        />
                                     </div>
                                     <div className="grid gap-2">
                                         <Label htmlFor="passenger_email">
@@ -1297,23 +1327,40 @@ export default function Book() {
                                             <Label htmlFor="pickup_stairs">
                                                 Stairs at pickup
                                             </Label>
-                                            <Input
-                                                id="pickup_stairs"
-                                                type="number"
-                                                min={0}
-                                                max={99}
-                                                step={1}
-                                                value={form.data.pickup_stairs}
-                                                onChange={(e) =>
+                                            <Select
+                                                value={String(
+                                                    form.data.pickup_stairs ??
+                                                        0,
+                                                )}
+                                                onValueChange={(v) =>
                                                     set(
                                                         'pickup_stairs',
-                                                        Number(
-                                                            e.target.value,
-                                                        ) || 0,
+                                                        Number(v),
                                                     )
                                                 }
-                                                className={FIELD_BG}
-                                            />
+                                            >
+                                                <SelectTrigger
+                                                    id="pickup_stairs"
+                                                    className={`w-full ${FIELD_BG}`}
+                                                >
+                                                    <SelectValue aria-label="Stairs at pickup" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {Array.from(
+                                                        { length: 10 },
+                                                        (_, i) => (
+                                                            <SelectItem
+                                                                key={i}
+                                                                value={String(
+                                                                    i,
+                                                                )}
+                                                            >
+                                                                {i}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
 
@@ -1374,23 +1421,40 @@ export default function Book() {
                                             <Label htmlFor="dropoff_stairs">
                                                 Stairs at dropoff
                                             </Label>
-                                            <Input
-                                                id="dropoff_stairs"
-                                                type="number"
-                                                min={0}
-                                                max={99}
-                                                step={1}
-                                                value={form.data.dropoff_stairs}
-                                                onChange={(e) =>
+                                            <Select
+                                                value={String(
+                                                    form.data.dropoff_stairs ??
+                                                        0,
+                                                )}
+                                                onValueChange={(v) =>
                                                     set(
                                                         'dropoff_stairs',
-                                                        Number(
-                                                            e.target.value,
-                                                        ) || 0,
+                                                        Number(v),
                                                     )
                                                 }
-                                                className={`${FIELD_BG}`}
-                                            />
+                                            >
+                                                <SelectTrigger
+                                                    id="dropoff_stairs"
+                                                    className={`w-full ${FIELD_BG}`}
+                                                >
+                                                    <SelectValue aria-label="Stairs at dropoff" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {Array.from(
+                                                        { length: 10 },
+                                                        (_, i) => (
+                                                            <SelectItem
+                                                                key={i}
+                                                                value={String(
+                                                                    i,
+                                                                )}
+                                                            >
+                                                                {i}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
                                 </div>

@@ -76,7 +76,7 @@ export default function PhoneInput({
     onChange,
     invalid = false,
     className,
-    placeholder = '707-555-0192',
+    placeholder = '',
 }: PhoneInputProps) {
     const { countryCode, number } = splitPhoneNumber(value);
 
