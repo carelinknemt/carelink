@@ -239,8 +239,6 @@ carelink/
 ├── tests/
 │   ├── Feature/Carelink/          # Booking, billing, pages, dashboard, careers…
 │   └── Support/FakeStripeClient.php  # In-memory Stripe mock for feature tests
-├── prototype/                     # Standalone design prototype (React + Bun + mock
-│                                  #   dispatch backend) — source of seeded content
 └── .ai/rules/                     # Load-bearing agent/dev conventions (see below)
 ```
 
