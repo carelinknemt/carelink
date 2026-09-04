@@ -110,6 +110,26 @@ export default function Header() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    useEffect(() => {
+        const handleResize = () => {
+            const root = document.documentElement;
+            const hasLargeFont =
+                root.classList.contains('a11y-font-120') ||
+                root.classList.contains('a11y-font-130') ||
+                root.classList.contains('a11y-font-140') ||
+                root.classList.contains('a11y-font-150');
+            const collapseThreshold = hasLargeFont ? 1500 : 1200;
+
+            if (window.innerWidth > collapseThreshold) {
+                setMobileMenuOpen(false);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const handleNavClick = () => {
         setActiveHoverItem(null);
         setMobileMenuOpen(false);
@@ -171,13 +191,13 @@ export default function Header() {
                     <img
                         src={company.logo_url}
                         alt={company.name}
-                        className="h-7 w-auto max-w-[115px] object-contain transition-transform group-hover:scale-105 min-[360px]:max-w-[135px] min-[380px]:h-8 min-[400px]:max-w-[170px] sm:h-11 sm:max-w-[280px] lg:mr-[80px] lg:-ml-[40px]"
+                        className="header-logo-desktop h-7 w-auto max-w-[115px] object-contain transition-transform group-hover:scale-105 min-[360px]:max-w-[135px] min-[380px]:h-8 min-[400px]:max-w-[170px] sm:h-11 sm:max-w-[280px]"
                         referrerPolicy="no-referrer"
                     />
                 </Link>
 
                 {/* Desktop Nav Links */}
-                <nav className="hidden items-center gap-3 lg:flex xl:gap-5">
+                <nav className="header-desktop-nav items-center gap-3 xl:gap-5">
                     {navItems.map((item) => (
                         <div key={item.id} className="relative py-2">
                             <Link
@@ -236,7 +256,7 @@ export default function Header() {
                     {/* Mobile menu toggle button */}
                     <button
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        className="flex min-h-[40px] min-w-[40px] items-center justify-center rounded-xl p-2 text-gray-700 hover:bg-gray-100 active:bg-gray-200 lg:hidden"
+                        className="header-mobile-toggle min-h-[40px] min-w-[40px] items-center justify-center rounded-xl p-2 text-gray-700 hover:bg-gray-100 active:bg-gray-200"
                         aria-label="Toggle menu"
                     >
                         {mobileMenuOpen ? (
@@ -251,7 +271,7 @@ export default function Header() {
             {activeHoverData && activeHoverData.subLinks.length > 0 && (
                 <div
                     onMouseEnter={() => setActiveHoverItem(activeHoverData.id)}
-                    className="hidden animate-in border-t border-slate-200/80 bg-slate-50/90 shadow-sm transition-all duration-150 fade-in lg:block"
+                    className="header-desktop-subnav animate-in border-t border-slate-200/80 bg-slate-50/90 shadow-sm transition-all duration-150 fade-in"
                 >
                     <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-2.5 lg:px-12">
                         <span className="shrink-0 border-r border-slate-300 pr-4 text-[11px] font-extrabold tracking-wider text-[#004B87] uppercase">
@@ -275,7 +295,7 @@ export default function Header() {
 
             {/* Mobile Nav Drawer with Accordions */}
             {mobileMenuOpen && (
-                <div className="max-h-[80vh] animate-in overflow-y-auto border-t border-gray-100 bg-white px-4 py-3 shadow-xl duration-200 slide-in-from-top-2 lg:hidden">
+                <div className="header-mobile-drawer max-h-[80vh] animate-in overflow-y-auto border-t border-gray-100 bg-white px-4 py-3 shadow-xl duration-200 slide-in-from-top-2">
                     <div className="flex flex-col space-y-2">
                         {navItems.map((item) => {
                             const itemClassName = `flex min-h-[44px] w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-xs font-bold transition-colors sm:text-sm ${

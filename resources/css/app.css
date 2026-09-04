@@ -472,3 +472,118 @@
 .animate-route-rail-vertical {
     animation: routeRailFlowVertical 0.8s linear infinite;
 }
+
+/* ==========================================================================
+   Carelink Header Responsive Breakpoints
+   - Standard: Collapse menus on viewport width <= 1200px.
+   - Large Text (A11y Font Size >= 120%): Collapse menus on viewport width <= 1500px.
+   ========================================================================== */
+
+.header-desktop-nav {
+    display: none;
+}
+
+@media (min-width: 1201px) {
+    .header-desktop-nav {
+        display: flex;
+    }
+}
+
+:is(.a11y-font-120, .a11y-font-130, .a11y-font-140, .a11y-font-150)
+    .header-desktop-nav {
+    display: none;
+}
+
+@media (min-width: 1501px) {
+    :is(.a11y-font-120, .a11y-font-130, .a11y-font-140, .a11y-font-150)
+        .header-desktop-nav {
+        display: flex;
+    }
+}
+
+.header-desktop-subnav {
+    display: none;
+}
+
+@media (min-width: 1201px) {
+    .header-desktop-subnav {
+        display: block;
+    }
+}
+
+:is(.a11y-font-120, .a11y-font-130, .a11y-font-140, .a11y-font-150)
+    .header-desktop-subnav {
+    display: none;
+}
+
+@media (min-width: 1501px) {
+    :is(.a11y-font-120, .a11y-font-130, .a11y-font-140, .a11y-font-150)
+        .header-desktop-subnav {
+        display: block;
+    }
+}
+
+.header-mobile-toggle {
+    display: flex;
+}
+
+@media (min-width: 1201px) {
+    .header-mobile-toggle {
+        display: none;
+    }
+}
+
+:is(.a11y-font-120, .a11y-font-130, .a11y-font-140, .a11y-font-150)
+    .header-mobile-toggle {
+    display: flex;
+}
+
+@media (min-width: 1501px) {
+    :is(.a11y-font-120, .a11y-font-130, .a11y-font-140, .a11y-font-150)
+        .header-mobile-toggle {
+        display: none;
+    }
+}
+
+.header-mobile-drawer {
+    display: block;
+}
+
+@media (min-width: 1201px) {
+    .header-mobile-drawer {
+        display: none;
+    }
+}
+
+:is(.a11y-font-120, .a11y-font-130, .a11y-font-140, .a11y-font-150)
+    .header-mobile-drawer {
+    display: block;
+}
+
+@media (min-width: 1501px) {
+    :is(.a11y-font-120, .a11y-font-130, .a11y-font-140, .a11y-font-150)
+        .header-mobile-drawer {
+        display: none;
+    }
+}
+
+@media (min-width: 1201px) {
+    .header-logo-desktop {
+        margin-right: 80px;
+        margin-left: -40px;
+    }
+}
+
+:is(.a11y-font-120, .a11y-font-130, .a11y-font-140, .a11y-font-150)
+    .header-logo-desktop {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+@media (min-width: 1501px) {
+    :is(.a11y-font-120, .a11y-font-130, .a11y-font-140, .a11y-font-150)
+        .header-logo-desktop {
+        margin-right: 80px;
+        margin-left: -40px;
+    }
+}
