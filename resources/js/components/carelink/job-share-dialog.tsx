@@ -20,7 +20,7 @@ interface JobShareDialogProps {
     url: string;
 }
 
-const QR_SIZE = 480;
+const QR_SIZE = 1024;
 const LOGO_PATH = '/images/qrlogo.jpeg';
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -63,6 +63,11 @@ export function JobShareDialog({
     const [renderError, setRenderError] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    const absoluteUrl =
+        typeof window === 'undefined'
+            ? url
+            : new URL(url, window.location.origin).toString();
+
     useEffect(() => {
         if (!open || !url) {
             return;
@@ -73,7 +78,7 @@ export function JobShareDialog({
         async function render() {
             const canvas = document.createElement('canvas');
 
-            await toCanvas(canvas, url, {
+            await toCanvas(canvas, absoluteUrl, {
                 width: QR_SIZE,
                 margin: 2,
                 errorCorrectionLevel: 'H',
@@ -127,7 +132,7 @@ export function JobShareDialog({
         return () => {
             cancelled = true;
         };
-    }, [open, url]);
+    }, [open, url, absoluteUrl]);
 
     const fileName = `${
         title
@@ -138,7 +143,7 @@ export function JobShareDialog({
 
     async function copyLink() {
         try {
-            await navigator.clipboard.writeText(url);
+            await navigator.clipboard.writeText(absoluteUrl);
             setCopied(true);
             toast.success('Link copied to clipboard.');
             window.setTimeout(() => setCopied(false), 1500);
@@ -183,7 +188,7 @@ export function JobShareDialog({
                     <input
                         type="text"
                         readOnly
-                        value={url}
+                        value={absoluteUrl}
                         aria-label="Shareable link"
                         className="h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm text-muted-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                     />
@@ -210,9 +215,9 @@ export function JobShareDialog({
                     </DialogClose>
                     <Button
                         asChild
-                        className={
+                        className={`bg-[#004B87] text-white shadow-md hover:bg-[#003865] ${
                             dataUrl ? '' : 'pointer-events-none opacity-50'
-                        }
+                        }`}
                     >
                         <a
                             href={dataUrl ?? '#'}
