@@ -1,6 +1,14 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { CircleDot, CircleCheck, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+    CircleDot,
+    CircleCheck,
+    Pencil,
+    Plus,
+    QrCode,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
+import { JobShareDialog } from '@/components/carelink/job-share-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,7 +39,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { dashboard } from '@/routes';
+import { careers as careersRoute, dashboard } from '@/routes';
 import { jobOpenings as dashboardJobOpenings } from '@/routes/dashboard';
 import {
     destroy as destroyOpening,
@@ -82,6 +90,7 @@ export default function DashboardJobOpenings({
     const [deleteTarget, setDeleteTarget] = useState<JobOpeningRecord | null>(
         null,
     );
+    const [qrTarget, setQrTarget] = useState<JobOpeningRecord | null>(null);
 
     function openPost() {
         form.reset();
@@ -237,6 +246,20 @@ export default function DashboardJobOpenings({
                                                     </TableCell>
                                                     <TableCell className="w-32">
                                                         <div className="flex items-center justify-end gap-1">
+                                                            <IconAction label="Export QR code">
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        setQrTarget(
+                                                                            opening,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <QrCode className="size-4" />
+                                                                </Button>
+                                                            </IconAction>
                                                             <IconAction label="Edit opening">
                                                                 <Button
                                                                     type="button"
@@ -338,6 +361,18 @@ export default function DashboardJobOpenings({
                                                         : ''}
                                                 </p>
                                                 <div className="flex items-center gap-1">
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="gap-1.5"
+                                                        onClick={() =>
+                                                            setQrTarget(opening)
+                                                        }
+                                                    >
+                                                        <QrCode className="size-3.5" />
+                                                        QR
+                                                    </Button>
                                                     <Button
                                                         type="button"
                                                         variant="outline"
@@ -844,6 +879,19 @@ export default function DashboardJobOpenings({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {qrTarget && (
+                <JobShareDialog
+                    open={qrTarget !== null}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setQrTarget(null);
+                        }
+                    }}
+                    title={qrTarget.title}
+                    url={careersRoute.url({ query: { opening: qrTarget.id } })}
+                />
+            )}
         </>
     );
 }

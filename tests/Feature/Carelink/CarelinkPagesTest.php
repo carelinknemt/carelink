@@ -52,6 +52,16 @@ test('the careers page exposes job benefits', function () {
             ->where('careers.0.benefits', ['Health insurance stipend', 'Paid drive time']));
 });
 
+test('the careers page renders with an opening query param for QR deep links', function () {
+    $career = Career::factory()->create();
+
+    $this->get(route('careers', ['opening' => $career->id]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('careers')
+            ->where('careers.0.id', $career->id));
+});
+
 test('the admin route redirects to the login page', function () {
     $this->get('/admin')->assertRedirect(route('login'));
 });

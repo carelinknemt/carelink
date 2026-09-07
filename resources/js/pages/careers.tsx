@@ -1,9 +1,11 @@
 import { useForm } from '@inertiajs/react';
-import { CheckCircle, FileText, Send, Upload } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { CheckCircle, FileText, Send, Share2, Upload } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import AppHead from '@/components/app-head';
+import { JobShareDialog } from '@/components/carelink/job-share-dialog';
 import PageHero from '@/components/carelink/page-hero';
 import { usePageHero } from '@/lib/cms';
+import { careers as careersRoute } from '@/routes';
 import { apply } from '@/routes/careers';
 import type { Career } from '@/types/carelink';
 
@@ -19,6 +21,7 @@ export default function Careers({ careers }: CareersProps) {
     const [selectedPosition, setSelectedPosition] = useState<string | null>(
         null,
     );
+    const [shareTarget, setShareTarget] = useState<Career | null>(null);
     const resumeInputRef = useRef<HTMLInputElement>(null);
     const form = useForm({
         career_id: null as number | null,
@@ -28,6 +31,31 @@ export default function Careers({ careers }: CareersProps) {
         cover_letter: '',
         resume: null as File | null,
     });
+
+    useEffect(() => {
+        const openingId = new URLSearchParams(window.location.search).get(
+            'opening',
+        );
+
+        if (!openingId) {
+            return;
+        }
+
+        const career = careers.find((c) => c.id === Number(openingId));
+
+        if (!career) {
+            return;
+        }
+
+        window.setTimeout(() => {
+            form.setData('career_id', career.id);
+            setSelectedPosition(career.title);
+            document
+                .getElementById('career-application')
+                ?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleApplyNow = (career: Career) => {
         form.setData('career_id', career.id);
@@ -182,13 +210,27 @@ export default function Careers({ careers }: CareersProps) {
                                                 </>
                                             )}
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleApplyNow(career)}
-                                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#004B87] px-6 py-3 text-sm font-bold whitespace-nowrap text-white shadow-md transition hover:bg-[#003865] active:scale-95"
-                                    >
-                                        Apply Now
-                                    </button>
+                                    <div className="flex flex-col gap-2 sm:flex-row">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setShareTarget(career)
+                                            }
+                                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#004B87]/30 bg-white px-6 py-3 text-sm font-bold whitespace-nowrap text-[#004B87] shadow-md transition hover:bg-[#004B87]/5 active:scale-95"
+                                        >
+                                            <Share2 className="h-4 w-4" />
+                                            Share
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleApplyNow(career)
+                                            }
+                                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#004B87] px-6 py-3 text-sm font-bold whitespace-nowrap text-white shadow-md transition hover:bg-[#003865] active:scale-95"
+                                        >
+                                            Apply Now
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -422,6 +464,21 @@ export default function Careers({ careers }: CareersProps) {
                     </div>
                 </div>
             </div>
+
+            {shareTarget && (
+                <JobShareDialog
+                    open={shareTarget !== null}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setShareTarget(null);
+                        }
+                    }}
+                    title={shareTarget.title}
+                    url={careersRoute.url({
+                        query: { opening: shareTarget.id },
+                    })}
+                />
+            )}
         </div>
     );
 }
