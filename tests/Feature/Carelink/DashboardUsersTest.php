@@ -2,6 +2,10 @@
 
 use App\Mail\KmsIntroMail;
 use App\Mail\ResetPasswordMail;
+use App\Models\Career;
+use App\Models\CareerApplication;
+use App\Models\TripRequest;
+use App\Models\TripRequestAudit;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -236,4 +240,79 @@ test('the user summary returns role instead of is_admin', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->has('users.data.0.role')
             ->where('users.data.0.role', User::ROLE_ADMIN));
+});
+
+test('admins can view a user detail page', function () {
+    $admin = actingAsAdmin();
+    $target = User::factory()->create(['name' => 'Jane Doe', 'email' => 'jane@example.com']);
+
+    $this->get(route('dashboard.users.show', $target))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/users/show')
+            ->where('user.name', 'Jane Doe')
+            ->where('user.email', 'jane@example.com')
+            ->where('current_user_id', $admin->id)
+            ->has('applications')
+            ->has('audits'));
+});
+
+test('user detail shows the user\'s job applications and booking activity', function () {
+    $target = User::factory()->create();
+    actingAsAdmin();
+    $career = Career::factory()->create(['title' => 'Medical Transport Driver']);
+
+    CareerApplication::create([
+        'career_id' => $career->id,
+        'user_id' => $target->id,
+        'name' => $target->name,
+        'email' => $target->email,
+        'phone' => '(707) 555-0192',
+        'cover_letter' => 'I would love to join the team.',
+        'resume_path' => 'resumes/example.pdf',
+        'resume_name' => 'resume.pdf',
+    ]);
+
+    $trip = TripRequest::factory()->create();
+    TripRequestAudit::create([
+        'trip_request_id' => $trip->id,
+        'user_id' => $target->id,
+        'user_name' => $target->name,
+        'role' => $target->role,
+        'action' => TripRequestAudit::ACTION_STATUS_CHANGED,
+        'from_value' => TripRequest::STATUS_PENDING_DISPATCH,
+        'to_value' => TripRequest::STATUS_IN_TRANSIT,
+    ]);
+
+    $this->get(route('dashboard.users.show', $target))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/users/show')
+            ->has('applications', 1)
+            ->where('applications.0.position', 'Medical Transport Driver')
+            ->where('applications.0.resume_name', 'resume.pdf')
+            ->has('audits', 1)
+            ->where('audits.0.booking_number', $trip->booking_number)
+            ->where('audits.0.action', TripRequestAudit::ACTION_STATUS_CHANGED));
+});
+
+test('user detail profile includes verification, two-factor, and sessions', function () {
+    $target = User::factory()->create();
+    actingAsAdmin();
+
+    $this->get(route('dashboard.users.show', $target))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/users/show')
+            ->has('user.email_verified_at')
+            ->has('user.two_factor_enabled')
+            ->has('user.sessions_count'));
+});
+
+test('managers cannot access the user detail page', function () {
+    $manager = User::factory()->manager()->create();
+    $target = User::factory()->create();
+    $this->actingAs($manager);
+
+    $this->get(route('dashboard.users.show', $target))->assertRedirect();
 });

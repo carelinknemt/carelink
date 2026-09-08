@@ -7,7 +7,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | tests/Feature/Carelink/** | .ai/rules/carelink.md |
 | app/Http/Controllers/Carelink/Cms/** | .ai/rules/cms.md |
 | resources/js/components/carelink/** | .ai/rules/components-carelink.md |
-| app/Http/Controllers/Carelink/**, app/Http/Controllers/Carelink/BookController.php, app/Http/Controllers/Carelink/DashboardBookingController.php, app/Http/Controllers/Carelink/DashboardAnalyticsController.php, app/Http/Controllers/Carelink/DashboardPaymentController.php, app/Http/Controllers/Carelink/DashboardUserController.php, app/Http/Controllers/Carelink/DashboardCareerApplicationController.php, app/Http/Controllers/Carelink/DashboardJobOpeningController.php | .ai/rules/controllers-carelink.md |
+| app/Http/Controllers/Carelink/**, app/Http/Controllers/Carelink/BookController.php, app/Http/Controllers/Carelink/DashboardBookingController.php, app/Http/Controllers/Carelink/DashboardAnalyticsController.php, app/Http/Controllers/Carelink/DashboardPaymentController.php, app/Http/Controllers/Carelink/DashboardUserController.php, app/Http/Controllers/Carelink/DashboardCareerApplicationController.php, app/Http/Controllers/Carelink/DashboardJobOpeningController.php, app/Http/Controllers/Carelink/*User*.php | .ai/rules/controllers-carelink.md |
 | resources/js/pages/dashboard/** | .ai/rules/dashboard.md |
 | resources/js/data/kms-docs.ts | .ai/rules/data.md |
 | ** | .ai/rules/general.md |
@@ -20,7 +20,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 | resources/js/pages/dashboard/**, resources/js/pages/cms/** | .ai/rules/pages-cms.md |
 | resources/js/pages/book.tsx, resources/js/pages/**, resources/js/pages/*.tsx | .ai/rules/pages.md |
 | app/Providers/** | .ai/rules/providers.md |
-| app/Http/Requests/StoreCareerApplicationRequest.php, app/Http/Requests/StoreTripRequestRequest.php | .ai/rules/requests.md |
+| app/Http/Requests/StoreCareerApplicationRequest.php, app/Http/Requests/StoreTripRequestRequest.php, app/Http/Requests/CancelTripRequestRequest.php, app/Http/Requests/UpdateTripRequestStatusRequest.php | .ai/rules/requests.md |
 | routes/web.php | .ai/rules/routes-2.md |
 | resources/js/routes/** | .ai/rules/routes.md |
 | database/seeders/** | .ai/rules/seeders.md |

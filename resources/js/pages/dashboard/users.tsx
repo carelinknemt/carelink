@@ -1,9 +1,10 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import {
     Ban,
     CheckCircle2,
     ChevronLeftIcon,
     ChevronRightIcon,
+    Eye,
     Search,
     ShieldCheck,
     UserPlus,
@@ -22,6 +23,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { IconAction } from '@/components/ui/icon-action';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PaginationLink } from '@/components/ui/pagination';
@@ -41,10 +43,12 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/bookings';
+import { roleBadgeClass, roleLabel, ROLE_OPTIONS } from '@/lib/users';
 import { dashboard } from '@/routes';
 import { users as dashboardUsers } from '@/routes/dashboard';
 import {
     banToggle,
+    show as showUser,
     store as storeUser,
     updateRole,
 } from '@/routes/dashboard/users';
@@ -53,38 +57,6 @@ import type {
     UserRecord,
     UsersFilters,
 } from '@/types/dashboard';
-
-const ROLE_OPTIONS = [
-    {
-        value: 'admin',
-        label: 'Admin',
-        icon: ShieldCheck,
-        color: 'border-violet-200 bg-violet-50 text-violet-700',
-    },
-    {
-        value: 'manager',
-        label: 'Manager',
-        icon: ShieldCheck,
-        color: 'border-sky-200 bg-sky-50 text-sky-700',
-    },
-    {
-        value: 'dispatcher',
-        label: 'Dispatcher',
-        icon: null,
-        color: 'border-slate-200 bg-slate-50 text-slate-700',
-    },
-] as const;
-
-function roleBadgeClass(role: string): string {
-    return (
-        ROLE_OPTIONS.find((r) => r.value === role)?.color ??
-        'border-slate-200 bg-slate-50 text-slate-700'
-    );
-}
-
-function roleLabel(role: string): string {
-    return ROLE_OPTIONS.find((r) => r.value === role)?.label ?? role;
-}
 
 type DashboardUsersProps = {
     users: PaginatedUsers;
@@ -306,7 +278,14 @@ export default function DashboardUsers({
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="min-w-0">
                                                     <p className="flex items-center gap-2 font-medium">
-                                                        {user.name}
+                                                        <Link
+                                                            href={showUser.url({
+                                                                user: user.id,
+                                                            })}
+                                                            className="min-w-0 truncate hover:underline"
+                                                        >
+                                                            {user.name}
+                                                        </Link>
                                                         {user.id ===
                                                             current_user_id && (
                                                             <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
@@ -315,7 +294,14 @@ export default function DashboardUsers({
                                                         )}
                                                     </p>
                                                     <p className="text-sm text-muted-foreground">
-                                                        {user.email}
+                                                        <Link
+                                                            href={showUser.url({
+                                                                user: user.id,
+                                                            })}
+                                                            className="break-all hover:underline"
+                                                        >
+                                                            {user.email}
+                                                        </Link>
                                                     </p>
                                                 </div>
                                                 <div className="flex flex-col items-end gap-1.5">
@@ -422,7 +408,16 @@ export default function DashboardUsers({
                                                 <TableRow key={user.id}>
                                                     <TableCell className="font-medium">
                                                         <span className="flex items-center gap-2">
-                                                            {user.name}
+                                                            <Link
+                                                                href={showUser.url(
+                                                                    {
+                                                                        user: user.id,
+                                                                    },
+                                                                )}
+                                                                className="min-w-0 truncate hover:underline"
+                                                            >
+                                                                {user.name}
+                                                            </Link>
                                                             {user.id ===
                                                                 current_user_id && (
                                                                 <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
@@ -509,41 +504,60 @@ export default function DashboardUsers({
                                                         )}
                                                     </TableCell>
                                                     <TableCell className="text-right">
-                                                        {user.id ===
-                                                        current_user_id ? (
-                                                            <span className="text-sm text-muted-foreground">
-                                                                —
-                                                            </span>
-                                                        ) : user.banned_at ===
-                                                          null ? (
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    setBanTarget(
-                                                                        user,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <Ban />
-                                                                Ban
-                                                            </Button>
-                                                        ) : (
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    toggleBanDirect(
-                                                                        user,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <CheckCircle2 />
-                                                                Unban
-                                                            </Button>
-                                                        )}
+                                                        <div className="flex items-center justify-end gap-1">
+                                                            <IconAction label="View details">
+                                                                <Button
+                                                                    asChild
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                >
+                                                                    <Link
+                                                                        href={showUser.url(
+                                                                            {
+                                                                                user: user.id,
+                                                                            },
+                                                                        )}
+                                                                    >
+                                                                        <Eye />
+                                                                    </Link>
+                                                                </Button>
+                                                            </IconAction>
+                                                            {user.id ===
+                                                            current_user_id ? (
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    —
+                                                                </span>
+                                                            ) : user.banned_at ===
+                                                              null ? (
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        setBanTarget(
+                                                                            user,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Ban />
+                                                                    Ban
+                                                                </Button>
+                                                            ) : (
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        toggleBanDirect(
+                                                                            user,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <CheckCircle2 />
+                                                                    Unban
+                                                                </Button>
+                                                            )}
+                                                        </div>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}

@@ -156,6 +156,40 @@ export type UserRecord = {
     joined_at: string;
 };
 
+export type UserDetail = {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+    banned_at: string | null;
+    joined_at: string;
+    updated_at: string;
+    email_verified_at: string | null;
+    two_factor_enabled: boolean;
+    sessions_count: number;
+};
+
+export type UserAuditEntry = {
+    id: number;
+    trip_request_id: number;
+    booking_number: string | null;
+    action: string;
+    from_value: string | null;
+    to_value: string | null;
+    reason: string | null;
+    created_at: string;
+};
+
+export type UserApplicationEntry = {
+    id: number;
+    position: string | null;
+    name: string;
+    email: string;
+    phone: string;
+    resume_name: string | null;
+    submitted_at: string;
+};
+
 export type UsersFilters = {
     search?: string | null;
     role?: 'admin' | 'dispatcher' | 'manager' | null;

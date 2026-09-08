@@ -8,6 +8,7 @@ paths:
   - app/Http/Controllers/Carelink/DashboardUserController.php
   - app/Http/Controllers/Carelink/DashboardCareerApplicationController.php
   - app/Http/Controllers/Carelink/DashboardJobOpeningController.php
+  - 'app/Http/Controllers/Carelink/*User*.php'
 ---
 
 # Controllers Carelink
@@ -59,3 +60,6 @@ Applications table is compact (applicant, role title, submitted, actions dropdow
 
 ## input_price mirrors the charged booking fee, computed server-side
 trip_requests.input_price is not taken from client input. BookController::store always sets it to BookingFee::amountInCentsFor(transport_type) / 100 so the stored price mirrors the fee actually charged ($20 ambulatory, $30 standard by default). Display surfaces (dashboard cards, bookings lists) render this stored value; never hardcode "$30" in copy since ambulatory differs.
+
+## No is_admin guard in user controllers - role:admin middleware only
+Admin gating is done exclusively via the role:admin route group; there is no is_admin DB column/attribute anymore (RBAC moved to the role enum). Do NOT call abort_unless($request->user()->is_admin, 403) - the magic attribute is null, so it always 403s. For role checks use $user->isAdmin().

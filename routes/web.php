@@ -104,6 +104,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::get('/dashboard/payments', [DashboardPaymentController::class, 'index'])->name('dashboard.payments');
         Route::get('/dashboard/users', [DashboardUserController::class, 'index'])->name('dashboard.users');
+        Route::get('/dashboard/users/{user}', [DashboardUserController::class, 'show'])->name('dashboard.users.show');
         Route::post('/dashboard/users', [DashboardUserController::class, 'store'])->name('dashboard.users.store');
         Route::patch('/dashboard/users/{user}/role', [DashboardUserController::class, 'updateRole'])->name('dashboard.users.update-role');
         Route::post('/dashboard/users/{user}/ban-toggle', [DashboardUserController::class, 'toggleBan'])->name('dashboard.users.ban-toggle');

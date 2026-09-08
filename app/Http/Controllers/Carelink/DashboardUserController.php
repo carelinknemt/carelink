@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Carelink;
 
 use App\Http\Controllers\Controller;
 use App\Mail\KmsIntroMail;
+use App\Models\CareerApplication;
+use App\Models\TripRequestAudit;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -53,6 +56,50 @@ class DashboardUserController extends Controller
                 'role' => $request->string('role')->trim()->toString() ?: null,
             ],
             'current_user_id' => $request->user()->id,
+        ]);
+    }
+
+    /**
+     * User detail: account info plus a recent section of the user's job
+     * applications and the booking changes they performed.
+     */
+    public function show(Request $request, User $user): Response
+    {
+        $applications = $user->careerApplications()
+            ->with('career:id,title')
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(fn (CareerApplication $application): array => [
+                'id' => $application->id,
+                'position' => $application->career?->title,
+                'name' => $application->name,
+                'email' => $application->email,
+                'phone' => $application->phone,
+                'resume_name' => $application->resume_name,
+                'submitted_at' => $application->created_at?->toIso8601String(),
+            ]);
+
+        $audits = $user->tripRequestAudits()
+            ->with('tripRequest:id,booking_number')
+            ->limit(20)
+            ->get()
+            ->map(fn (TripRequestAudit $audit): array => [
+                'id' => $audit->id,
+                'trip_request_id' => $audit->trip_request_id,
+                'booking_number' => $audit->tripRequest?->booking_number,
+                'action' => $audit->action,
+                'from_value' => $audit->from_value,
+                'to_value' => $audit->to_value,
+                'reason' => $audit->reason,
+                'created_at' => $audit->created_at?->toIso8601String(),
+            ]);
+
+        return Inertia::render('dashboard/users/show', [
+            'user' => $this->profile($user),
+            'current_user_id' => $request->user()->id,
+            'applications' => $applications,
+            'audits' => $audits,
         ]);
     }
 
@@ -166,6 +213,27 @@ class DashboardUserController extends Controller
             'role' => $user->role,
             'banned_at' => $user->banned_at?->toIso8601String(),
             'joined_at' => $user->created_at?->toIso8601String(),
+        ];
+    }
+
+    /**
+     * Full account profile for the user detail page.
+     *
+     * @return array<string, mixed>
+     */
+    private function profile(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'banned_at' => $user->banned_at?->toIso8601String(),
+            'joined_at' => $user->created_at?->toIso8601String(),
+            'updated_at' => $user->updated_at?->toIso8601String(),
+            'email_verified_at' => $user->email_verified_at?->toIso8601String(),
+            'two_factor_enabled' => $user->two_factor_confirmed_at !== null,
+            'sessions_count' => (int) DB::table('sessions')->where('user_id', $user->id)->count(),
         ];
     }
 }
