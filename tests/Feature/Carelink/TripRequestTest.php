@@ -88,6 +88,33 @@ test('a trip request can be submitted without optional details', function () use
     expect(TripRequest::first()->dropoff_stairs)->toBe(0);
 });
 
+test('submitting a trip request saves the estimated price computed from the driving distance', function () use ($validPayload) {
+    Storage::fake('local');
+    app()->bind(StripeClient::class, fn () => new FakeStripeClient);
+
+    $this->post(route('bookings.store'), [
+        ...$validPayload,
+        'distance_miles' => 10,
+    ])->assertOk();
+
+    $tripRequest = TripRequest::first();
+
+    expect($tripRequest)
+        ->distance_miles->toBe('10.0')
+        ->estimated_price->toBe('62.50');
+});
+
+test('submitting a trip request without a distance leaves the estimated price null', function () use ($validPayload) {
+    Storage::fake('local');
+    app()->bind(StripeClient::class, fn () => new FakeStripeClient);
+
+    $this->post(route('bookings.store'), $validPayload)->assertOk();
+
+    expect(TripRequest::first())
+        ->distance_miles->toBeNull()
+        ->estimated_price->toBeNull();
+});
+
 test('the trip request form validates required fields', function () {
     $this->post(route('bookings.store'), [])
         ->assertSessionHasErrors([

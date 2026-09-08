@@ -29,6 +29,7 @@ class StoreTripRequestRequest extends FormRequest
             'will_call' => ['sometimes', 'boolean'],
             'trip_date' => ['required', 'date', 'after_or_equal:today'],
             'input_price' => ['nullable', 'numeric', 'min:0', 'max:100000'],
+            'distance_miles' => ['nullable', 'numeric', 'min:0', 'max:20000'],
             'pickup_address' => ['required', 'string', 'max:255'],
             'pickup_time' => ['required', 'string', 'max:32', function (string $attribute, mixed $value, Closure $fail): void {
                 if ($this->isWithinTwelveHours((string) $value)) {

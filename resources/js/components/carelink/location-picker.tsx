@@ -1,4 +1,4 @@
-import { CheckCircle2, Loader2, MapPin } from 'lucide-react';
+import { CheckCircle2, Loader2, LocateFixed, MapPin } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import MapPreview from '@/components/carelink/map-preview';
 import { Button } from '@/components/ui/button';
@@ -47,6 +47,9 @@ interface LocationPickerProps {
 
 const GOOGLE_TEXT_SEARCH_ENDPOINT =
     'https://places.googleapis.com/v1/places:searchText';
+
+const GOOGLE_GEOCODE_ENDPOINT =
+    'https://maps.googleapis.com/maps/api/geocode/json';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -123,7 +126,61 @@ async function searchGooglePlaces(
     return results;
 }
 
+interface GoogleGeocodeResponse {
+    status?: string;
+    results?: Array<{ formatted_address?: string }>;
+}
+
+/**
+ * Reverse-geocodes device coordinates into a human-readable address using
+ * the Google Geocoding API. Falls back to a plain coordinates label when
+ * reverse geocoding is unavailable (key disabled, no results) so the
+ * current location can still be picked.
+ */
+async function reverseGeocode(
+    latitude: number,
+    longitude: number,
+): Promise<string> {
+    if (!GOOGLE_MAPS_API_KEY) {
+        return `Current location (${latitude.toFixed(6)}, ${longitude.toFixed(6)})`;
+    }
+
+    const endpoint = `${GOOGLE_GEOCODE_ENDPOINT}?latlng=${latitude},${longitude}&language=en&key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}`;
+
+    const response = await fetch(endpoint);
+
+    if (!response.ok) {
+        throw new Error(`Google Geocoding request failed: ${response.status}`);
+    }
+
+    const data = (await response.json()) as GoogleGeocodeResponse;
+    const address = data.results?.[0]?.formatted_address?.trim();
+
+    return (
+        address ??
+        `Current location (${latitude.toFixed(6)}, ${longitude.toFixed(6)})`
+    );
+}
+
+function getCurrentPosition(): Promise<GeolocationPosition> {
+    return new Promise((resolve, reject) => {
+        if (!('geolocation' in navigator)) {
+            reject(new Error('Geolocation is not supported in this browser.'));
+
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 60000,
+        });
+    });
+}
+
 type SearchStatus = 'idle' | 'searching' | 'ok' | 'empty' | 'error';
+
+type GeoStatus = 'idle' | 'locating' | 'error';
 
 export default function LocationPicker({
     id,
@@ -133,6 +190,7 @@ export default function LocationPicker({
 }: LocationPickerProps) {
     const [results, setResults] = useState<LocationResult[]>([]);
     const [status, setStatus] = useState<SearchStatus>('idle');
+    const [geoStatus, setGeoStatus] = useState<GeoStatus>('idle');
     const [open, setOpen] = useState(false);
     const [selectedLocation, setSelectedLocation] =
         useState<SelectedLocation | null>(null);
@@ -149,6 +207,8 @@ export default function LocationPicker({
 
         const controller = new AbortController();
         const timer = window.setTimeout(async () => {
+            setGeoStatus('idle');
+
             if (query.length < MIN_QUERY_LENGTH) {
                 setResults([]);
                 setStatus('idle');
@@ -219,15 +279,38 @@ export default function LocationPicker({
     }, [open]);
 
     const handleSelect = (result: LocationResult) => {
+        completeSelection(result.address, result.latitude, result.longitude);
+    };
+
+    const handleCurrentLocation = async () => {
+        if (geoStatus === 'locating') {
+            return;
+        }
+
+        setGeoStatus('locating');
+
+        try {
+            const position = await getCurrentPosition();
+            const { latitude, longitude } = position.coords;
+            const address = await reverseGeocode(latitude, longitude);
+
+            completeSelection(address, latitude, longitude);
+        } catch {
+            setGeoStatus('error');
+        }
+    };
+
+    const completeSelection = (
+        address: string,
+        latitude: number,
+        longitude: number,
+    ) => {
         suppressSearchRef.current = true;
-        onSelect(result.address, result.latitude, result.longitude);
-        setSelectedLocation({
-            address: result.address,
-            latitude: result.latitude,
-            longitude: result.longitude,
-        });
+        onSelect(address, latitude, longitude);
+        setSelectedLocation({ address, latitude, longitude });
         setResults([]);
         setStatus('idle');
+        setGeoStatus('idle');
         setOpen(false);
     };
 
@@ -253,50 +336,78 @@ export default function LocationPicker({
                     onKeyDown={(event) => {
                         if (event.key === 'Escape') {
                             setOpen(false);
+                            setGeoStatus('idle');
                         }
                     }}
                 />
 
                 {open && value.trim().length >= MIN_QUERY_LENGTH && (
                     <div className="absolute top-full right-0 left-0 z-20 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
-                        {status === 'searching' && (
-                            <div className="flex items-center gap-2 px-4 py-3 text-sm text-slate-500">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Searching locations...
+                        <button
+                            type="button"
+                            className={cn(
+                                'flex w-full items-center gap-2.5 px-4 py-2.5 text-left transition',
+                                'hover:bg-slate-50 focus:bg-slate-50 focus:outline-none',
+                            )}
+                            onClick={handleCurrentLocation}
+                            disabled={geoStatus === 'locating'}
+                        >
+                            <LocateFixed className="h-4 w-4 shrink-0 text-[#004B87]" />
+                            <span className="truncate text-sm font-semibold text-slate-800">
+                                {geoStatus === 'locating'
+                                    ? 'Locating your device...'
+                                    : 'Use my current location'}
+                            </span>
+                        </button>
+
+                        {geoStatus === 'error' && (
+                            <div className="border-t border-red-100 px-4 py-2.5 text-sm text-red-600">
+                                We could not access your location. Please check
+                                your browser permission or type the address
+                                manually.
                             </div>
                         )}
 
-                        {status === 'error' && (
-                            <div className="px-4 py-3 text-sm text-red-600">
-                                Location search is unavailable right now. Please
-                                type the address manually.
-                            </div>
-                        )}
+                        <div className="border-t border-slate-100">
+                            {status === 'searching' && (
+                                <div className="flex items-center gap-2 px-4 py-3 text-sm text-slate-500">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Searching locations...
+                                </div>
+                            )}
 
-                        {status === 'empty' && (
-                            <div className="px-4 py-3 text-sm text-slate-500">
-                                No locations found in California. Try a more
-                                specific address.
-                            </div>
-                        )}
+                            {status === 'error' && (
+                                <div className="px-4 py-3 text-sm text-red-600">
+                                    Location search is unavailable right now.
+                                    Please type the address manually.
+                                </div>
+                            )}
 
-                        {status === 'ok' &&
-                            results.map((result) => (
-                                <button
-                                    key={`${result.latitude}-${result.longitude}-${result.address}`}
-                                    type="button"
-                                    className={cn(
-                                        'flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition',
-                                        'hover:bg-slate-50 focus:bg-slate-50 focus:outline-none',
-                                    )}
-                                    onClick={() => handleSelect(result)}
-                                >
-                                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E64A19]" />
-                                    <span className="min-w-0 truncate text-sm font-semibold text-slate-800">
-                                        {result.address}
-                                    </span>
-                                </button>
-                            ))}
+                            {status === 'empty' && (
+                                <div className="px-4 py-3 text-sm text-slate-500">
+                                    No locations found in California. Try a more
+                                    specific address.
+                                </div>
+                            )}
+
+                            {status === 'ok' &&
+                                results.map((result) => (
+                                    <button
+                                        key={`${result.latitude}-${result.longitude}-${result.address}`}
+                                        type="button"
+                                        className={cn(
+                                            'flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition',
+                                            'hover:bg-slate-50 focus:bg-slate-50 focus:outline-none',
+                                        )}
+                                        onClick={() => handleSelect(result)}
+                                    >
+                                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#E64A19]" />
+                                        <span className="min-w-0 truncate text-sm font-semibold text-slate-800">
+                                            {result.address}
+                                        </span>
+                                    </button>
+                                ))}
+                        </div>
                     </div>
                 )}
             </div>

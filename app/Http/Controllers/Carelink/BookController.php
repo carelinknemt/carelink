@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Carelink;
 
 use App\Cms\BookingFee;
+use App\Cms\FareEstimate;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTripRequestRequest;
 use App\Mail\TripRequestPaymentConfirmed;
@@ -56,11 +57,17 @@ class BookController extends Controller
     {
         $validated = $request->validated();
 
+        $distanceMiles = isset($validated['distance_miles']) ? (float) $validated['distance_miles'] : null;
+
         $tripRequest = TripRequest::create([
             ...$validated,
             'booking_number' => $this->generateBookingNumber(),
             'status' => TripRequest::STATUS_PENDING_DISPATCH,
             'input_price' => BookingFee::amountInCentsFor($validated['transport_type']) / 100,
+            'estimated_price' => $distanceMiles !== null
+                ? FareEstimate::amountInDollars($validated['transport_type'], $distanceMiles)
+                : null,
+            'distance_miles' => $validated['distance_miles'] ?? null,
         ]);
 
         $tripRequest->trip_request_csv_path = $this->exportToCsv($tripRequest);

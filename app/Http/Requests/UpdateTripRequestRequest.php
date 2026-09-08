@@ -40,6 +40,8 @@ class UpdateTripRequestRequest extends FormRequest
             'will_call' => ['sometimes', 'boolean'],
             'trip_date' => ['sometimes', 'required', 'date', 'after_or_equal:today'],
             'input_price' => ['sometimes', 'required', 'numeric', 'min:0', 'max:100000'],
+            'estimated_price' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100000'],
+            'distance_miles' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:20000'],
             'pickup_address' => ['sometimes', 'required', 'string', 'max:255'],
             'pickup_time' => ['sometimes', 'required', 'string', 'max:32'],
             'dropoff_address' => ['sometimes', 'required', 'string', 'max:255'],

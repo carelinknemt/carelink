@@ -1,6 +1,7 @@
 ---
 paths:
   - 'resources/js/components/carelink/**'
+  - 'resources/js/components/carelink/*.tsx'
 ---
 
 # Components Carelink
@@ -16,3 +17,6 @@ Location search on the book form (location-picker.tsx) tries Photon (https://pho
 
 ## LocationPicker geocoding is Google Places only; OSRM stays key-free
 location-picker.tsx uses Google Places API (New) Text Search (places:searchText) as the sole geocoder — Photon/Mapbox were removed Aug 2026 by client request. Key lives in VITE_GOOGLE_MAPS_API_KEY (client-side, so restrict it in Google Cloud Console to Places API + production referrers). California-only is enforced server-side via locationRestriction rectangle (32.528,-124.482 to 42.010,-114.131) — do not re-add client bbox filters. The old "no map API keys" rule applies to route drawing only: MapPreview must keep using free OSRM for driving routes; do not add Directions API there.
+
+## Current-location reverse geocode uses Google Geocoding API
+LocationPicker now pins a "Use my current location" row at the top of the search dropdown. It uses navigator.geolocation + the Google legacy Geocoding API (maps.googleapis.com/maps/api/geocode/json) with VITE_GOOGLE_MAPS_API_KEY to reverse-geocode coordinates; if geocoding is unavailable it falls back to a "Current location (lat, lng)" label. Forward search remains Places (New) Text Search only.

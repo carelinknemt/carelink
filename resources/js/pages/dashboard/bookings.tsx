@@ -378,9 +378,7 @@ export default function DashboardBookings({
     }
 
     function canCancel(booking: PaidBooking): boolean {
-        return (
-            booking.status !== 'CANCELLED' && booking.status !== 'COMPLETED'
-        );
+        return booking.status !== 'CANCELLED' && booking.status !== 'COMPLETED';
     }
 
     const cancelableStatuses = statuses.filter(
@@ -581,11 +579,22 @@ export default function DashboardBookings({
                                                         {booking.passenger_name}
                                                     </p>
                                                 </div>
-                                                <span className="shrink-0 font-medium">
-                                                    {formatMoney(
-                                                        booking.input_price,
+                                                <div className="flex shrink-0 flex-col items-end">
+                                                    <span className="font-medium">
+                                                        {formatMoney(
+                                                            booking.input_price,
+                                                        )}
+                                                    </span>
+                                                    {booking.estimated_price !==
+                                                        null && (
+                                                        <span className="text-xs text-muted-foreground">
+                                                            Est.{' '}
+                                                            {formatMoney(
+                                                                booking.estimated_price,
+                                                            )}
+                                                        </span>
                                                     )}
-                                                </span>
+                                                </div>
                                             </div>
                                             <div className="mt-3 flex flex-col gap-2">
                                                 <span className="text-sm text-muted-foreground">
@@ -629,7 +638,9 @@ export default function DashboardBookings({
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 {cancelableStatuses.map(
-                                                                    (status) => (
+                                                                    (
+                                                                        status,
+                                                                    ) => (
                                                                         <SelectItem
                                                                             key={
                                                                                 status
@@ -706,6 +717,9 @@ export default function DashboardBookings({
                                                         }
                                                         onSort={changeSort}
                                                     />
+                                                </TableHead>
+                                                <TableHead className="text-right">
+                                                    Estimated
                                                 </TableHead>
                                                 <TableHead className="text-right">
                                                     Actions
@@ -808,6 +822,14 @@ export default function DashboardBookings({
                                                         {formatMoney(
                                                             booking.input_price,
                                                         )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right text-muted-foreground">
+                                                        {booking.estimated_price !==
+                                                        null
+                                                            ? formatMoney(
+                                                                  booking.estimated_price,
+                                                              )
+                                                            : '—'}
                                                     </TableCell>
                                                     <TableCell className="text-right">
                                                         {canCancel(booking) && (
@@ -1064,10 +1086,7 @@ export default function DashboardBookings({
                             placeholder="Explain why this booking is being cancelled…"
                             value={cancelForm.data.reason}
                             onChange={(event) =>
-                                cancelForm.setData(
-                                    'reason',
-                                    event.target.value,
-                                )
+                                cancelForm.setData('reason', event.target.value)
                             }
                         />
                         {cancelForm.errors.reason && (

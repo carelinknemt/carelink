@@ -61,6 +61,42 @@ test('only bookings with the paid booking fee are listed', function () {
             ->where('bookings.data.0.booking_number', $paid->booking_number));
 });
 
+test('the bookings list includes the estimated price and distance', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking([
+        'trip_date' => now()->addDays(1)->toDateString(),
+        'estimated_price' => 62.5,
+        'distance_miles' => 10,
+    ]);
+
+    $this->get(route('dashboard.bookings'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('dashboard/bookings')
+            ->has('bookings.data', 1)
+            ->where('bookings.data.0.estimated_price', '62.50')
+            ->where('bookings.data.0.distance_miles', '10.0'));
+});
+
+test('the booking detail page exposes the estimated price and distance', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $booking = paidBooking([
+        'estimated_price' => 62.5,
+        'distance_miles' => 10,
+    ]);
+
+    $this->get(route('dashboard.bookings.show', $booking))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('dashboard/bookings/show')
+            ->where('booking.estimated_price', '62.50')
+            ->where('booking.distance_miles', '10.0'));
+});
+
 test('bookings are sorted by trip date soonest first', function () {
     $user = User::factory()->create();
     $this->actingAs($user);

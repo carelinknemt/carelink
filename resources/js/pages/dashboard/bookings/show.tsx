@@ -121,6 +121,16 @@ const detailSections: DetailSection[] = [
             { key: 'load_time', label: 'Load time' },
             { key: 'unload_time', label: 'Unload time' },
             { key: 'input_price', label: 'Trip price', type: 'money' },
+            {
+                key: 'estimated_price',
+                label: 'Estimated price',
+                type: 'money',
+            },
+            {
+                key: 'distance_miles',
+                label: 'Distance (miles)',
+                type: 'number',
+            },
             { key: 'tag_list', label: 'Tags' },
         ],
     },
@@ -919,8 +929,7 @@ export default function BookingDetail({
                                                 </p>
                                             </div>
                                             <p className="text-xs text-muted-foreground">
-                                                {audit.user_name} ·{' '}
-                                                {audit.role}
+                                                {audit.user_name} · {audit.role}
                                             </p>
                                             {audit.reason && (
                                                 <p className="text-xs text-muted-foreground italic">
@@ -970,10 +979,7 @@ export default function BookingDetail({
                             placeholder="Explain why this booking is being cancelled…"
                             value={cancelForm.data.reason}
                             onChange={(event) =>
-                                cancelForm.setData(
-                                    'reason',
-                                    event.target.value,
-                                )
+                                cancelForm.setData('reason', event.target.value)
                             }
                         />
                         {cancelForm.errors.reason && (

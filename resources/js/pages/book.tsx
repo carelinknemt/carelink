@@ -73,6 +73,7 @@ interface TripRequestFormData {
     service_type: string;
     will_call: string;
     input_price: string;
+    distance_miles: string;
 }
 
 type Errors = Record<string, string>;
@@ -214,6 +215,7 @@ const initialForm: TripRequestFormData = {
     service_type: '',
     will_call: '',
     input_price: '',
+    distance_miles: '',
 };
 
 interface ServiceRates {
@@ -592,6 +594,12 @@ export default function Book() {
                 return;
             }
         }
+
+        form.transform((data) => ({
+            ...data,
+            distance_miles:
+                distanceMiles !== null ? distanceMiles.toFixed(2) : '',
+        }));
 
         form.post(store.url(), {
             onError: (errors) => {

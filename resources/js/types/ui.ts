@@ -39,6 +39,8 @@ export type PaidBooking = {
     pickup_address: string | null;
     dropoff_address: string | null;
     input_price: string;
+    estimated_price: string | null;
+    distance_miles: string | null;
     status: string;
     paid_at: string | null;
     booked_at: string;
