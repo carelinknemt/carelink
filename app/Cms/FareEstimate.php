@@ -71,10 +71,10 @@ class FareEstimate
 
     private static function baseRateFor(string $transportType): float
     {
-        $service = self::serviceFor($transportType);
+        $rates = self::ratesFor($transportType);
 
-        if ($service !== null) {
-            return (float) $service->base_rate;
+        if ($rates !== null) {
+            return $rates['base_rate'];
         }
 
         return $transportType === 'ambulatory'
@@ -84,10 +84,10 @@ class FareEstimate
 
     private static function mileageRateFor(string $transportType): float
     {
-        $service = self::serviceFor($transportType);
+        $rates = self::ratesFor($transportType);
 
-        if ($service !== null) {
-            return (float) $service->mileage_rate;
+        if ($rates !== null) {
+            return $rates['mileage_rate'];
         }
 
         return $transportType === 'ambulatory'
@@ -95,12 +95,29 @@ class FareEstimate
             : self::FALLBACK_MILEAGE_RATE;
     }
 
-    private static function serviceFor(string $transportType): ?Service
+    /**
+     * Scalar service rates for a transport type, cached by value (never the
+     * model instance itself — serializing an Eloquent model into the cache
+     * can unserialize as an unusable object). Falls back to the documented
+     * rates when the service row is missing.
+     *
+     * @return array{base_rate: float, mileage_rate: float}|null
+     */
+    private static function ratesFor(string $transportType): ?array
     {
+        $service = Service::where('slug', self::serviceSlugFor($transportType))->first();
+
+        if ($service === null) {
+            return null;
+        }
+
         return Cache::remember(
-            'fare-estimate:'.self::serviceSlugFor($transportType),
+            'fare-estimate:rates:'.self::serviceSlugFor($transportType),
             now()->addHour(),
-            fn (): ?Service => Service::where('slug', self::serviceSlugFor($transportType))->first(),
+            fn (): array => [
+                'base_rate' => (float) $service->base_rate,
+                'mileage_rate' => (float) $service->mileage_rate,
+            ],
         );
     }
 }
