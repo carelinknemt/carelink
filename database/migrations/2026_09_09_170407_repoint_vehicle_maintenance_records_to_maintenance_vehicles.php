@@ -50,7 +50,7 @@ return new class extends Migration
         Schema::table('vehicle_maintenance_records', function (Blueprint $table) {
             $table->unsignedBigInteger('maintenance_vehicle_id')->nullable(false)->change();
             $table->foreign('maintenance_vehicle_id')->references('id')->on('maintenance_vehicles')->cascadeOnDelete();
-            $table->index(['maintenance_vehicle_id', 'service_date']);
+            $table->index(['maintenance_vehicle_id', 'service_date'], 'maintenance_records_vehicle_service_date_index');
         });
     }
 
@@ -92,7 +92,7 @@ return new class extends Migration
 
         Schema::table('vehicle_maintenance_records', function (Blueprint $table) {
             $table->dropForeign(['maintenance_vehicle_id']);
-            $table->dropIndex(['maintenance_vehicle_id', 'service_date']);
+            $table->dropIndex('maintenance_records_vehicle_service_date_index');
             $table->dropColumn('maintenance_vehicle_id');
         });
 
