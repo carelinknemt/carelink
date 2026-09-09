@@ -17,6 +17,8 @@ class FleetVehicle extends Model
         'name',
         'type',
         'capacity',
+        'vin',
+        'plate',
         'features',
         'description',
         'image',

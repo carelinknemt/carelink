@@ -360,6 +360,8 @@ export type VehicleRecord = {
     name: string;
     type: string;
     capacity: string;
+    vin: string | null;
+    plate: string | null;
     hourly_rate_est: string | null;
     description: string | null;
     active: boolean;
@@ -371,4 +373,5 @@ export type VehicleRecord = {
 export type VehicleOption = {
     id: number;
     name: string;
+    plate: string | null;
 };

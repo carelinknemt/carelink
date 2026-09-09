@@ -86,6 +86,8 @@ type VehicleFormData = {
     name: string;
     type: string;
     capacity: string;
+    vin: string;
+    plate: string;
     hourly_rate_est: string;
     description: string;
     active: boolean;
@@ -143,6 +145,8 @@ export default function DashboardVehicles({
         name: '',
         type: 'AMBULATORY',
         capacity: '',
+        vin: '',
+        plate: '',
         hourly_rate_est: '',
         description: '',
         active: true,
@@ -284,6 +288,8 @@ export default function DashboardVehicles({
         vehicleForm.setData('name', vehicle.name);
         vehicleForm.setData('type', vehicle.type);
         vehicleForm.setData('capacity', vehicle.capacity);
+        vehicleForm.setData('vin', vehicle.vin ?? '');
+        vehicleForm.setData('plate', vehicle.plate ?? '');
         vehicleForm.setData('hourly_rate_est', vehicle.hourly_rate_est ?? '');
         vehicleForm.setData('description', vehicle.description ?? '');
         vehicleForm.setData('active', vehicle.active);
@@ -626,13 +632,31 @@ export default function DashboardVehicles({
                                             </IconAction>
                                         </div>
                                     </div>
-                                    <div className="mt-3 text-sm">
-                                        <p className="text-muted-foreground">
-                                            Services
-                                        </p>
-                                        <p className="font-medium">
-                                            {vehicle.records_count}
-                                        </p>
+                                    <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                                        <div>
+                                            <p className="text-muted-foreground">
+                                                Plate
+                                            </p>
+                                            <p className="font-medium">
+                                                {vehicle.plate ?? '—'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-muted-foreground">
+                                                VIN
+                                            </p>
+                                            <p className="font-medium">
+                                                {vehicle.vin ?? '—'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-muted-foreground">
+                                                Services
+                                            </p>
+                                            <p className="font-medium">
+                                                {vehicle.records_count}
+                                            </p>
+                                        </div>
                                     </div>
                                 </li>
                             ))}
@@ -644,6 +668,8 @@ export default function DashboardVehicles({
                                     <TableRow>
                                         <TableHead>Vehicle</TableHead>
                                         <TableHead>Type</TableHead>
+                                        <TableHead>Plate</TableHead>
+                                        <TableHead>VIN</TableHead>
                                         <TableHead>Services</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead className="text-right">
@@ -661,6 +687,12 @@ export default function DashboardVehicles({
                                                 <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-700">
                                                     {vehicle.type}
                                                 </span>
+                                            </TableCell>
+                                            <TableCell>
+                                                {vehicle.plate ?? '—'}
+                                            </TableCell>
+                                            <TableCell>
+                                                {vehicle.vin ?? '—'}
                                             </TableCell>
                                             <TableCell>
                                                 {vehicle.records_count}
@@ -850,6 +882,9 @@ export default function DashboardVehicles({
                                                 value={String(option.id)}
                                             >
                                                 {option.name}
+                                                {option.plate
+                                                    ? ` · ${option.plate}`
+                                                    : ''}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -1290,6 +1325,48 @@ export default function DashboardVehicles({
                         </div>
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="grid gap-1.5">
+                                <Label htmlFor="vehicle-vin">VIN</Label>
+                                <Input
+                                    id="vehicle-vin"
+                                    value={vehicleForm.data.vin}
+                                    onChange={(event) =>
+                                        vehicleForm.setData(
+                                            'vin',
+                                            event.target.value.toUpperCase(),
+                                        )
+                                    }
+                                    placeholder="e.g. 5TDDKRFH8DS123456"
+                                />
+                                {vehicleForm.errors.vin && (
+                                    <p className="text-xs text-destructive">
+                                        {vehicleForm.errors.vin}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="grid gap-1.5">
+                                <Label htmlFor="vehicle-plate">
+                                    License plate
+                                </Label>
+                                <Input
+                                    id="vehicle-plate"
+                                    value={vehicleForm.data.plate}
+                                    onChange={(event) =>
+                                        vehicleForm.setData(
+                                            'plate',
+                                            event.target.value.toUpperCase(),
+                                        )
+                                    }
+                                    placeholder="e.g. 8ABC123"
+                                />
+                                {vehicleForm.errors.plate && (
+                                    <p className="text-xs text-destructive">
+                                        {vehicleForm.errors.plate}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="grid gap-1.5">
                                 <Label htmlFor="vehicle-rate">
                                     Hourly rate estimate
                                 </Label>
@@ -1453,6 +1530,9 @@ export default function DashboardVehicles({
                                                             )}
                                                         >
                                                             {option.name}
+                                                            {option.plate
+                                                                ? ` · ${option.plate}`
+                                                                : ''}
                                                         </SelectItem>
                                                     ),
                                                 )}

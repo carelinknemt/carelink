@@ -18,6 +18,8 @@ class FleetVehicleFactory extends Factory
             'name' => $this->faker->words(4, true),
             'type' => $this->faker->randomElement(['AMBULATORY', 'WHEELCHAIR', 'TRANSIT_SHUTTLE']),
             'capacity' => '1 Wheelchair + 3 Ambulatory Passengers',
+            'vin' => $this->faker->regexify('[A-HJ-NPR-Z0-9]{17}'),
+            'plate' => $this->faker->regexify('[A-Z0-9]{7}'),
             'features' => [$this->faker->sentence(4), $this->faker->sentence(4)],
             'description' => $this->faker->paragraph(2),
             'image' => '/images/carelink_hero_van_1785061463464.jpg',

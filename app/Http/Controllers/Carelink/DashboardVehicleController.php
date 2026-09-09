@@ -39,7 +39,7 @@ class DashboardVehicleController extends Controller
             'records' => $records,
             'vehicle_options' => FleetVehicle::query()
                 ->ordered()
-                ->get(['id', 'name']),
+                ->get(['id', 'name', 'plate']),
         ]);
     }
 
@@ -303,6 +303,8 @@ class DashboardVehicleController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', 'string', 'in:AMBULATORY,WHEELCHAIR,GURNEY,TRANSIT_SHUTTLE'],
             'capacity' => ['required', 'string', 'max:255'],
+            'vin' => ['nullable', 'string', 'max:255'],
+            'plate' => ['nullable', 'string', 'max:255'],
             'hourly_rate_est' => ['nullable', 'numeric', 'min:0', 'max:9999'],
             'description' => ['nullable', 'string', 'max:5000'],
             'active' => ['sometimes', 'boolean'],
@@ -321,6 +323,8 @@ class DashboardVehicleController extends Controller
             'name' => $vehicle->name,
             'type' => $vehicle->type,
             'capacity' => $vehicle->capacity,
+            'vin' => $vehicle->vin,
+            'plate' => $vehicle->plate,
             'hourly_rate_est' => $vehicle->hourly_rate_est,
             'description' => $vehicle->description,
             'active' => $vehicle->active,

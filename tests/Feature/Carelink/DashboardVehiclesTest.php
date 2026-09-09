@@ -21,6 +21,9 @@ test('admins can view the vehicle maintenance page', function () {
             ->has('records', 1)
             ->has('vehicle_options', 1)
             ->where('vehicles.0.name', $vehicle->name)
+            ->where('vehicles.0.plate', $vehicle->plate)
+            ->where('vehicles.0.vin', $vehicle->vin)
+            ->where('vehicle_options.0.plate', $vehicle->plate)
             ->where('vehicles.0.records_count', 1));
 });
 
@@ -160,6 +163,8 @@ test('admins can add a fleet vehicle', function () {
         'name' => 'Van 01 - BraunAbility',
         'type' => 'WHEELCHAIR',
         'capacity' => '1 Wheelchair + 3 Passengers',
+        'vin' => '5TDDKRFH8DS123456',
+        'plate' => '8ABC123',
         'hourly_rate_est' => 85,
         'description' => 'Wheelchair accessible van.',
     ])->assertRedirect();
@@ -168,6 +173,8 @@ test('admins can add a fleet vehicle', function () {
 
     expect($vehicle)->not->toBeNull();
     expect($vehicle->type)->toBe('WHEELCHAIR');
+    expect($vehicle->vin)->toBe('5TDDKRFH8DS123456');
+    expect($vehicle->plate)->toBe('8ABC123');
     expect($vehicle->active)->toBeTrue();
 });
 
@@ -188,6 +195,8 @@ test('admins can update a fleet vehicle', function () {
         'name' => 'Updated Van',
         'type' => 'TRANSIT_SHUTTLE',
         'capacity' => '8 Passengers',
+        'vin' => '1FTYR10U7P1A23456',
+        'plate' => 'UPDT123',
         'hourly_rate_est' => 95,
         'description' => 'Updated description.',
     ])->assertRedirect();
@@ -196,6 +205,8 @@ test('admins can update a fleet vehicle', function () {
 
     expect($fresh)->name->toBe('Updated Van');
     expect($fresh)->type->toBe('TRANSIT_SHUTTLE');
+    expect($fresh)->vin->toBe('1FTYR10U7P1A23456');
+    expect($fresh)->plate->toBe('UPDT123');
 });
 
 test('admins can delete a fleet vehicle and its maintenance history', function () {
