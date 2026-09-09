@@ -43,9 +43,17 @@ const socialLinks = [
         href: 'http://linkedin.com/company/carelinknemt',
         icon: Linkedin,
     },
-    { name: 'TikTok', href: 'https://www.tiktok.com/@carelinknemt', icon: TiktokIcon },
+    {
+        name: 'TikTok',
+        href: 'https://www.tiktok.com/@carelinknemt',
+        icon: TiktokIcon,
+    },
     { name: 'Twitter', href: 'https://x.com/carelinknemt', icon: Twitter },
-    { name: 'YouTube', href: 'https://www.youtube.com/@carelinknemt', icon: Youtube },
+    {
+        name: 'YouTube',
+        href: 'https://www.youtube.com/@carelinknemt',
+        icon: Youtube,
+    },
 ];
 
 export default function Footer() {

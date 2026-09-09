@@ -206,12 +206,9 @@ export default function UsersSimulation() {
                                             <TableCell id="kms-demo-us-role">
                                                 <Select
                                                     value={user.role}
-                                                    onValueChange={(
-                                                        value,
-                                                    ) => {
+                                                    onValueChange={(value) => {
                                                         if (
-                                                            value !==
-                                                            user.role
+                                                            value !== user.role
                                                         ) {
                                                             setUsers(
                                                                 (current) =>

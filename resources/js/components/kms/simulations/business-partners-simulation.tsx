@@ -1,4 +1,10 @@
-import { Building2, MoreHorizontal, Search, ThumbsDown, ThumbsUp } from 'lucide-react';
+import {
+    Building2,
+    MoreHorizontal,
+    Search,
+    ThumbsDown,
+    ThumbsUp,
+} from 'lucide-react';
 import { useState } from 'react';
 import SimulationShell from '@/components/kms/simulation-shell';
 import { Button } from '@/components/ui/button';
@@ -197,7 +203,7 @@ export default function BusinessPartnersSimulation() {
                                                     </p>
                                                 </div>
                                                 <span
-                                                    className={`shrink-0 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass(request.status)}`}
+                                                    className={`inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass(request.status)}`}
                                                 >
                                                     {statusLabel(
                                                         request.status,
@@ -229,9 +235,7 @@ export default function BusinessPartnersSimulation() {
                                                     <TableHead>
                                                         Contact
                                                     </TableHead>
-                                                    <TableHead>
-                                                        Type
-                                                    </TableHead>
+                                                    <TableHead>Type</TableHead>
                                                     <TableHead>
                                                         Status
                                                     </TableHead>
@@ -253,9 +257,7 @@ export default function BusinessPartnersSimulation() {
                                                                 }
                                                             </p>
                                                             <p className="text-xs text-muted-foreground">
-                                                                {
-                                                                    request.email
-                                                                }
+                                                                {request.email}
                                                             </p>
                                                         </TableCell>
                                                         <TableCell>
@@ -265,9 +267,7 @@ export default function BusinessPartnersSimulation() {
                                                                 }
                                                             </p>
                                                             <p className="text-xs text-muted-foreground">
-                                                                {
-                                                                    request.phone
-                                                                }
+                                                                {request.phone}
                                                             </p>
                                                         </TableCell>
                                                         <TableCell>
