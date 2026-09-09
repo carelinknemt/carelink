@@ -24,6 +24,7 @@ use App\Http\Controllers\Carelink\DashboardController;
 use App\Http\Controllers\Carelink\DashboardJobOpeningController;
 use App\Http\Controllers\Carelink\DashboardPaymentController;
 use App\Http\Controllers\Carelink\DashboardUserController;
+use App\Http\Controllers\Carelink\DashboardVehicleController;
 use App\Http\Controllers\Carelink\FaqController;
 use App\Http\Controllers\Carelink\FleetController;
 use App\Http\Controllers\Carelink\HomeController;
@@ -112,6 +113,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/users/{user}/documents/{document}', [DashboardUserController::class, 'downloadDocument'])->name('dashboard.users.documents.show');
         Route::post('/dashboard/users/{user}/documents', [DashboardUserController::class, 'storeDocument'])->name('dashboard.users.documents.store');
         Route::delete('/dashboard/users/{user}/documents/{document}', [DashboardUserController::class, 'destroyDocument'])->name('dashboard.users.documents.destroy');
+
+        Route::get('/dashboard/vehicles', [DashboardVehicleController::class, 'index'])->name('dashboard.vehicles');
+        Route::post('/dashboard/vehicles', [DashboardVehicleController::class, 'storeVehicle'])->name('dashboard.vehicles.store');
+        Route::put('/dashboard/vehicles/{vehicle}', [DashboardVehicleController::class, 'updateVehicle'])->name('dashboard.vehicles.update');
+        Route::post('/dashboard/vehicles/{vehicle}/toggle', [DashboardVehicleController::class, 'toggleVehicle'])->name('dashboard.vehicles.toggle');
+        Route::delete('/dashboard/vehicles/{vehicle}', [DashboardVehicleController::class, 'destroyVehicle'])->name('dashboard.vehicles.destroy');
+        Route::post('/dashboard/vehicles/maintenance', [DashboardVehicleController::class, 'store'])->name('dashboard.vehicles.maintenance.store');
+        Route::put('/dashboard/vehicles/maintenance/{record}', [DashboardVehicleController::class, 'update'])->name('dashboard.vehicles.maintenance.update');
+        Route::delete('/dashboard/vehicles/maintenance/{record}', [DashboardVehicleController::class, 'destroy'])->name('dashboard.vehicles.maintenance.destroy');
+        Route::get('/dashboard/vehicles/maintenance/{record}/documents/{document}', [DashboardVehicleController::class, 'downloadDocument'])->name('dashboard.vehicles.maintenance.documents.show');
+        Route::post('/dashboard/vehicles/maintenance/{record}/documents', [DashboardVehicleController::class, 'storeDocument'])->name('dashboard.vehicles.maintenance.documents.store');
+        Route::delete('/dashboard/vehicles/maintenance/{record}/documents/{document}', [DashboardVehicleController::class, 'destroyDocument'])->name('dashboard.vehicles.maintenance.documents.destroy');
     });
 
     Route::middleware('role:dispatcher,manager,admin')->group(function () {

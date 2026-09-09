@@ -333,3 +333,42 @@ export type CmsBlogPostRecord = {
     published_at: string | null;
     active: boolean;
 };
+
+export type MaintenanceDocumentRecord = {
+    id: number;
+    file_name: string;
+    file_size: number;
+};
+
+export type VehicleMaintenanceRecord = {
+    id: number;
+    maintenance_type: string;
+    type_label: string;
+    service_date: string | null;
+    vehicle_mileage: number | null;
+    service_provider: string | null;
+    total_cost: string | null;
+    next_service_date: string | null;
+    next_service_mileage: number | null;
+    notes: string | null;
+    vehicle: { id: number; name: string } | null;
+    documents: MaintenanceDocumentRecord[];
+};
+
+export type VehicleRecord = {
+    id: number;
+    name: string;
+    type: string;
+    capacity: string;
+    hourly_rate_est: string | null;
+    description: string | null;
+    active: boolean;
+    records_count: number;
+    last_service_date: string | null;
+    next_service_date: string | null;
+};
+
+export type VehicleOption = {
+    id: number;
+    name: string;
+};

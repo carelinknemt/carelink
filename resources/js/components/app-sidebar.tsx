@@ -10,6 +10,7 @@ import {
     MessageSquareText,
     ShieldOff,
     Users,
+    Wrench,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -35,6 +36,7 @@ import {
     jobOpenings,
     payments,
     users,
+    vehicles as dashboardVehicles,
 } from '@/routes/dashboard';
 import type { NavGroup } from '@/types';
 
@@ -112,6 +114,12 @@ const navGroups: NavGroup[] = [
                 title: 'Users',
                 href: users(),
                 icon: Users,
+                roles: ['admin'],
+            },
+            {
+                title: 'Vehicle Maintenance',
+                href: dashboardVehicles(),
+                icon: Wrench,
                 roles: ['admin'],
             },
             {

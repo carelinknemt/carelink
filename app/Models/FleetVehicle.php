@@ -6,6 +6,7 @@ use Database\Factories\FleetVehicleFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FleetVehicle extends Model
 {
@@ -37,6 +38,14 @@ class FleetVehicle extends Model
             'hourly_rate_est' => 'decimal:2',
             'active' => 'boolean',
         ];
+    }
+
+    /**
+     * @return HasMany<VehicleMaintenanceRecord, $this>
+     */
+    public function maintenanceRecords(): HasMany
+    {
+        return $this->hasMany(VehicleMaintenanceRecord::class);
     }
 
     /**
