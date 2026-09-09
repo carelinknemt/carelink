@@ -102,16 +102,29 @@ export default function DashboardVehicles({
     const [recordOpen, setRecordOpen] = useState(false);
     const [editingRecord, setEditingRecord] =
         useState<VehicleMaintenanceRecord | null>(null);
-    const [pendingDocuments, setPendingDocuments] = useState<
-        PendingDocument[]
-    >([]);
+    const [pendingDocuments, setPendingDocuments] = useState<PendingDocument[]>(
+        [],
+    );
     const [deleteRecordTarget, setDeleteRecordTarget] =
         useState<VehicleMaintenanceRecord | null>(null);
     const [vehicleOpen, setVehicleOpen] = useState(false);
-    const [editingVehicle, setEditingVehicle] =
-        useState<VehicleRecord | null>(null);
+    const [editingVehicle, setEditingVehicle] = useState<VehicleRecord | null>(
+        null,
+    );
     const [deleteVehicleTarget, setDeleteVehicleTarget] =
         useState<VehicleRecord | null>(null);
+    const [reportOpen, setReportOpen] = useState(false);
+    const [reportForm, setReportForm] = useState({
+        fleet_vehicle_id: '',
+        start_date: '',
+        end_date: '',
+    });
+    const [report, setReport] = useState<{
+        vehicle: VehicleOption;
+        start_date: string;
+        end_date: string;
+        items: VehicleMaintenanceRecord[];
+    } | null>(null);
 
     const recordForm = useForm<RecordFormData>({
         fleet_vehicle_id: '',
@@ -155,7 +168,9 @@ export default function DashboardVehicles({
         recordForm.setData('service_date', record.service_date ?? '');
         recordForm.setData(
             'vehicle_mileage',
-            record.vehicle_mileage != null ? String(record.vehicle_mileage) : '',
+            record.vehicle_mileage != null
+                ? String(record.vehicle_mileage)
+                : '',
         );
         recordForm.setData('service_provider', record.service_provider ?? '');
         recordForm.setData('total_cost', record.total_cost ?? '0.00');
@@ -206,7 +221,9 @@ export default function DashboardVehicles({
 
         recordForm.setData(
             'documents',
-            next.filter((doc) => doc.file.size > 0).map((doc) => ({ file: doc.file })),
+            next
+                .filter((doc) => doc.file.size > 0)
+                .map((doc) => ({ file: doc.file })),
         );
     }
 
@@ -217,7 +234,9 @@ export default function DashboardVehicles({
 
         recordForm.setData(
             'documents',
-            next.filter((doc) => doc.file.size > 0).map((doc) => ({ file: doc.file })),
+            next
+                .filter((doc) => doc.file.size > 0)
+                .map((doc) => ({ file: doc.file })),
         );
     }
 
@@ -265,10 +284,7 @@ export default function DashboardVehicles({
         vehicleForm.setData('name', vehicle.name);
         vehicleForm.setData('type', vehicle.type);
         vehicleForm.setData('capacity', vehicle.capacity);
-        vehicleForm.setData(
-            'hourly_rate_est',
-            vehicle.hourly_rate_est ?? '',
-        );
+        vehicleForm.setData('hourly_rate_est', vehicle.hourly_rate_est ?? '');
         vehicleForm.setData('description', vehicle.description ?? '');
         vehicleForm.setData('active', vehicle.active);
         setVehicleOpen(true);
@@ -293,12 +309,51 @@ export default function DashboardVehicles({
         });
     }
 
-    function toggleVehicle(vehicle: VehicleRecord) {
-        router.post(
-            vehiclesRoutes.toggle.url({ vehicle: vehicle.id }),
-            {},
-            { preserveScroll: true },
+    function openReport() {
+        setReportForm({ fleet_vehicle_id: '', start_date: '', end_date: '' });
+        setReport(null);
+        setReportOpen(true);
+    }
+
+    function generateReport() {
+        const vehicle = vehicle_options.find(
+            (option) => option.id === Number(reportForm.fleet_vehicle_id),
         );
+
+        if (!vehicle) {
+            return;
+        }
+
+        const items = records.filter((record) => {
+            if (record.vehicle?.id !== vehicle.id) {
+                return false;
+            }
+
+            if (
+                reportForm.start_date &&
+                (!record.service_date ||
+                    record.service_date < reportForm.start_date)
+            ) {
+                return false;
+            }
+
+            if (
+                reportForm.end_date &&
+                (!record.service_date ||
+                    record.service_date > reportForm.end_date)
+            ) {
+                return false;
+            }
+
+            return true;
+        });
+
+        setReport({
+            vehicle,
+            start_date: reportForm.start_date,
+            end_date: reportForm.end_date,
+            items,
+        });
     }
 
     function confirmDeleteVehicle() {
@@ -321,7 +376,9 @@ export default function DashboardVehicles({
                 {records.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-16 text-center">
                         <Wrench className="size-10 text-muted-foreground" />
-                        <p className="font-medium">No maintenance records yet</p>
+                        <p className="font-medium">
+                            No maintenance records yet
+                        </p>
                         <p className="text-sm text-muted-foreground">
                             Add a service record for any fleet vehicle.
                         </p>
@@ -384,9 +441,7 @@ export default function DashboardVehicles({
                                                 Cost
                                             </p>
                                             <p className="font-medium">
-                                                {formatMoney(
-                                                    record.total_cost,
-                                                )}
+                                                {formatMoney(record.total_cost)}
                                             </p>
                                         </div>
                                         <div>
@@ -396,16 +451,6 @@ export default function DashboardVehicles({
                                             <p className="font-medium">
                                                 {formatMileage(
                                                     record.vehicle_mileage,
-                                                )}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-muted-foreground">
-                                                Next service
-                                            </p>
-                                            <p className="font-medium">
-                                                {formatDate(
-                                                    record.next_service_date,
                                                 )}
                                             </p>
                                         </div>
@@ -432,7 +477,6 @@ export default function DashboardVehicles({
                                         <TableHead>Mileage</TableHead>
                                         <TableHead>Provider</TableHead>
                                         <TableHead>Cost</TableHead>
-                                        <TableHead>Next service</TableHead>
                                         <TableHead>Receipts</TableHead>
                                         <TableHead className="text-right">
                                             Actions
@@ -466,14 +510,7 @@ export default function DashboardVehicles({
                                                 {record.service_provider ?? '—'}
                                             </TableCell>
                                             <TableCell>
-                                                {formatMoney(
-                                                    record.total_cost,
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                {formatDate(
-                                                    record.next_service_date,
-                                                )}
+                                                {formatMoney(record.total_cost)}
                                             </TableCell>
                                             <TableCell>
                                                 {record.documents.length > 0
@@ -557,7 +594,7 @@ export default function DashboardVehicles({
                                                 )}
                                             </p>
                                             <p className="text-sm text-muted-foreground">
-                                                {vehicle.type} · {vehicle.capacity}
+                                                {vehicle.type}
                                             </p>
                                         </div>
                                         <div className="flex items-center gap-1">
@@ -589,39 +626,13 @@ export default function DashboardVehicles({
                                             </IconAction>
                                         </div>
                                     </div>
-                                    <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-                                        <div>
-                                            <p className="text-muted-foreground">
-                                                Services
-                                            </p>
-                                            <p className="font-medium">
-                                                {vehicle.records_count}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-muted-foreground">
-                                                Next service
-                                            </p>
-                                            <p className="font-medium">
-                                                {formatDate(
-                                                    vehicle.next_service_date,
-                                                )}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="mt-3">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                                toggleVehicle(vehicle)
-                                            }
-                                        >
-                                            {vehicle.active
-                                                ? 'Deactivate'
-                                                : 'Activate'}
-                                        </Button>
+                                    <div className="mt-3 text-sm">
+                                        <p className="text-muted-foreground">
+                                            Services
+                                        </p>
+                                        <p className="font-medium">
+                                            {vehicle.records_count}
+                                        </p>
                                     </div>
                                 </li>
                             ))}
@@ -633,10 +644,7 @@ export default function DashboardVehicles({
                                     <TableRow>
                                         <TableHead>Vehicle</TableHead>
                                         <TableHead>Type</TableHead>
-                                        <TableHead>Capacity</TableHead>
-                                        <TableHead>Hourly rate</TableHead>
                                         <TableHead>Services</TableHead>
-                                        <TableHead>Next service</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead className="text-right">
                                             Actions
@@ -655,20 +663,7 @@ export default function DashboardVehicles({
                                                 </span>
                                             </TableCell>
                                             <TableCell>
-                                                {vehicle.capacity}
-                                            </TableCell>
-                                            <TableCell>
-                                                {formatMoney(
-                                                    vehicle.hourly_rate_est,
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
                                                 {vehicle.records_count}
-                                            </TableCell>
-                                            <TableCell>
-                                                {formatDate(
-                                                    vehicle.next_service_date,
-                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 {vehicle.active ? (
@@ -697,20 +692,6 @@ export default function DashboardVehicles({
                                                             <Pencil />
                                                         </Button>
                                                     </IconAction>
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            toggleVehicle(
-                                                                vehicle,
-                                                            )
-                                                        }
-                                                    >
-                                                        {vehicle.active
-                                                            ? 'Deactivate'
-                                                            : 'Activate'}
-                                                    </Button>
                                                     <IconAction label="Delete vehicle">
                                                         <Button
                                                             type="button"
@@ -766,7 +747,8 @@ export default function DashboardVehicles({
                                     type="button"
                                     onClick={() =>
                                         setActiveTab(
-                                            tab.id as 'maintenance' | 'vehicles',
+                                            tab.id as
+                                                'maintenance' | 'vehicles',
                                         )
                                     }
                                     className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
@@ -780,10 +762,23 @@ export default function DashboardVehicles({
                             ))}
                         </div>
                         {activeTab === 'maintenance' ? (
-                            <Button type="button" onClick={openCreateRecord}>
-                                <Wrench />
-                                Add maintenance record
-                            </Button>
+                            <>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={openReport}
+                                >
+                                    <FileText />
+                                    Maintenance report
+                                </Button>
+                                <Button
+                                    type="button"
+                                    onClick={openCreateRecord}
+                                >
+                                    <Wrench />
+                                    Add maintenance record
+                                </Button>
+                            </>
                         ) : (
                             <Button type="button" onClick={openCreateVehicle}>
                                 <Plus />
@@ -1027,9 +1022,7 @@ export default function DashboardVehicles({
                                 <Input
                                     id="record-next-mileage"
                                     inputMode="numeric"
-                                    value={
-                                        recordForm.data.next_service_mileage
-                                    }
+                                    value={recordForm.data.next_service_mileage}
                                     onChange={(event) =>
                                         recordForm.setData(
                                             'next_service_mileage',
@@ -1040,8 +1033,7 @@ export default function DashboardVehicles({
                                 />
                                 {recordForm.errors.next_service_mileage && (
                                     <p className="text-xs text-destructive">
-                                        {recordForm.errors
-                                            .next_service_mileage}
+                                        {recordForm.errors.next_service_mileage}
                                     </p>
                                 )}
                             </div>
@@ -1055,7 +1047,10 @@ export default function DashboardVehicles({
                                 rows={4}
                                 value={recordForm.data.notes}
                                 onChange={(event) =>
-                                    recordForm.setData('notes', event.target.value)
+                                    recordForm.setData(
+                                        'notes',
+                                        event.target.value,
+                                    )
                                 }
                                 placeholder="Describe parts replaced, repairs, or inspection results"
                             />
@@ -1069,49 +1064,53 @@ export default function DashboardVehicles({
                         <div className="grid gap-1.5">
                             <Label>Receipt or service documents</Label>
 
-                            {editingRecord && editingRecord.documents.length > 0 && (
-                                <ul className="flex flex-col gap-2">
-                                    {editingRecord.documents.map((doc) => (
-                                        <li
-                                            key={doc.id}
-                                            className="flex items-center gap-2 rounded-md border border-border p-3"
-                                        >
-                                            <FileText className="size-4 shrink-0 text-muted-foreground" />
-                                            <div className="min-w-0 flex-1">
-                                                <p className="truncate text-sm">
-                                                    <a
-                                                        href={vehiclesRoutes.maintenance.documents.show.url(
-                                                            {
-                                                                record: editingRecord.id,
-                                                                document: doc.id,
-                                                            },
-                                                        )}
-                                                        className="hover:underline"
-                                                    >
-                                                        {doc.file_name}
-                                                    </a>
-                                                </p>
-                                                <p className="text-xs text-muted-foreground">
-                                                {formatFileSize(
-                                                        doc.file_size,
-                                                )}
-                                                </p>
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                aria-label="Remove receipt"
-                                                onClick={() =>
-                                                    removeStoredDocument(doc)
-                                                }
+                            {editingRecord &&
+                                editingRecord.documents.length > 0 && (
+                                    <ul className="flex flex-col gap-2">
+                                        {editingRecord.documents.map((doc) => (
+                                            <li
+                                                key={doc.id}
+                                                className="flex items-center gap-2 rounded-md border border-border p-3"
                                             >
-                                                <Trash2 />
-                                            </Button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                                                <FileText className="size-4 shrink-0 text-muted-foreground" />
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="truncate text-sm">
+                                                        <a
+                                                            href={vehiclesRoutes.maintenance.documents.show.url(
+                                                                {
+                                                                    record: editingRecord.id,
+                                                                    document:
+                                                                        doc.id,
+                                                                },
+                                                            )}
+                                                            className="hover:underline"
+                                                        >
+                                                            {doc.file_name}
+                                                        </a>
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {formatFileSize(
+                                                            doc.file_size,
+                                                        )}
+                                                    </p>
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    aria-label="Remove receipt"
+                                                    onClick={() =>
+                                                        removeStoredDocument(
+                                                            doc,
+                                                        )
+                                                    }
+                                                >
+                                                    <Trash2 />
+                                                </Button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
 
                             {pendingDocuments.length > 0 && (
                                 <ul className="flex flex-col gap-2">
@@ -1217,14 +1216,15 @@ export default function DashboardVehicles({
                         }}
                     >
                         <div className="grid gap-1.5">
-                            <Label htmlFor="vehicle-name">
-                                Vehicle name
-                            </Label>
+                            <Label htmlFor="vehicle-name">Vehicle name</Label>
                             <Input
                                 id="vehicle-name"
                                 value={vehicleForm.data.name}
                                 onChange={(event) =>
-                                    vehicleForm.setData('name', event.target.value)
+                                    vehicleForm.setData(
+                                        'name',
+                                        event.target.value,
+                                    )
                                 }
                                 placeholder="e.g. Van 01 - BraunAbility"
                             />
@@ -1387,10 +1387,271 @@ export default function DashboardVehicles({
                                 disabled={vehicleForm.processing}
                             >
                                 <Plus />
-                                {editingVehicle ? 'Save changes' : 'Add vehicle'}
+                                {editingVehicle
+                                    ? 'Save changes'
+                                    : 'Add vehicle'}
                             </Button>
                         </DialogFooter>
                     </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Vehicle maintenance report */}
+            <Dialog
+                open={reportOpen}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setReportOpen(false);
+                    }
+                }}
+            >
+                <DialogContent className="sm:max-w-3xl">
+                    {report === null ? (
+                        <>
+                            <DialogHeader>
+                                <DialogTitle>
+                                    Generate vehicle maintenance report
+                                </DialogTitle>
+                                <DialogDescription>
+                                    Choose a vehicle and period to summarize.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <form
+                                className="grid gap-4"
+                                onSubmit={(event: FormEvent) => {
+                                    event.preventDefault();
+                                    generateReport();
+                                }}
+                            >
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="grid gap-1.5">
+                                        <Label htmlFor="report-vehicle">
+                                            Vehicle
+                                        </Label>
+                                        <Select
+                                            value={reportForm.fleet_vehicle_id}
+                                            onValueChange={(value) =>
+                                                setReportForm((state) => ({
+                                                    ...state,
+                                                    fleet_vehicle_id: value,
+                                                }))
+                                            }
+                                        >
+                                            <SelectTrigger
+                                                id="report-vehicle"
+                                                className="w-full"
+                                            >
+                                                <SelectValue placeholder="Select a vehicle" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {vehicle_options.map(
+                                                    (option) => (
+                                                        <SelectItem
+                                                            key={option.id}
+                                                            value={String(
+                                                                option.id,
+                                                            )}
+                                                        >
+                                                            {option.name}
+                                                        </SelectItem>
+                                                    ),
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div />
+                                </div>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="grid gap-1.5">
+                                        <Label htmlFor="report-start">
+                                            Start date
+                                        </Label>
+                                        <DatePicker
+                                            id="report-start"
+                                            value={reportForm.start_date}
+                                            onChange={(value) =>
+                                                setReportForm((state) => ({
+                                                    ...state,
+                                                    start_date: value,
+                                                }))
+                                            }
+                                            placeholder="mm/dd/yyyy"
+                                        />
+                                    </div>
+                                    <div className="grid gap-1.5">
+                                        <Label htmlFor="report-end">
+                                            End date
+                                        </Label>
+                                        <DatePicker
+                                            id="report-end"
+                                            value={reportForm.end_date}
+                                            onChange={(value) =>
+                                                setReportForm((state) => ({
+                                                    ...state,
+                                                    end_date: value,
+                                                }))
+                                            }
+                                            placeholder="mm/dd/yyyy"
+                                        />
+                                    </div>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                    The report will include all recorded
+                                    maintenance for the selected vehicle and
+                                    period, including mileage, provider, cost,
+                                    and next-service information.
+                                </p>
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button type="button" variant="outline">
+                                            Cancel
+                                        </Button>
+                                    </DialogClose>
+                                    <Button
+                                        type="submit"
+                                        disabled={
+                                            !reportForm.fleet_vehicle_id ||
+                                            (reportForm.start_date !== '' &&
+                                                reportForm.end_date !== '' &&
+                                                reportForm.start_date >
+                                                    reportForm.end_date)
+                                        }
+                                    >
+                                        <FileText />
+                                        Generate report
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </>
+                    ) : (
+                        <>
+                            <DialogHeader>
+                                <DialogTitle>
+                                    Vehicle maintenance report
+                                </DialogTitle>
+                                <DialogDescription>
+                                    {report.vehicle.name}
+                                    {' · '}
+                                    {report.start_date
+                                        ? formatDate(report.start_date)
+                                        : 'All time'}
+                                    {report.end_date
+                                        ? ` to ${formatDate(report.end_date)}`
+                                        : ''}
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <p className="text-sm text-muted-foreground">
+                                        {report.items.length}{' '}
+                                        {report.items.length === 1
+                                            ? 'service record'
+                                            : 'service records'}
+                                    </p>
+                                    <p className="text-sm font-medium">
+                                        Total:{' '}
+                                        {formatMoney(
+                                            report.items.reduce(
+                                                (total, item) =>
+                                                    total +
+                                                    Number(
+                                                        item.total_cost || 0,
+                                                    ),
+                                                0,
+                                            ),
+                                        )}
+                                    </p>
+                                </div>
+                                {report.items.length === 0 ? (
+                                    <div className="flex flex-col items-center gap-2 py-12 text-center">
+                                        <Wrench className="size-8 text-muted-foreground" />
+                                        <p className="font-medium">
+                                            No maintenance records found
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            Nothing was recorded for this
+                                            vehicle and period.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto rounded-lg border border-border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>
+                                                        Service date
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Maintenance
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Mileage
+                                                    </TableHead>
+                                                    <TableHead>
+                                                        Provider
+                                                    </TableHead>
+                                                    <TableHead>Cost</TableHead>
+                                                    <TableHead>
+                                                        Next service
+                                                    </TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {report.items.map((record) => (
+                                                    <TableRow key={record.id}>
+                                                        <TableCell>
+                                                            {formatDate(
+                                                                record.service_date,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {maintenanceTypeLabel(
+                                                                record.maintenance_type,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {formatMileage(
+                                                                record.vehicle_mileage,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {record.service_provider ??
+                                                                '—'}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {formatMoney(
+                                                                record.total_cost,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {formatDate(
+                                                                record.next_service_date,
+                                                            )}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                )}
+                                <DialogFooter>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setReport(null)}
+                                    >
+                                        New report
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        onClick={() => setReportOpen(false)}
+                                    >
+                                        Close
+                                    </Button>
+                                </DialogFooter>
+                            </div>
+                        </>
+                    )}
                 </DialogContent>
             </Dialog>
 
