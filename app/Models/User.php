@@ -23,6 +23,12 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 /**
  * @property int $id
  * @property string $name
+ * @property string|null $first_name
+ * @property string|null $last_name
+ * @property Carbon|null $date_of_birth
+ * @property Carbon|null $hired_date
+ * @property string|null $driver_license_number
+ * @property Carbon|null $license_expiration_date
  * @property string $email
  * @property Carbon|null $email_verified_at
  * @property string $password
@@ -35,7 +41,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'role', 'banned_at'])]
+#[Fillable(['name', 'email', 'password', 'role', 'banned_at', 'first_name', 'last_name', 'date_of_birth', 'hired_date', 'driver_license_number', 'license_expiration_date'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
@@ -75,6 +81,9 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'password' => 'hashed',
             'banned_at' => 'datetime',
             'two_factor_confirmed_at' => 'datetime',
+            'date_of_birth' => 'date',
+            'hired_date' => 'date',
+            'license_expiration_date' => 'date',
         ];
     }
 
@@ -117,6 +126,16 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function tripRequestAudits(): HasMany
     {
         return $this->hasMany(TripRequestAudit::class)->latest();
+    }
+
+    /**
+     * Attached employee records (license, certifications, MVR, etc.).
+     *
+     * @return HasMany<UserDocument, $this>
+     */
+    public function userDocuments(): HasMany
+    {
+        return $this->hasMany(UserDocument::class)->latest();
     }
 
     /**

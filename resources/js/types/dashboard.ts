@@ -156,15 +156,30 @@ export type UserRecord = {
     joined_at: string;
 };
 
+export type UserDocumentRecord = {
+    id: number;
+    type: string;
+    label: string;
+    file_name: string;
+    file_size: number | null;
+    created_at: string;
+};
+
 export type UserDetail = {
     id: number;
     name: string;
+    first_name: string | null;
+    last_name: string | null;
     email: string;
     role: string;
     banned_at: string | null;
     joined_at: string;
     updated_at: string;
     email_verified_at: string | null;
+    date_of_birth: string | null;
+    hired_date: string | null;
+    driver_license_number: string | null;
+    license_expiration_date: string | null;
     two_factor_enabled: boolean;
     sessions_count: number;
 };

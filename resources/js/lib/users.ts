@@ -1,7 +1,6 @@
 import { ShieldCheck } from 'lucide-react';
 
-export const ROLE_OPTIONS = [
-    {
+export const ROLE_OPTIONS = [    {
         value: 'admin',
         label: 'Admin',
         icon: ShieldCheck,
@@ -30,4 +29,18 @@ export function roleBadgeClass(role: string): string {
 
 export function roleLabel(role: string): string {
     return ROLE_OPTIONS.find((r) => r.value === role)?.label ?? role;
+}
+
+export const DOCUMENT_TYPE_OPTIONS = [
+    { value: 'license', label: 'License' },
+    { value: 'cpr_certificate', label: 'CPR certificate' },
+    { value: 'mvr', label: 'MVR' },
+    { value: 'first_aid_certificate', label: 'First aid certificate' },
+    { value: 'custom', label: 'Other' },
+] as const;
+
+export function documentTypeLabel(type: string): string {
+    return (
+        DOCUMENT_TYPE_OPTIONS.find((d) => d.value === type)?.label ?? 'Other'
+    );
 }

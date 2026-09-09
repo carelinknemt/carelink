@@ -7,8 +7,11 @@ use App\Models\CareerApplication;
 use App\Models\TripRequest;
 use App\Models\TripRequestAudit;
 use App\Models\User;
+use App\Models\UserDocument;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 function actingAsAdmin(): User
@@ -315,4 +318,187 @@ test('managers cannot access the user detail page', function () {
     $this->actingAs($manager);
 
     $this->get(route('dashboard.users.show', $target))->assertRedirect();
+});
+
+test('admins can add a user with employee details', function () {
+    Mail::fake();
+    actingAsAdmin();
+
+    $this->post(route('dashboard.users.store'), [
+        'first_name' => 'Jane',
+        'last_name' => 'Doe',
+        'email' => 'jane@example.com',
+        'date_of_birth' => '1990-05-12',
+        'hired_date' => '2024-01-15',
+        'driver_license_number' => 'C8472931',
+        'license_expiration_date' => '2027-06-30',
+    ])->assertRedirect();
+
+    $user = User::where('email', 'jane@example.com')->first();
+
+    expect($user)
+        ->not->toBeNull()
+        ->name->toBe('Jane Doe')
+        ->first_name->toBe('Jane')
+        ->last_name->toBe('Doe')
+        ->date_of_birth->not->toBeNull()
+        ->hired_date->not->toBeNull()
+        ->driver_license_number->toBe('C8472931')
+        ->license_expiration_date->not->toBeNull();
+});
+
+test('adding a user attaches documents with preset types', function () {
+    Mail::fake();
+    Storage::fake('local');
+    actingAsAdmin();
+
+    $this->post(route('dashboard.users.store'), [
+        'first_name' => 'Jane',
+        'last_name' => 'Doe',
+        'email' => 'jane@example.com',
+        'documents' => [
+            [
+                'file' => UploadedFile::fake()->create('license.pdf', 100, 'application/pdf'),
+                'type' => UserDocument::TYPE_LICENSE,
+            ],
+            [
+                'file' => UploadedFile::fake()->create('cpr.pdf', 100, 'application/pdf'),
+                'type' => UserDocument::TYPE_CPR_CERTIFICATE,
+            ],
+        ],
+    ])->assertRedirect();
+
+    $user = User::where('email', 'jane@example.com')->first();
+
+    expect($user->userDocuments()->count())->toBe(2);
+    expect($user->userDocuments()->where('type', UserDocument::TYPE_LICENSE)->exists())->toBeTrue();
+    expect($user->userDocuments()->where('type', UserDocument::TYPE_CPR_CERTIFICATE)->exists())->toBeTrue();
+
+    Storage::disk('local')->assertExists(UserDocument::where('type', UserDocument::TYPE_LICENSE)->value('file_path'));
+    Storage::disk('local')->assertExists(UserDocument::where('type', UserDocument::TYPE_CPR_CERTIFICATE)->value('file_path'));
+});
+
+test('adding a user rejects documents with an unknown type', function () {
+    Mail::fake();
+    actingAsAdmin();
+
+    $this->post(route('dashboard.users.store'), [
+        'first_name' => 'Jane',
+        'last_name' => 'Doe',
+        'email' => 'jane@example.com',
+        'documents' => [
+            [
+                'file' => UploadedFile::fake()->create('license.pdf', 100, 'application/pdf'),
+                'type' => 'unknown',
+            ],
+        ],
+    ])->assertSessionHasErrors('documents.0.type');
+});
+
+test('admins can update a user employee details', function () {
+    actingAsAdmin();
+    $target = User::factory()->create(['name' => 'Old Name']);
+
+    $this->put(route('dashboard.users.update', $target), [
+        'first_name' => 'Jane',
+        'last_name' => 'Doe',
+        'email' => $target->email,
+        'date_of_birth' => '1990-05-12',
+        'hired_date' => '2024-01-15',
+        'driver_license_number' => 'C8472931',
+        'license_expiration_date' => '2027-06-30',
+    ])->assertRedirect();
+
+    $fresh = $target->fresh();
+
+    expect($fresh)
+        ->name->toBe('Jane Doe')
+        ->first_name->toBe('Jane')
+        ->last_name->toBe('Doe')
+        ->date_of_birth->not->toBeNull()
+        ->hired_date->not->toBeNull()
+        ->driver_license_number->toBe('C8472931')
+        ->license_expiration_date->not->toBeNull();
+});
+
+test('admins can attach a document to an existing user', function () {
+    Storage::fake('local');
+    actingAsAdmin();
+    $target = User::factory()->create();
+
+    $this->post(route('dashboard.users.documents.store', $target), [
+        'file' => UploadedFile::fake()->create('mvr.pdf', 100, 'application/pdf'),
+        'type' => UserDocument::TYPE_MVR,
+        'label' => 'MVR report',
+    ])->assertRedirect();
+
+    expect($target->userDocuments()->count())->toBe(1);
+
+    $document = $target->userDocuments()->first();
+
+    expect($document)
+        ->type->toBe(UserDocument::TYPE_MVR)
+        ->label->toBe('MVR report')
+        ->file_name->toBe('mvr.pdf');
+
+    Storage::disk('local')->assertExists($document->file_path);
+});
+
+test('admins can download a user document', function () {
+    Storage::fake('local');
+    actingAsAdmin();
+    $target = User::factory()->create();
+    $path = 'user-documents/cpr.pdf';
+    Storage::disk('local')->put($path, 'pdf-content');
+    $document = UserDocument::create([
+        'user_id' => $target->id,
+        'type' => UserDocument::TYPE_CPR_CERTIFICATE,
+        'file_path' => $path,
+        'file_name' => 'cpr.pdf',
+        'file_size' => 11,
+    ]);
+
+    $response = $this->get(route('dashboard.users.documents.show', [$target, $document]));
+
+    $response->assertOk();
+    $response->assertDownload('cpr.pdf');
+});
+
+test('admins can delete a user document', function () {
+    Storage::fake('local');
+    actingAsAdmin();
+    $target = User::factory()->create();
+    $document = UserDocument::factory()->create(['user_id' => $target->id]);
+    Storage::disk('local')->put($document->file_path, 'content');
+
+    $this->delete(route('dashboard.users.documents.destroy', [$target, $document]))
+        ->assertRedirect();
+
+    expect(UserDocument::find($document->id))->toBeNull();
+    Storage::disk('local')->assertMissing($document->file_path);
+});
+
+test('user detail page includes employee details and documents', function () {
+    actingAsAdmin();
+    $target = User::factory()->create([
+        'first_name' => 'Jane',
+        'last_name' => 'Doe',
+        'date_of_birth' => '1990-05-12',
+        'hired_date' => '2024-01-15',
+        'driver_license_number' => 'C8472931',
+        'license_expiration_date' => '2027-06-30',
+    ]);
+    $document = UserDocument::factory()->create(['user_id' => $target->id]);
+
+    $this->get(route('dashboard.users.show', $target))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/users/show')
+            ->where('user.first_name', 'Jane')
+            ->where('user.last_name', 'Doe')
+            ->where('user.driver_license_number', 'C8472931')
+            ->where('user.date_of_birth', '1990-05-12')
+            ->has('documents', 1)
+            ->where('documents.0.id', $document->id)
+            ->where('documents.0.file_name', $document->file_name));
 });

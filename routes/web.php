@@ -106,8 +106,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard/users', [DashboardUserController::class, 'index'])->name('dashboard.users');
         Route::get('/dashboard/users/{user}', [DashboardUserController::class, 'show'])->name('dashboard.users.show');
         Route::post('/dashboard/users', [DashboardUserController::class, 'store'])->name('dashboard.users.store');
+        Route::put('/dashboard/users/{user}', [DashboardUserController::class, 'update'])->name('dashboard.users.update');
         Route::patch('/dashboard/users/{user}/role', [DashboardUserController::class, 'updateRole'])->name('dashboard.users.update-role');
         Route::post('/dashboard/users/{user}/ban-toggle', [DashboardUserController::class, 'toggleBan'])->name('dashboard.users.ban-toggle');
+        Route::get('/dashboard/users/{user}/documents/{document}', [DashboardUserController::class, 'downloadDocument'])->name('dashboard.users.documents.show');
+        Route::post('/dashboard/users/{user}/documents', [DashboardUserController::class, 'storeDocument'])->name('dashboard.users.documents.store');
+        Route::delete('/dashboard/users/{user}/documents/{document}', [DashboardUserController::class, 'destroyDocument'])->name('dashboard.users.documents.destroy');
     });
 
     Route::middleware('role:dispatcher,manager,admin')->group(function () {
