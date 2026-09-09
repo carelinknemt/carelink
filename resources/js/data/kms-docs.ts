@@ -40,7 +40,7 @@ export const kmsCategories: KmsCategory[] = [
                 blocks: [
                     {
                         type: 'paragraph',
-                        text: 'The CareLink dashboard is the internal workspace used by the CareLink team. It brings every daily task into one place: tracking and updating trips, monitoring payments, reviewing job applications, approving business partner requests, managing user accounts, and editing the public website content.',
+                        text: 'The CareLink dashboard is the internal workspace used by the CareLink team. It brings every daily task into one place: tracking and updating trips, flagging problem passengers, monitoring payments, reviewing job applications, approving business partner requests, managing user accounts, keeping the fleet maintained, reading contact messages, and editing the public website content.',
                     },
                     {
                         type: 'paragraph',
@@ -53,11 +53,14 @@ export const kmsCategories: KmsCategory[] = [
                             'Dashboard: an overview of recent activity at a glance.',
                             'Analytics: booking volumes and revenue over 7, 30, or 90 days.',
                             'Bookings: every trip request, its status, and its payment state.',
+                            'Blacklisted Passengers: passengers flagged by email or phone so the team can spot repeated issues.',
                             'Payments: payment records and their confirmation status.',
                             'Applications: employment applications submitted through the careers page.',
                             'Job Openings: create and manage the roles posted on the careers page.',
                             'Users: invite team members and manage their accounts.',
+                            'Vehicle Maintenance: log service visits for the fleet and keep vehicle details up to date.',
                             'Business Partners: partnership requests from organizations.',
+                            'Contact Messages: inquiries sent through the website contact form.',
                             'Website Content: edit what appears on the public website.',
                             'Knowledge Base: this guide.',
                         ],
@@ -137,15 +140,15 @@ export const kmsCategories: KmsCategory[] = [
                         title: 'The sidebar',
                         items: [
                             'Overview: Dashboard and Analytics.',
-                            'Trips & Billing: Bookings and Payments.',
+                            'Trips & Billing: Bookings, Blacklisted Passengers, and Payments.',
                             'Recruitment: Applications and Job Openings.',
-                            'Administration: Users, Business Partners, and Website Content.',
+                            'Administration: Users, Vehicle Maintenance, Business Partners, Contact Messages, and Website Content.',
                             'Resources: the Knowledge Base you are reading right now.',
                         ],
                     },
                     {
                         type: 'paragraph',
-                        text: 'The sidebar collapses into icons on smaller screens. Click the CareLink logo at the top to return to the dashboard overview at any time.',
+                        text: 'The navigation is role-aware: each member only sees the sections their role allows. The full list stays available on every screen size, on mobile it opens from a menu button. Click the CareLink logo at the top to return to the dashboard overview at any time.',
                     },
                     {
                         type: 'paragraph',
@@ -364,6 +367,81 @@ export const kmsCategories: KmsCategory[] = [
         ],
     },
     {
+        slug: 'blacklisted-passengers',
+        title: 'Blacklisted Passengers',
+        summary:
+            'Flag passengers by email or phone so the team can spot repeated issues before dispatch.',
+        articles: [
+            {
+                slug: 'what-the-blacklist-does',
+                title: 'What the blacklist does',
+                summary: 'How blacklisting works and when it is useful.',
+                blocks: [
+                    {
+                        type: 'paragraph',
+                        text: 'The blacklist is a way to flag passengers who have caused repeated problems, such as no-shows, late cancellations, or difficult behavior. When a passenger is blacklisted by email or phone, every booking that matches that email or phone number is flagged, so the dispatch team sees the history before assigning a vehicle.',
+                    },
+                    {
+                        type: 'paragraph',
+                        text: 'The Blacklisted Passengers page lives under Trips & Billing in the sidebar and is available to dispatchers and admins. It lists each flagged email or phone with the reason, who added it, and when.',
+                    },
+                    {
+                        type: 'callout',
+                        variant: 'info',
+                        title: 'Flagged, not blocked',
+                        text: 'Blacklisting does not stop passengers from booking. It marks their bookings so your team can review them before the trip, instead of turning the passenger away at checkout.',
+                    },
+                ],
+            },
+            {
+                slug: 'blacklisting-a-passenger',
+                title: 'Blacklisting a passenger',
+                summary:
+                    'Flag a passenger by email or phone so their bookings stand out.',
+                blocks: [
+                    {
+                        type: 'steps',
+                        title: 'To blacklist a passenger',
+                        items: [
+                            'Go to Trips & Billing > Blacklisted Passengers.',
+                            'Click Blacklist passenger.',
+                            'Enter the email address and/or phone number. At least one of the two is required.',
+                            'Write the reason the passenger is being blacklisted. It must be at least 20 characters.',
+                            'Submit. The entry appears in the list and matching bookings are flagged.',
+                        ],
+                    },
+                    {
+                        type: 'callout',
+                        variant: 'tip',
+                        title: 'Write a clear reason',
+                        text: 'The reason is what your team will read when a flagged booking arrives. Be specific, for example "no-show on two wheelchairs trips" instead of just "problem passenger".',
+                    },
+                ],
+            },
+            {
+                slug: 'removing-from-the-blacklist',
+                title: 'Removing a passenger from the blacklist',
+                summary: 'Clear a flag when it no longer applies.',
+                blocks: [
+                    {
+                        type: 'steps',
+                        title: 'To remove a passenger',
+                        items: [
+                            'Go to Trips & Billing > Blacklisted Passengers.',
+                            'Find the entry with the search box, which matches email, phone, or reason.',
+                            'Click the remove action next to the entry.',
+                            'Confirm the removal. Their bookings are no longer flagged.',
+                        ],
+                    },
+                    {
+                        type: 'paragraph',
+                        text: 'Each entry shows who blacklisted the passenger and when, so you can check the history before removing it.',
+                    },
+                ],
+            },
+        ],
+    },
+    {
         slug: 'payments',
         title: 'Payments',
         summary:
@@ -384,7 +462,7 @@ export const kmsCategories: KmsCategory[] = [
                         title: 'To review payments',
                         items: [
                             'Go to Trips & Billing > Payments.',
-                            'Use the status filter to show paid, pending, or all payments.',
+                            'Use the status filter to show paid, pending, refunded, or all payments.',
                             'Use the date range and search fields to narrow down the results.',
                         ],
                     },
@@ -400,7 +478,7 @@ export const kmsCategories: KmsCategory[] = [
                 slug: 'understanding-payment-statuses',
                 title: 'Understanding payment statuses',
                 summary:
-                    'What Pending and Paid mean, and how a payment moves between them.',
+                    'What Pending, Paid, and Refunded mean, and how a payment moves between them.',
                 blocks: [
                     {
                         type: 'table',
@@ -415,11 +493,15 @@ export const kmsCategories: KmsCategory[] = [
                                 'Paid',
                                 'The payment was confirmed. The booking is eligible to be marked Completed.',
                             ],
+                            [
+                                'Refunded',
+                                'The money was returned to the passenger, usually because the trip was cancelled. Refunded payments no longer count as collected revenue.',
+                            ],
                         ],
                     },
                     {
                         type: 'paragraph',
-                        text: 'A payment becomes Paid automatically when the passenger completes checkout on the website. You do not need to enter payments manually.',
+                        text: 'A payment becomes Paid automatically when the passenger completes checkout on the website. You do not need to enter payments manually. When a paid booking is cancelled, the payment moves to Refunded automatically as part of the cancellation.',
                     },
                     {
                         type: 'callout',
@@ -663,15 +745,15 @@ export const kmsCategories: KmsCategory[] = [
                         rows: [
                             [
                                 'Dispatcher',
-                                'Handle bookings, contact messages, and day-to-day dispatch tasks.',
+                                'Handle bookings, blacklisted passengers, and contact messages, and carry out day-to-day dispatch tasks.',
                             ],
                             [
                                 'Manager',
-                                'Everything a dispatcher can do, plus analytics, applications, job openings, and business partners.',
+                                'View analytics, run recruitment (job openings and applications), review business partners, and handle contact messages.',
                             ],
                             [
                                 'Admin',
-                                'Everything a manager can do, plus user management, payments, and website content.',
+                                'Everything the other roles can do, plus payments, user management, vehicle maintenance, and website content.',
                             ],
                         ],
                     },
@@ -726,6 +808,249 @@ export const kmsCategories: KmsCategory[] = [
                         variant: 'info',
                         title: 'You cannot ban yourself',
                         text: 'The dashboard blocks banning your own account, so the team always has someone left to manage access.',
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        slug: 'vehicle-maintenance',
+        title: 'Vehicle Maintenance',
+        summary:
+            'Log maintenance records for the fleet, manage vehicle details, and print reports.',
+        articles: [
+            {
+                slug: 'what-vehicle-maintenance-does',
+                title: 'What Vehicle Maintenance does',
+                summary:
+                    'How the maintenance log and vehicle records are organized.',
+                blocks: [
+                    {
+                        type: 'paragraph',
+                        text: 'The Vehicle Maintenance page keeps the fleet healthy. It has two tabs: Maintenance, which lists every service visit logged for the fleet, and Vehicles, which holds the details of each vehicle owned by the company.',
+                    },
+                    {
+                        type: 'paragraph',
+                        text: 'The Maintenance tab shows one row per service visit with the vehicle, the maintenance type, the service date, mileage, provider, cost, and the number of attached receipts. The Vehicles tab shows each vehicle with its type, plate, VIN, how many service records it has, and whether it is active.',
+                    },
+                    {
+                        type: 'callout',
+                        variant: 'info',
+                        title: 'Admin only',
+                        text: 'Vehicle Maintenance is available to admins only. If the section is not in your sidebar, ask an admin to log your service visits for you.',
+                    },
+                ],
+            },
+            {
+                slug: 'adding-maintenance-records',
+                title: 'Adding maintenance records',
+                summary:
+                    'Log a service visit with the date, mileage, provider, cost, and receipts.',
+                blocks: [
+                    {
+                        type: 'steps',
+                        title: 'To add a maintenance record',
+                        items: [
+                            'Go to Administration > Vehicle Maintenance and open the Maintenance tab.',
+                            'Click Add maintenance record.',
+                            'Pick the vehicle and the maintenance type.',
+                            'Enter the service date, mileage, service provider, and total cost.',
+                            'Optionally set a next service date and mileage, and add notes about the work performed.',
+                            'Attach any receipts or service documents, then save.',
+                        ],
+                    },
+                    {
+                        type: 'table',
+                        title: 'Maintenance types',
+                        headers: ['Type', 'Use it for'],
+                        rows: [
+                            ['Oil change', 'Engine oil and filter changes.'],
+                            ['Tire rotation', 'Rotating or replacing tires.'],
+                            [
+                                'Brake service',
+                                'Brake pads, rotors, or brake fluid.',
+                            ],
+                            [
+                                'Fluid check',
+                                'Topping up or replacing vehicle fluids.',
+                            ],
+                            [
+                                'Battery service',
+                                'Battery testing or replacement.',
+                            ],
+                            [
+                                'Inspection',
+                                'Scheduled or compliance inspections.',
+                            ],
+                            [
+                                'Filter replacement',
+                                'Air, cabin, or fuel filters.',
+                            ],
+                            [
+                                'Other',
+                                'Any service that does not fit another type.',
+                            ],
+                        ],
+                    },
+                    {
+                        type: 'callout',
+                        variant: 'tip',
+                        title: 'Next service date and mileage',
+                        text: 'When the provider gives a next service date or mileage, record it. The maintenance report includes this information, which helps plan upcoming service visits.',
+                    },
+                ],
+            },
+            {
+                slug: 'managing-fleet-vehicles',
+                title: 'Managing fleet vehicles',
+                summary: 'Add, edit, and remove the vehicles the company owns.',
+                blocks: [
+                    {
+                        type: 'steps',
+                        title: 'To add a vehicle',
+                        items: [
+                            'Go to Administration > Vehicle Maintenance and open the Vehicles tab.',
+                            'Click Add vehicle.',
+                            'Enter a name, type, capacity, VIN, license plate, and an hourly rate estimate.',
+                            'Save. The vehicle is now available when logging a maintenance record.',
+                        ],
+                    },
+                    {
+                        type: 'table',
+                        title: 'Vehicle types',
+                        headers: ['Type', 'Use it for'],
+                        rows: [
+                            [
+                                'Ambulatory Sedan',
+                                'A standard sedan for passengers who can walk.',
+                            ],
+                            [
+                                'Wheelchair Van',
+                                'A van equipped for wheelchair transport.',
+                            ],
+                            [
+                                'Gurney Van',
+                                'A van equipped to carry passengers on a gurney.',
+                            ],
+                            [
+                                'Transit Shuttle',
+                                'A shuttle for multiple passengers at once.',
+                            ],
+                        ],
+                    },
+                    {
+                        type: 'steps',
+                        title: 'To edit or remove a vehicle',
+                        items: [
+                            'Use the edit action on a vehicle row to change any detail, including marking it active or inactive.',
+                            'Use the delete action to remove the vehicle and all of its maintenance records.',
+                        ],
+                    },
+                    {
+                        type: 'callout',
+                        variant: 'warning',
+                        title: 'Deleting a vehicle removes its history',
+                        text: 'Deleting a vehicle also removes every maintenance record and receipt attached to it. Switch the vehicle to inactive instead if you only want it out of service.',
+                    },
+                ],
+            },
+            {
+                slug: 'generating-maintenance-reports',
+                title: 'Generating maintenance reports',
+                summary:
+                    'Summarize the service history of a vehicle over a date range and export it.',
+                blocks: [
+                    {
+                        type: 'steps',
+                        title: 'To generate a maintenance report',
+                        items: [
+                            'Go to Administration > Vehicle Maintenance and open the Maintenance tab.',
+                            'Click Maintenance report.',
+                            'Pick the vehicle, then optionally set a start and end date. Leave the dates empty to include all history.',
+                            'Click Generate report.',
+                            'Review the results and total cost, then click Export PDF to print or save the report.',
+                        ],
+                    },
+                    {
+                        type: 'paragraph',
+                        text: 'The report lists each matching service record with its date, maintenance type, mileage, provider, cost, and next service date, along with a running total.',
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        slug: 'contact-messages',
+        title: 'Contact Messages',
+        summary:
+            'Read, respond to, and clean up the messages sent through the website contact form.',
+        articles: [
+            {
+                slug: 'reading-contact-messages',
+                title: 'Reading contact messages',
+                summary:
+                    'Where website inquiries land and what the page shows.',
+                blocks: [
+                    {
+                        type: 'paragraph',
+                        text: 'The Contact Messages page collects every inquiry sent through the contact form on the public website. Each message shows the sender name, email, phone when provided, the message itself, and when it was submitted.',
+                    },
+                    {
+                        type: 'paragraph',
+                        text: 'The page opens showing pending messages by default, since those are the ones still needing attention. Use the status filter to switch between Pending, Read, and All, and the search box to find a message by name, email, or content.',
+                    },
+                    {
+                        type: 'callout',
+                        variant: 'info',
+                        title: 'Available to most team members',
+                        text: 'Contact Messages is available to dispatchers, managers, and admins, so whoever is on duty can pick up the inbox.',
+                    },
+                ],
+            },
+            {
+                slug: 'responding-to-contact-messages',
+                title: 'Responding and marking as read',
+                summary:
+                    'Open a message, reply, and keep the pending inbox tidy.',
+                blocks: [
+                    {
+                        type: 'steps',
+                        title: 'To respond to a message',
+                        items: [
+                            'Go to Administration > Contact Messages.',
+                            'Open the message with the actions menu and choose Details.',
+                            'Read the full message and the sender contact details.',
+                            'Reply to the sender through your email.',
+                            'Choose Mark as read so the message leaves the pending queue.',
+                        ],
+                    },
+                    {
+                        type: 'callout',
+                        variant: 'tip',
+                        title: 'Keep the pending queue short',
+                        text: 'Mark messages as read as soon as you have handled them. The default view is Pending, so leaving everything unread hides what still needs a reply.',
+                    },
+                ],
+            },
+            {
+                slug: 'deleting-contact-messages',
+                title: 'Deleting contact messages',
+                summary: 'Remove spam or duplicate messages permanently.',
+                blocks: [
+                    {
+                        type: 'steps',
+                        title: 'To delete a message',
+                        items: [
+                            'Go to Administration > Contact Messages.',
+                            'Open the actions menu on the message and choose Delete.',
+                            'Confirm the deletion. The message is removed and cannot be recovered.',
+                        ],
+                    },
+                    {
+                        type: 'callout',
+                        variant: 'warning',
+                        title: 'Deletion is permanent',
+                        text: 'Deleted messages are gone for good. Mark a message as read instead when it is legitimate but does not need a reply.',
                     },
                 ],
             },
