@@ -2,6 +2,7 @@
 
 use App\Models\FleetVehicle;
 use App\Models\MaintenanceDocument;
+use App\Models\MaintenanceVehicle;
 use App\Models\User;
 use App\Models\VehicleMaintenanceRecord;
 use Illuminate\Http\UploadedFile;
@@ -9,8 +10,8 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('admins can view the vehicle maintenance page', function () {
-    $vehicle = FleetVehicle::factory()->create();
-    VehicleMaintenanceRecord::factory()->create(['fleet_vehicle_id' => $vehicle->id]);
+    $vehicle = MaintenanceVehicle::factory()->create();
+    VehicleMaintenanceRecord::factory()->create(['maintenance_vehicle_id' => $vehicle->id]);
     actingAsAdmin();
 
     $this->get(route('dashboard.vehicles'))
@@ -36,11 +37,11 @@ test('only admins can access the vehicle maintenance page', function () {
 });
 
 test('admins can add a maintenance record', function () {
-    $vehicle = FleetVehicle::factory()->create();
+    $vehicle = MaintenanceVehicle::factory()->create();
     actingAsAdmin();
 
     $this->post(route('dashboard.vehicles.maintenance.store'), [
-        'fleet_vehicle_id' => $vehicle->id,
+        'maintenance_vehicle_id' => $vehicle->id,
         'maintenance_type' => VehicleMaintenanceRecord::TYPE_OIL_CHANGE,
         'service_date' => '2026-09-08',
         'vehicle_mileage' => 34210,
@@ -55,7 +56,7 @@ test('admins can add a maintenance record', function () {
 
     expect($record)
         ->not->toBeNull()
-        ->fleet_vehicle_id->toBe($vehicle->id)
+        ->maintenance_vehicle_id->toBe($vehicle->id)
         ->maintenance_type->toBe(VehicleMaintenanceRecord::TYPE_OIL_CHANGE)
         ->service_date->not->toBeNull()
         ->vehicle_mileage->toBe(34210)
@@ -68,11 +69,11 @@ test('admins can add a maintenance record', function () {
 
 test('adding a maintenance record attaches receipt documents', function () {
     Storage::fake('local');
-    $vehicle = FleetVehicle::factory()->create();
+    $vehicle = MaintenanceVehicle::factory()->create();
     actingAsAdmin();
 
     $this->post(route('dashboard.vehicles.maintenance.store'), [
-        'fleet_vehicle_id' => $vehicle->id,
+        'maintenance_vehicle_id' => $vehicle->id,
         'maintenance_type' => VehicleMaintenanceRecord::TYPE_OIL_CHANGE,
         'service_date' => '2026-09-08',
         'documents' => [
@@ -89,11 +90,11 @@ test('adding a maintenance record attaches receipt documents', function () {
 });
 
 test('adding a maintenance record rejects an unknown maintenance type', function () {
-    $vehicle = FleetVehicle::factory()->create();
+    $vehicle = MaintenanceVehicle::factory()->create();
     actingAsAdmin();
 
     $this->post(route('dashboard.vehicles.maintenance.store'), [
-        'fleet_vehicle_id' => $vehicle->id,
+        'maintenance_vehicle_id' => $vehicle->id,
         'maintenance_type' => 'unknown',
         'service_date' => '2026-09-08',
     ])->assertSessionHasErrors('maintenance_type');
@@ -106,7 +107,7 @@ test('admins can update a maintenance record', function () {
     actingAsAdmin();
 
     $this->put(route('dashboard.vehicles.maintenance.update', $record), [
-        'fleet_vehicle_id' => $record->fleet_vehicle_id,
+        'maintenance_vehicle_id' => $record->maintenance_vehicle_id,
         'maintenance_type' => VehicleMaintenanceRecord::TYPE_BRAKE_SERVICE,
         'service_date' => '2026-09-08',
         'total_cost' => 420.50,
@@ -156,7 +157,7 @@ test('admins can download a maintenance receipt', function () {
         ->assertDownload('receipt.pdf');
 });
 
-test('admins can add a fleet vehicle', function () {
+test('admins can add a maintenance vehicle', function () {
     actingAsAdmin();
 
     $this->post(route('dashboard.vehicles.store'), [
@@ -169,7 +170,7 @@ test('admins can add a fleet vehicle', function () {
         'description' => 'Wheelchair accessible van.',
     ])->assertRedirect();
 
-    $vehicle = FleetVehicle::where('name', 'Van 01 - BraunAbility')->first();
+    $vehicle = MaintenanceVehicle::where('name', 'Van 01 - BraunAbility')->first();
 
     expect($vehicle)->not->toBeNull();
     expect($vehicle->type)->toBe('WHEELCHAIR');
@@ -178,8 +179,8 @@ test('admins can add a fleet vehicle', function () {
     expect($vehicle->active)->toBeTrue();
 });
 
-test('admins can toggle a fleet vehicle active state', function () {
-    $vehicle = FleetVehicle::factory()->create(['active' => true]);
+test('admins can toggle a maintenance vehicle active state', function () {
+    $vehicle = MaintenanceVehicle::factory()->create(['active' => true]);
     actingAsAdmin();
 
     $this->post(route('dashboard.vehicles.toggle', $vehicle))->assertRedirect();
@@ -187,8 +188,8 @@ test('admins can toggle a fleet vehicle active state', function () {
     expect($vehicle->fresh()->active)->toBeFalse();
 });
 
-test('admins can update a fleet vehicle', function () {
-    $vehicle = FleetVehicle::factory()->create();
+test('admins can update a maintenance vehicle', function () {
+    $vehicle = MaintenanceVehicle::factory()->create();
     actingAsAdmin();
 
     $this->put(route('dashboard.vehicles.update', $vehicle), [
@@ -209,11 +210,11 @@ test('admins can update a fleet vehicle', function () {
     expect($fresh)->plate->toBe('UPDT123');
 });
 
-test('admins can delete a fleet vehicle and its maintenance history', function () {
+test('admins can delete a maintenance vehicle and its maintenance history', function () {
     Storage::fake('local');
-    $vehicle = FleetVehicle::factory()->create();
+    $vehicle = MaintenanceVehicle::factory()->create();
     $record = VehicleMaintenanceRecord::factory()->create([
-        'fleet_vehicle_id' => $vehicle->id,
+        'maintenance_vehicle_id' => $vehicle->id,
     ]);
     $document = MaintenanceDocument::factory()->create([
         'vehicle_maintenance_record_id' => $record->id,
@@ -223,7 +224,40 @@ test('admins can delete a fleet vehicle and its maintenance history', function (
 
     $this->delete(route('dashboard.vehicles.destroy', $vehicle))->assertRedirect();
 
-    expect(FleetVehicle::find($vehicle->id))->toBeNull();
+    expect(MaintenanceVehicle::find($vehicle->id))->toBeNull();
     expect(VehicleMaintenanceRecord::find($record->id))->toBeNull();
     Storage::disk('local')->assertMissing($document->file_path);
+});
+
+test('deleting a maintenance vehicle does not affect the public fleet page', function () {
+    $fleet = FleetVehicle::factory()->create();
+    $maintenance = MaintenanceVehicle::factory()->create([
+        'name' => $fleet->name,
+    ]);
+    actingAsAdmin();
+
+    $this->delete(route('dashboard.vehicles.destroy', $maintenance))->assertRedirect();
+
+    expect(FleetVehicle::find($fleet->id))->not->toBeNull();
+
+    $this->get(route('fleet'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('fleet')
+            ->where('fleet.0.name', $fleet->name));
+});
+
+test('editing a maintenance vehicle does not affect the public fleet page', function () {
+    $fleet = FleetVehicle::factory()->create();
+    $maintenance = MaintenanceVehicle::factory()->create();
+    actingAsAdmin();
+
+    $this->put(route('dashboard.vehicles.update', $maintenance), [
+        'name' => 'Maintenance Only Van',
+        'type' => 'AMBULATORY',
+        'capacity' => '4 Passengers',
+    ])->assertRedirect();
+
+    expect(MaintenanceVehicle::find($maintenance->id)->name)->toBe('Maintenance Only Van');
+    expect(FleetVehicle::where('name', 'Maintenance Only Van')->count())->toBe(0);
 });

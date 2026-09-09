@@ -57,7 +57,7 @@ class VehicleMaintenanceRecord extends Model
     ];
 
     protected $fillable = [
-        'fleet_vehicle_id',
+        'maintenance_vehicle_id',
         'maintenance_type',
         'service_date',
         'vehicle_mileage',
@@ -80,11 +80,11 @@ class VehicleMaintenanceRecord extends Model
     }
 
     /**
-     * @return BelongsTo<FleetVehicle, $this>
+     * @return BelongsTo<MaintenanceVehicle, $this>
      */
     public function vehicle(): BelongsTo
     {
-        return $this->belongsTo(FleetVehicle::class, 'fleet_vehicle_id');
+        return $this->belongsTo(MaintenanceVehicle::class, 'maintenance_vehicle_id');
     }
 
     /**

@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Database\Factories\FleetVehicleFactory;
+use Database\Factories\MaintenanceVehicleFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class FleetVehicle extends Model
+class MaintenanceVehicle extends Model
 {
-    /** @use HasFactory<FleetVehicleFactory> */
+    /** @use HasFactory<MaintenanceVehicleFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -18,11 +19,8 @@ class FleetVehicle extends Model
         'capacity',
         'vin',
         'plate',
-        'features',
-        'description',
-        'image',
-        'accessibility_specs',
         'hourly_rate_est',
+        'description',
         'sort_order',
         'active',
     ];
@@ -34,20 +32,17 @@ class FleetVehicle extends Model
     protected function casts(): array
     {
         return [
-            'features' => 'array',
-            'accessibility_specs' => 'array',
             'hourly_rate_est' => 'decimal:2',
             'active' => 'boolean',
         ];
     }
 
     /**
-     * @param  Builder<static>  $query
-     * @return Builder<static>
+     * @return HasMany<VehicleMaintenanceRecord, $this>
      */
-    public function scopeActive(Builder $query): Builder
+    public function maintenanceRecords(): HasMany
     {
-        return $query->where('active', true);
+        return $this->hasMany(VehicleMaintenanceRecord::class);
     }
 
     /**

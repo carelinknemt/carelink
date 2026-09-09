@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Carelink;
 
 use App\Http\Controllers\Controller;
-use App\Models\FleetVehicle;
 use App\Models\MaintenanceDocument;
+use App\Models\MaintenanceVehicle;
 use App\Models\VehicleMaintenanceRecord;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,15 +18,15 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class DashboardVehicleController extends Controller
 {
     /**
-     * Admin-only fleet management: maintenance logs and fleet vehicles.
+     * Admin-only vehicle management: maintenance logs and maintenance vehicles.
      */
     public function index(): Response
     {
-        $vehicles = FleetVehicle::query()
+        $vehicles = MaintenanceVehicle::query()
             ->with('maintenanceRecords')
             ->ordered()
             ->get()
-            ->map(fn (FleetVehicle $vehicle): array => $this->vehicleSummary($vehicle));
+            ->map(fn (MaintenanceVehicle $vehicle): array => $this->vehicleSummary($vehicle));
 
         $records = VehicleMaintenanceRecord::query()
             ->with(['vehicle:id,name', 'documents'])
@@ -37,7 +37,7 @@ class DashboardVehicleController extends Controller
         return Inertia::render('dashboard/vehicles', [
             'vehicles' => $vehicles,
             'records' => $records,
-            'vehicle_options' => FleetVehicle::query()
+            'vehicle_options' => MaintenanceVehicle::query()
                 ->ordered()
                 ->get(['id', 'name', 'plate']),
         ]);
@@ -48,7 +48,7 @@ class DashboardVehicleController extends Controller
      * ------------------------------------------------------------------ */
 
     /**
-     * Add a maintenance record for a fleet vehicle.
+     * Add a maintenance record for a maintenance vehicle.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -163,22 +163,19 @@ class DashboardVehicleController extends Controller
     }
 
     /* ------------------------------------------------------------------ *
-     |  Fleet vehicles
+     |  Maintenance vehicles
      * ------------------------------------------------------------------ */
 
     /**
-     * Add a fleet vehicle to the vehicles list.
+     * Add a vehicle to the maintenance list.
      */
     public function storeVehicle(Request $request): RedirectResponse
     {
         $validated = $request->validate($this->vehicleRules());
 
-        $vehicle = FleetVehicle::create([
+        $vehicle = MaintenanceVehicle::create([
             ...$validated,
-            'features' => [],
-            'accessibility_specs' => [],
-            'image' => '',
-            'sort_order' => FleetVehicle::query()->max('sort_order') + 1,
+            'sort_order' => MaintenanceVehicle::query()->max('sort_order') + 1,
         ]);
 
         Inertia::flash('toast', [
@@ -190,9 +187,9 @@ class DashboardVehicleController extends Controller
     }
 
     /**
-     * Update a fleet vehicle.
+     * Update a vehicle in the maintenance list.
      */
-    public function updateVehicle(Request $request, FleetVehicle $vehicle): RedirectResponse
+    public function updateVehicle(Request $request, MaintenanceVehicle $vehicle): RedirectResponse
     {
         $validated = $request->validate($this->vehicleRules());
 
@@ -207,9 +204,9 @@ class DashboardVehicleController extends Controller
     }
 
     /**
-     * Toggle a fleet vehicle between active and hidden.
+     * Toggle a maintenance vehicle between active and hidden.
      */
-    public function toggleVehicle(Request $request, FleetVehicle $vehicle): RedirectResponse
+    public function toggleVehicle(Request $request, MaintenanceVehicle $vehicle): RedirectResponse
     {
         $vehicle->update([
             'active' => ! $vehicle->active,
@@ -226,9 +223,9 @@ class DashboardVehicleController extends Controller
     }
 
     /**
-     * Delete a fleet vehicle and its maintenance history.
+     * Delete a maintenance vehicle and its maintenance history.
      */
-    public function destroyVehicle(Request $request, FleetVehicle $vehicle): RedirectResponse
+    public function destroyVehicle(Request $request, MaintenanceVehicle $vehicle): RedirectResponse
     {
         $name = $vehicle->name;
 
@@ -261,7 +258,7 @@ class DashboardVehicleController extends Controller
     private function maintenanceRecordRules(): array
     {
         return [
-            'fleet_vehicle_id' => ['required', 'integer', 'exists:fleet_vehicles,id'],
+            'maintenance_vehicle_id' => ['required', 'integer', 'exists:maintenance_vehicles,id'],
             'maintenance_type' => ['required', 'string', 'in:'.implode(',', VehicleMaintenanceRecord::TYPES)],
             'service_date' => ['required', 'date'],
             'vehicle_mileage' => ['nullable', 'integer', 'min:0', 'max:2000000'],
@@ -282,7 +279,7 @@ class DashboardVehicleController extends Controller
     private function maintenanceValues(array $validated): array
     {
         return [
-            'fleet_vehicle_id' => $validated['fleet_vehicle_id'],
+            'maintenance_vehicle_id' => $validated['maintenance_vehicle_id'],
             'maintenance_type' => $validated['maintenance_type'],
             'service_date' => $validated['service_date'],
             'vehicle_mileage' => $validated['vehicle_mileage'] ?? null,
@@ -314,7 +311,7 @@ class DashboardVehicleController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function vehicleSummary(FleetVehicle $vehicle): array
+    private function vehicleSummary(MaintenanceVehicle $vehicle): array
     {
         $records = $vehicle->maintenanceRecords;
 

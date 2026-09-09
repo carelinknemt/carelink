@@ -26,3 +26,4 @@ Before planning or editing, find the row whose globs match the file's path and r
 | resources/js/routes/** | .ai/rules/routes.md |
 | database/seeders/** | .ai/rules/seeders.md |
 | resources/views/mail/** | .ai/rules/views-mail.md |
+| .github/workflows/** | .ai/rules/workflows.md |

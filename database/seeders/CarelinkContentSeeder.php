@@ -7,6 +7,7 @@ use App\Models\BlogPost;
 use App\Models\Career;
 use App\Models\Faq;
 use App\Models\FleetVehicle;
+use App\Models\MaintenanceVehicle;
 use App\Models\RideBooking;
 use App\Models\Service;
 use App\Models\TeamMember;
@@ -21,6 +22,7 @@ class CarelinkContentSeeder extends Seeder
     {
         $this->seedServices();
         $this->seedFleet();
+        $this->seedMaintenanceVehicles();
         $this->seedTeam();
         $this->seedFaqs();
         $this->seedBlogPosts();
@@ -43,6 +45,23 @@ class CarelinkContentSeeder extends Seeder
 
         foreach ($vehicles as $vehicle) {
             FleetVehicle::updateOrCreate(['name' => $vehicle['name']], $vehicle);
+        }
+    }
+
+    private function seedMaintenanceVehicles(): void
+    {
+        $vehicles = CollectionDefinitions::all()['fleet'];
+
+        foreach ($vehicles as $vehicle) {
+            MaintenanceVehicle::updateOrCreate(['name' => $vehicle['name']], [
+                'name' => $vehicle['name'],
+                'type' => $vehicle['type'],
+                'capacity' => $vehicle['capacity'],
+                'description' => $vehicle['description'],
+                'hourly_rate_est' => $vehicle['hourly_rate_est'],
+                'sort_order' => $vehicle['sort_order'],
+                'active' => true,
+            ]);
         }
     }
 

@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\FleetVehicle;
+use App\Models\MaintenanceVehicle;
 use App\Models\VehicleMaintenanceRecord;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,7 +19,7 @@ class VehicleMaintenanceRecordFactory extends Factory
     public function definition(): array
     {
         return [
-            'fleet_vehicle_id' => FleetVehicle::factory(),
+            'maintenance_vehicle_id' => MaintenanceVehicle::factory(),
             'maintenance_type' => $this->faker->randomElement(VehicleMaintenanceRecord::TYPES),
             'service_date' => $this->faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
             'vehicle_mileage' => $this->faker->numberBetween(10_000, 120_000),

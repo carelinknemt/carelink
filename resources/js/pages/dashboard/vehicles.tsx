@@ -73,7 +73,7 @@ type PendingDocument = {
 };
 
 type RecordFormData = {
-    fleet_vehicle_id: string;
+    maintenance_vehicle_id: string;
     maintenance_type: string;
     service_date: string;
     vehicle_mileage: string;
@@ -122,7 +122,7 @@ export default function DashboardVehicles({
         useState<VehicleRecord | null>(null);
     const [reportOpen, setReportOpen] = useState(false);
     const [reportForm, setReportForm] = useState({
-        fleet_vehicle_id: '',
+        maintenance_vehicle_id: '',
         start_date: '',
         end_date: '',
     });
@@ -134,7 +134,7 @@ export default function DashboardVehicles({
     } | null>(null);
 
     const recordForm = useForm<RecordFormData>({
-        fleet_vehicle_id: '',
+        maintenance_vehicle_id: '',
         maintenance_type: 'oil_change',
         service_date: '',
         vehicle_mileage: '',
@@ -170,7 +170,7 @@ export default function DashboardVehicles({
         setEditingRecord(record);
         recordForm.reset();
         recordForm.setData(
-            'fleet_vehicle_id',
+            'maintenance_vehicle_id',
             record.vehicle ? String(record.vehicle.id) : '',
         );
         recordForm.setData('maintenance_type', record.maintenance_type);
@@ -321,14 +321,18 @@ export default function DashboardVehicles({
     }
 
     function openReport() {
-        setReportForm({ fleet_vehicle_id: '', start_date: '', end_date: '' });
+        setReportForm({
+            maintenance_vehicle_id: '',
+            start_date: '',
+            end_date: '',
+        });
         setReport(null);
         setReportOpen(true);
     }
 
     function generateReport() {
         const vehicle = vehicle_options.find(
-            (option) => option.id === Number(reportForm.fleet_vehicle_id),
+            (option) => option.id === Number(reportForm.maintenance_vehicle_id),
         );
 
         if (!vehicle) {
@@ -391,7 +395,7 @@ export default function DashboardVehicles({
                             No maintenance records yet
                         </p>
                         <p className="text-sm text-muted-foreground">
-                            Add a service record for any fleet vehicle.
+                            Add a service record for any vehicle.
                         </p>
                     </div>
                 ) : (
@@ -605,7 +609,7 @@ export default function DashboardVehicles({
                         <Car className="size-10 text-muted-foreground" />
                         <p className="font-medium">No vehicles yet</p>
                         <p className="text-sm text-muted-foreground">
-                            Add your first fleet vehicle.
+                            Add your first vehicle.
                         </p>
                     </div>
                 ) : (
@@ -796,7 +800,7 @@ export default function DashboardVehicles({
                         </h1>
                         <p className="text-sm text-muted-foreground">
                             Track service history and upcoming maintenance for
-                            every fleet vehicle.
+                            every vehicle.
                         </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -892,10 +896,12 @@ export default function DashboardVehicles({
                             <div className="grid gap-1.5">
                                 <Label htmlFor="record-vehicle">Vehicle</Label>
                                 <Select
-                                    value={recordForm.data.fleet_vehicle_id}
+                                    value={
+                                        recordForm.data.maintenance_vehicle_id
+                                    }
                                     onValueChange={(value) =>
                                         recordForm.setData(
-                                            'fleet_vehicle_id',
+                                            'maintenance_vehicle_id',
                                             value,
                                         )
                                     }
@@ -904,7 +910,7 @@ export default function DashboardVehicles({
                                         id="record-vehicle"
                                         className="w-full"
                                     >
-                                        <SelectValue placeholder="Select a fleet vehicle" />
+                                        <SelectValue placeholder="Select a vehicle" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {vehicle_options.map((option) => (
@@ -920,9 +926,12 @@ export default function DashboardVehicles({
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                {recordForm.errors.fleet_vehicle_id && (
+                                {recordForm.errors.maintenance_vehicle_id && (
                                     <p className="text-xs text-destructive">
-                                        {recordForm.errors.fleet_vehicle_id}
+                                        {
+                                            recordForm.errors
+                                                .maintenance_vehicle_id
+                                        }
                                     </p>
                                 )}
                             </div>
@@ -1270,8 +1279,7 @@ export default function DashboardVehicles({
                             {editingVehicle ? 'Edit vehicle' : 'Add a vehicle'}
                         </DialogTitle>
                         <DialogDescription>
-                            Add or update a fleet vehicle in the maintenance
-                            log.
+                            Add or update a vehicle in the maintenance log.
                         </DialogDescription>
                     </DialogHeader>
                     <form
@@ -1537,11 +1545,14 @@ export default function DashboardVehicles({
                                             Vehicle
                                         </Label>
                                         <Select
-                                            value={reportForm.fleet_vehicle_id}
+                                            value={
+                                                reportForm.maintenance_vehicle_id
+                                            }
                                             onValueChange={(value) =>
                                                 setReportForm((state) => ({
                                                     ...state,
-                                                    fleet_vehicle_id: value,
+                                                    maintenance_vehicle_id:
+                                                        value,
                                                 }))
                                             }
                                         >
@@ -1621,7 +1632,7 @@ export default function DashboardVehicles({
                                     <Button
                                         type="submit"
                                         disabled={
-                                            !reportForm.fleet_vehicle_id ||
+                                            !reportForm.maintenance_vehicle_id ||
                                             (reportForm.start_date !== '' &&
                                                 reportForm.end_date !== '' &&
                                                 reportForm.start_date >

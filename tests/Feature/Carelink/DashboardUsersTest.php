@@ -14,15 +14,6 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
-function actingAsAdmin(): User
-{
-    $admin = User::factory()->admin()->create();
-
-    test()->actingAs($admin);
-
-    return $admin;
-}
-
 test('admins can view the user management page', function () {
     $manager = User::factory()->admin()->create();
     $this->actingAs($manager);
