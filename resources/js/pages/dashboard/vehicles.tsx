@@ -800,7 +800,7 @@ export default function DashboardVehicles({
                         </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                        <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-muted p-1">
+                        <div className="flex w-full items-center gap-1 rounded-lg border border-border bg-muted p-1 sm:inline-flex sm:w-auto">
                             {[
                                 { id: 'maintenance', label: 'Maintenance' },
                                 { id: 'vehicles', label: 'Vehicles' },
@@ -814,7 +814,7 @@ export default function DashboardVehicles({
                                                 'maintenance' | 'vehicles',
                                         )
                                     }
-                                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                                    className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors sm:flex-none ${
                                         activeTab === tab.id
                                             ? 'bg-background text-foreground shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
