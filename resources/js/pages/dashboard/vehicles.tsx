@@ -1,9 +1,11 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import {
     Car,
+    Eye,
     FileText,
     Pencil,
     Plus,
+    Printer,
     Trash2,
     Upload,
     Wrench,
@@ -47,6 +49,7 @@ import {
     formatMileage,
     MAINTENANCE_TYPE_OPTIONS,
     maintenanceTypeLabel,
+    printMaintenanceReport,
     VEHICLE_TYPE_OPTIONS,
 } from '@/lib/vehicles';
 import { dashboard } from '@/routes';
@@ -108,6 +111,8 @@ export default function DashboardVehicles({
         [],
     );
     const [deleteRecordTarget, setDeleteRecordTarget] =
+        useState<VehicleMaintenanceRecord | null>(null);
+    const [detailsTarget, setDetailsTarget] =
         useState<VehicleMaintenanceRecord | null>(null);
     const [vehicleOpen, setVehicleOpen] = useState(false);
     const [editingVehicle, setEditingVehicle] = useState<VehicleRecord | null>(
@@ -413,6 +418,18 @@ export default function DashboardVehicles({
                                             </p>
                                         </div>
                                         <div className="flex items-center gap-1">
+                                            <IconAction label="View record details">
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() =>
+                                                        setDetailsTarget(record)
+                                                    }
+                                                >
+                                                    <Eye />
+                                                </Button>
+                                            </IconAction>
                                             <IconAction label="Edit record">
                                                 <Button
                                                     type="button"
@@ -525,6 +542,20 @@ export default function DashboardVehicles({
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-1">
+                                                    <IconAction label="View record details">
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() =>
+                                                                setDetailsTarget(
+                                                                    record,
+                                                                )
+                                                            }
+                                                        >
+                                                            <Eye />
+                                                        </Button>
+                                                    </IconAction>
                                                     <IconAction label="Edit record">
                                                         <Button
                                                             type="button"
@@ -1715,6 +1746,17 @@ export default function DashboardVehicles({
                                     </div>
                                 )}
                                 <DialogFooter>
+                                    {report.items.length > 0 && (
+                                        <Button
+                                            type="button"
+                                            onClick={() =>
+                                                printMaintenanceReport(report)
+                                            }
+                                        >
+                                            <Printer />
+                                            Export PDF
+                                        </Button>
+                                    )}
                                     <Button
                                         type="button"
                                         variant="outline"
@@ -1724,6 +1766,7 @@ export default function DashboardVehicles({
                                     </Button>
                                     <Button
                                         type="button"
+                                        variant="outline"
                                         onClick={() => setReportOpen(false)}
                                     >
                                         Close
@@ -1732,6 +1775,149 @@ export default function DashboardVehicles({
                             </div>
                         </>
                     )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Maintenance record details */}
+            <Dialog
+                open={detailsTarget !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setDetailsTarget(null);
+                    }
+                }}
+            >
+                <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Maintenance details</DialogTitle>
+                        <DialogDescription>
+                            {detailsTarget?.vehicle?.name ?? 'Vehicle'}
+                            {' · '}
+                            {detailsTarget
+                                ? maintenanceTypeLabel(
+                                      detailsTarget.maintenance_type,
+                                  )
+                                : ''}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p className="text-muted-foreground">
+                                    Service date
+                                </p>
+                                <p className="font-medium">
+                                    {formatDate(
+                                        detailsTarget?.service_date ?? null,
+                                    )}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">
+                                    Maintenance type
+                                </p>
+                                <p className="font-medium">
+                                    {detailsTarget
+                                        ? maintenanceTypeLabel(
+                                              detailsTarget.maintenance_type,
+                                          )
+                                        : '—'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">
+                                    Vehicle mileage
+                                </p>
+                                <p className="font-medium">
+                                    {formatMileage(
+                                        detailsTarget?.vehicle_mileage,
+                                    )}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">
+                                    Service provider
+                                </p>
+                                <p className="font-medium">
+                                    {detailsTarget?.service_provider ?? '—'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">
+                                    Total cost
+                                </p>
+                                <p className="font-medium">
+                                    {formatMoney(detailsTarget?.total_cost)}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">
+                                    Next service date
+                                </p>
+                                <p className="font-medium">
+                                    {formatDate(
+                                        detailsTarget?.next_service_date ??
+                                            null,
+                                    )}
+                                </p>
+                            </div>
+                        </div>
+                        {detailsTarget?.notes ? (
+                            <div className="text-sm">
+                                <p className="mb-1 text-muted-foreground">
+                                    Notes
+                                </p>
+                                <p className="rounded-md border border-border bg-muted/50 p-3">
+                                    {detailsTarget.notes}
+                                </p>
+                            </div>
+                        ) : null}
+                        {detailsTarget && detailsTarget.documents.length > 0 ? (
+                            <div className="grid gap-2">
+                                <p className="text-sm text-muted-foreground">
+                                    Receipts
+                                </p>
+                                <ul className="flex flex-col gap-2">
+                                    {detailsTarget.documents.map((doc) => (
+                                        <li
+                                            key={doc.id}
+                                            className="flex items-center gap-2 rounded-md border border-border p-3"
+                                        >
+                                            <FileText className="size-4 shrink-0 text-muted-foreground" />
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate text-sm">
+                                                    <a
+                                                        href={vehiclesRoutes.maintenance.documents.show.url(
+                                                            {
+                                                                record: detailsTarget.id,
+                                                                document:
+                                                                    doc.id,
+                                                            },
+                                                        )}
+                                                        className="hover:underline"
+                                                    >
+                                                        {doc.file_name}
+                                                    </a>
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {formatFileSize(
+                                                        doc.file_size,
+                                                    )}
+                                                </p>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ) : null}
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button type="button" variant="outline">
+                                    Close
+                                </Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </div>
                 </DialogContent>
             </Dialog>
 
