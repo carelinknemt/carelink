@@ -1,6 +1,7 @@
 import { ShieldCheck } from 'lucide-react';
 
-export const ROLE_OPTIONS = [    {
+export const ROLE_OPTIONS = [
+    {
         value: 'admin',
         label: 'Admin',
         icon: ShieldCheck,

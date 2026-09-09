@@ -1,0 +1,52 @@
+name: PHP Checks
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    php:
+        name: PHP (Pint, PHPStan, Pest)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.5'
+                  coverage: none
+                  extensions: intl, mbstring, pdo_sqlite, sqlite3
+
+            - name: Get Composer cache directory
+              id: composer-cache-dir
+              run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+            - name: Cache Composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.composer-cache-dir.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
+
+            - name: Install dependencies
+              run: composer install --no-interaction --prefer-dist --no-progress
+
+            - name: Prepare environment
+              run: |
+                  cp .env.example .env
+                  php artisan key:generate --ansi
+
+            - name: Run Pint (style)
+              run: vendor/bin/pint --parallel --test
+
+            - name: Run PHPStan (static analysis)
+              run: vendor/bin/phpstan analyse --memory-limit=1G
+
+            - name: Run Pest test suite
+              run: php artisan test --compact

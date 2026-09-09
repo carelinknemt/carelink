@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TripRequestAuditFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,11 +35,17 @@ class TripRequestAudit extends Model
         'created_at' => 'datetime',
     ];
 
+    /**
+     * @return BelongsTo<TripRequest, $this>
+     */
     public function tripRequest(): BelongsTo
     {
         return $this->belongsTo(TripRequest::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

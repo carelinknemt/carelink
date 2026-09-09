@@ -18,10 +18,13 @@ class MaintenanceDocumentFactory extends Factory
      */
     public function definition(): array
     {
+        $words = $this->faker->words(2, true);
+        $fileWord = is_array($words) ? implode(' ', $words) : $words;
+
         return [
             'vehicle_maintenance_record_id' => VehicleMaintenanceRecord::factory(),
             'file_path' => "maintenance-documents/{$this->faker->sha1()}.pdf",
-            'file_name' => $this->faker->words(2, true).'.pdf',
+            'file_name' => ucfirst($fileWord).'.pdf',
             'file_size' => $this->faker->numberBetween(10_000, 500_000),
         ];
     }

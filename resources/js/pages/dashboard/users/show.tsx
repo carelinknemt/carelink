@@ -730,10 +730,7 @@ export default function UserDetail({
                                     id="edit-dob"
                                     value={editForm.data.date_of_birth}
                                     onChange={(value) =>
-                                        editForm.setData(
-                                            'date_of_birth',
-                                            value,
-                                        )
+                                        editForm.setData('date_of_birth', value)
                                     }
                                     placeholder="mm/dd/yyyy"
                                 />
@@ -744,17 +741,12 @@ export default function UserDetail({
                                 )}
                             </div>
                             <div className="grid gap-1.5">
-                                <Label htmlFor="edit-hired">
-                                    Hired date
-                                </Label>
+                                <Label htmlFor="edit-hired">Hired date</Label>
                                 <DatePicker
                                     id="edit-hired"
                                     value={editForm.data.hired_date}
                                     onChange={(value) =>
-                                        editForm.setData(
-                                            'hired_date',
-                                            value,
-                                        )
+                                        editForm.setData('hired_date', value)
                                     }
                                     placeholder="mm/dd/yyyy"
                                 />
@@ -772,9 +764,7 @@ export default function UserDetail({
                                 </Label>
                                 <Input
                                     id="edit-license-number"
-                                    value={
-                                        editForm.data.driver_license_number
-                                    }
+                                    value={editForm.data.driver_license_number}
                                     onChange={(event) =>
                                         editForm.setData(
                                             'driver_license_number',
@@ -785,10 +775,7 @@ export default function UserDetail({
                                 />
                                 {editForm.errors.driver_license_number && (
                                     <p className="text-xs text-destructive">
-                                        {
-                                            editForm.errors
-                                                .driver_license_number
-                                        }
+                                        {editForm.errors.driver_license_number}
                                     </p>
                                 )}
                             </div>

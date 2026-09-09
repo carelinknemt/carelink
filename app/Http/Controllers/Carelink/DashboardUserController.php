@@ -90,7 +90,7 @@ class DashboardUserController extends Controller
             'label' => $document->typeLabel(),
             'file_name' => $document->file_name,
             'file_size' => $document->file_size,
-            'created_at' => $document->created_at?->toIso8601String(),
+            'created_at' => $document->created_at->toIso8601String(),
         ]);
 
         $audits = $user->tripRequestAudits()
@@ -105,7 +105,7 @@ class DashboardUserController extends Controller
                 'from_value' => $audit->from_value,
                 'to_value' => $audit->to_value,
                 'reason' => $audit->reason,
-                'created_at' => $audit->created_at?->toIso8601String(),
+                'created_at' => $audit->created_at->toIso8601String(),
             ]);
 
         return Inertia::render('dashboard/users/show', [

@@ -166,6 +166,9 @@ class TripRequest extends Model
         ];
     }
 
+    /**
+     * @return HasMany<TripRequestAudit, $this>
+     */
     public function audits(): HasMany
     {
         return $this->hasMany(TripRequestAudit::class)->latest();

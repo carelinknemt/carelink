@@ -840,9 +840,7 @@ export default function DashboardUsers({
                                 )}
                             </div>
                             <div className="grid gap-1.5">
-                                <Label htmlFor="invite-hired">
-                                    Hired date
-                                </Label>
+                                <Label htmlFor="invite-hired">Hired date</Label>
                                 <DatePicker
                                     id="invite-hired"
                                     value={inviteForm.data.hired_date}
@@ -866,8 +864,7 @@ export default function DashboardUsers({
                                 <Input
                                     id="invite-license-number"
                                     value={
-                                        inviteForm.data
-                                            .driver_license_number
+                                        inviteForm.data.driver_license_number
                                     }
                                     onChange={(event) =>
                                         inviteForm.setData(
@@ -893,8 +890,7 @@ export default function DashboardUsers({
                                 <DatePicker
                                     id="invite-license-exp"
                                     value={
-                                        inviteForm.data
-                                            .license_expiration_date
+                                        inviteForm.data.license_expiration_date
                                     }
                                     onChange={(value) =>
                                         inviteForm.setData(

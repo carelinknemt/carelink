@@ -82,7 +82,7 @@ class DashboardBookingController extends Controller
                 'from_value' => $audit->from_value,
                 'to_value' => $audit->to_value,
                 'reason' => $audit->reason,
-                'created_at' => $audit->created_at?->toIso8601String(),
+                'created_at' => $audit->created_at->toIso8601String(),
             ]),
             'blacklist' => $blacklistEntry ? [
                 'id' => $blacklistEntry->id,
@@ -247,8 +247,8 @@ class DashboardBookingController extends Controller
     {
         $booking->audits()->create([
             'user_id' => $user?->getAuthIdentifier(),
-            'user_name' => $user?->name ?? 'Unknown',
-            'role' => $user?->role ?? 'unknown',
+            'user_name' => $user->name ?? 'Unknown',
+            'role' => $user->role ?? 'unknown',
             'action' => $action,
             'from_value' => $from,
             'to_value' => $to,

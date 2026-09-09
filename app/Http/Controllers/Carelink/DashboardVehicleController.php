@@ -329,7 +329,7 @@ class DashboardVehicleController extends Controller
             'description' => $vehicle->description,
             'active' => $vehicle->active,
             'records_count' => $records->count(),
-            'last_service_date' => $records->max(fn ($record) => $record->service_date?->format('Y-m-d')),
+            'last_service_date' => $records->max(fn ($record) => $record->service_date->format('Y-m-d')),
             'next_service_date' => $records
                 ->pluck('next_service_date')
                 ->filter()
@@ -346,7 +346,7 @@ class DashboardVehicleController extends Controller
             'id' => $record->id,
             'maintenance_type' => $record->maintenance_type,
             'type_label' => VehicleMaintenanceRecord::TYPE_LABELS[$record->maintenance_type] ?? $record->maintenance_type,
-            'service_date' => $record->service_date?->format('Y-m-d'),
+            'service_date' => $record->service_date->format('Y-m-d'),
             'vehicle_mileage' => $record->vehicle_mileage,
             'service_provider' => $record->service_provider,
             'total_cost' => $record->total_cost,

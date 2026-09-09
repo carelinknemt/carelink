@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('trip_request_audits', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('trip_request_id')->constrained()->cascadeOnDelete()->index();
+            $table->foreignId('trip_request_id')->index()->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('user_name');
             $table->string('role');

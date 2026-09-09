@@ -49,6 +49,9 @@ class UserDocument extends Model
         'file_size',
     ];
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
