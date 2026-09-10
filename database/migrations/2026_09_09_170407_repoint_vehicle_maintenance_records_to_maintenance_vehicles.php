@@ -11,13 +11,54 @@ return new class extends Migration
      * Repoint vehicle maintenance records from the public fleet table to the
      * dedicated maintenance_vehicles table so the dashboard list is decoupled
      * from the CMS-managed fleet.
+     *
+     * This is resume-safe: a previous attempt may have failed partway through
+     * (MySQL DDL is non-transactional), leaving the column, backfill and foreign
+     * key in place but the migration unrecorded. Re-running then only finishes
+     * the missing work instead of erroring on the duplicate column.
      */
     public function up(): void
     {
+        if (Schema::hasColumn('vehicle_maintenance_records', 'maintenance_vehicle_id')) {
+            $this->completePartialUp();
+
+            return;
+        }
+
         Schema::table('vehicle_maintenance_records', function (Blueprint $table) {
             $table->foreignId('maintenance_vehicle_id')->nullable()->after('id');
         });
 
+        $this->backfillMaintenanceVehicles();
+
+        Schema::table('vehicle_maintenance_records', function (Blueprint $table) {
+            $table->dropForeign(['fleet_vehicle_id']);
+            $table->dropIndex(['fleet_vehicle_id', 'service_date']);
+            $table->dropColumn('fleet_vehicle_id');
+        });
+
+        $this->completeRepoint();
+    }
+
+    /**
+     * Finish a partially applied up() by creating the composite index that
+     * likely failed on the first run, skipping the steps already in place.
+     */
+    private function completePartialUp(): void
+    {
+        if (! Schema::hasIndex('vehicle_maintenance_records', 'maintenance_records_vehicle_service_date_index')) {
+            Schema::table('vehicle_maintenance_records', function (Blueprint $table) {
+                $table->index(['maintenance_vehicle_id', 'service_date'], 'maintenance_records_vehicle_service_date_index');
+            });
+        }
+    }
+
+    /**
+     * Copy the public fleet entries into maintenance_vehicles and repoint every
+     * existing maintenance record at the newly created maintenance vehicle.
+     */
+    private function backfillMaintenanceVehicles(): void
+    {
         $map = [];
         foreach (DB::table('fleet_vehicles')->orderBy('id')->get() as $vehicle) {
             $map[$vehicle->id] = DB::table('maintenance_vehicles')->insertGetId([
@@ -40,13 +81,14 @@ return new class extends Migration
                 'maintenance_vehicle_id' => $map[$record->fleet_vehicle_id] ?? null,
             ]);
         });
+    }
 
-        Schema::table('vehicle_maintenance_records', function (Blueprint $table) {
-            $table->dropForeign(['fleet_vehicle_id']);
-            $table->dropIndex(['fleet_vehicle_id', 'service_date']);
-            $table->dropColumn('fleet_vehicle_id');
-        });
-
+    /**
+     * Make the maintenance vehicle column required and wire up its foreign key
+     * and composite index.
+     */
+    private function completeRepoint(): void
+    {
         Schema::table('vehicle_maintenance_records', function (Blueprint $table) {
             $table->unsignedBigInteger('maintenance_vehicle_id')->nullable(false)->change();
             $table->foreign('maintenance_vehicle_id')->references('id')->on('maintenance_vehicles')->cascadeOnDelete();
