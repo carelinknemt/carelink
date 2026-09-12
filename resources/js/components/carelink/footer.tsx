@@ -262,9 +262,9 @@ export default function Footer() {
                             . All rights reserved.
                         </p>
                         <p className="text-[11px] text-slate-400">
-                            Designed & Developed by{' '}
+                            Powered by{' '}
                             <a
-                                href="#"
+                                href="https://pawlosdesignlab.com/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-bold text-[#E64A19] underline underline-offset-2 transition-colors hover:text-orange-300"
