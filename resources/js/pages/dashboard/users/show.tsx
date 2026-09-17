@@ -366,114 +366,6 @@ export default function UserDetail({
                     </Card>
 
                     <Card className="min-w-0">
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Job applications
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {applications.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">
-                                    No applications submitted while signed in.
-                                </p>
-                            ) : (
-                                <ol className="flex flex-col">
-                                    {applications.map((application, index) => (
-                                        <li key={application.id}>
-                                            {index > 0 && <Separator />}
-                                            <div className="flex flex-col gap-0.5 py-2.5">
-                                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                                    <p className="text-sm font-medium">
-                                                        {application.position ??
-                                                            'General application'}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {formatDate(
-                                                            application.submitted_at,
-                                                        )}
-                                                    </p>
-                                                </div>
-                                                {application.resume_name && (
-                                                    <a
-                                                        href={applicationResumeUrl.url(
-                                                            {
-                                                                application:
-                                                                    application.id,
-                                                            },
-                                                        )}
-                                                        className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-                                                    >
-                                                        <FileText className="size-3" />
-                                                        {
-                                                            application.resume_name
-                                                        }
-                                                    </a>
-                                                )}
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ol>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    <Card className="min-w-0">
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Activity
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {audits.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">
-                                    No booking changes recorded for this user
-                                    yet.
-                                </p>
-                            ) : (
-                                <ol className="flex flex-col">
-                                    {audits.map((audit, index) => (
-                                        <li key={audit.id}>
-                                            {index > 0 && <Separator />}
-                                            <div className="flex flex-col gap-0.5 py-2.5">
-                                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                                    <p className="text-sm font-medium">
-                                                        {auditActionLabel(
-                                                            audit,
-                                                        )}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        {formatDateTime(
-                                                            audit.created_at,
-                                                        )}
-                                                    </p>
-                                                </div>
-                                                {audit.booking_number && (
-                                                    <Link
-                                                        href={bookingShowUrl.url(
-                                                            {
-                                                                booking:
-                                                                    audit.trip_request_id,
-                                                            },
-                                                        )}
-                                                        className="text-xs font-semibold text-primary hover:underline"
-                                                    >
-                                                        {audit.booking_number}
-                                                    </Link>
-                                                )}
-                                                {audit.reason && (
-                                                    <p className="text-xs text-muted-foreground italic">
-                                                        {audit.reason}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ol>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    <Card className="min-w-0">
                         <CardHeader className="flex-row items-center justify-between gap-2">
                             <CardTitle className="text-base">
                                 Employee details
@@ -556,6 +448,62 @@ export default function UserDetail({
                     </Card>
 
                     <Card className="min-w-0">
+                        <CardHeader>
+                            <CardTitle className="text-base">
+                                Activity
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {audits.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">
+                                    No booking changes recorded for this user
+                                    yet.
+                                </p>
+                            ) : (
+                                <ol className="flex flex-col">
+                                    {audits.map((audit, index) => (
+                                        <li key={audit.id}>
+                                            {index > 0 && <Separator />}
+                                            <div className="flex flex-col gap-0.5 py-2.5">
+                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                    <p className="text-sm font-medium">
+                                                        {auditActionLabel(
+                                                            audit,
+                                                        )}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {formatDateTime(
+                                                            audit.created_at,
+                                                        )}
+                                                    </p>
+                                                </div>
+                                                {audit.booking_number && (
+                                                    <Link
+                                                        href={bookingShowUrl.url(
+                                                            {
+                                                                booking:
+                                                                    audit.trip_request_id,
+                                                            },
+                                                        )}
+                                                        className="text-xs font-semibold text-primary hover:underline"
+                                                    >
+                                                        {audit.booking_number}
+                                                    </Link>
+                                                )}
+                                                {audit.reason && (
+                                                    <p className="text-xs text-muted-foreground italic">
+                                                        {audit.reason}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ol>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card className="min-w-0">
                         <CardHeader className="flex-row items-center justify-between gap-2">
                             <CardTitle className="text-base">
                                 Documents
@@ -634,6 +582,58 @@ export default function UserDetail({
                                         </li>
                                     ))}
                                 </ul>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card className="min-w-0">
+                        <CardHeader>
+                            <CardTitle className="text-base">
+                                Job applications
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {applications.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">
+                                    No applications submitted while signed in.
+                                </p>
+                            ) : (
+                                <ol className="flex flex-col">
+                                    {applications.map((application, index) => (
+                                        <li key={application.id}>
+                                            {index > 0 && <Separator />}
+                                            <div className="flex flex-col gap-0.5 py-2.5">
+                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                    <p className="text-sm font-medium">
+                                                        {application.position ??
+                                                            'General application'}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {formatDate(
+                                                            application.submitted_at,
+                                                        )}
+                                                    </p>
+                                                </div>
+                                                {application.resume_name && (
+                                                    <a
+                                                        href={applicationResumeUrl.url(
+                                                            {
+                                                                application:
+                                                                    application.id,
+                                                            },
+                                                        )}
+                                                        className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                                                    >
+                                                        <FileText className="size-3" />
+                                                        {
+                                                            application.resume_name
+                                                        }
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ol>
                             )}
                         </CardContent>
                     </Card>
