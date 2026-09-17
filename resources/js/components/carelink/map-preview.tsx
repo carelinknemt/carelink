@@ -85,7 +85,7 @@ export default function MapPreview({
     points,
     route,
     height = 380,
-    satellite = false,
+    satellite = true,
 }: MapPreviewProps) {
     return (
         <div className="relative z-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
