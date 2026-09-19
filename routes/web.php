@@ -23,6 +23,7 @@ use App\Http\Controllers\Carelink\DashboardContactMessageController;
 use App\Http\Controllers\Carelink\DashboardController;
 use App\Http\Controllers\Carelink\DashboardJobOpeningController;
 use App\Http\Controllers\Carelink\DashboardPaymentController;
+use App\Http\Controllers\Carelink\DashboardQrCodeController;
 use App\Http\Controllers\Carelink\DashboardUserController;
 use App\Http\Controllers\Carelink\DashboardVehicleController;
 use App\Http\Controllers\Carelink\FaqController;
@@ -104,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/dashboard/payments', [DashboardPaymentController::class, 'index'])->name('dashboard.payments');
+        Route::get('/dashboard/qr-codes', [DashboardQrCodeController::class, 'index'])->name('dashboard.qr-codes');
         Route::get('/dashboard/users', [DashboardUserController::class, 'index'])->name('dashboard.users');
         Route::get('/dashboard/users/{user}', [DashboardUserController::class, 'show'])->name('dashboard.users.show');
         Route::post('/dashboard/users', [DashboardUserController::class, 'store'])->name('dashboard.users.store');

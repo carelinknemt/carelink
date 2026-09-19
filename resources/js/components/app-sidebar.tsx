@@ -8,6 +8,7 @@ import {
     CreditCard,
     LayoutGrid,
     MessageSquareText,
+    QrCode,
     ShieldOff,
     Users,
     Wrench,
@@ -35,6 +36,7 @@ import {
     contactMessages,
     jobOpenings,
     payments,
+    qrCodes,
     users,
     vehicles as dashboardVehicles,
 } from '@/routes/dashboard';
@@ -138,6 +140,12 @@ const navGroups: NavGroup[] = [
                 title: 'Website Content',
                 href: cmsRoutes.index(),
                 icon: LayoutGrid,
+                roles: ['admin'],
+            },
+            {
+                title: 'QR Codes',
+                href: qrCodes(),
+                icon: QrCode,
                 roles: ['admin'],
             },
         ],

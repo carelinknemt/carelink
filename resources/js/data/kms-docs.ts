@@ -142,7 +142,7 @@ export const kmsCategories: KmsCategory[] = [
                             'Overview: Dashboard and Analytics.',
                             'Trips & Billing: Bookings, Blacklisted Passengers, and Payments.',
                             'Recruitment: Applications and Job Openings.',
-                            'Administration: Users, Vehicle Maintenance, Business Partners, Contact Messages, and Website Content.',
+                            'Administration: Users, Vehicle Maintenance, Business Partners, Contact Messages, Website Content, and QR Codes.',
                             'Resources: the Knowledge Base you are reading right now.',
                         ],
                     },
