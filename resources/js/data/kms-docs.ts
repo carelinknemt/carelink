@@ -717,6 +717,12 @@ export const kmsCategories: KmsCategory[] = [
                     },
                     {
                         type: 'callout',
+                        variant: 'info',
+                        title: 'Driver accounts',
+                        text: 'Drivers are the exception: they are added without sending any email, so there is no password reset link for them. Share sign-in details with a driver directly if they need dashboard access.',
+                    },
+                    {
+                        type: 'callout',
                         variant: 'warning',
                         title: 'Never share passwords',
                         text: 'Accounts are created without passwords on purpose. If someone never received their reset link, use Forgot Password on the sign in page instead of creating a duplicate account.',
@@ -736,13 +742,17 @@ export const kmsCategories: KmsCategory[] = [
                 blocks: [
                     {
                         type: 'paragraph',
-                        text: 'Every account has one of three roles: Admin, Manager, or Dispatcher. The role controls what the person can do inside the dashboard.',
+                        text: 'Every account has one of four roles: Admin, Manager, Dispatcher, or Driver. The role controls what the person can do inside the dashboard.',
                     },
                     {
                         type: 'table',
                         title: 'Roles',
                         headers: ['Role', 'What they can do'],
                         rows: [
+                            [
+                                'Driver',
+                                'Sign in to the dashboard and Knowledge Base. Driver accounts are added without sending any email.',
+                            ],
                             [
                                 'Dispatcher',
                                 'Handle bookings, blacklisted passengers, and contact messages, and carry out day-to-day dispatch tasks.',
@@ -765,7 +775,7 @@ export const kmsCategories: KmsCategory[] = [
                         type: 'callout',
                         variant: 'info',
                         title: 'Role badges',
-                        text: 'Each role has a color-coded badge in the Users list: violet for Admin, sky for Manager, and slate for Dispatcher, so you always know who has what access.',
+                        text: 'Each role has a color-coded badge in the Users list: violet for Admin, sky for Manager, amber for Driver, and slate for Dispatcher, so you always know who has what access.',
                     },
                 ],
             },

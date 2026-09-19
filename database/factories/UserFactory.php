@@ -90,6 +90,16 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the user is a driver.
+     */
+    public function driver(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => User::ROLE_DRIVER,
+        ]);
+    }
+
+    /**
      * Indicate that the user's account is banned.
      */
     public function banned(): static

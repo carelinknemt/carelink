@@ -1,4 +1,4 @@
-import { ShieldCheck } from 'lucide-react';
+import { CarFront, ShieldCheck } from 'lucide-react';
 
 export const ROLE_OPTIONS = [
     {
@@ -12,6 +12,12 @@ export const ROLE_OPTIONS = [
         label: 'Manager',
         icon: ShieldCheck,
         color: 'border-sky-200 bg-sky-50 text-sky-700',
+    },
+    {
+        value: 'driver',
+        label: 'Driver',
+        icon: CarFront,
+        color: 'border-amber-200 bg-amber-50 text-amber-700',
     },
     {
         value: 'dispatcher',

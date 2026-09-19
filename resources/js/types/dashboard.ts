@@ -207,7 +207,7 @@ export type UserApplicationEntry = {
 
 export type UsersFilters = {
     search?: string | null;
-    role?: 'admin' | 'dispatcher' | 'manager' | null;
+    role?: 'admin' | 'dispatcher' | 'driver' | 'manager' | null;
 };
 
 type PaginatedRecords<T> = {

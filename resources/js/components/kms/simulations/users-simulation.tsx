@@ -35,7 +35,7 @@ type DemoUser = {
     id: number;
     name: string;
     email: string;
-    role: 'admin' | 'manager' | 'dispatcher';
+    role: 'admin' | 'manager' | 'dispatcher' | 'driver';
     banned: boolean;
     joined: string;
 };
@@ -50,6 +50,11 @@ const ROLE_OPTIONS = [
         value: 'manager' as const,
         label: 'Manager',
         color: 'border-sky-200 bg-sky-50 text-sky-700',
+    },
+    {
+        value: 'driver' as const,
+        label: 'Driver',
+        color: 'border-amber-200 bg-amber-50 text-amber-700',
     },
     {
         value: 'dispatcher' as const,
@@ -82,6 +87,14 @@ const INITIAL: DemoUser[] = [
         role: 'manager',
         banned: true,
         joined: '2026-06-10',
+    },
+    {
+        id: 4,
+        name: 'David Chen',
+        email: 'david@example.com',
+        role: 'driver',
+        banned: false,
+        joined: '2026-08-01',
     },
 ];
 
@@ -322,9 +335,10 @@ export default function UsersSimulation() {
                     <DialogHeader>
                         <DialogTitle>Add a user</DialogTitle>
                         <DialogDescription>
-                            The account is created without a password. The new
-                            user receives a password reset link and a guide to
-                            the Knowledge Base by email.
+                            The account is created without a password. New users
+                            receive a password reset link and a guide to the
+                            Knowledge Base by email. Drivers are added without
+                            sending any email.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4">

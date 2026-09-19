@@ -294,7 +294,8 @@ export default function DashboardUsers({
                         </h1>
                         <p className="text-sm text-muted-foreground">
                             Manage dashboard accounts. New users receive a
-                            password reset link by email.
+                            password reset link by email. Drivers are added
+                            without sending any email.
                         </p>
                     </div>
                     <Button type="button" onClick={openInvite}>
@@ -714,9 +715,10 @@ export default function DashboardUsers({
                     <DialogHeader>
                         <DialogTitle>Add a user</DialogTitle>
                         <DialogDescription>
-                            The account is created without a password. The new
-                            user receives a password reset link and a guide to
-                            the Knowledge Base by email.
+                            The account is created without a password. New users
+                            receive a password reset link and a guide to the
+                            Knowledge Base by email. Drivers are added without
+                            sending any email.
                         </DialogDescription>
                     </DialogHeader>
                     <form
@@ -1014,7 +1016,7 @@ export default function DashboardUsers({
                         </div>
                         {inviteForm.recentlySuccessful && (
                             <p className="text-xs text-muted-foreground">
-                                User added and reset link sent.
+                                User added.
                             </p>
                         )}
                         <DialogFooter>
@@ -1033,7 +1035,9 @@ export default function DashboardUsers({
                             >
                                 {inviteForm.processing
                                     ? 'Adding…'
-                                    : 'Add user and send links'}
+                                    : inviteForm.data.role === 'driver'
+                                      ? 'Add driver without email'
+                                      : 'Add user and send links'}
                             </Button>
                         </DialogFooter>
                     </form>

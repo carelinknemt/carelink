@@ -120,6 +120,8 @@ class DashboardUserController extends Controller
     /**
      * Create the account without a usable password and immediately send
      * the user a password reset link so they choose their own password.
+     * Driver accounts are an exception and are added without sending any
+     * email.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -159,6 +161,15 @@ class DashboardUserController extends Controller
         ]);
 
         $this->storeDocuments($user, $validated['documents'] ?? []);
+
+        if ($user->isDriver()) {
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => "{$user->email} was added. No emails were sent: driver accounts are added without welcome messages.",
+            ]);
+
+            return back();
+        }
 
         $status = Password::broker()->sendResetLink(['email' => $user->email]);
 

@@ -63,3 +63,6 @@ trip_requests.input_price is not taken from client input. BookController::store 
 
 ## No is_admin guard in user controllers - role:admin middleware only
 Admin gating is done exclusively via the role:admin route group; there is no is_admin DB column/attribute anymore (RBAC moved to the role enum). Do NOT call abort_unless($request->user()->is_admin, 403) - the magic attribute is null, so it always 403s. For role checks use $user->isAdmin().
+
+## Driver accounts are added without any email
+User roles include 'driver' (User::ROLE_DRIVER). DashboardUserController::store skips both the Fortify password-reset link and KmsIntroMail for driver accounts, so drivers never receive email when added. Other roles still get the reset link + KMS intro. Do not send mail for drivers on creation.

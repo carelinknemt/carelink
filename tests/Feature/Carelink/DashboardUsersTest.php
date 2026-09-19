@@ -63,6 +63,7 @@ test('users can be filtered by role', function () {
     User::factory()->admin()->create(['name' => 'Jane Admin', 'email' => 'jane@example.com']);
     User::factory()->create(['name' => 'John Dispatcher', 'email' => 'john@example.com']);
     User::factory()->manager()->create(['name' => 'Joan Manager', 'email' => 'joan@example.com']);
+    User::factory()->driver()->create(['name' => 'Dave Driver', 'email' => 'dave@example.com']);
 
     $this->get(route('dashboard.users', ['role' => 'admin']))
         ->assertOk()
@@ -86,6 +87,14 @@ test('users can be filtered by role', function () {
             ->where('filters.role', 'manager')
             ->has('users.data', 1)
             ->where('users.data.0.name', 'Joan Manager'));
+
+    $this->get(route('dashboard.users', ['role' => 'driver']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard/users')
+            ->where('filters.role', 'driver')
+            ->has('users.data', 1)
+            ->where('users.data.0.name', 'Dave Driver'));
 });
 
 test('users can be searched by name or email', function () {
@@ -122,6 +131,36 @@ test('adding a user sends reset and knowledge base links and no usable password'
 
     Mail::assertSent(ResetPasswordMail::class, fn ($mail) => $mail->hasTo('jane@example.com'));
     Mail::assertSent(KmsIntroMail::class, fn ($mail) => $mail->hasTo('jane@example.com'));
+});
+
+test('adding a driver account sends no emails at all', function () {
+    Mail::fake();
+    actingAsAdmin();
+
+    $this->post(route('dashboard.users.store'), [
+        'name' => 'Dave Driver',
+        'email' => 'dave@example.com',
+        'role' => User::ROLE_DRIVER,
+    ])->assertRedirect();
+
+    $user = User::where('email', 'dave@example.com')->first();
+
+    expect($user)
+        ->not->toBeNull()
+        ->role->toBe(User::ROLE_DRIVER);
+
+    Mail::assertNothingSent();
+});
+
+test('an admin can assign the driver role to a user', function () {
+    $admin = actingAsAdmin();
+    $target = User::factory()->create(['role' => User::ROLE_DISPATCHER]);
+
+    $this->patch(route('dashboard.users.update-role', $target), [
+        'role' => User::ROLE_DRIVER,
+    ])->assertRedirect();
+
+    expect($target->fresh()->role)->toBe(User::ROLE_DRIVER);
 });
 
 test('new users default to dispatcher role when no role is specified', function () {

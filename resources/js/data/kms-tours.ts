@@ -272,7 +272,7 @@ export const kmsTours: Record<string, KmsTour> = {
                 target: '#kms-demo-us-invite-dialog',
                 title: 'Step 2 · The invite form',
                 content:
-                    'Enter the full name and work email, then select one of three roles: Admin, Manager, or Dispatcher. Click Add user and send links and the new user immediately receives two emails: a password reset link and a link to this Knowledge Base.',
+                    'Enter the full name and work email, then select one of four roles: Admin, Manager, Dispatcher, or Driver. New users immediately receive two emails: a password reset link and a link to this Knowledge Base. Driver accounts are added without sending any email.',
                 placement: 'top',
             },
             {
@@ -286,14 +286,14 @@ export const kmsTours: Record<string, KmsTour> = {
                 target: '#kms-demo-us-role',
                 title: 'Step 3 · Roles',
                 content:
-                    'Every account has one of three roles. Admins see the full dashboard including users and payments. Managers access analytics, applications, and business partners. Dispatchers handle bookings and contact messages. The role badge in each row makes access levels visible at a glance.',
+                    'Every account has one of four roles. Admins see the full dashboard including users and payments. Managers access analytics, applications, and business partners. Dispatchers handle bookings and contact messages. Drivers have dashboard and Knowledge Base access and are added without any email. The role badge in each row makes access levels visible at a glance.',
                 placement: 'top',
             },
             {
                 target: '#kms-demo-us-add',
                 title: 'Step 5 · Confirm the invite',
                 content:
-                    'After creating an account, check the list for the new name. Ask the new teammate to watch for the two emails and to set their password within 24 hours, while the reset link is still valid.',
+                    'After creating an account, check the list for the new name. Ask new team members to watch for the two emails and to set their password within 24 hours, while the reset link is still valid. Driver accounts receive no email, so share access with them directly if needed.',
                 placement: 'bottom',
             },
         ],

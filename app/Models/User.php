@@ -49,12 +49,15 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 
     public const ROLE_DISPATCHER = 'dispatcher';
 
+    public const ROLE_DRIVER = 'driver';
+
     public const ROLE_MANAGER = 'manager';
 
     /** @var array<int, string> */
     public const ROLES = [
         self::ROLE_ADMIN,
         self::ROLE_DISPATCHER,
+        self::ROLE_DRIVER,
         self::ROLE_MANAGER,
     ];
 
@@ -95,6 +98,11 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function isDispatcher(): bool
     {
         return $this->role === self::ROLE_DISPATCHER;
+    }
+
+    public function isDriver(): bool
+    {
+        return $this->role === self::ROLE_DRIVER;
     }
 
     public function isManager(): bool
