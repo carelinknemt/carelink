@@ -29,7 +29,10 @@ function PaymentWatcher() {
     return null;
 }
 
-export default function ChargePay({ charge, checkout_url }: ChargePayPageProps) {
+export default function ChargePay({
+    charge,
+    checkout_url,
+}: ChargePayPageProps) {
     const company = useCompanyInfo();
     const paymentPaid = charge.status === 'PAID';
 
@@ -64,11 +67,13 @@ export default function ChargePay({ charge, checkout_url }: ChargePayPageProps) 
                     </h2>
                     <p className="mt-2 text-sm font-semibold text-slate-600">
                         {paymentPaid ? (
-                            <>
-                                Your payment has been received. Thank you!
-                            </>
+                            <>Your payment has been received. Thank you!</>
                         ) : (
-                            <>A payment of {charge.amount_dollars} is due for trip {charge.booking_number}. Complete the payment to settle your balance.</>
+                            <>
+                                A payment of {charge.amount_dollars} is due for
+                                trip {charge.booking_number}. Complete the
+                                payment to settle your balance.
+                            </>
                         )}
                     </p>
                     {!paymentPaid && checkout_url && (
@@ -123,7 +128,9 @@ export default function ChargePay({ charge, checkout_url }: ChargePayPageProps) 
                         </div>
                         {charge.note && (
                             <div className="flex items-center justify-between gap-6 py-3">
-                                <dt className="shrink-0 text-slate-500">Note</dt>
+                                <dt className="shrink-0 text-slate-500">
+                                    Note
+                                </dt>
                                 <dd className="text-right font-semibold text-slate-800">
                                     {charge.note}
                                 </dd>

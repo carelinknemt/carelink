@@ -332,7 +332,7 @@ class DashboardBookingController extends Controller
      */
     private function chargesForShow(TripRequest $booking): array
     {
-        return $booking->charges()->get()->map(fn (BookingCharge $charge): array => [
+        return array_values($booking->charges()->get()->map(fn (BookingCharge $charge): array => [
             'id' => $charge->id,
             'amount_cents' => $charge->amount_cents,
             'amount_dollars' => '$'.$charge->amountInDollars(),
@@ -343,7 +343,7 @@ class DashboardBookingController extends Controller
             'paid_at' => $charge->paid_at?->toIso8601String(),
             'payment_url' => route('charges.pay', $charge),
             'sms_message' => $charge->paymentSmsMessage(),
-        ])->all();
+        ])->all());
     }
 
     /**

@@ -528,7 +528,8 @@ export default function BookingDetail({
     const page = usePage();
     const chargeSmsFlash = page.props.charge_sms as ChargeSmsFlash | undefined;
 
-    const [prevChargeSmsFlash, setPrevChargeSmsFlash] = useState(chargeSmsFlash);
+    const [prevChargeSmsFlash, setPrevChargeSmsFlash] =
+        useState(chargeSmsFlash);
 
     if (chargeSmsFlash !== prevChargeSmsFlash) {
         setPrevChargeSmsFlash(chargeSmsFlash);
@@ -1066,9 +1067,7 @@ export default function BookingDetail({
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() =>
-                                                        openSmsForCharge(
-                                                            charge,
-                                                        )
+                                                        openSmsForCharge(charge)
                                                     }
                                                 >
                                                     Copy SMS
@@ -1341,9 +1340,7 @@ export default function BookingDetail({
                     </DialogHeader>
                     <form onSubmit={submitCharge} className="grid gap-4">
                         <div className="grid gap-1.5">
-                            <Label htmlFor="charge-amount">
-                                Amount (USD)
-                            </Label>
+                            <Label htmlFor="charge-amount">Amount (USD)</Label>
                             <Input
                                 id="charge-amount"
                                 type="number"
@@ -1365,9 +1362,7 @@ export default function BookingDetail({
                             )}
                         </div>
                         <div className="grid gap-1.5">
-                            <Label htmlFor="charge-note">
-                                Note (optional)
-                            </Label>
+                            <Label htmlFor="charge-note">Note (optional)</Label>
                             <Textarea
                                 id="charge-note"
                                 rows={3}
@@ -1431,7 +1426,7 @@ export default function BookingDetail({
                     <div className="grid gap-3">
                         <div className="rounded-lg border bg-slate-50 p-3">
                             <div className="flex items-start justify-between gap-2">
-                                <p className="text-sm whitespace-pre-wrap break-words">
+                                <p className="text-sm break-words whitespace-pre-wrap">
                                     {chargeSms?.sms_message}
                                 </p>
                                 {chargeSms && (
@@ -1449,7 +1444,7 @@ export default function BookingDetail({
                         </div>
                         {chargeSms && (
                             <div className="flex items-center justify-between gap-2 rounded-lg border p-3">
-                                <p className="min-w-0 break-all text-xs text-muted-foreground">
+                                <p className="min-w-0 text-xs break-all text-muted-foreground">
                                     {chargeSms.payment_url}
                                 </p>
                                 <CopyButton
