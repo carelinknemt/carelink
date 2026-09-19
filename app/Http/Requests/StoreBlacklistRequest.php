@@ -18,6 +18,7 @@ class StoreBlacklistRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'name' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email:rfc,dns'],
             'phone' => ['nullable', 'string', 'regex:/^(?:\+1|1)?\s*(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/'],
             'reason' => ['required', 'string', 'min:20', 'max:2000'],

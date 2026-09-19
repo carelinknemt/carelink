@@ -127,9 +127,6 @@ export default function DashboardQrCodes() {
                                             setLabel(event.target.value)
                                         }
                                     />
-                                    <p className="text-xs text-muted-foreground">
-                                        Used as the download file name.
-                                    </p>
                                 </div>
 
                                 <div className="grid gap-1.5">

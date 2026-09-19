@@ -42,6 +42,7 @@ import {
 
 type BlacklistRecord = {
     id: number;
+    name: string | null;
     email: string | null;
     phone_digits: string | null;
     reason: string;
@@ -92,6 +93,7 @@ export default function DashboardBlacklistPage({
     );
 
     const addForm = useForm({
+        name: '',
         email: '',
         phone: '',
         reason: '',
@@ -194,7 +196,7 @@ export default function DashboardBlacklistPage({
                                 <Input
                                     id="blacklist-search"
                                     type="search"
-                                    placeholder="Search by email, phone, or reason…"
+                                    placeholder="Search by name, email, phone, or reason…"
                                     className="pl-9"
                                     value={form.data.search}
                                     onChange={(event) =>
@@ -231,9 +233,18 @@ export default function DashboardBlacklistPage({
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="min-w-0">
                                                     <p className="font-medium">
-                                                        {entry.email ??
-                                                            entry.phone_digits}
+                                                        {entry.name ?? '—'}
                                                     </p>
+                                                    {(entry.email ||
+                                                        entry.phone_digits) && (
+                                                        <p className="mt-0.5 text-sm text-muted-foreground">
+                                                            {entry.email}
+                                                            {entry.email &&
+                                                                entry.phone_digits &&
+                                                                ' · '}
+                                                            {entry.phone_digits}
+                                                        </p>
+                                                    )}
                                                     <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
                                                         {entry.reason}
                                                     </p>
@@ -266,6 +277,7 @@ export default function DashboardBlacklistPage({
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
+                                                <TableHead>Name</TableHead>
                                                 <TableHead>Contact</TableHead>
                                                 <TableHead>Reason</TableHead>
                                                 <TableHead>
@@ -281,6 +293,9 @@ export default function DashboardBlacklistPage({
                                             {blacklist.data.map((entry) => (
                                                 <TableRow key={entry.id}>
                                                     <TableCell className="font-medium">
+                                                        {entry.name ?? '—'}
+                                                    </TableCell>
+                                                    <TableCell>
                                                         {entry.email && (
                                                             <span className="block">
                                                                 {entry.email}
@@ -428,6 +443,23 @@ export default function DashboardBlacklistPage({
                         </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={submitAdd} className="grid gap-4">
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="blacklist-name">
+                                Name{' '}
+                                <span className="text-muted-foreground">
+                                    (optional)
+                                </span>
+                            </Label>
+                            <Input
+                                id="blacklist-name"
+                                type="text"
+                                placeholder="Passenger name"
+                                value={addForm.data.name}
+                                onChange={(event) =>
+                                    addForm.setData('name', event.target.value)
+                                }
+                            />
+                        </div>
                         <div className="grid gap-1.5">
                             <Label htmlFor="blacklist-email">
                                 Email{' '}

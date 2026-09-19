@@ -14,6 +14,7 @@ class PassengerBlacklistFactory extends Factory
     public function definition(): array
     {
         return [
+            'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'phone_digits' => null,
             'reason' => fake()->sentence(12),

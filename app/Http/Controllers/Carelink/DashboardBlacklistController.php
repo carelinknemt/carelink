@@ -20,7 +20,8 @@ class DashboardBlacklistController extends Controller
             ->with('blacklister:id,name')
             ->when($search, function ($query, $search): void {
                 $query->where(function ($q) use ($search): void {
-                    $q->where('email', 'like', "%{$search}%")
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
                         ->orWhere('phone_digits', 'like', "%{$search}%")
                         ->orWhere('reason', 'like', "%{$search}%");
                 });
@@ -67,6 +68,9 @@ class DashboardBlacklistController extends Controller
         }
 
         PassengerBlacklist::create([
+            'name' => $request->input('name')
+                ? trim($request->input('name'))
+                : null,
             'email' => $email,
             'phone_digits' => $phoneDigits,
             'reason' => $request->input('reason'),

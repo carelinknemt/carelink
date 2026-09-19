@@ -35,6 +35,7 @@ test('blacklist page shows entries', function () {
     $this->actingAs($user);
 
     $entry = blacklistEntry([
+        'name' => 'Jane Doe',
         'email' => 'bad@passenger.com',
         'phone_digits' => '7079090898',
     ]);
@@ -43,6 +44,7 @@ test('blacklist page shows entries', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('blacklist.data', 1)
+            ->where('blacklist.data.0.name', 'Jane Doe')
             ->where('blacklist.data.0.email', 'bad@passenger.com')
             ->where('blacklist.data.0.phone_digits', '7079090898'));
 });
@@ -59,6 +61,20 @@ test('blacklist page can be searched by email', function () {
         ->assertInertia(fn ($page) => $page
             ->has('blacklist.data', 1)
             ->where('blacklist.data.0.email', 'found@passenger.com'));
+});
+
+test('blacklist page can be searched by name', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    blacklistEntry(['name' => 'Jane Doe']);
+    blacklistEntry(['name' => 'John Smith']);
+
+    $this->get(route('dashboard.blacklist', ['search' => 'jane']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('blacklist.data', 1)
+            ->where('blacklist.data.0.name', 'Jane Doe'));
 });
 
 test('blacklist page can be searched by reason', function () {
@@ -80,6 +96,7 @@ test('a passenger can be blacklisted by email', function () {
     $this->actingAs($user);
 
     $this->post(route('dashboard.blacklist.store'), [
+        'name' => 'Jane Doe',
         'email' => 'bad@passenger.com',
         'phone' => '',
         'reason' => 'Repeated no-shows and aggressive behavior towards drivers',
@@ -88,6 +105,7 @@ test('a passenger can be blacklisted by email', function () {
     $entry = PassengerBlacklist::where('email', 'bad@passenger.com')->first();
 
     expect($entry)->not->toBeNull()
+        ->and($entry->name)->toBe('Jane Doe')
         ->and($entry->phone_digits)->toBeNull()
         ->and($entry->reason)->toBe('Repeated no-shows and aggressive behavior towards drivers')
         ->and($entry->blacklisted_by)->toBe($user->id);

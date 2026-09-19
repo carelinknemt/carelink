@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
+ * @property string|null $name
  * @property string|null $email
  * @property string|null $phone_digits
  * @property string $reason
@@ -23,6 +24,7 @@ class PassengerBlacklist extends Model
     use HasFactory;
 
     protected $fillable = [
+        'name',
         'email',
         'phone_digits',
         'reason',

@@ -383,7 +383,7 @@ export const kmsCategories: KmsCategory[] = [
                     },
                     {
                         type: 'paragraph',
-                        text: 'The Blacklisted Passengers page lives under Trips & Billing in the sidebar and is available to dispatchers and admins. It lists each flagged email or phone with the reason, who added it, and when.',
+                        text: 'The Blacklisted Passengers page lives under Trips & Billing in the sidebar and is available to dispatchers and admins. It lists each flagged passenger with an optional name, the email or phone, the reason, who added it, and when.',
                     },
                     {
                         type: 'callout',
@@ -405,6 +405,7 @@ export const kmsCategories: KmsCategory[] = [
                         items: [
                             'Go to Trips & Billing > Blacklisted Passengers.',
                             'Click Blacklist passenger.',
+                            'Enter the passenger name if you know it. This is optional.',
                             'Enter the email address and/or phone number. At least one of the two is required.',
                             'Write the reason the passenger is being blacklisted. It must be at least 20 characters.',
                             'Submit. The entry appears in the list and matching bookings are flagged.',
@@ -428,7 +429,7 @@ export const kmsCategories: KmsCategory[] = [
                         title: 'To remove a passenger',
                         items: [
                             'Go to Trips & Billing > Blacklisted Passengers.',
-                            'Find the entry with the search box, which matches email, phone, or reason.',
+                            'Find the entry with the search box, which matches name, email, phone, or reason.',
                             'Click the remove action next to the entry.',
                             'Confirm the removal. Their bookings are no longer flagged.',
                         ],
