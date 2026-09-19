@@ -85,6 +85,53 @@ class DashboardBlacklistController extends Controller
         return back();
     }
 
+    public function update(StoreBlacklistRequest $request, PassengerBlacklist $blacklist): RedirectResponse
+    {
+        $email = $request->input('email')
+            ? strtolower(trim($request->input('email')))
+            : null;
+        $phoneDigits = $request->input('phone')
+            ? PassengerBlacklist::digitsFromPhone($request->input('phone'))
+            : null;
+
+        $duplicate = PassengerBlacklist::query()
+            ->where('id', '!=', $blacklist->id)
+            ->where(function ($query) use ($email, $phoneDigits): void {
+                if ($email) {
+                    $query->where('email', $email);
+                }
+                if ($phoneDigits) {
+                    $query->orWhere('phone_digits', $phoneDigits);
+                }
+            })
+            ->exists();
+
+        if ($duplicate) {
+            Inertia::flash('toast', [
+                'type' => 'warning',
+                'message' => 'Another entry already uses that email or phone.',
+            ]);
+
+            return back();
+        }
+
+        $blacklist->update([
+            'name' => $request->input('name')
+                ? trim($request->input('name'))
+                : null,
+            'email' => $email,
+            'phone_digits' => $phoneDigits,
+            'reason' => $request->input('reason'),
+        ]);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Blacklist entry updated.',
+        ]);
+
+        return back();
+    }
+
     public function destroy(PassengerBlacklist $blacklist): RedirectResponse
     {
         $blacklist->delete();

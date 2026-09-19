@@ -1,5 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Search, ShieldOff, ShieldCheck, Trash2 } from 'lucide-react';
+import { Pencil, Search, ShieldOff, ShieldCheck, Trash2 } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { IconAction } from '@/components/ui/icon-action';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -38,6 +39,7 @@ import { blacklist as dashboardBlacklist } from '@/routes/dashboard';
 import {
     destroy as blacklistDestroy,
     store as blacklistStore,
+    update as blacklistUpdate,
 } from '@/routes/dashboard/blacklist';
 
 type BlacklistRecord = {
@@ -77,6 +79,20 @@ type DashboardBlacklistProps = {
     filters: BlacklistFilters;
 };
 
+function formatPhone(digits: string): string {
+    let national = digits;
+    let prefix = '';
+
+    if (digits.length === 11 && digits.startsWith('1')) {
+        prefix = '+1 ';
+        national = digits.slice(1);
+    }
+
+    const formatted = national.replace(/^(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3');
+
+    return `${prefix}${formatted}`;
+}
+
 export default function DashboardBlacklistPage({
     blacklist,
     filters,
@@ -88,11 +104,18 @@ export default function DashboardBlacklistPage({
     const searchTimer = useRef<number | null>(null);
 
     const [addOpen, setAddOpen] = useState(false);
+    const [editTarget, setEditTarget] = useState<BlacklistRecord | null>(null);
     const [removeTarget, setRemoveTarget] = useState<BlacklistRecord | null>(
         null,
     );
 
     const addForm = useForm({
+        name: '',
+        email: '',
+        phone: '',
+        reason: '',
+    });
+    const editForm = useForm({
         name: '',
         email: '',
         phone: '',
@@ -143,6 +166,31 @@ export default function DashboardBlacklistPage({
             onSuccess: () => {
                 setAddOpen(false);
                 addForm.reset();
+            },
+        });
+    }
+
+    function openEdit(entry: BlacklistRecord) {
+        editForm.setData({
+            name: entry.name ?? '',
+            email: entry.email ?? '',
+            phone: entry.phone_digits ? formatPhone(entry.phone_digits) : '',
+            reason: entry.reason,
+        });
+        editForm.clearErrors();
+        setEditTarget(entry);
+    }
+
+    function submitEdit() {
+        if (!editTarget) {
+            return;
+        }
+
+        editForm.put(blacklistUpdate.url({ blacklist: editTarget.id }), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setEditTarget(null);
+                editForm.reset();
             },
         });
     }
@@ -249,16 +297,34 @@ export default function DashboardBlacklistPage({
                                                         {entry.reason}
                                                     </p>
                                                 </div>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="shrink-0 text-muted-foreground hover:text-rose-600"
-                                                    onClick={() =>
-                                                        setRemoveTarget(entry)
-                                                    }
-                                                >
-                                                    <Trash2 />
-                                                </Button>
+                                                <div className="flex shrink-0 items-center gap-1">
+                                                    <IconAction label="Edit entry">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="text-muted-foreground hover:text-foreground"
+                                                            onClick={() =>
+                                                                openEdit(entry)
+                                                            }
+                                                        >
+                                                            <Pencil />
+                                                        </Button>
+                                                    </IconAction>
+                                                    <IconAction label="Remove from blacklist">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="text-muted-foreground hover:text-rose-600"
+                                                            onClick={() =>
+                                                                setRemoveTarget(
+                                                                    entry,
+                                                                )
+                                                            }
+                                                        >
+                                                            <Trash2 />
+                                                        </Button>
+                                                    </IconAction>
+                                                </div>
                                             </div>
                                             <p className="mt-2 text-xs text-muted-foreground">
                                                 Added by{' '}
@@ -324,18 +390,37 @@ export default function DashboardBlacklistPage({
                                                         )}
                                                     </TableCell>
                                                     <TableCell className="text-right">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="text-muted-foreground hover:text-rose-600"
-                                                            onClick={() =>
-                                                                setRemoveTarget(
-                                                                    entry,
-                                                                )
-                                                            }
-                                                        >
-                                                            <Trash2 />
-                                                        </Button>
+                                                        <div className="flex items-center justify-end gap-1">
+                                                            <IconAction label="Edit entry">
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        openEdit(
+                                                                            entry,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Pencil className="size-4" />
+                                                                </Button>
+                                                            </IconAction>
+                                                            <IconAction label="Remove from blacklist">
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className="text-muted-foreground hover:text-rose-600"
+                                                                    onClick={() =>
+                                                                        setRemoveTarget(
+                                                                            entry,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Trash2 className="size-4" />
+                                                                </Button>
+                                                            </IconAction>
+                                                        </div>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
@@ -531,6 +616,131 @@ export default function DashboardBlacklistPage({
                                 {addForm.processing
                                     ? 'Blacklisting…'
                                     : 'Blacklist passenger'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={editTarget !== null}
+                onOpenChange={(open) => {
+                    if (!open && !editForm.processing) {
+                        setEditTarget(null);
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit blacklisted passenger</DialogTitle>
+                        <DialogDescription>
+                            Update the flagged passenger's details. Matching
+                            bookings are affected immediately.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form
+                        onSubmit={(event) => {
+                            event.preventDefault();
+                            submitEdit();
+                        }}
+                        className="grid gap-4"
+                    >
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="edit-blacklist-name">
+                                Name{' '}
+                                <span className="text-muted-foreground">
+                                    (optional)
+                                </span>
+                            </Label>
+                            <Input
+                                id="edit-blacklist-name"
+                                type="text"
+                                placeholder="Passenger name"
+                                value={editForm.data.name}
+                                onChange={(event) =>
+                                    editForm.setData('name', event.target.value)
+                                }
+                            />
+                        </div>
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="edit-blacklist-email">
+                                Email{' '}
+                                <span className="text-muted-foreground">
+                                    (at least one of email or phone)
+                                </span>
+                            </Label>
+                            <Input
+                                id="edit-blacklist-email"
+                                type="email"
+                                placeholder="passenger@example.com"
+                                value={editForm.data.email}
+                                onChange={(event) =>
+                                    editForm.setData(
+                                        'email',
+                                        event.target.value,
+                                    )
+                                }
+                            />
+                        </div>
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="edit-blacklist-phone">
+                                Phone{' '}
+                                <span className="text-muted-foreground">
+                                    (at least one of email or phone)
+                                </span>
+                            </Label>
+                            <Input
+                                id="edit-blacklist-phone"
+                                type="tel"
+                                placeholder="(555) 123-4567"
+                                value={editForm.data.phone}
+                                onChange={(event) =>
+                                    editForm.setData(
+                                        'phone',
+                                        event.target.value,
+                                    )
+                                }
+                            />
+                        </div>
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="edit-blacklist-reason">
+                                Reason
+                            </Label>
+                            <Textarea
+                                id="edit-blacklist-reason"
+                                rows={3}
+                                placeholder="Explain why this passenger is being blacklisted…"
+                                value={editForm.data.reason}
+                                onChange={(event) =>
+                                    editForm.setData(
+                                        'reason',
+                                        event.target.value,
+                                    )
+                                }
+                                required
+                                minLength={20}
+                            />
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={editForm.processing}
+                                >
+                                    Cancel
+                                </Button>
+                            </DialogClose>
+                            <Button
+                                type="submit"
+                                disabled={
+                                    editForm.processing ||
+                                    editForm.data.reason.length < 20
+                                }
+                            >
+                                {editForm.processing
+                                    ? 'Saving…'
+                                    : 'Save changes'}
                             </Button>
                         </DialogFooter>
                     </form>

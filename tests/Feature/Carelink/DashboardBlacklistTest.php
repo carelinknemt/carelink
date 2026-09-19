@@ -208,6 +208,89 @@ test('a blacklist entry can be removed', function () {
     expect(PassengerBlacklist::find($entry->id))->toBeNull();
 });
 
+test('guests cannot update a blacklist entry', function () {
+    $entry = blacklistEntry();
+
+    $this->put(route('dashboard.blacklist.update', $entry), [
+        'email' => 'bad@passenger.com',
+        'phone' => '',
+        'reason' => 'This update should be blocked for guests',
+    ])->assertRedirect(route('login'));
+});
+
+test('a blacklist entry can be edited', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $entry = blacklistEntry([
+        'name' => 'Jane Doe',
+        'email' => 'bad@passenger.com',
+        'phone_digits' => '7079090898',
+    ]);
+
+    $this->put(route('dashboard.blacklist.update', $entry), [
+        'name' => 'Jane Smith',
+        'email' => 'new@passenger.com',
+        'phone' => '',
+        'reason' => 'Updated reason for keeping this passenger flagged',
+    ])->assertRedirect();
+
+    $entry->refresh();
+
+    expect($entry)
+        ->name->toBe('Jane Smith')
+        ->email->toBe('new@passenger.com')
+        ->phone_digits->toBeNull()
+        ->reason->toBe('Updated reason for keeping this passenger flagged');
+});
+
+test('a blacklist entry phone can be changed when editing', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $entry = blacklistEntry(['email' => 'bad@passenger.com']);
+
+    $this->put(route('dashboard.blacklist.update', $entry), [
+        'name' => 'Jane Doe',
+        'email' => '',
+        'phone' => '(555) 111-2222',
+        'reason' => 'Updated reason for keeping this passenger flagged',
+    ])->assertRedirect();
+
+    expect($entry->refresh())->phone_digits->toBe('5551112222');
+});
+
+test('editing a blacklist entry rejects an email used by another entry', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $entry = blacklistEntry(['email' => 'target@passenger.com']);
+    blacklistEntry(['email' => 'other@passenger.com']);
+
+    $this->put(route('dashboard.blacklist.update', $entry), [
+        'name' => 'Jane Doe',
+        'email' => 'other@passenger.com',
+        'phone' => '',
+        'reason' => 'This tries to take over the other entries email',
+    ])->assertRedirect();
+
+    expect($entry->refresh()->email)->toBe('target@passenger.com');
+});
+
+test('editing a blacklist entry still requires an email or phone', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $entry = blacklistEntry(['email' => 'bad@passenger.com']);
+
+    $this->put(route('dashboard.blacklist.update', $entry), [
+        'name' => 'Jane Doe',
+        'email' => '',
+        'phone' => '',
+        'reason' => 'This should fail because no contact is provided',
+    ])->assertSessionHasErrors('email');
+});
+
 test('the bookings list includes blacklist flag for blacklisted passengers', function () {
     $user = User::factory()->create();
     $this->actingAs($user);

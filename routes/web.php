@@ -100,6 +100,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/dashboard/bookings/{booking}/cancel', [DashboardBookingController::class, 'cancel'])->name('dashboard.bookings.cancel');
         Route::get('/dashboard/blacklist', [DashboardBlacklistController::class, 'index'])->name('dashboard.blacklist');
         Route::post('/dashboard/blacklist', [DashboardBlacklistController::class, 'store'])->name('dashboard.blacklist.store');
+        Route::put('/dashboard/blacklist/{blacklist}', [DashboardBlacklistController::class, 'update'])->name('dashboard.blacklist.update');
         Route::delete('/dashboard/blacklist/{blacklist}', [DashboardBlacklistController::class, 'destroy'])->name('dashboard.blacklist.destroy');
     });
 
