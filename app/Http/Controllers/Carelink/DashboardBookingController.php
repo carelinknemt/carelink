@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Carelink;
 use App\Cms\BookingFee;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CancelTripRequestRequest;
+use App\Http\Requests\StoreBookingChargeRequest;
 use App\Http\Requests\UpdateTripRequestRequest;
 use App\Http\Requests\UpdateTripRequestStatusRequest;
+use App\Mail\BookingChargeDue;
 use App\Mail\TripRequestCancelled;
+use App\Models\BookingCharge;
 use App\Models\PassengerBlacklist;
 use App\Models\TripRequest;
 use App\Models\TripRequestAudit;
@@ -16,9 +19,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Checkout;
 use RuntimeException;
 use Stripe\Exception\ApiErrorException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -74,6 +79,7 @@ class DashboardBookingController extends Controller
             'booking' => $booking,
             'statuses' => TripRequest::DROPDOWN_STATUSES,
             'booking_fee' => BookingFee::amountInDollarsFor($booking->transport_type),
+            'charges' => $this->chargesForShow($booking),
             'audits' => $booking->audits()->limit(20)->get()->map(fn (TripRequestAudit $audit): array => [
                 'id' => $audit->id,
                 'user_name' => $audit->user_name,
@@ -198,6 +204,69 @@ class DashboardBookingController extends Controller
     }
 
     /**
+     * Bill a passenger for an additional manual amount on a paid booking.
+     * Creates a pending booking charge with its own Stripe Checkout session
+     * (valid 7 days), emails the passenger a payment link, and exposes the
+     * ready-to-send SMS message so dispatch can copy it.
+     */
+    public function storeCharge(StoreBookingChargeRequest $request, TripRequest $booking): RedirectResponse
+    {
+        abort_if($booking->payment_status !== TripRequest::PAYMENT_STATUS_PAID, 404);
+
+        $charge = BookingCharge::create([
+            'trip_request_id' => $booking->id,
+            'amount_cents' => (int) round((float) $request->validated('amount') * 100),
+            'token' => Str::random(40),
+            'note' => $request->validated('note') ?: null,
+            'created_by' => $request->user()?->getAuthIdentifier(),
+        ]);
+
+        try {
+            $session = $this->createChargeCheckout($charge)->asStripeCheckoutSession();
+            $charge->update(['stripe_checkout_session_id' => $session->id]);
+        } catch (ApiErrorException $exception) {
+            $charge->delete();
+            report($exception);
+
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => "The payment link for {$booking->booking_number} could not be created right now. Please try again.",
+            ]);
+
+            return back();
+        }
+
+        $this->sendChargeEmail($charge);
+
+        $this->recordAudit(
+            $booking,
+            $request->user(),
+            TripRequestAudit::ACTION_CHARGE_CREATED,
+            null,
+            '$'.$charge->amountInDollars(),
+            $charge->note,
+        );
+
+        Inertia::flash('charge_sms', [
+            'amount_dollars' => $charge->amountInDollars(),
+            'booking_number' => $booking->booking_number,
+            'passenger_phone_number' => $booking->passenger_phone_number,
+            'email_sent_to' => $booking->passenger_email,
+            'payment_url' => route('charges.pay', $charge),
+            'sms_message' => $charge->paymentSmsMessage(),
+        ]);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => $booking->passenger_email
+                ? "A payment link for \${$charge->amountInDollars()} was emailed to {$booking->passenger_email}."
+                : "Charge of \${$charge->amountInDollars()} created, but {$booking->booking_number} has no passenger email on file.",
+        ]);
+
+        return back();
+    }
+
+    /**
      * Notify the passenger that their booking was cancelled and the
      * booking fee refunded.
      */
@@ -209,6 +278,72 @@ class DashboardBookingController extends Controller
 
         Mail::to($booking->passenger_email)
             ->send(new TripRequestCancelled($booking, $reason));
+    }
+
+    /**
+     * Start a Stripe Checkout session for an additional booking charge,
+     * valid for 7 days so the passenger is not racing a short link.
+     */
+    private function createChargeCheckout(BookingCharge $charge): Checkout
+    {
+        $booking = $charge->tripRequest;
+
+        return Checkout::guest()->create([
+            [
+                'price_data' => [
+                    'currency' => config('cashier.currency', 'usd'),
+                    'unit_amount' => $charge->amount_cents,
+                    'product_data' => [
+                        'name' => 'CareLink Balance Due',
+                        'description' => "Remaining balance for trip request {$booking->booking_number}",
+                    ],
+                ],
+                'quantity' => 1,
+            ],
+        ], [
+            'success_url' => route('charges.pay', $charge).'?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('charges.pay', $charge).'?payment=cancelled',
+            'metadata' => [
+                'booking_number' => $booking->booking_number,
+                'charge_id' => (string) $charge->id,
+            ],
+            'customer_email' => $booking->passenger_email,
+            'expires_at' => now()->addDays(7)->timestamp,
+        ]);
+    }
+
+    /**
+     * Email the passenger the balance-due payment link. Sends only when the
+     * booking has an email on file and never fails a charge over mail.
+     */
+    private function sendChargeEmail(BookingCharge $charge): void
+    {
+        if (! $charge->tripRequest->passenger_email) {
+            return;
+        }
+
+        Mail::to($charge->tripRequest->passenger_email)->send(new BookingChargeDue($charge));
+
+        $charge->update(['email_sent_at' => now()]);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function chargesForShow(TripRequest $booking): array
+    {
+        return $booking->charges()->get()->map(fn (BookingCharge $charge): array => [
+            'id' => $charge->id,
+            'amount_cents' => $charge->amount_cents,
+            'amount_dollars' => '$'.$charge->amountInDollars(),
+            'status' => $charge->status,
+            'note' => $charge->note,
+            'created_at' => $charge->created_at?->toIso8601String(),
+            'email_sent_at' => $charge->email_sent_at?->toIso8601String(),
+            'paid_at' => $charge->paid_at?->toIso8601String(),
+            'payment_url' => route('charges.pay', $charge),
+            'sms_message' => $charge->paymentSmsMessage(),
+        ])->all();
     }
 
     /**

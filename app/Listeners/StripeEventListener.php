@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Mail\TripRequestPaymentConfirmed;
+use App\Models\BookingCharge;
 use App\Models\TripRequest;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Cashier\Events\WebhookHandled;
@@ -15,15 +16,18 @@ class StripeEventListener
      */
     public function handle(WebhookReceived|WebhookHandled $event): void
     {
-        $this->markBookingPaid($event->payload);
+        $this->markPaymentPaid($event->payload);
     }
 
     /**
-     * Mark a trip request as paid when its checkout session completes.
+     * Mark a payment as paid when its checkout session completes. Sessions
+     * for an additional booking charge carry a charge_id and update the
+     * booking charge; every other session carries a booking_number and
+     * updates the trip request's booking fee.
      *
      * @param  array<string, mixed>  $payload
      */
-    private function markBookingPaid(array $payload): void
+    private function markPaymentPaid(array $payload): void
     {
         if (($payload['type'] ?? null) !== 'checkout.session.completed') {
             return;
@@ -35,7 +39,21 @@ class StripeEventListener
             return;
         }
 
-        $bookingNumber = $session['metadata']['booking_number'] ?? null;
+        $metadata = $session['metadata'] ?? [];
+
+        if (isset($metadata['charge_id'])) {
+            BookingCharge::query()
+                ->whereKey($metadata['charge_id'])
+                ->where('status', '!=', BookingCharge::STATUS_PAID)
+                ->update([
+                    'status' => BookingCharge::STATUS_PAID,
+                    'paid_at' => now(),
+                ]);
+
+            return;
+        }
+
+        $bookingNumber = $metadata['booking_number'] ?? null;
 
         if (! $bookingNumber) {
             return;

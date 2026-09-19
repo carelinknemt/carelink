@@ -6,6 +6,7 @@ use App\Http\Controllers\Carelink\BlogController;
 use App\Http\Controllers\Carelink\BookController;
 use App\Http\Controllers\Carelink\BusinessPartnerController;
 use App\Http\Controllers\Carelink\CareersController;
+use App\Http\Controllers\Carelink\ChargePaymentController;
 use App\Http\Controllers\Carelink\Cms\CmsBlogPostController;
 use App\Http\Controllers\Carelink\Cms\CmsFaqController;
 use App\Http\Controllers\Carelink\Cms\CmsFleetVehicleController;
@@ -58,6 +59,10 @@ Route::get('/bookings/{booking}', [BookController::class, 'show'])
     ->middleware(AddNoIndexHeader::class)
     ->name('bookings.show');
 Route::get('/bookings/{booking}/status', [BookController::class, 'status'])->name('bookings.status');
+Route::get('/charges/{charge}', [ChargePaymentController::class, 'show'])
+    ->middleware(AddNoIndexHeader::class)
+    ->name('charges.pay');
+Route::get('/charges/{charge}/status', [ChargePaymentController::class, 'status'])->name('charges.status');
 Route::post('/careers/apply', [CareersController::class, 'store'])->name('careers.apply');
 Route::get('/for-businesses', [BusinessPartnerController::class, 'index'])->name('business');
 Route::post('/business-partners', [BusinessPartnerController::class, 'store'])->name('business.store');
@@ -98,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/dashboard/bookings/{booking}', [DashboardBookingController::class, 'update'])->name('dashboard.bookings.update');
         Route::patch('/dashboard/bookings/{booking}/status', [DashboardBookingController::class, 'updateStatus'])->name('dashboard.bookings.update-status');
         Route::post('/dashboard/bookings/{booking}/cancel', [DashboardBookingController::class, 'cancel'])->name('dashboard.bookings.cancel');
+        Route::post('/dashboard/bookings/{booking}/charges', [DashboardBookingController::class, 'storeCharge'])->name('dashboard.bookings.charges.store');
         Route::get('/dashboard/blacklist', [DashboardBlacklistController::class, 'index'])->name('dashboard.blacklist');
         Route::post('/dashboard/blacklist', [DashboardBlacklistController::class, 'store'])->name('dashboard.blacklist.store');
         Route::put('/dashboard/blacklist/{blacklist}', [DashboardBlacklistController::class, 'update'])->name('dashboard.blacklist.update');

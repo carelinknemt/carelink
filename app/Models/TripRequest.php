@@ -175,6 +175,14 @@ class TripRequest extends Model
     }
 
     /**
+     * @return HasMany<BookingCharge, $this>
+     */
+    public function charges(): HasMany
+    {
+        return $this->hasMany(BookingCharge::class)->latest();
+    }
+
+    /**
      * A row for the Bambi import CSV (docs/schema.csv contract): the id
      * column exports empty, booleans export as TRUE/FALSE, dates as
      * YYYY-MM-DD, and null values as an empty string.

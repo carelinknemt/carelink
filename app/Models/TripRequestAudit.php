@@ -20,6 +20,8 @@ class TripRequestAudit extends Model
 
     public const ACTION_UPDATED = 'updated';
 
+    public const ACTION_CHARGE_CREATED = 'charge_created';
+
     protected $fillable = [
         'trip_request_id',
         'user_id',

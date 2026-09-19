@@ -1,10 +1,12 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import {
     Ban,
     Download,
     Loader2,
     MapPinned,
     Pencil,
+    Plus,
+    Receipt,
     Trash2,
 } from 'lucide-react';
 import type { FormEvent } from 'react';
@@ -37,7 +39,12 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { formatDate, formatDateTime, statusLabel } from '@/lib/bookings';
+import {
+    formatDate,
+    formatDateTime,
+    formatMoney,
+    statusLabel,
+} from '@/lib/bookings';
 import { dashboard } from '@/routes';
 import { bookings as dashboardBookings } from '@/routes/dashboard';
 import { store as blacklistStore } from '@/routes/dashboard/blacklist';
@@ -47,9 +54,32 @@ import {
     update as updateBooking,
     updateStatus as updateBookingStatus,
 } from '@/routes/dashboard/bookings';
+import { store as storeBookingCharge } from '@/routes/dashboard/bookings/charges';
 import type { TripRequestAudit } from '@/types/ui';
 
 type BookingDetail = Record<string, string | number | boolean | null>;
+
+interface BookingChargeRow {
+    id: number;
+    amount_cents: number;
+    amount_dollars: string;
+    status: 'PENDING' | 'PAID';
+    note: string | null;
+    created_at: string | null;
+    email_sent_at: string | null;
+    paid_at: string | null;
+    payment_url: string;
+    sms_message: string;
+}
+
+interface ChargeSmsFlash {
+    amount_dollars: string;
+    booking_number: string;
+    passenger_phone_number: string | null;
+    email_sent_to: string | null;
+    payment_url: string;
+    sms_message: string;
+}
 
 interface RouteInfo {
     coordinates: [number, number][];
@@ -264,6 +294,10 @@ function auditActionLabel(audit: TripRequestAudit): string {
         return 'Cancelled booking';
     }
 
+    if (audit.action === 'charge_created') {
+        return `Charge added: ${audit.to_value ?? ''}`;
+    }
+
     if (audit.action === 'status_changed') {
         return `Status changed: ${statusLabel(
             audit.from_value ?? 'Unknown',
@@ -468,6 +502,7 @@ export default function BookingDetail({
     booking_fee,
     blacklist,
     audits,
+    charges,
 }: {
     booking: BookingDetail;
     statuses: string[];
@@ -479,13 +514,29 @@ export default function BookingDetail({
         at: string;
     } | null;
     audits: TripRequestAudit[];
+    charges: BookingChargeRow[];
 }) {
     const [statusTarget, setStatusTarget] = useState<string | null>(null);
     const [editSection, setEditSection] = useState<DetailSection | null>(null);
     const [cancelOpen, setCancelOpen] = useState(false);
     const [banOpen, setBanOpen] = useState(false);
+    const [chargeOpen, setChargeOpen] = useState(false);
+    const [chargeSms, setChargeSms] = useState<ChargeSmsFlash | null>(null);
     const [route, setRoute] = useState<RouteInfo | null>(null);
     const [routeFailed, setRouteFailed] = useState(false);
+
+    const page = usePage();
+    const chargeSmsFlash = page.props.charge_sms as ChargeSmsFlash | undefined;
+
+    const [prevChargeSmsFlash, setPrevChargeSmsFlash] = useState(chargeSmsFlash);
+
+    if (chargeSmsFlash !== prevChargeSmsFlash) {
+        setPrevChargeSmsFlash(chargeSmsFlash);
+
+        if (chargeSmsFlash) {
+            setChargeSms(chargeSmsFlash);
+        }
+    }
 
     const hasRouteCoords = Boolean(
         booking.pickup_latitude &&
@@ -502,6 +553,7 @@ export default function BookingDetail({
     const statusForm = useForm({ status: '' });
     const cancelForm = useForm({ reason: '' });
     const banForm = useForm({ email: '', phone: '', reason: '' });
+    const chargeForm = useForm({ amount: '', note: '' });
 
     function confirmStatusChange() {
         if (!statusTarget) {
@@ -536,9 +588,47 @@ export default function BookingDetail({
         });
     }
 
+    function submitCharge(event: FormEvent) {
+        event.preventDefault();
+        chargeForm.post(
+            storeBookingCharge.url({ booking: Number(booking.id) }),
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setChargeOpen(false);
+                    chargeForm.reset('amount', 'note');
+                },
+            },
+        );
+    }
+
+    function openSmsForCharge(charge: BookingChargeRow) {
+        setChargeSms({
+            amount_dollars: charge.amount_dollars,
+            booking_number: String(booking.booking_number),
+            passenger_phone_number: String(
+                booking.passenger_phone_number ?? '',
+            ),
+            email_sent_to: String(booking.passenger_email ?? ''),
+            payment_url: charge.payment_url,
+            sms_message: charge.sms_message,
+        });
+    }
+
     const isCancelled = booking.status === 'CANCELLED';
     const isCompleted = booking.status === 'COMPLETED';
     const canCancel = !isCancelled && !isCompleted;
+    const canCharge = !isCancelled;
+
+    const totalChargedCents = charges.reduce(
+        (sum, charge) => sum + charge.amount_cents,
+        0,
+    );
+    const totalPaidCents = charges.reduce(
+        (sum, charge) =>
+            charge.status === 'PAID' ? sum + charge.amount_cents : sum,
+        0,
+    );
 
     const mapPoints: MapPoint[] = [];
 
@@ -905,6 +995,108 @@ export default function BookingDetail({
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                        <CardTitle className="flex items-center gap-2 text-base">
+                            <Receipt className="size-4 text-[#E64A19]" />
+                            Charges
+                        </CardTitle>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1.5"
+                            onClick={() => {
+                                chargeForm.reset('amount', 'note');
+                                setChargeOpen(true);
+                            }}
+                            disabled={!canCharge}
+                        >
+                            <Plus />
+                            Add charge
+                        </Button>
+                    </CardHeader>
+                    <CardContent>
+                        {charges.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">
+                                No additional charges yet.
+                            </p>
+                        ) : (
+                            <div className="flex flex-col">
+                                {charges.map((charge, index) => (
+                                    <div key={charge.id}>
+                                        {index > 0 && <Separator />}
+                                        <div className="flex items-center justify-between gap-3 py-2.5">
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-semibold">
+                                                        {charge.amount_dollars}
+                                                    </span>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className={
+                                                            charge.status ===
+                                                            'PAID'
+                                                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                                                : 'border-amber-200 bg-amber-50 text-amber-700'
+                                                        }
+                                                    >
+                                                        {charge.status ===
+                                                        'PAID'
+                                                            ? 'Paid'
+                                                            : 'Pending'}
+                                                    </Badge>
+                                                </div>
+                                                {charge.note && (
+                                                    <p className="mt-0.5 text-xs text-muted-foreground">
+                                                        {charge.note}
+                                                    </p>
+                                                )}
+                                                <p className="mt-0.5 text-xs text-muted-foreground">
+                                                    Added{' '}
+                                                    {formatDate(
+                                                        charge.created_at,
+                                                    )}
+                                                    {charge.paid_at
+                                                        ? ` · Paid ${formatDate(
+                                                              charge.paid_at,
+                                                          )}`
+                                                        : ''}
+                                                </p>
+                                            </div>
+                                            {charge.status === 'PENDING' && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        openSmsForCharge(
+                                                            charge,
+                                                        )
+                                                    }
+                                                >
+                                                    Copy SMS
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <Separator className="my-2" />
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <span>Total billed</span>
+                            <span className="font-medium">
+                                {formatMoney(totalChargedCents / 100)}
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <span>Total paid</span>
+                            <span className="font-medium text-emerald-700">
+                                {formatMoney(totalPaidCents / 100)}
+                            </span>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0">
                         <CardTitle className="text-base">Activity</CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -1123,6 +1315,160 @@ export default function BookingDetail({
                             </Button>
                         </DialogFooter>
                     </form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={chargeOpen}
+                onOpenChange={(open) => {
+                    if (!open && !chargeForm.processing) {
+                        setChargeOpen(false);
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add a charge</DialogTitle>
+                        <DialogDescription>
+                            Bill the passenger an additional amount for{' '}
+                            <span className="font-medium text-foreground">
+                                {booking.booking_number}
+                            </span>
+                            . A payment link will be emailed to them and a
+                            ready-to-send SMS message will appear after the
+                            charge is created.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={submitCharge} className="grid gap-4">
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="charge-amount">
+                                Amount (USD)
+                            </Label>
+                            <Input
+                                id="charge-amount"
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="0.00"
+                                value={chargeForm.data.amount}
+                                onChange={(event) =>
+                                    chargeForm.setData(
+                                        'amount',
+                                        event.target.value,
+                                    )
+                                }
+                            />
+                            {chargeForm.errors.amount && (
+                                <p className="text-xs text-destructive">
+                                    {chargeForm.errors.amount}
+                                </p>
+                            )}
+                        </div>
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="charge-note">
+                                Note (optional)
+                            </Label>
+                            <Textarea
+                                id="charge-note"
+                                rows={3}
+                                placeholder="Reason for this charge…"
+                                value={chargeForm.data.note}
+                                onChange={(event) =>
+                                    chargeForm.setData(
+                                        'note',
+                                        event.target.value,
+                                    )
+                                }
+                            />
+                            {chargeForm.errors.note && (
+                                <p className="text-xs text-destructive">
+                                    {chargeForm.errors.note}
+                                </p>
+                            )}
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setChargeOpen(false)}
+                                disabled={chargeForm.processing}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={
+                                    chargeForm.processing ||
+                                    chargeForm.data.amount === ''
+                                }
+                            >
+                                {chargeForm.processing
+                                    ? 'Creating…'
+                                    : 'Create payment link'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={chargeSms !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setChargeSms(null);
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Payment link sent</DialogTitle>
+                        <DialogDescription>
+                            {chargeSms?.email_sent_to
+                                ? `The payment link for ${chargeSms.amount_dollars} was emailed to ${chargeSms.email_sent_to}.`
+                                : 'This booking has no passenger email on file, so no email was sent.'}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-3">
+                        <div className="rounded-lg border bg-slate-50 p-3">
+                            <div className="flex items-start justify-between gap-2">
+                                <p className="text-sm whitespace-pre-wrap break-words">
+                                    {chargeSms?.sms_message}
+                                </p>
+                                {chargeSms && (
+                                    <CopyButton
+                                        value={chargeSms.sms_message}
+                                        label="SMS message"
+                                    />
+                                )}
+                            </div>
+                            <p className="mt-2 text-xs text-muted-foreground">
+                                Send to{' '}
+                                {chargeSms?.passenger_phone_number ||
+                                    'no phone on file'}
+                            </p>
+                        </div>
+                        {chargeSms && (
+                            <div className="flex items-center justify-between gap-2 rounded-lg border p-3">
+                                <p className="min-w-0 break-all text-xs text-muted-foreground">
+                                    {chargeSms.payment_url}
+                                </p>
+                                <CopyButton
+                                    value={chargeSms.payment_url}
+                                    label="payment link"
+                                />
+                            </div>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button
+                                type="button"
+                                onClick={() => setChargeSms(null)}
+                            >
+                                Done
+                            </Button>
+                        </DialogClose>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </>
