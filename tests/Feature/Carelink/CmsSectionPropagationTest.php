@@ -36,6 +36,7 @@ $carelink_routes = [
     'booking_steps' => 'home',
     'term_sections' => 'terms',
     'privacy_sections' => 'privacy',
+    'refund_policy' => 'refund-policy',
     'page_heroes' => 'book',
 ];
 

@@ -182,7 +182,7 @@ class BookController extends Controller
     }
 
     /**
-     * Start a Stripe Checkout session for the $30 non-refundable booking fee.
+     * Start a Stripe Checkout session for the $30 booking fee.
      */
     private function createBookingCheckout(TripRequest $tripRequest): Checkout
     {
@@ -193,7 +193,7 @@ class BookController extends Controller
                     'unit_amount' => BookingFee::amountInCentsFor($tripRequest->transport_type),
                     'product_data' => [
                         'name' => BookingFee::label(),
-                        'description' => "Non-refundable booking fee for trip request {$tripRequest->booking_number}",
+                        'description' => "Booking fee for trip request {$tripRequest->booking_number}",
                     ],
                 ],
                 'quantity' => 1,

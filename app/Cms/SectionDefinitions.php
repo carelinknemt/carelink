@@ -304,7 +304,7 @@ class SectionDefinitions
                             'points' => [
                                 'Final charge: base fare + actual billable mileage.',
                                 'Only the {fee} fee up front; the ride is billed after.',
-                                'Cancel 2+ hours before pickup: free. After that the {fee} fee applies; dispatch-cancelled rides auto-refund.',
+                                'Cancel more than 12 hours before pickup for a full refund; dispatch-cancelled trips are refunded.',
                             ],
                         ],
                     ],
@@ -313,7 +313,7 @@ class SectionDefinitions
             'booking_fee_settings' => [
                 'title' => 'Booking Fee Settings',
                 'readonly' => true,
-                'description' => 'The non-refundable booking fee charged at Stripe checkout. Ambulatory trips use the ambulatory fee; every other transport type uses the standard fee. Changing these updates checkout, the book form, and the booking summaries.',
+                'description' => 'The booking fee charged at Stripe checkout. Ambulatory trips use the ambulatory fee; every other transport type uses the standard fee. Changing these updates checkout, the book form, and the booking summaries.',
                 'fields' => [
                     ['key' => 'fee_amount_cents', 'label' => 'Standard fee amount (cents)', 'type' => 'number'],
                     ['key' => 'ambulatory_fee_amount_cents', 'label' => 'Ambulatory fee amount (cents)', 'type' => 'number'],
@@ -364,16 +364,17 @@ class SectionDefinitions
                                 'Bookings are private pay only. Carelink does not currently bill Medi-Cal, Medicare, or insurance providers for trips booked through this website.',
                                 'Trip pricing is estimated from the driving distance between your pickup and dropoff locations. Wheelchair service charges a $45 base fare, which includes the first five miles, plus $3.50 for each additional mile. Ambulatory (taxi) service charges a $20 base fare, which includes the first five miles, plus $2.50 for each additional mile.',
                                 'The estimated price is confirmed by our dispatch team before your trip. The final fare may differ from the estimate if the route or trip details change.',
-                                'A non-refundable booking fee of {fee} is charged at the time you submit a trip request. This fee reserves your trip and is charged through a secure payment page. The booking fee is not applied toward the trip fare.',
+                                'A booking fee of {fee} is charged at the time you submit a trip request. This fee reserves your trip and is charged through a secure payment page. The booking fee is not applied toward the trip fare.',
                             ],
                         ],
                         [
                             'icon' => 'phone',
                             'title' => 'Cancellations and Refunds',
                             'body' => [
-                                'Call our dispatch team at {phone} as soon as possible to cancel or change a trip. Cancellations made at least two hours before the scheduled pickup time are free.',
-                                'The {fee} booking fee is non-refundable. Trip fares are paid directly to the driver at the completion of the trip unless alternative arrangements were made with dispatch in advance.',
-                                'Canceled or missed trips remain subject to our dispatch team review. Repeated no-shows may affect your ability to book future trips.',
+                                'You may cancel your trip by contacting Carelink using the phone number or email address in your booking confirmation. The cancellation time is the time Carelink receives your request.',
+                                'Cancellations made more than 12 hours before the scheduled pickup receive a full refund to the original payment method. Cancellations within 12 hours, and no-shows, are nonrefundable.',
+                                'If Carelink cancels your trip or cannot provide the booked service, we refund the amount you paid for the service we did not provide.',
+                                'This policy applies to trips paid for directly by a customer. Trips covered or arranged through Medi-Cal or a health plan follow the applicable program rules and our agreement with the plan.',
                             ],
                         ],
                         [
@@ -475,40 +476,47 @@ class SectionDefinitions
                     ],
                 ],
                 'defaults' => [
-                    'description' => 'Carelink Medical Transportation refund policy: when the booking fee is refundable, how refunds are issued, and what to do if a trip is cancelled by dispatch.',
+                    'description' => 'Carelink Medical Transportation cancellation and refund policy: full refunds for cancellations more than 12 hours before pickup, nonrefundable within 12 hours or on no-show, and refunds when Carelink cancels.',
                     'last_updated' => 'September 2026',
-                    'intro' => 'A non-refundable booking fee of {fee} is charged at the time you submit a trip request. This fee reserves your trip and is charged through a secure Stripe payment page. The booking fee is not applied toward the trip fare.',
+                    'intro' => 'This policy applies to trips booked and paid for directly with Carelink Medical Transportation. You may cancel your trip by contacting Carelink using the phone number or email address in your booking confirmation. The cancellation time is the time Carelink receives your request.',
                     'sections' => [
                         [
-                            'icon' => 'card',
-                            'title' => 'Booking Fee',
+                            'icon' => 'phone',
+                            'title' => 'How to Cancel',
                             'body' => [
-                                'The {fee} booking fee is charged at checkout when you submit a trip request. It secures your trip and is not applied toward the trip fare.',
-                                'Because the fee holds dispatch time and vehicle availability, it is non-refundable when you cancel your own trip.',
+                                'You may cancel your trip by contacting Carelink using the phone number or email address in your booking confirmation. The cancellation time is the time Carelink receives your request.',
+                                'Call our dispatch team at {phone} or email {email} to cancel or change a trip.',
                             ],
                         ],
                         [
                             'icon' => 'calendar',
-                            'title' => 'Cancellations',
+                            'title' => 'Refunds',
                             'body' => [
-                                'Call our dispatch team at {phone} as soon as possible to cancel or change a trip. Cancellations made at least two hours before the scheduled pickup time are free.',
-                                'If you cancel less than two hours before your scheduled pickup, miss your trip, or have your trip cancelled due to a no-show, the {fee} booking fee remains non-refundable.',
+                                'More than 12 hours before the scheduled pickup: you will receive a full refund to your original payment method.',
+                                '12 hours or less before the scheduled pickup: your booking is nonrefundable.',
+                                'No-show: if you are not available at the agreed pickup location and time, your booking is nonrefundable.',
                             ],
                         ],
                         [
                             'icon' => 'shield',
-                            'title' => 'When We Refund',
+                            'title' => 'Cancellation by Carelink',
                             'body' => [
-                                'If our dispatch team cancels your trip (for example, due to weather or an unavailable vehicle), the {fee} booking fee is automatically refunded to your original payment method.',
-                                'Refunds are issued back to the card or payment method used at checkout through Stripe, usually within 5 to 10 business days depending on your bank.',
+                                'If we cancel your trip or cannot provide the booked service, we will refund the amount you paid for the service we did not provide.',
                             ],
                         ],
                         [
-                            'icon' => 'phone',
-                            'title' => 'Trip Fares and Questions',
+                            'icon' => 'calendar',
+                            'title' => 'How This Policy Applies',
                             'body' => [
-                                'Trip fares are paid directly to the driver at the completion of the trip unless alternative arrangements were made with dispatch in advance. Trip fares are not refundable through us.',
-                                'Questions about a refund or a trip in progress? Call our dispatch team at {phone} or email {email}.',
+                                'The 12-hour period is measured from the pickup time in your booking confirmation. If Carelink changes that time, we will use the pickup time you accepted when applying this policy.',
+                            ],
+                        ],
+                        [
+                            'icon' => 'shield',
+                            'title' => 'Medi-Cal and Health Plan Trips',
+                            'body' => [
+                                'This policy applies only to trips paid for directly by a customer. Trips covered or arranged through Medi-Cal or a health plan are governed by the applicable program rules and Carelink agreement with the plan.',
+                                'Carelink will not charge a Medi-Cal member under this policy for a covered trip.',
                             ],
                         ],
                     ],

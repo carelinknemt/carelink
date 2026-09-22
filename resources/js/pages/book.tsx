@@ -1685,15 +1685,15 @@ export default function Book() {
                                     </p>
                                 )}
                                 <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                                    A non-refundable booking fee of{' '}
+                                    A booking fee of{' '}
                                     <span className="font-bold text-slate-800">
                                         {bookingFeeDollars}
                                     </span>{' '}
                                     is charged via Stripe when you submit. You
                                     will be redirected to a secure payment page
-                                    to complete the charge. If our dispatch team
-                                    cancels your trip, the fee is automatically
-                                    refunded.{' '}
+                                    to complete the charge. Cancel more than 12
+                                    hours before your pickup time for a full
+                                    refund.{' '}
                                     <Link
                                         href={refundPolicy.url()}
                                         className="font-semibold text-[#004B87] underline underline-offset-2 hover:text-[#003d75]"
@@ -1782,7 +1782,7 @@ export default function Book() {
                         <div className="space-y-4 text-sm text-slate-600">
                             <p>
                                 By submitting this booking, you agree to pay a
-                                non-refundable booking fee of{' '}
+                                booking fee of{' '}
                                 <span className="font-bold text-slate-800">
                                     {bookingFeeDollars}
                                 </span>

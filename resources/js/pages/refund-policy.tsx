@@ -23,7 +23,7 @@ interface RefundSection {
 }
 
 const FALLBACK_REFUND_DESCRIPTION =
-    'Carelink Medical Transportation refund policy: when the booking fee is refundable, how refunds are issued, and what to do if a trip is cancelled by dispatch.';
+        'Carelink Medical Transportation cancellation and refund policy: full refunds for cancellations more than 12 hours before pickup, nonrefundable within 12 hours or on no-show, and refunds when Carelink cancels.';
 
 const ICONS: Record<RefundSection['icon'], typeof CalendarCheck> = {
     calendar: CalendarCheck,
@@ -45,7 +45,7 @@ export default function RefundPolicy() {
         (cms.refund_policy?.last_updated as string) || 'September 2026';
     const intro =
         (cms.refund_policy?.intro as string) ||
-        'A non-refundable booking fee of {fee} is charged at the time you submit a trip request. The booking fee is not applied toward the trip fare.';
+        'This policy applies to trips booked and paid for directly with Carelink Medical Transportation. You may cancel your trip by contacting Carelink using the phone number or email address in your booking confirmation.';
     const values = {
         company: company.name || 'Carelink Medical Transportation',
         phone: company.phone || '',
@@ -92,11 +92,13 @@ export default function RefundPolicy() {
 
                     <div className="mt-6 space-y-4 text-sm leading-relaxed text-slate-600 sm:text-base">
                         <p className="max-w-3xl">
-                            The short version: if <strong>you</strong> cancel,
-                            the booking fee is non-refundable. If{' '}
-                            <strong>we</strong> cancel your trip, the booking
-                            fee is automatically refunded to your original
-                            payment method.
+                            The short version: cancel more than 12 hours before
+                            your pickup time and you will receive a full refund
+                            to your original payment method. Cancel within 12
+                            hours, or no-show, and the booking is nonrefundable.
+                            If <strong>we</strong> cancel your trip, we refund
+                            the amount you paid for the service we did not
+                            provide.
                         </p>
                         <p className="max-w-3xl">
                             This policy is part of our{' '}
