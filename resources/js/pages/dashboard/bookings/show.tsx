@@ -1426,7 +1426,7 @@ export default function BookingDetail({
                     <div className="grid gap-3">
                         <div className="rounded-lg border bg-slate-50 p-3">
                             <div className="flex items-start justify-between gap-2">
-                                <p className="text-sm break-words whitespace-pre-wrap">
+                                <p className="min-w-0 flex-1 text-sm break-words whitespace-pre-wrap">
                                     {chargeSms?.sms_message}
                                 </p>
                                 {chargeSms && (
@@ -1436,11 +1436,26 @@ export default function BookingDetail({
                                     />
                                 )}
                             </div>
-                            <p className="mt-2 text-xs text-muted-foreground">
-                                Send to{' '}
-                                {chargeSms?.passenger_phone_number ||
-                                    'no phone on file'}
-                            </p>
+                            {chargeSms?.passenger_phone_number ? (
+                                <div className="mt-2 flex items-center justify-between gap-2 rounded-md border border-dashed bg-white px-2.5 py-2">
+                                    <div className="min-w-0">
+                                        <p className="text-[10px] font-medium text-muted-foreground">
+                                            Send to
+                                        </p>
+                                        <p className="truncate text-sm font-medium text-foreground">
+                                            {chargeSms.passenger_phone_number}
+                                        </p>
+                                    </div>
+                                    <CopyButton
+                                        value={chargeSms.passenger_phone_number}
+                                        label="phone number"
+                                    />
+                                </div>
+                            ) : (
+                                <p className="mt-2 text-xs text-muted-foreground">
+                                    No phone number on file
+                                </p>
+                            )}
                         </div>
                         {chargeSms && (
                             <div className="flex items-center justify-between gap-2 rounded-lg border p-3">
