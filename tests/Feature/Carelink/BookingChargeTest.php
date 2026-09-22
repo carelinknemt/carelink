@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Cashier\Events\WebhookReceived;
 use Stripe\StripeClient;
+use Symfony\Component\Mailer\Exception\TransportException;
 use Tests\Support\FakeStripeClient;
 
 function paidBookingForCharge(array $attributes = []): TripRequest
@@ -114,6 +115,31 @@ test('the charge checkout session expires within Stripe 24-hour cap', function (
         ->toBeInt()
         ->toBeGreaterThan(now()->timestamp)
         ->toBeLessThan(now()->addHours(24)->timestamp);
+});
+
+test('a charge is still created when the payment email fails to send', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    fakeStripeClientForCharge(new FakeStripeClient);
+
+    Mail::shouldReceive('to')
+        ->once()
+        ->andThrow(new TransportException('mail down'));
+
+    $booking = paidBookingForCharge();
+
+    $this->from(route('dashboard.bookings.show', $booking))
+        ->post(route('dashboard.bookings.charges.store', $booking), [
+            'amount' => 55,
+        ])
+        ->assertRedirect();
+
+    $charge = $booking->charges()->first();
+
+    expect($charge)
+        ->not->toBeNull()
+        ->stripe_checkout_session_id->toBe('cs_test_fake')
+        ->email_sent_at->toBeNull();
 });
 
 test('a charge cannot be added to a booking that has not been paid', function () {

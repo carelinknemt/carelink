@@ -27,6 +27,7 @@ use Laravel\Cashier\Checkout;
 use RuntimeException;
 use Stripe\Exception\ApiErrorException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 class DashboardBookingController extends Controller
 {
@@ -324,7 +325,13 @@ class DashboardBookingController extends Controller
             return;
         }
 
-        Mail::to($charge->tripRequest->passenger_email)->send(new BookingChargeDue($charge));
+        try {
+            Mail::to($charge->tripRequest->passenger_email)->send(new BookingChargeDue($charge));
+        } catch (TransportException $exception) {
+            report($exception);
+
+            return;
+        }
 
         $charge->update(['email_sent_at' => now()]);
     }
