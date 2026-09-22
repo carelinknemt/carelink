@@ -33,6 +33,12 @@ test('the privacy policy page renders with the public layout', function () {
         ->assertInertia(fn ($page) => $page->component('privacy'));
 });
 
+test('the refund policy page renders with the public layout', function () {
+    $this->get(route('refund-policy'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('refund-policy'));
+});
+
 test('the sms terms page renders with the public layout', function () {
     $this->get(route('sms-terms'))
         ->assertOk()

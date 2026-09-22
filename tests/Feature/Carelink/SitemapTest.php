@@ -20,6 +20,7 @@ test('the sitemap lists every public page and published blog post', function () 
         ->toContain('<loc>'.url('/faq').'</loc>')
         ->toContain('<loc>'.url('/careers').'</loc>')
         ->toContain('<loc>'.url('/for-businesses').'</loc>')
+        ->toContain('<loc>'.url('/refund-policy').'</loc>')
         ->toContain('<loc>'.route('blog.show', ['post' => $post->slug]).'</loc>');
 });
 

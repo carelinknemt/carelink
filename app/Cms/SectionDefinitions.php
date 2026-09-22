@@ -456,6 +456,64 @@ class SectionDefinitions
                     ],
                 ],
             ],
+            'refund_policy' => [
+                'title' => 'Refund Policy',
+                'description' => 'The /refund-policy page: description, intro, and the sections explaining when the booking fee is refundable.',
+                'fields' => [
+                    ['key' => 'description', 'label' => 'Meta description', 'type' => 'textarea'],
+                    ['key' => 'last_updated', 'label' => 'Last updated label', 'type' => 'text'],
+                    ['key' => 'intro', 'label' => 'Intro paragraph', 'type' => 'textarea'],
+                    [
+                        'key' => 'sections',
+                        'label' => 'Refund policy sections',
+                        'type' => 'table',
+                        'cols' => [
+                            ['key' => 'icon', 'label' => 'Icon (calendar, card, phone, or shield)', 'type' => 'text'],
+                            ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
+                            ['key' => 'body', 'label' => 'Paragraphs (one per line)', 'type' => 'textarea'],
+                        ],
+                    ],
+                ],
+                'defaults' => [
+                    'description' => 'Carelink Medical Transportation refund policy: when the booking fee is refundable, how refunds are issued, and what to do if a trip is cancelled by dispatch.',
+                    'last_updated' => 'September 2026',
+                    'intro' => 'A non-refundable booking fee of {fee} is charged at the time you submit a trip request. This fee reserves your trip and is charged through a secure Stripe payment page. The booking fee is not applied toward the trip fare.',
+                    'sections' => [
+                        [
+                            'icon' => 'card',
+                            'title' => 'Booking Fee',
+                            'body' => [
+                                'The {fee} booking fee is charged at checkout when you submit a trip request. It secures your trip and is not applied toward the trip fare.',
+                                'Because the fee holds dispatch time and vehicle availability, it is non-refundable when you cancel your own trip.',
+                            ],
+                        ],
+                        [
+                            'icon' => 'calendar',
+                            'title' => 'Cancellations',
+                            'body' => [
+                                'Call our dispatch team at {phone} as soon as possible to cancel or change a trip. Cancellations made at least two hours before the scheduled pickup time are free.',
+                                'If you cancel less than two hours before your scheduled pickup, miss your trip, or have your trip cancelled due to a no-show, the {fee} booking fee remains non-refundable.',
+                            ],
+                        ],
+                        [
+                            'icon' => 'shield',
+                            'title' => 'When We Refund',
+                            'body' => [
+                                'If our dispatch team cancels your trip (for example, due to weather or an unavailable vehicle), the {fee} booking fee is automatically refunded to your original payment method.',
+                                'Refunds are issued back to the card or payment method used at checkout through Stripe, usually within 5 to 10 business days depending on your bank.',
+                            ],
+                        ],
+                        [
+                            'icon' => 'phone',
+                            'title' => 'Trip Fares and Questions',
+                            'body' => [
+                                'Trip fares are paid directly to the driver at the completion of the trip unless alternative arrangements were made with dispatch in advance. Trip fares are not refundable through us.',
+                                'Questions about a refund or a trip in progress? Call our dispatch team at {phone} or email {email}.',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
             'page_heroes' => [
                 'title' => 'Page Headers',
                 'description' => 'Title and subtitle for the hero banner of each public page. Use the page slug: about, services, fleet, faq, blog, careers, business, terms, privacy, book.',
@@ -481,6 +539,7 @@ class SectionDefinitions
                         ['page' => 'careers', 'title' => 'Careers at Carelink', 'subtitle' => 'Join our team of compassionate NEMT professionals across Northern California.'],
                         ['page' => 'business', 'title' => 'Partnerships & B2B Solutions', 'subtitle' => 'For hospitals, clinics, and community organizations.'],
                         ['page' => 'terms', 'title' => 'Terms & Conditions', 'subtitle' => 'Please review the rules that apply to booking and riding with Carelink Medical Transportation.'],
+                        ['page' => 'refund-policy', 'title' => 'Refund Policy', 'subtitle' => 'When the booking fee is refundable and how refunds are issued.'],
                         ['page' => 'privacy', 'title' => 'Privacy Policy', 'subtitle' => 'How Carelink Medical Transportation collects, uses, and protects your information.'],
                         ['page' => 'book', 'title' => 'Book a Ride', 'subtitle' => 'Tell us where and when, and we will match you with the right vehicle.'],
                     ],

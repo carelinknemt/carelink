@@ -24,6 +24,7 @@ class SitemapController extends Controller
         'book' => '0.9',
         'business' => '0.6',
         'terms' => '0.3',
+        'refund-policy' => '0.3',
         'privacy' => '0.3',
     ];
 

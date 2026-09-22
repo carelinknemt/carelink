@@ -40,7 +40,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { usePageHero } from '@/lib/cms';
-import { book, privacy, smsTerms, terms } from '@/routes';
+import { book, privacy, refundPolicy, smsTerms, terms } from '@/routes';
 import { show, status, store } from '@/routes/bookings';
 
 interface TripRequestFormData {
@@ -1691,7 +1691,16 @@ export default function Book() {
                                     </span>{' '}
                                     is charged via Stripe when you submit. You
                                     will be redirected to a secure payment page
-                                    to complete the charge.
+                                    to complete the charge. If our dispatch team
+                                    cancels your trip, the fee is automatically
+                                    refunded.{' '}
+                                    <Link
+                                        href={refundPolicy.url()}
+                                        className="font-semibold text-[#004B87] underline underline-offset-2 hover:text-[#003d75]"
+                                    >
+                                        See our refund policy
+                                    </Link>
+                                    .
                                 </div>
                                 {mapPoints.length > 0 && (
                                     <div className="mt-6">

@@ -35,6 +35,7 @@ createInertiaApp({
                 'bookings/track',
                 'charges/pay',
                 'terms',
+                'refund-policy',
                 'sms-terms',
                 'privacy',
                 'error',
