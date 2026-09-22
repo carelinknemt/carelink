@@ -33,6 +33,7 @@ createInertiaApp({
                 'business',
                 'book',
                 'bookings/track',
+                'charges/pay',
                 'terms',
                 'sms-terms',
                 'privacy',
