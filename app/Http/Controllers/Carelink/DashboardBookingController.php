@@ -206,8 +206,9 @@ class DashboardBookingController extends Controller
     /**
      * Bill a passenger for an additional manual amount on a paid booking.
      * Creates a pending booking charge with its own Stripe Checkout session
-     * (valid 7 days), emails the passenger a payment link, and exposes the
-     * ready-to-send SMS message so dispatch can copy it.
+     * (valid up to 23 hours, Stripe's 24-hour cap), emails the passenger a
+     * payment link, and exposes the ready-to-send SMS message so dispatch can
+     * copy it.
      */
     public function storeCharge(StoreBookingChargeRequest $request, TripRequest $booking): RedirectResponse
     {
@@ -281,8 +282,9 @@ class DashboardBookingController extends Controller
     }
 
     /**
-     * Start a Stripe Checkout session for an additional booking charge,
-     * valid for 7 days so the passenger is not racing a short link.
+     * Start a Stripe Checkout session for an additional booking charge.
+     * Stripe rejects expires_at beyond 24 hours from session creation, so this
+     * uses the maximum legal window: 23 hours.
      */
     private function createChargeCheckout(BookingCharge $charge): Checkout
     {
@@ -308,7 +310,7 @@ class DashboardBookingController extends Controller
                 'charge_id' => (string) $charge->id,
             ],
             'customer_email' => $booking->passenger_email,
-            'expires_at' => now()->addDays(7)->timestamp,
+            'expires_at' => now()->addHours(23)->timestamp,
         ]);
     }
 

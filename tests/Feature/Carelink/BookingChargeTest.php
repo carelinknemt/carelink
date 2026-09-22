@@ -94,6 +94,28 @@ test('a guest is redirected to login when adding a charge', function () {
     ])->assertRedirect(route('login'));
 });
 
+test('the charge checkout session expires within Stripe 24-hour cap', function () {
+    Mail::fake();
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    $fake = fakeStripeClientForCharge(new FakeStripeClient);
+
+    $booking = paidBookingForCharge();
+
+    $this->post(route('dashboard.bookings.charges.store', $booking), [
+        'amount' => 55,
+    ])->assertRedirect();
+
+    $created = $fake->checkout->sessions->created;
+    expect($created)->toHaveCount(1);
+
+    $expiresAt = $created[0]['expires_at'];
+    expect($expiresAt)
+        ->toBeInt()
+        ->toBeGreaterThan(now()->timestamp)
+        ->toBeLessThan(now()->addHours(24)->timestamp);
+});
+
 test('a charge cannot be added to a booking that has not been paid', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
