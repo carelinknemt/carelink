@@ -1,7 +1,8 @@
 import { CalendarIcon } from 'lucide-react';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import type { ChangeEvent, KeyboardEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
 import {
     Popover,
     PopoverContent,
@@ -50,59 +51,138 @@ export function formatIsoDate(iso: string): string {
     return date ? MEDIUM_DATE.format(date) : '—';
 }
 
+function toInputValue(date: Date | undefined): string {
+    if (!date) {
+        return '';
+    }
+
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${month}/${day}/${date.getFullYear()}`;
+}
+
+function parseInputDate(text: string): Date | undefined {
+    const match = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/.exec(text.trim());
+
+    if (!match) {
+        return undefined;
+    }
+
+    const month = Number(match[1]);
+    const day = Number(match[2]);
+    const year = Number(match[3]);
+
+    const date = new Date(year, month - 1, day);
+
+    const roundTrips =
+        date.getFullYear() === year &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day;
+
+    return roundTrips ? date : undefined;
+}
+
 export default function DatePicker({
     id,
     value,
     onChange,
-    placeholder = 'Select a date',
+    placeholder = 'mm/dd/yyyy',
     disabled,
-    captionLayout = 'label',
+    captionLayout = 'dropdown',
     defaultMonth,
     error,
 }: DatePickerProps) {
     const [open, setOpen] = useState(false);
+    const [draft, setDraft] = useState<string | null>(null);
+    const previousValue = useRef(value);
+
+    useEffect(() => {
+        if (previousValue.current !== value) {
+            previousValue.current = value;
+            setDraft(null);
+        }
+    }, [value]);
+
     const selected = parseIsoDate(value);
+    const display = draft ?? toInputValue(selected);
+
+    function handleChange(event: ChangeEvent<HTMLInputElement>) {
+        const next = event.target.value;
+        setDraft(next);
+
+        if (next === '') {
+            onChange('');
+
+            return;
+        }
+
+        const parsed = parseInputDate(next);
+
+        if (parsed) {
+            onChange(toIsoDate(parsed));
+        }
+    }
+
+    function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+        if (event.key === 'Enter') {
+            setOpen(false);
+        }
+    }
+
+    function handleBlur() {
+        setDraft(null);
+    }
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-                <Button
+            <div className="relative">
+                <Input
                     id={id}
-                    type="button"
-                    variant="outline"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    placeholder={placeholder}
+                    value={display}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    onBlur={handleBlur}
                     className={cn(
-                        'h-9 w-full justify-start gap-2 bg-white px-3 text-sm font-normal dark:bg-white dark:text-slate-900 dark:placeholder:text-slate-400',
-                        'dark:border-slate-300 dark:hover:bg-slate-100',
-                        !selected &&
-                            'text-muted-foreground dark:text-slate-500',
+                        'pr-9',
                         error &&
                             'border-red-500/80 focus-visible:border-red-500',
                     )}
                     aria-invalid={error}
-                >
-                    <CalendarIcon className="h-4 w-4 shrink-0 text-slate-400" />
-                    {selected ? MEDIUM_DATE.format(selected) : placeholder}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent
-                className="w-auto bg-white p-0 dark:bg-white"
-                align="start"
-            >
-                <Calendar
-                    mode="single"
-                    selected={selected}
-                    defaultMonth={selected ?? defaultMonth}
-                    onSelect={(date) => {
-                        if (date) {
-                            onChange(toIsoDate(date));
-                            setOpen(false);
-                        }
-                    }}
-                    disabled={disabled}
-                    captionLayout={captionLayout}
-                    autoFocus
                 />
-            </PopoverContent>
+                <PopoverTrigger asChild>
+                    <button
+                        type="button"
+                        aria-label="Open calendar"
+                        className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-700"
+                    >
+                        <CalendarIcon className="h-4 w-4 shrink-0" />
+                    </button>
+                </PopoverTrigger>
+                <PopoverContent
+                    className="w-auto bg-white p-0 dark:bg-white"
+                    align="start"
+                >
+                    <Calendar
+                        mode="single"
+                        selected={selected}
+                        defaultMonth={selected ?? defaultMonth}
+                        onSelect={(date) => {
+                            if (date) {
+                                onChange(toIsoDate(date));
+                                setOpen(false);
+                            }
+                        }}
+                        disabled={disabled}
+                        captionLayout={captionLayout}
+                        autoFocus
+                    />
+                </PopoverContent>
+            </div>
         </Popover>
     );
 }
