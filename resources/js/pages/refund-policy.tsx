@@ -23,7 +23,7 @@ interface RefundSection {
 }
 
 const FALLBACK_REFUND_DESCRIPTION =
-        'Carelink Medical Transportation cancellation and refund policy: full refunds for cancellations more than 12 hours before pickup, nonrefundable within 12 hours or on no-show, and refunds when Carelink cancels.';
+    'Carelink Medical Transportation cancellation and refund policy: full refunds for cancellations more than 12 hours before pickup, nonrefundable within 12 hours or on no-show, and refunds when Carelink cancels.';
 
 const ICONS: Record<RefundSection['icon'], typeof CalendarCheck> = {
     calendar: CalendarCheck,

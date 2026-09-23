@@ -1426,7 +1426,7 @@ export default function BookingDetail({
                     <div className="grid gap-3">
                         <div className="rounded-lg border bg-slate-50 p-3">
                             <div className="flex items-start justify-between gap-2">
-                                <p className="min-w-0 flex-1 text-sm whitespace-pre-wrap [overflow-wrap:anywhere]">
+                                <p className="min-w-0 flex-1 text-sm [overflow-wrap:anywhere] whitespace-pre-wrap">
                                     {chargeSms?.sms_message}
                                 </p>
                                 {chargeSms && (
@@ -1442,7 +1442,7 @@ export default function BookingDetail({
                                         <p className="text-[10px] font-medium text-muted-foreground">
                                             Send to
                                         </p>
-                                        <p className="text-sm font-medium text-foreground break-words">
+                                        <p className="text-sm font-medium break-words text-foreground">
                                             {chargeSms.passenger_phone_number}
                                         </p>
                                     </div>

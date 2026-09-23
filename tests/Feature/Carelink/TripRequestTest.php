@@ -277,7 +277,7 @@ test('a trip request accepts a pickup time on a day with no dispatch service', f
 
     $this->post(route('bookings.store'), [
         ...$validPayload,
-        'trip_date' => Carbon::parse('next thursday')->toDateString(),
+        'trip_date' => Carbon::parse('next thursday')->addWeek()->toDateString(),
         'pickup_time' => '06:00 AM',
     ])->assertOk();
 });

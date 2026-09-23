@@ -87,7 +87,7 @@ test('admins can open the CMS section editor', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('cms/sections')
-            ->has('sections', 11)
+            ->has('sections', 12)
             ->where('sections.0.slug', 'company_info')
         );
 });
